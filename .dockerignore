@@ -1,0 +1,15 @@
+**/bin/
+**/obj/
+.git/
+.vs/
+.env
+.env.*
+!.env.example
+*.user
+tests/
+docs/
+specs/
+.specify/
+.opencode/
+docker-compose*.yml
+Dockerfile

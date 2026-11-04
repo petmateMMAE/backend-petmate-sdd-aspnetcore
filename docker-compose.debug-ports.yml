@@ -1,0 +1,9 @@
+# Opcional (solo depuración local): publica los Redis únicamente en loopback.
+# Uso: docker compose -f docker-compose.yml -f docker-compose.debug-ports.yml up -d
+services:
+  redis-auth:
+    ports:
+      - "127.0.0.1:${REDIS_AUTH_PORT:-6381}:6379"
+  redis-cache:
+    ports:
+      - "127.0.0.1:${REDIS_CACHE_PORT:-6382}:6379"

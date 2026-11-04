@@ -1,0 +1,114 @@
+# PetMate — servicios locales (T011): API + Redis Auth + Redis Cache.
+# MongoDB NO forma parte de Compose: Atlas es el único proveedor (constitución §4).
+# Compose lee `.env` para interpolar variables; el contenedor de la API solo recibe las listadas abajo.
+name: petmate
+
+services:
+  redis-auth:
+    image: redis:7.4
+    restart: unless-stopped
+    user: redis
+    # La contraseña se escribe en un archivo temporal (tmpfs) para no aparecer en la línea de comandos.
+    command:
+      - sh
+      - -c
+      - >-
+        umask 077 && printf 'requirepass %s\n' "$$REDIS_PASSWORD" > /tmp/auth.conf &&
+        exec redis-server /tmp/auth.conf --appendonly yes --appendfsync everysec
+        --maxmemory 64mb --maxmemory-policy noeviction
+    environment:
+      REDIS_PASSWORD: ${REDIS_AUTH_PASSWORD:?Defina REDIS_AUTH_PASSWORD en .env}
+      REDISCLI_AUTH: ${REDIS_AUTH_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 3s
+    volumes:
+      - redis_auth_data:/data
+    tmpfs:
+      - /tmp
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    networks: [internal]
+
+  redis-cache:
+    image: redis:7.4
+    restart: unless-stopped
+    user: redis
+    command:
+      - sh
+      - -c
+      - >-
+        umask 077 && printf 'requirepass %s\n' "$$REDIS_PASSWORD" > /tmp/cache.conf &&
+        exec redis-server /tmp/cache.conf --save "" --appendonly no
+        --maxmemory 128mb --maxmemory-policy allkeys-lru
+    environment:
+      REDIS_PASSWORD: ${REDIS_CACHE_PASSWORD:?Defina REDIS_CACHE_PASSWORD en .env}
+      REDISCLI_AUTH: ${REDIS_CACHE_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 3s
+    tmpfs:
+      - /tmp
+      - /data
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    networks: [internal]
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: petmate-api:local
+    restart: unless-stopped
+    depends_on:
+      redis-auth:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${PETMATE_ENVIRONMENT:-Development}
+      # MongoDB Atlas: valores externos (ver .env.example). Escenario A y B usan estas mismas variables.
+      MONGODB_URI: ${MONGODB_URI:?Defina MONGODB_URI en .env}
+      MONGODB_DATABASE: ${MONGODB_DATABASE:?Defina MONGODB_DATABASE en .env}
+      # Redis en Docker: la red interna usa texto plano solo en Development (la API lo valida);
+      # la contraseña se reutiliza de REDIS_*_PASSWORD, sin duplicarla.
+      REDIS_AUTH_CONNECTION: redis-auth:6379,password=${REDIS_AUTH_PASSWORD},ssl=False
+      REDIS_CACHE_CONNECTION: redis-cache:6379,password=${REDIS_CACHE_PASSWORD},ssl=False
+      JWT_ISSUER: ${JWT_ISSUER:?Defina JWT_ISSUER en .env}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:?Defina JWT_AUDIENCE en .env}
+      JWT_SIGNING_KEY: ${JWT_SIGNING_KEY:?Defina JWT_SIGNING_KEY en .env}
+    ports:
+      - "127.0.0.1:${API_PORT:-8080}:8080"
+    # Liveness: el proceso responde. Readiness (/ready) no se usa aquí para no reiniciar la API por una dependencia.
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -c
+        - >-
+          exec 3<>/dev/tcp/127.0.0.1/8080 &&
+          printf 'GET /api/v1/health/live HTTP/1.0\r\nHost: localhost\r\n\r\n' >&3 &&
+          head -n1 <&3 | grep -q ' 200 '
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    networks: [internal]
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  redis_auth_data:

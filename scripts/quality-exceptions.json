@@ -1,0 +1,14 @@
+{
+  "_comment": "Excepciones del gate de calidad. Válida solo con approved=true, approvedBy, date y reviewDate vigente. No oculta vulnerabilidades: la auditoría de vulnerabilidades es un paso independiente.",
+  "deprecatedPackages": [
+    {
+      "ids": ["xunit", "xunit.core", "xunit.assert", "xunit.extensibility.core", "xunit.extensibility.execution", "xunit.analyzers"],
+      "reason": "xunit 2.9.3 está marcado Legacy (sucesor xunit.v3). Migrar cambia el modelo de pruebas; evaluación pendiente.",
+      "approved": true,
+      "approvedBy": "Responsable del proyecto (usuario)",
+      "date": "2026-11-03",
+      "reviewDate": "2027-02-03",
+      "retireWhen": "Se apruebe y complete la migración a xunit.v3, o NuGet Audit reporte una vulnerabilidad en xunit, o llegue reviewDate sin renovación aprobada."
+    }
+  ]
+}

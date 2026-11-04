@@ -1,0 +1,2 @@
+# Skill — DevSecOps y Azure $0
+Aplicar OWASP ASVS L2 por slice. Ejecutar SAST, secret scan, NuGet vulnerability/license audit y container scan cuando aplique. Herramientas y recursos deben costar $0. Diseñar stateless y horizontal, pero no crear recursos Azure pagados; confirmar cuotas/precios oficiales al planificar. HTTPS obligatorio. Blob Storage como origen y CDN Azure como distribución, con datos sensibles privados.

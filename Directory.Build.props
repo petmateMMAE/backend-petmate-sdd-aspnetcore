@@ -1,0 +1,21 @@
+<Project>
+
+  <!--
+    Propiedades comunes a todos los proyectos de PetMate Backend (T003).
+    TargetFramework se mantiene declarado en cada .csproj.
+    Las versiones de paquetes se centralizan en Directory.Packages.props.
+  -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Línea base de calidad: análisis recomendado y advertencias como errores. -->
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <!-- SAST $0 (T012): reglas de seguridad de los analizadores del SDK (CA2xxx/CA3xxx/CA5xxx) activadas como errores. -->
+    <AnalysisModeSecurity>All</AnalysisModeSecurity>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+</Project>
