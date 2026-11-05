@@ -91,6 +91,20 @@ Requiere `Authorization: Bearer <access token vigente>`. Si el access token expi
 | 403 | El refresh token pertenece a otro usuario o es desconocido | `null` |
 | 503 | Redis Auth o Atlas no disponible (falla cerrada) | `null` |
 
+## Autorización (pm-033 / T022)
+
+- **Denegación por defecto.** Todo endpoint exige un usuario autenticado con rol `Owner` o `Business` salvo que se marque `[AllowAnonymous]` de forma explícita. Una prueba (`PublicSurfaceTests`) fija la lista cerrada de endpoints públicos.
+- **Roles.** Solo existen `Owner` y `Business`; no hay rol de administración. El rol sale únicamente del claim `role` de un JWT con firma, vigencia y lista negra ya validadas; un token con rol ausente, desconocido o con distinto uso de mayúsculas se rechaza con 401.
+- **Políticas.** `RequireOwner` y `RequireBusiness` (convención `Require<Capacidad>`). `RequireOwner` se aplicará a los endpoints de mascotas en `pm-040` a `pm-044`.
+- **Códigos.** 401 si no hay autenticación válida; 403 si hay autenticación válida pero el rol no tiene permiso; ambos con el wrapper estándar (`data: null`). Las rutas inexistentes siguen devolviendo 404 a cualquier llamador.
+
+| Método | Endpoint | Motivo |
+|---|---|---|
+| POST | `/api/v1/auth/register`, `/login`, `/refresh` | Flujo de autenticación inicial |
+| GET | `/api/v1/health/live`, `/ready` | Sondas del balanceador y de Compose |
+| GET | `/api/v1/technical/mediator-probe` | **Temporal:** público para no ampliar el alcance de pm-033. Pendiente revisar su exposición en producción en un trabajo de seguridad posterior |
+| GET | `/openapi/v1.json`, `/scalar/v1` | Solo en Development |
+
 ## Perfil
 
 | Método | Endpoint | Acceso | Spec | Estado |

@@ -5,7 +5,7 @@
 ## Dependencias
 
 - Spec: [spec.md](spec.md)
-- Specs previos: pm-028, pm-029, pm-030, pm-031, pm-032
+- Specs previos: pm-028, pm-029, pm-030, pm-031, pm-032, pm-033, pm-034
 
 ## Tasks
 

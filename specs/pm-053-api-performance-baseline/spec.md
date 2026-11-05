@@ -1,6 +1,6 @@
 # Spec — pm-053 api-performance-baseline
 
-> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L11 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L12 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 

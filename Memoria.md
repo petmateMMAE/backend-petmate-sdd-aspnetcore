@@ -279,3 +279,11 @@
 - **Evidencia y límites:** las reseñas de T008–T021 no existen como archivos; solo las 11 de T001–T007. No se inventó evidencia. La brecha CON-§7.3 de T007 se conserva.
 - **Pendientes humanos:** aprobar los Specs migrados (`En revisión`/`Propuesto`), decidir los campos de perfil y de mascota, confirmar la lista `AC-NN`, ejecutar `pm-062` y aprobar el cierre de T001.
 - Las referencias anteriores a este apartado a slices (`00-foundation`…`04-first-milestone-closure`) describen la estructura histórica archivada.
+
+## pm-033 / T022 — políticas de autorización implementadas (2026-11-05)
+
+- **Estado:** implementado y probado en el contenedor SDK (sin Atlas ni Redis reales); **T022 no está cerrada** y el Spec pm-033 está `En progreso`. Pendientes: revisión independiente de seguridad y trazabilidad, aprobación humana y la aplicación de `RequireOwner` a los endpoints de mascotas (pm-040 a pm-044, trazabilidad en pm-045 CA-02).
+- **Decisiones:** política por defecto y de respaldo (denegación por defecto), `RequireOwner` y `RequireBusiness`, rol solo desde claims del JWT validado, sin rol Admin. La política de respaldo también se aplica a rutas inexistentes y endpoints sintéticos (405/415); `UnmatchedRouteResultHandler` conserva sus códigos habituales (decisión D-09, aprobada por el usuario con la condición de que el manejador nunca omita la autorización de endpoints reales de la aplicación; las pruebas de regresión lo verifican).
+- **DAG:** pm-033 y pm-034 son dependencias directas de pm-035 (pm-035 L10, pm-046 L11, pm-053 L12).
+- **Riesgo registrado:** `mediator-probe` sigue público de forma temporal; hay que revisar su exposición en producción en un trabajo de seguridad posterior.
+- **Evidencia:** `specs/pm-033-authorization-policies/checklists/gates.md`.
