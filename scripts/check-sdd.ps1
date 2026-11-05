@@ -109,7 +109,11 @@ foreach ($line in [System.IO.File]::ReadAllLines($manifest, $utf8)) {
   elseif ($path -notmatch '^specs/') { continue }
   $full = Join-Path $root ($path -replace '/', '\')
   if (-not (Test-Path $full)) { Fail "Historico ausente: $path"; continue }
-  $h = (Get-FileHash -Algorithm SHA256 $full).Hash.ToLowerInvariant()
+  # Se normaliza CRLF a LF byte a byte (Latin1) antes del SHA-256: el manifiesto usa contenido LF y Git puede convertir finales de linea (core.autocrlf).
+  $latin1 = [System.Text.Encoding]::GetEncoding(28591)
+  $norm = $latin1.GetString([System.IO.File]::ReadAllBytes($full)).Replace("`r`n", "`n")
+  $sha = [System.Security.Cryptography.SHA256]::Create()
+  $h = ([System.BitConverter]::ToString($sha.ComputeHash($latin1.GetBytes($norm))) -replace '-', '').ToLowerInvariant()
   $checked++
   if ($h -ne $parts[0]) { Fail "Historico alterado: $path" }
 }
