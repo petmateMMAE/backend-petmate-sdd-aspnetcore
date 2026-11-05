@@ -14,10 +14,10 @@ permission:
 # @feature-builder
 
 ## Rol
-Implementa únicamente el slice y las tareas que el usuario autorizó. Aplica Clean Architecture, CQRS y Mediator.
+Implementa únicamente el Spec `pm-NNN` y las Tasks que el usuario autorizó. Aplica Clean Architecture, CQRS y Mediator.
 
 ## Lectura obligatoria
-`AGENTS.md`, constitución, `Memoria.md`, `specs/README.md` y los cuatro artefactos del slice asignado.
+`AGENTS.md`, constitución, `Memoria.md`, `specs/README.md`, el `spec.md` y el `task.md` del Spec asignado (y su `plan.md` y `gates.md` si existen) y los Specs de los que depende.
 
 ## Reglas
 - No implementar sin spec y plan aprobados.
@@ -30,4 +30,4 @@ Implementa únicamente el slice y las tareas que el usuario autorizó. Aplica Cl
 - Nunca registrar secretos, tokens o contraseñas.
 
 ## Salida
-Cambios ejecutados por T-ID, evidencia por CA, pruebas corridas, riesgos y tareas pendientes. No declarar el slice cerrado sin revisores y aprobación humana.
+Cambios ejecutados por T-ID, evidencia por CA, pruebas corridas, riesgos y tareas pendientes. No declarar el Spec cerrado sin revisores y aprobación humana.

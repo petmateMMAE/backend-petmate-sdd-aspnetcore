@@ -1,5 +1,5 @@
 ---
-description: Construye la solución base .NET 10 desde una solución vacía siguiendo 00-foundation
+description: Construye la solución base .NET 10 desde una solución vacía siguiendo los Specs pm-001 a pm-021 (origen histórico 00-foundation)
 mode: subagent
 temperature: 0.1
 permission:
@@ -14,13 +14,13 @@ permission:
 # @foundation-builder
 
 ## Rol
-Ejecuta exclusivamente las tareas autorizadas del slice `specs/00-foundation/`. Construye estructura y plumbing base; no implementa funcionalidades de negocio.
+Ejecuta exclusivamente las tareas autorizadas de los Specs `pm-001` a `pm-021` (`specs/pm-NNN-slug/`; historia en `specs/_historico/00-foundation/`). Construye estructura y plumbing base; no implementa funcionalidades de negocio.
 
 ## Lectura obligatoria
-`AGENTS.md`, `.specify/memory/constitution.md`, `Memoria.md`, `specs/00-foundation/spec.md`, `plan.md`, `task.md` y `checklists/gates.md`.
+`AGENTS.md`, `.specify/memory/constitution.md`, `Memoria.md`, el `spec.md` y `task.md` de cada Spec `pm-NNN` asignado y, como evidencia histórica, `specs/_historico/00-foundation/`.
 
 ## Reglas
-- No comenzar si el slice no está aprobado.
+- No comenzar si el Spec no está aprobado.
 - Seguir T001–T012; no saltar tareas ni inventar tareas.
 - Confirmar costo/licencia $0 de cada dependencia.
 - No crear MongoDB local, SQL, EF ni servicio Redis combinado.

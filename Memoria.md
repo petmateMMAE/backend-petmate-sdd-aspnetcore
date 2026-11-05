@@ -269,3 +269,13 @@
 ### 2026-11-03 — T016–T021 cerradas
 
 - El usuario aprobó el cierre de T016 a T021 (JWT, blacklist Redis Auth, Register, Login, Refresh y Logout). T022 y posteriores no están autorizadas. Observaciones abiertas (plan.md §11.6): política de autorización por defecto y por rol (T022), limitador asíncrono de hashing, cuota por correo contra credential stuffing, jti no ligado a la sesión, entropía de JWT_SIGNING_KEY validada solo por longitud (la clave de `.env` parece una plantilla: generar una real). T012 sigue abierta (workflow YAML, escaneo de contenedores y SBOM diferidos).
+
+## Migración SDD a `pm-NNN` y Constitución v1.1.0 (2026-11-05)
+
+- **Estado:** migración documental ejecutada en la rama local `sdd/reorg` (sin push, sin etiquetas). Constitución v1.0.1 → **v1.1.0** por aprobación expresa del usuario (la copia previa está en `specs/_historico/constitution-v1.0.1.md`).
+- **Decisión de plataforma:** Microsoft Azure con Azure for Students como proveedor exclusivo (sin AWS/GCP); objetivo de $0 MXN de desembolso directo; se mantienen dos instancias detrás de un Load Balancer o equivalente. Derogada la cláusula de réplica única temporal. Ningún servicio se asume gratuito hasta completar `pm-062`.
+- **Estructura:** 84 Specs `specs/pm-NNN-slug/` (`spec.md` y `task.md`), registro `specs/README.md`, matriz `specs/traceability.md` y archivo `specs/_historico/` con los 5 slices, el roadmap original y el manifiesto SHA-256 (34 archivos verificados idénticos tras `git mv`).
+- **Tasks:** T001–T097. T001–T041 conservan identificador, alcance y estado (T001 `Verificado` pendiente de aprobación humana; T012 implementada y abierta). T042–T054 retrospectivas (sin cerrar) y T055–T097 nuevas.
+- **Evidencia y límites:** las reseñas de T008–T021 no existen como archivos; solo las 11 de T001–T007. No se inventó evidencia. La brecha CON-§7.3 de T007 se conserva.
+- **Pendientes humanos:** aprobar los Specs migrados (`En revisión`/`Propuesto`), decidir los campos de perfil y de mascota, confirmar la lista `AC-NN`, ejecutar `pm-062` y aprobar el cierre de T001.
+- Las referencias anteriores a este apartado a slices (`00-foundation`…`04-first-milestone-closure`) describen la estructura histórica archivada.

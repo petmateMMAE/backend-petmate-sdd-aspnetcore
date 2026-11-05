@@ -1,6 +1,6 @@
 # Checklist de seguridad — OWASP ASVS Nivel 2
 
-> Checklist vivo por slices. Fijar versión específica de ASVS al seleccionar herramientas y baseline. No declarar cumplimiento total sin evaluación de controles aplicables.
+> Checklist vivo por Spec (`pm-NNN`); la evidencia histórica conserva el nombre del slice original (ver `specs/_historico/`). Fijar versión específica de ASVS al seleccionar herramientas y baseline. No declarar cumplimiento total sin evaluación de controles aplicables.
 
 ## Identidad y autenticación
 - [x] Argon2id con configuración calibrada, salt único y hash versionable. _(T015: Security 97/97; benchmark 139–143 ms; ver gates slice 01)_

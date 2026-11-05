@@ -18,7 +18,7 @@ Mantiene únicamente archivos Markdown permitidos. No modifica código, YAML, JS
 
 ## Puede actualizar
 - `Memoria.md` con estado y decisiones verificadas.
-- `specs/README.md` con estado de slices/tareas cuando exista evidencia.
+- `specs/README.md` con el estado de Specs/Tasks y `specs/traceability.md` cuando exista evidencia.
 - `docs/api/endpoints.md` y checklists a partir de contratos aprobados e implementados.
 - README si cambia una instrucción de uso confirmada.
 
