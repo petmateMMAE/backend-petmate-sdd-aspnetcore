@@ -1,0 +1,50 @@
+# Las IPs de salida de Container Apps pueden cambiar (no son fijas en el plan Consumption).
+# Este flujo vuelve a sincronizar la lista de acceso de Atlas con las IPs vigentes de la API, sin abrir
+# Atlas a 0.0.0.0/0. Solo modifica la lista de acceso del proyecto (infra/atlas); nunca datos ni Azure.
+name: Sincronizar IPs de Atlas
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: infra-production
+  cancel-in-progress: false
+
+env:
+  ARM_USE_OIDC: 'true'
+  ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+  ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+  TF_VAR_atlas_project_id: ${{ secrets.ATLAS_PROJECT_ID }}
+  TF_VAR_state_resource_group_name: ${{ vars.TFSTATE_RESOURCE_GROUP }}
+  TF_VAR_state_storage_account_name: ${{ vars.TFSTATE_STORAGE_ACCOUNT }}
+  MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}
+  MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_KEY }}
+
+jobs:
+  sync:
+    # Environment sin revisores: solo puede tocar la lista de acceso de Atlas.
+    environment: atlas-sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: vars.TFSTATE_STORAGE_ACCOUNT != ''
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Actualizar IPs permitidas
+        run: |
+          terraform -chdir=infra/atlas init -input=false \
+            -backend-config="resource_group_name=${{ vars.TFSTATE_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ vars.TFSTATE_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=tfstate"
+          terraform -chdir=infra/atlas apply -input=false -auto-approve

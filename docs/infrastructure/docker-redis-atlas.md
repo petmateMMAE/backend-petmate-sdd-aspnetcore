@@ -36,8 +36,8 @@
 
 El archivo `.env` real está ignorado por Git; `.env.example` solo trae placeholders. La API en Production no lee `.env`.
 
-### TLS en Redis (decisión pendiente de ratificar)
-`InfrastructureSettings` exige `ssl=True` en Redis fuera de Development. En Compose local, las cadenas de la API se generan con `ssl=False` porque el tráfico no sale de la red interna `petmate_internal` y la API corre en Development. **Un Redis en Docker en producción requerirá TLS** (certificados + puerto TLS); eso queda para `pm-070` (Redis Auth) y `pm-071` (Redis Cache) en Azure y no se debilita aquí.
+### TLS en Redis
+`InfrastructureSettings` exige `ssl=True` en Redis fuera de Development. En Compose local, las cadenas de la API se generan con `ssl=False` porque el tráfico no sale de la red interna `petmate_internal` y la API corre en Development. **Un Redis en Docker en producción requerirá TLS** (certificados + puerto TLS); eso queda para `pm-070` (Redis Auth) y `pm-071` (Redis Cache) en Azure y no se debilita aquí. **Decisión (2026-11-05, constitución 1.2.0 propuesta):** en Azure cada Redis es una Container App con `--tls-port 6379` y certificado firmado por una CA generada por Terraform; el CD hornea la CA pública en la imagen (`REDIS_CA_CERT_B64`). Ver `azure-deployment.md`.
 
 ## Escenarios
 

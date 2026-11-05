@@ -32,7 +32,7 @@
 17. Test de integración MongoDB contra una base de datos de pruebas independiente en Atlas.
 18. OpenAPI como documento generado de la API y Scalar como única UI interactiva; no agregar Swagger UI ni otras UI alternativas. La configuración inicial se incluye en T007 de Foundation.
 19. `.env` y `.env.*` deben estar ignorados por Git; `!.env.example` se mantiene como excepción. H-04 se resuelve en T003 por decisión del 2026-11-03.
-20. Desarrollo local exclusivamente: no crear/configurar repositorio remoto, GitHub, GitHub Actions, CI remoto, secretos GitHub ni publicar código sin autorización humana posterior.
+20. Desarrollo local exclusivamente: no crear/configurar repositorio remoto, GitHub, GitHub Actions, CI remoto, secretos GitHub ni publicar código sin autorización humana posterior. **Actualizada 2026-11-05:** el repositorio vive en la organización `petmateMMAE` y el equipo autorizó GitHub Actions para CI, CD e infraestructura (ver «Primer despliegue en Azure»).
 
 ## Decisiones técnicas iniciales propuestas para revisión
 
@@ -279,3 +279,16 @@
 - **Evidencia y límites:** las reseñas de T008–T021 no existen como archivos; solo las 11 de T001–T007. No se inventó evidencia. La brecha CON-§7.3 de T007 se conserva.
 - **Pendientes humanos:** aprobar los Specs migrados (`En revisión`/`Propuesto`), decidir los campos de perfil y de mascota, confirmar la lista `AC-NN`, ejecutar `pm-062` y aprobar el cierre de T001.
 - Las referencias anteriores a este apartado a slices (`00-foundation`…`04-first-milestone-closure`) describen la estructura histórica archivada.
+
+## Primer despliegue en Azure (2026-11-05)
+
+- **Alcance (acordado con el equipo):** desplegar el backend tal como está (7 endpoints: `auth/register`, `auth/login`, `auth/refresh`, `auth/logout`, `health/live`, `health/ready`, `technical/mediator-probe`) sin funciones nuevas. Coincide con la evaluación de la unidad 2 de los lineamientos v3 (backend en la nube con registro, login, logout y 4 endpoints más).
+- **Responsable de nube y despliegue:** Adrián Adonai García Jiménez.
+- **Arquitectura (ADR-003, constitución §8.16 propuesta):** Azure Container Apps (workload profiles, Consumption, VNet propia) con la API en 2 réplicas fijas detrás del ingress (balanceo + HTTPS válido); `redis-auth` y `redis-cache` como contenedores con TCP interno y TLS de CA propia; Atlas con lista de IPs de salida sincronizada; ACR Basic; secretos de Container Apps; Log Analytics + alertas + presupuesto USD 40. Costo estimado ~USD 26–28/mes (pm-062, en `docs/infrastructure/azure-deployment.md`).
+- **Artefactos nuevos:** `infra/` (bootstrap, azure, atlas), `.github/workflows/` (`ci.yml`, `deploy.yml`, `infra.yml`, `atlas-ip-sync.yml`), `scripts/smoke-test.sh`, `scripts/mongo/petmate-db.mongodb.js` (script de BD para el .rar), `docs/versioning/version-matrix.md` (pm-059), `docs/decisions/ADR-003` y `ADR-004`, `docs/infrastructure/azure-deployment.md`.
+- **Cambios mínimos de soporte (sin funciones nuevas):** `Dockerfile` admite `REDIS_CA_CERT_B64` para confiar en la CA de Redis; `quality-gate.ps1` usa rutas portables para correr en Linux (CI); `.gitignore`/`.dockerignore` excluyen Terraform y CI.
+- **Constitución 1.2.0 propuesta:** §8.9 (Redis en contenedores) y §8.16 (arquitectura vigente). Se ratifica al aprobar el PR; Miguel debe revisarla.
+- **Specs aprobados para este alcance** por Adrián (pendientes de ratificación de Miguel en el PR): pm-055, pm-057…pm-060, pm-062…pm-069, pm-072…pm-078, pm-083, pm-084. `pm-070` y `pm-071` siguen `Propuesto` hasta aprobar la enmienda §8.9.
+- **No ejecutado todavía:** ningún recurso Azure creado, ningún `terraform apply`. Siguiente paso: `infra/bootstrap/bootstrap.ps1 -CheckOnly`.
+- **Riesgos abiertos:** `TRUSTED_PROXIES` solo acepta IPs (rate limit agrupado por proxy hasta medirlas); HSTS no implementado; validar que la región permitida por Azure for Students admita Container Apps; montaje de Azure Files con la red restringida; registro de la app OIDC en el tenant escolar.
+- **Pendiente para la entrega final (fuera de este alcance):** caché en backend, paginación, compresión, eliminar cuenta, imágenes + CDN + moderación, notificaciones push.

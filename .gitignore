@@ -31,3 +31,13 @@ packages/
 .env
 .env.*
 !.env.example
+
+# Terraform (el estado vive en Azure Storage; nunca en Git)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+*.tfvars
+!*.tfvars.example
+.terraform.lock.hcl.bak
