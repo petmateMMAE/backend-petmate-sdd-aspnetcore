@@ -1,7 +1,9 @@
 ---
-version: 1.0.1
+version: 1.1.0
 status: ratified
 ratified: 2026-11-03
+amended: 2026-11-05
+previous_version: 1.0.1 (specs/_historico/constitution-v1.0.1.md)
 methodology: Spec-Driven Development (SDD)
 project: PetMate Backend
 source_of_truth: .specify/memory/constitution.md
@@ -54,7 +56,7 @@ El alcance funcional del producto se deriva de `docs/product-scope.md`, elaborad
 | Lista negra JWT | Servicio Redis independiente para autenticación |
 | Caché | Segundo servicio Redis independiente |
 | Contenedores | Docker/OCI, con configuración multi-stage |
-| Despliegue objetivo | Azure, sujeto a disponibilidad de opciones de costo $0 |
+| Despliegue objetivo | Microsoft Azure (suscripción Azure for Students), $0 MXN de desembolso directo, con dos o más instancias detrás de un Load Balancer o equivalente (§8) |
 
 No se fija aquí la versión de paquetes NuGet ni el paquete concreto de Mediator o Argon2id. Antes de incorporar cualquier dependencia, el agente debe comprobar compatibilidad con .NET 10, mantenimiento, vulnerabilidades y licencia/costo. La decisión debe quedar registrada en el `plan.md` o en una decisión técnica enlazada.
 
@@ -77,7 +79,7 @@ PetMate/
 │   └── PetMate.ContractTests/
 ├── .opencode/
 ├── .specify/
-├── specs/
+├── specs/                  # pm-NNN-slug/, README.md (registro), traceability.md, _historico/
 ├── docs/
 ├── scripts/
 ├── .github/workflows/
@@ -96,7 +98,7 @@ Dirección permitida de referencias:
 
 `Domain`, `Application` e `Infrastructure` son Class Library. `Api` es un proyecto ASP.NET Core Web API MVC. Los nombres de proyectos son los nombres iniciales propuestos y deben conservarse salvo autorización explícita.
 
-El registro de infraestructura se realiza desde el composition root de `Api`, llamando extensiones como `AddApplication(...)` y `AddInfrastructure(...)`. La implementación exacta se define en `specs/00-foundation/`.
+El registro de infraestructura se realiza desde el composition root de `Api`, llamando extensiones como `AddApplication(...)` y `AddInfrastructure(...)`. La implementación exacta se define en `pm-005` (inyección de dependencias) y `pm-006` (CQRS y Mediator).
 
 ## 4. MongoDB Atlas, configuración y secretos
 
@@ -104,7 +106,7 @@ El registro de infraestructura se realiza desde el composition root de `Api`, ll
 2. La URI y credenciales MongoDB se obtienen exclusivamente de variables de entorno; localmente se cargan desde `.env`, ignorado por Git.
 3. Incluir `.env.example` con nombres de variables y valores ficticios/placeholders, nunca credenciales reales.
 4. La base de datos de integración debe ser independiente de la de desarrollo/producción, con nombre y credenciales propios. Las pruebas deben comprobar que la configuración apunta a la base de pruebas antes de escribir o borrar datos.
-5. Las credenciales de producción se inyectan mediante configuración segura del entorno Azure o un almacén de secretos si la opción elegida mantiene costo $0. No se despliega el archivo `.env`.
+5. Las credenciales de producción se inyectan mediante configuración segura del entorno Azure o un almacén de secretos de Azure si la opción elegida mantiene costo $0. No se despliega el archivo `.env`.
 6. Las colecciones, índices, unicidad, TTL y estrategia de borrado deben justificarse por casos de uso. No se simula persistencia de negocio con almacenamiento en memoria en pruebas de integración.
 7. No incluir dumps reales ni datos personales en el repositorio.
 
@@ -175,7 +177,7 @@ Logout invalida la sesión actual:
 4. Las peticiones posteriores con ese Access Token se rechazan aunque su firma y fecha sigan siendo válidas.
 5. No registrar el Access Token ni el Refresh Token.
 
-El contrato exacto de Logout (encabezado Authorization, cuerpo, idempotencia y comportamiento con token expirado) se define en `specs/01-initial-authentication/spec.md` antes de implementar.
+El contrato exacto de Logout (encabezado Authorization, cuerpo, idempotencia y comportamiento con token expirado) se define en `specs/pm-032-user-logout/spec.md` antes de implementar.
 
 ### 6.5 Autorización
 
@@ -242,16 +244,23 @@ No devolver `204 No Content` en operaciones de negocio porque el wrapper forma p
 
 ## 8. Azure, contenedores, escalabilidad y contenido multimedia
 
-1. El destino de despliegue es Azure, utilizando únicamente planes y recursos que mantengan el costo en $0 para la demo inicial.
-2. La arquitectura del backend debe ser stateless, contenerizada y lista para ejecutarse en varias instancias detrás de un balanceador de carga.
-3. El estado compartido debe residir en MongoDB Atlas y en los dos Redis independientes. No usar memoria local para sesiones ni archivos temporales como fuente de verdad.
-4. La planificación debe comparar los servicios Azure compatibles con contenedores, balanceo, HTTPS, variables secretas y escalado horizontal. No seleccionar un recurso basándose en que históricamente tuvo un nivel gratuito: verificar límites y costo en el momento de planificar el despliegue.
-5. **Restricción de costo:** si varias instancias o balanceo no están disponibles con costo $0, no crear recursos de pago. Mantener la solución preparada para varias instancias y documentar que la demo gratuita opera temporalmente con una réplica hasta que una alternativa $0 permita desplegar más. La arquitectura horizontal sigue siendo obligatoria; no se permite diseñar una aplicación dependiente de una sola instancia.
-6. HTTPS debe terminar en el punto de entrada público de Azure o en el componente de ingress elegido, con certificado válido y redirección/ rechazo de HTTP. Configurar correctamente forwarded headers y confiar únicamente en proxies conocidos.
-7. Las imágenes se almacenarán en Azure Blob Storage como origen y se distribuirán mediante el CDN de Azure seleccionado. La elección concreta del producto de CDN y su modelo de acceso se valida por costo $0 y disponibilidad. No confundir CDN (distribución) con almacenamiento de origen.
-8. Imágenes comerciales públicas (por ejemplo, logos/fotos de negocios) podrán tener distribución pública según la spec. Fotografías de mascotas, conversaciones o registros clínicos serán privadas y requerirán autorización y URLs/credenciales temporales cuando corresponda. No exponer contenedores privados ni usar URLs permanentes públicas para información sensible.
-9. Los secretos de producción se inyectan como configuración segura del entorno Azure. Azure Key Vault puede utilizarse solo si la modalidad elegida no introduce costo; nunca es obligatorio pagar para cumplir la constitución.
-10. CI/CD debe automatizar restore, build, pruebas y controles de seguridad. El despliegue continuo a Azure estará condicionado a pasar la revisión de costo $0 y las aprobaciones de release definidas.
+> Redacción vigente desde la versión 1.1.0. Sustituye íntegramente el §8 de la versión 1.0.1 (copia conservada en `specs/_historico/constitution-v1.0.1.md`).
+
+1. **Plataforma exclusiva.** El proveedor cloud es **Microsoft Azure**, mediante la suscripción **Azure for Students**. No se utiliza AWS ni Google Cloud y no se diseña una arquitectura multi-cloud. La moneda de referencia para costos es MXN y el objetivo económico es **$0 MXN de desembolso directo**, apoyado en los servicios incluidos gratuitamente y en los créditos de Azure for Students.
+2. **Tres categorías de consumo.** Toda decisión de servicio se clasifica como (a) incluido gratuitamente, (b) consumo cubierto por créditos de Azure for Students o (c) consumo que podría generar cargos adicionales. Pertenecer a Azure for Students no hace gratuito a ningún servicio. No se asume gratuidad por precedente: se verifica en fuentes oficiales al planificar (`pm-062`).
+3. **Dos instancias y balanceo (obligatorio).** El backend es stateless, contenerizado y se despliega con **al menos dos instancias detrás de un Load Balancer o servicio equivalente de Azure**. No hay excepciones. **Queda derogada expresamente la cláusula 8.5 de la versión 1.0.1**, que permitía operar temporalmente con una sola réplica. La arquitectura no puede depender de una sola instancia.
+4. **Estado compartido.** Reside en MongoDB Atlas y en los dos Redis independientes (Auth y Cache). No se usa memoria local ni disco local como fuente de verdad.
+5. **Conflicto de costo.** Si la arquitectura requerida no puede cubrirse sin desembolso adicional, **no se crean recursos que generen cargos, no se sustituye la arquitectura por una sola instancia y no se omite el Load Balancer**. Se documenta la limitación como conflicto académico y se espera la decisión humana. Ningún requisito se reduce ni se vuelve opcional por costo o dificultad.
+6. **Recursos reales.** No se crean recursos reales ni se habilitan servicios que puedan generar cargos sin autorización expresa del usuario.
+7. **HTTPS.** Obligatorio en el punto de entrada público (Load Balancer o ingress) con certificado válido, redirección o rechazo de HTTP y HSTS. Los forwarded headers solo se aceptan de proxies conocidos.
+8. **Seguridad de red.** Los servicios de datos de Azure (Redis y almacenamiento) no son accesibles desde Internet abierta; se restringen mediante red privada o controles equivalentes.
+9. **Redis administrado.** Redis Auth y Redis Cache son servicios separados, con TLS y autenticación obligatorios, credenciales distintas, sin secretos en logs y con pruebas de conectividad y de fallo. Redis Auth conserva `noeviction`, persistencia y comportamiento fail-closed; Redis Cache usa expulsión LRU y degrada sin comprometer la corrección funcional.
+10. **Imágenes y CDN.** Las imágenes usan Azure Blob Storage como origen y una distribución por CDN para contenido público, ambos validados por costo. No se confunde CDN con almacenamiento. Imágenes comerciales públicas pueden distribuirse públicamente; fotografías de mascotas, conversaciones y registros clínicos son privadas, con autorización y URLs o credenciales temporales.
+11. **Secretos.** Se inyectan como configuración segura del entorno Azure; un almacén de secretos (p. ej. Azure Key Vault) solo se usa si su modalidad no introduce cargos. `.env` nunca se despliega.
+12. **Registro de contenedores.** Azure Container Registry o una alternativa validada dentro de Azure, con etiquetas inmutables y trazabilidad entre imagen, versión y despliegue.
+13. **CI y CD obligatorios.** CI automatiza restore, build, pruebas, controles de seguridad y el gate de integridad SDD. CD despliega versiones trazables (SemVer, etiqueta e imagen inmutable) con prueba de humo posterior y vía de reversa, y solo tras la revisión de costo y las aprobaciones de release.
+14. **Observabilidad.** Eventos y errores se envían a un servicio de observabilidad en Azure, con alertas y sin PII ni secretos.
+15. **Infraestructura como código y ciclo de vida.** La infraestructura se define como código (preferentemente Terraform; la herramienta se fija por ADR en `pm-066`, es una decisión de proyecto y no un requisito académico textual). El aprovisionamiento y la destrucción son reproducibles y requieren confirmación humana. El teardown **no destruye datos persistentes ni clínicos** (MongoDB Atlas y almacenamiento de datos privados) salvo orden expresa y separada.
 
 ## 9. DevSecOps y herramientas sin costo
 
@@ -283,7 +292,8 @@ No se introduce ninguna dependencia pagada, servicio SaaS de pago, plan comercia
 - Cada criterio de aceptación de un spec debe estar cubierto por evidencia de prueba o por una justificación explícita de no automatización.
 - Debe existir build Release antes de ejecutar suites que dependan de binarios compilados.
 - Los gates de seguridad, pruebas y trazabilidad se ejecutan en CI y localmente con los mismos criterios siempre que sea viable.
-- No establecer porcentajes arbitrarios de cobertura antes de medir el baseline. El umbral inicial se define en `specs/00-foundation/plan.md` y se registra aquí mediante enmienda cuando haya evidencia.
+- Cada criterio de aceptación se referencia como `pm-NNN#CA-NN` y está cubierto por evidencia o por una justificación explícita de no automatización.
+- No establecer porcentajes arbitrarios de cobertura antes de medir el baseline. El umbral inicial se define en `specs/pm-056-test-coverage-baseline/plan.md` y se registra aquí mediante enmienda cuando haya evidencia.
 
 ## 11. Producto y alcance funcional
 
@@ -291,7 +301,7 @@ No se introduce ninguna dependencia pagada, servicio SaaS de pago, plan comercia
 
 Los módulos futuros incluyen gestión de usuarios, mascotas, carnet médico, QR y autorizaciones, negocios afiliados, búsqueda geográfica, atención veterinaria, seguimiento, servicios/cobros, recordatorios y notificaciones. Estos módulos no se consideran implementados por aparecer en el documento; requieren specs propias.
 
-La primera entrega prioriza el flujo de autenticación y los siete endpoints funcionales definidos en `specs/README.md`. El hito se considera alcanzado únicamente al cerrar la tarea global `T041` con todos los gates y aprobaciones completados.
+La primera entrega prioriza el flujo de autenticación y los siete endpoints funcionales (perfil y mascotas) más los cuatro de autenticación (11 en total) definidos en `specs/README.md` y `docs/api/endpoints.md`. El hito se considera alcanzado únicamente al cerrar la tarea global `T041` (Spec principal `pm-046`) con todos los gates y aprobaciones completados.
 
 ## 12. Gobernanza SDD y precedencia documental
 
@@ -302,7 +312,8 @@ La primera entrega prioriza el flujo de autenticación y los siete endpoints fun
 | `.specify/memory/constitution.md` | Reglas no negociables y decisiones normativas |
 | `AGENTS.md` | Cómo deben operar los agentes y qué leer/ejecutar |
 | `Memoria.md` | Estado actual, decisiones tomadas con evidencia y lecciones |
-| `specs/README.md` | Índice, roadmap, dependencias y estado de cada slice |
+| `specs/README.md` | Registro de Specs, Tasks y dependencias; estado y orden de trabajo |
+| `specs/traceability.md` | Vínculo requisitos académicos ↔ constitución ↔ Specs ↔ Tasks ↔ CA ↔ evidencia |
 | `spec.md` | Qué comportamiento se requiere y cómo se acepta |
 | `plan.md` | Cómo se implementará técnicamente |
 | `task.md` | Pasos ejecutables y verificables |
@@ -315,7 +326,7 @@ No duplicar tablas completas de endpoints, políticas, costos o reglas en varios
 ### 12.2 Flujo obligatorio por funcionalidad
 
 1. Leer `AGENTS.md`, esta constitución y el estado de `Memoria.md`.
-2. Consultar `specs/README.md` y las dependencias previas.
+2. Consultar `specs/README.md` y el grafo de dependencias (los números de Spec no determinan el orden de trabajo).
 3. Elaborar `spec.md` usando la plantilla.
 4. Revisar requisitos, alcance, roles, errores, contrato y criterios de aceptación con el usuario.
 5. Elaborar `plan.md` con archivos/componentes, dependencias, paquetes y costos/licencias.
@@ -327,15 +338,34 @@ No duplicar tablas completas de endpoints, políticas, costos o reglas en varios
 11. Conciliar documentación viva y `Memoria.md` con el código real.
 12. El usuario/revisor humano aprueba el cierre. Los agentes no se auto-firman.
 
-### 12.3 Identificadores y estado
+### 12.3 Identificadores, estructura y estado
 
-- Usar identificadores de slice secuenciales y descriptivos: `00-foundation`, `01-initial-authentication`, `02-owner-profile`, `03-pet-management`, etc.
-- Dentro de la primera secuencia global se usan tareas `T001` a `T041`, sin reutilizar IDs.
-- Estados permitidos: `Propuesto`, `En revisión`, `Aprobado`, `En progreso`, `Bloqueado`, `Verificado`, `Cerrado`.
-- Una tarea `Verificado` requiere evidencia. `Cerrado` requiere aprobación humana.
-- No marcar un spec como aprobado o firmado por inferencia del agente.
+> Redacción vigente desde la versión 1.1.0. La estructura anterior por slices (`00-foundation` … `04-first-milestone-closure`) se conserva en `specs/_historico/`.
+
+1. **Estructura plana.** Cada Spec vive en `specs/pm-NNN-slug/` con `spec.md` y `task.md`. `plan.md` y `checklists/gates.md` se crean en la fase de plan del Spec, tras su aprobación, conforme al flujo del §12.2; no se crean archivos vacíos.
+2. **Numeración.** `NNN` es global, secuencial e **inmutable**: no se renumera, no se reutiliza y no se elimina. Un Spec retirado pasa a estado `Reemplazado` y apunta a su sucesor. Los 84 Specs iniciales (`pm-001` a `pm-084`) quedan fijados por esta versión.
+3. **Los números identifican, no ordenan.** El orden de trabajo lo gobiernan las dependencias declaradas en `specs/README.md` (por ejemplo, `pm-041` depende de `pm-047` y `pm-034` de `pm-036`).
+4. **Atomicidad.** Cada Spec tiene un objetivo único, criterios de aceptación **propios** (sin duplicar los de otro Spec), al menos una Task y dependencias válidas sin ciclos.
+5. **Tasks.** La numeración global continúa desde `T042`; `T001` a `T041` conservan su identificador y su estado. Cada Task tiene **exactamente un Spec principal**; si verifica criterios de otro Spec lo declara en «También cubre» de forma inequívoca.
+6. **Tipos de Task.** *Histórica* (`T001`–`T041`; su alcance no se modifica retrospectivamente), *retrospectiva* (documenta trabajo ya implementado) y *nueva*.
+7. **Evidencia retrospectiva.** Toda Task retrospectiva documenta exclusivamente lo demostrable con evidencia existente: código, pruebas, filas de gates o task, revisiones independientes existentes, clasificación de cada evidencia (automatizada, manual, revisión estática, documento histórico) y limitaciones. Nunca se cierra automáticamente y no se inventa evidencia.
+8. **Referencias.** Los criterios de aceptación se citan como `pm-NNN#CA-NN`.
+9. **Registro y matriz.** `specs/README.md` es el registro de Specs, Tasks y dependencias; `specs/traceability.md` vincula requisitos académicos, constitución, Specs, Tasks, CA y evidencia.
+10. **Estados** de Spec y Task: `Propuesto`, `En revisión`, `Aprobado`, `En progreso`, `Bloqueado`, `Verificado`, `Cerrado`. Solo los Specs admiten además `Reemplazado`. `Verificado` requiere evidencia; `Cerrado` requiere aprobación humana. Ningún agente marca un Spec como aprobado, ni cierra una Task, ni se auto-firma.
+11. **Documentos históricos.** Los artefactos de la estructura anterior se conservan en `specs/_historico/` con su contenido original y verificables mediante `specs/_historico/MANIFIESTO-SHA256.txt`.
 
 ## 13. Historial de cambios
+
+### 2026-11-05 — Versión 1.1.0
+
+Aprobación expresa del usuario (instrucción de ejecución de la migración SDD). La versión anterior (1.0.1) se conserva en `specs/_historico/constitution-v1.0.1.md` y en el historial de Git.
+
+- **§8 reescrito:** Microsoft Azure con la suscripción Azure for Students como plataforma exclusiva (sin AWS ni GCP, sin multi-cloud); objetivo de $0 MXN de desembolso directo, con distinción entre servicios incluidos, consumo cubierto por créditos y consumo con posibles cargos.
+- **Derogada** la cláusula 8.5 de 1.0.1 (operación temporal con una sola réplica). Se mantienen obligatorios dos o más instancias detrás de un Load Balancer o equivalente, HTTPS, seguridad de red, Redis administrado con TLS y autenticación, secretos, almacenamiento de imágenes con CDN, registro de contenedores, CI y CD, versionado, observabilidad, IaC y ciclo de vida de infraestructura con protección de datos persistentes.
+- **§12.3 reescrito:** estructura plana `specs/pm-NNN-slug/`, numeración global inmutable, atomicidad, Tasks desde T042, un Spec principal por Task, tipos de Task (histórica, retrospectiva, nueva), evidencia retrospectiva, referencias `pm-NNN#CA-NN`, estado `Reemplazado`, registro `specs/README.md` y matriz `specs/traceability.md`.
+- Ajustes de referencias en §3, §4, §6, §9, §10, §11, §12.1 y §12.2. Los principios del §2 no cambian.
+- **Impacto:** reorganización de `specs/` (84 Specs, T001–T097), plantillas, agentes y skills, y gate de integridad `scripts/check-sdd.ps1`. Los estados históricos de T001–T041 no se alteran (T001 permanece `Verificado`; T012 permanece implementada y abierta).
+- Disposiciones transitorias: los slices `00` a `04` quedan archivados en `specs/_historico/`; los Specs migrados entran como `En revisión` porque su texto es nuevo y requiere aprobación humana; ningún Task retrospectivo se cierra automáticamente.
 
 ### 2026-11-03 — Ratificación humana (versión 1.0.1)
 
