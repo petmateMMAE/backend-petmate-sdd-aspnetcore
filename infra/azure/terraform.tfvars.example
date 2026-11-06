@@ -2,7 +2,7 @@
 # En CI los valores llegan como TF_VAR_* desde los secretos de GitHub. Valores ficticios.
 subscription_id     = "00000000-0000-0000-0000-000000000000"
 resource_group_name = "rg-petmate-prod"
-location            = "mexicocentral"
+location            = "chilecentral"
 name_suffix         = "prod"
 api_version         = "0.1.0"
 mongodb_database    = "petmate_prod"

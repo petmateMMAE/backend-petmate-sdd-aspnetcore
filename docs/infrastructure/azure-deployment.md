@@ -34,6 +34,30 @@ Todo lo de la app vive en el grupo de recursos **`rg-petmate-prod`**. El estado 
 
 La URL pública queda como `https://petmate-api.<dominio-del-ambiente>.<region>.azurecontainerapps.io` (salida `api_url` de Terraform).
 
+**Estado (2026-11-06 10:40):** v0.1.0 desplegada en **Chile Central** — `https://petmate-api.purplefield-b84659a6.chilecentral.azurecontainerapps.io`. Dos réplicas `Running`, `health/ready` con `mongodb`, `redis-auth` y `redis-cache` en `Healthy`, prueba de humo de los 7 endpoints aprobada (run 42253209567) y etiqueta `api-v0.1.0`.
+
+### 2.1 Por qué Chile Central y no México Central
+
+La región planeada era `mexicocentral` (la más cercana a los usuarios). No se pudo usar:
+
+| Fecha y hora (México) | Intento | Resultado |
+|---|---|---|
+| 05/11 22:21 | Apply 1 | El ambiente de Container Apps quedó en `Waiting`; Terraform se cortó a los 30 min (`context deadline exceeded`). Azure lo siguió en `Waiting` más de 1 h sin errores; se borró a mano a las 23:21. |
+| 05/11 23:43 → 06/11 05:06 | Intentos 2 a 9 (8 intentos automáticos con `scripts/watch-deploy.ps1` y el orquestador) | En **todos** el ambiente se quedó en `Waiting` sin ningún evento nuevo en Azure. Cada intento se canceló tras 20 min sin avance, se borró el ambiente (≈15–20 min cada borrado) y se reintentó. |
+| 06/11 05:22 | Cambio a `chilecentral` (regla acordada: si a las 5:00 no levanta México) | Primer apply falló por nombres repetidos (ACR y Log Analytics de México aún en borrado: `InvalidResourceLocation`). |
+| 06/11 06:20 | Apply en Chile | El ambiente se creó en **~5 min**; Redis y API en ~3 min más. **Éxito.** |
+
+**Total: 9 intentos de crear el ambiente en México Central en ~7 horas, ninguno terminó.** No hubo errores de configuración: la subred estaba delegada a `Microsoft.App/environments`, los proveedores registrados y la misma configuración funcionó a la primera en Chile. El patrón coincide con problemas de capacidad regional reportados por Microsoft en Container Apps (p. ej. `ManagedEnvironmentCapacityHeavyUsageError` en Central US desde el 30/09/2026) y con la recomendación de su soporte: un ambiente en `Waiting` rara vez se recupera; hay que borrarlo y reintentar o usar otra región.
+
+Regiones que permite la política de Azure for Students en esta suscripción: `belgiumcentral`, `chilecentral`, `francecentral`, `mexicocentral`, `norwayeast`. Chile es la más cercana después de México.
+
+**Impacto de Chile:** latencia estimada ~0.2 s por petición sencilla y ~0.7 s por login (contra ~0.05 s y ~0.3 s en México), por la distancia a los usuarios y a Atlas (Azure `eastus2`). Aceptable para pruebas y evaluación. Se puede volver a México cuando la región tenga capacidad: variable `AZURE_LOCATION=mexicocentral`, `destroy` y `apply` (Atlas conserva los datos).
+
+### 2.2 Despliegue automático y modo ahorro
+
+- **Cada merge a `main` que toque el código** (`src/`, `Dockerfile`, `Directory.*.props` o `VERSION`) dispara *Deploy API*: construye, escanea con Trivy, publica la imagen `X.Y.Z-<sha7>`, crea una revisión nueva, corre la prueba de humo de los 7 endpoints y, si falla, regresa sola a la imagen anterior. Tarda **~9 min** (construir ~3, Trivy ~1, publicar ~1, revisión ~2, prueba ~1). La versión se toma del archivo `VERSION`; al cambiarla se crea la etiqueta `api-vX.Y.Z`. Cambios solo de documentación no despliegan.
+- **Modo ahorro** (`MODO_AHORRO=true`, variable de GitHub + *Infraestructura → apply*): una vez aplicado es automático — la API se apaga tras 15 min sin peticiones y se prende sola con la siguiente (~10–20 s la primera), y Redis se apaga de 23:00 a 7:00. Un merge a `main` en ese horario fallará la prueba de humo y hará la reversa: para desplegar de noche, aplicar antes `MODO_AHORRO=false`.
+
 ## 3. Configuración de producción (sin cambios de código)
 
 | Variable | Origen | Valor |
@@ -78,7 +102,7 @@ Consulta: 2026-11-05. Precios de lista en USD; **confirmar en la calculadora de 
 
 1. **Herramientas** en la máquina de quien despliega: Azure CLI, Terraform ≥ 1.9, Git (`winget install Microsoft.AzureCLI Hashicorp.Terraform`).
 2. **Verificar la suscripción** sin crear nada:
-   `./infra/bootstrap/bootstrap.ps1 -SubscriptionId <id> -Location mexicocentral -CheckOnly`
+   `./infra/bootstrap/bootstrap.ps1 -SubscriptionId <id> -Location chilecentral -CheckOnly`
    (regiones permitidas por la política de Azure for Students y disponibilidad de Container Apps).
 3. **Bootstrap** (con autorización): mismo comando sin `-CheckOnly`. Crea `rg-petmate-prod`, `rg-petmate-tfstate`, la cuenta del estado y la identidad OIDC; imprime las variables de GitHub.
 4. **Atlas**: crear la base `petmate_prod`, un usuario con `readWrite` solo en ella y una API key del proyecto (Project IP Access List Admin). Opcional: correr `scripts/mongo/petmate-db.mongodb.js`.
