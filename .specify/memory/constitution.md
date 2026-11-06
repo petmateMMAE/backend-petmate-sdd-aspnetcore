@@ -1,9 +1,9 @@
 ---
-version: 1.1.0
+version: 1.2.0
 status: ratified
 ratified: 2026-11-03
 amended: 2026-11-05
-previous_version: 1.0.1 (specs/_historico/constitution-v1.0.1.md)
+previous_version: 1.1.0 (historial de Git; 1.0.1 en specs/_historico/constitution-v1.0.1.md)
 methodology: Spec-Driven Development (SDD)
 project: PetMate Backend
 source_of_truth: .specify/memory/constitution.md
@@ -254,13 +254,14 @@ No devolver `204 No Content` en operaciones de negocio porque el wrapper forma p
 6. **Recursos reales.** No se crean recursos reales ni se habilitan servicios que puedan generar cargos sin autorización expresa del usuario.
 7. **HTTPS.** Obligatorio en el punto de entrada público (Load Balancer o ingress) con certificado válido, redirección o rechazo de HTTP y HSTS. Los forwarded headers solo se aceptan de proxies conocidos.
 8. **Seguridad de red.** Los servicios de datos de Azure (Redis y almacenamiento) no son accesibles desde Internet abierta; se restringen mediante red privada o controles equivalentes.
-9. **Redis administrado.** Redis Auth y Redis Cache son servicios separados, con TLS y autenticación obligatorios, credenciales distintas, sin secretos en logs y con pruebas de conectividad y de fallo. Redis Auth conserva `noeviction`, persistencia y comportamiento fail-closed; Redis Cache usa expulsión LRU y degrada sin comprometer la corrección funcional.
+9. **Redis en Azure.** Redis Auth y Redis Cache son servicios separados, con TLS y autenticación obligatorios, credenciales distintas, sin secretos en logs y con pruebas de conectividad y de fallo. Redis Auth conserva `noeviction`, persistencia y comportamiento fail-closed; Redis Cache usa expulsión LRU y degrada sin comprometer la corrección funcional. *(Enmienda 1.2.0)* Se admiten como **contenedores autogestionados** (`redis:7.4`) dentro del ambiente privado de Azure Container Apps: solo ingreso TCP interno (nunca expuestos a Internet), TLS con una CA propia generada por la IaC, una réplica por servicio y la persistencia de Redis Auth en Azure Files. Un servicio Redis administrado de Azure sigue siendo una alternativa válida si su costo se aprueba.
 10. **Imágenes y CDN.** Las imágenes usan Azure Blob Storage como origen y una distribución por CDN para contenido público, ambos validados por costo. No se confunde CDN con almacenamiento. Imágenes comerciales públicas pueden distribuirse públicamente; fotografías de mascotas, conversaciones y registros clínicos son privadas, con autorización y URLs o credenciales temporales.
 11. **Secretos.** Se inyectan como configuración segura del entorno Azure; un almacén de secretos (p. ej. Azure Key Vault) solo se usa si su modalidad no introduce cargos. `.env` nunca se despliega.
 12. **Registro de contenedores.** Azure Container Registry o una alternativa validada dentro de Azure, con etiquetas inmutables y trazabilidad entre imagen, versión y despliegue.
 13. **CI y CD obligatorios.** CI automatiza restore, build, pruebas, controles de seguridad y el gate de integridad SDD. CD despliega versiones trazables (SemVer, etiqueta e imagen inmutable) con prueba de humo posterior y vía de reversa, y solo tras la revisión de costo y las aprobaciones de release.
 14. **Observabilidad.** Eventos y errores se envían a un servicio de observabilidad en Azure, con alertas y sin PII ni secretos.
 15. **Infraestructura como código y ciclo de vida.** La infraestructura se define como código (preferentemente Terraform; la herramienta se fija por ADR en `pm-066`, es una decisión de proyecto y no un requisito académico textual). El aprovisionamiento y la destrucción son reproducibles y requieren confirmación humana. El teardown **no destruye datos persistentes ni clínicos** (MongoDB Atlas y almacenamiento de datos privados) salvo orden expresa y separada.
+16. **Arquitectura de despliegue vigente** *(enmienda 1.2.0)*. Primer despliegue (v0.1.0, los endpoints existentes, sin funciones nuevas): Azure Container Apps en un ambiente *workload profiles* (perfil Consumption) con VNet propia; la API con **dos réplicas fijas** detrás del **ingress administrado** del ambiente, que hace de balanceador y termina HTTPS con certificado válido; Redis Auth y Redis Cache según §8.9; MongoDB Atlas con lista de acceso limitada a las IPs de salida de la API (nunca `0.0.0.0/0` como solución permanente); Azure Container Registry Basic con imágenes inmutables; secretos de Container Apps; Log Analytics con alertas; Terraform (ADR-004) con estado remoto fuera del grupo de la app; GitHub Actions para CI, CD y creación/eliminación de la infraestructura con aprobación humana. Detalle, costos y pasos: `docs/infrastructure/azure-deployment.md`; decisiones: `docs/decisions/ADR-003-azure-container-apps.md` y `ADR-004-terraform.md`; versiones: `docs/versioning/version-matrix.md`. **Modo ahorro (fase de pruebas, aprobado por el equipo el 2026-11-05):** con `modo_ahorro = true` la API escala a cero sin peticiones, se levanta con la primera (hasta dos réplicas con balanceo) y se apaga tras 15 minutos sin uso, y Redis Auth y Redis Cache solo operan de 7:00 a 23:00 (hora de México). Para cada revisión o evaluación se aplica `modo_ahorro = false` (dos réplicas fijas y Redis 24 h), que es la configuración que cumple este apartado. Blob Storage y CDN se incorporan con los Specs de imágenes (`pm-079`…`pm-082`).
 
 ## 9. DevSecOps y herramientas sin costo
 
@@ -355,6 +356,14 @@ No duplicar tablas completas de endpoints, políticas, costos o reglas en varios
 11. **Documentos históricos.** Los artefactos de la estructura anterior se conservan en `specs/_historico/` con su contenido original y verificables mediante `specs/_historico/MANIFIESTO-SHA256.txt`.
 
 ## 13. Historial de cambios
+
+### 2026-11-05 — Versión 1.2.0 (despliegue en Azure)
+
+Propuesta por Adrián Adonai García Jiménez (responsable de nube y despliegue) con el acuerdo del equipo para el primer despliegue; se ratifica al aprobar y fusionar el PR correspondiente (§14).
+
+- **§8.9 enmendado:** Redis Auth y Redis Cache pueden ejecutarse como contenedores autogestionados dentro del ambiente privado de Azure Container Apps (solo TCP interno, TLS con CA propia, autenticación, una réplica por servicio, persistencia de Redis Auth en Azure Files). Motivo: Azure Cache for Redis se retira el 30/09/2028 y dos instancias administradas con red privada exceden el crédito de Azure for Students. Se mantienen todas las propiedades exigidas (separación, TLS, autenticación, `noeviction` + persistencia, LRU, fail-closed).
+- **§8.16 nuevo:** arquitectura de despliegue vigente para la versión 0.1.0 y enlaces a la guía de despliegue, ADR-003, ADR-004 y la matriz de versiones.
+- **Impacto:** Specs `pm-070` y `pm-071` (su objetivo dice «administrado» y debe ajustarse al aprobarlos), `docs/infrastructure/docker-redis-atlas.md` (nota de TLS), nuevos `infra/`, `.github/workflows/`, `docs/decisions/ADR-003` y `ADR-004`, `docs/versioning/version-matrix.md`. Ningún requisito se reduce: se mantienen dos instancias, balanceador y HTTPS.
 
 ### 2026-11-05 — Versión 1.1.0
 

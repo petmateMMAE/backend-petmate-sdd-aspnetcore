@@ -1,0 +1,147 @@
+# CD de la API (pm-077, pm-059, pm-074).
+# Se dispara a mano desde `main` con la versión SemVer; al terminar bien crea la etiqueta `api-vX.Y.Z`.
+# Construye la imagen inmutable, la escanea, la sube a ACR, actualiza la Container App, corre la prueba
+# de humo por HTTPS de los 7 endpoints y, si falla, regresa a la imagen anterior.
+# Sin environments: la organización usa el plan gratuito de GitHub, que no los permite en repositorios privados.
+# El control es que solo quien tiene permiso de escritura lo dispara, solo desde `main`, y Azure solo confía en `main` (OIDC).
+name: Deploy API
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versión SemVer a desplegar (sin la v), p. ej. 0.1.0'
+        required: true
+
+permissions:
+  id-token: write
+  contents: write
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  ARM_USE_OIDC: 'true'
+  ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+  ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Versión
+        id: version
+        run: |
+          V="${{ inputs.version }}"
+          if ! echo "$V" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then echo "::error::Versión no SemVer: $V"; exit 1; fi
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "tag=$V-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Leer salidas de la infraestructura
+        id: infra
+        working-directory: infra/azure
+        run: |
+          terraform init -input=false \
+            -backend-config="resource_group_name=${{ vars.TFSTATE_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ vars.TFSTATE_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=tfstate"
+          echo "acr=$(terraform output -raw acr_name)" >> "$GITHUB_OUTPUT"
+          echo "registry=$(terraform output -raw acr_login_server)" >> "$GITHUB_OUTPUT"
+          echo "app=$(terraform output -raw api_app_name)" >> "$GITHUB_OUTPUT"
+          echo "rg=$(terraform output -raw resource_group_name)" >> "$GITHUB_OUTPUT"
+          echo "url=$(terraform output -raw api_url)" >> "$GITHUB_OUTPUT"
+          terraform output -raw redis_ca_cert_pem > "$RUNNER_TEMP/redis-ca.crt"
+
+      - name: Construir imagen (CA de Redis horneada; no es secreta)
+        run: |
+          IMAGE="${{ steps.infra.outputs.registry }}/petmate-api:${{ steps.version.outputs.tag }}"
+          docker build \
+            --build-arg REDIS_CA_CERT_B64="$(base64 -w0 "$RUNNER_TEMP/redis-ca.crt")" \
+            --label org.opencontainers.image.version=${{ steps.version.outputs.version }} \
+            --label org.opencontainers.image.revision=${{ github.sha }} \
+            -t "$IMAGE" .
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+
+      - name: Escaneo de la imagen (Trivy)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.IMAGE }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '1'
+
+      - name: Publicar imagen inmutable en ACR
+        run: |
+          az acr login -n ${{ steps.infra.outputs.acr }}
+          docker push "$IMAGE"
+          az acr repository update -n ${{ steps.infra.outputs.acr }} \
+            --image petmate-api:${{ steps.version.outputs.tag }} --write-enabled false --delete-enabled false
+
+      - name: Desplegar nueva revisión
+        id: rollout
+        run: |
+          PREVIOUS=$(az containerapp show -n ${{ steps.infra.outputs.app }} -g ${{ steps.infra.outputs.rg }} \
+            --query "properties.template.containers[0].image" -o tsv)
+          echo "previous=$PREVIOUS" >> "$GITHUB_OUTPUT"
+          SUFFIX="v$(echo ${{ steps.version.outputs.version }} | tr . -)-${GITHUB_RUN_NUMBER}"
+          az containerapp update -n ${{ steps.infra.outputs.app }} -g ${{ steps.infra.outputs.rg }} \
+            --image "$IMAGE" --revision-suffix "$SUFFIX" \
+            --set-env-vars PETMATE_VERSION=${{ steps.version.outputs.version }} >/dev/null
+          for i in $(seq 1 30); do
+            STATE=$(az containerapp revision show -n ${{ steps.infra.outputs.app }} -g ${{ steps.infra.outputs.rg }} \
+              --revision "${{ steps.infra.outputs.app }}--$SUFFIX" --query "properties.runningState" -o tsv 2>/dev/null || true)
+            echo "Revisión: $STATE"
+            [ "$STATE" = "Running" ] && break
+            sleep 10
+          done
+
+      - name: Despertar la API (modo ahorro puede tenerla en 0 réplicas)
+        run: |
+          for i in $(seq 1 24); do
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "${{ steps.infra.outputs.url }}/api/v1/health/ready" || true)
+            echo "ready: $CODE"; [ "$CODE" = "200" ] && exit 0; sleep 10
+          done
+          echo "::error::La API no quedó lista. En modo ahorro Redis está apagado de 23:00 a 7:00 (hora de México)."; exit 1
+
+      - name: Prueba de humo por HTTPS (7 endpoints)
+        id: smoke
+        run: bash scripts/smoke-test.sh "${{ steps.infra.outputs.url }}"
+
+      - name: Reversa a la imagen anterior
+        if: failure() && steps.rollout.outputs.previous != ''
+        run: |
+          az containerapp update -n ${{ steps.infra.outputs.app }} -g ${{ steps.infra.outputs.rg }} \
+            --image "${{ steps.rollout.outputs.previous }}" >/dev/null
+          echo "::warning::Despliegue revertido a ${{ steps.rollout.outputs.previous }}"
+
+      - name: Etiqueta de versión
+        if: success()
+        run: |
+          git tag "api-v${{ steps.version.outputs.version }}" "$GITHUB_SHA" 2>/dev/null && \
+            git push origin "api-v${{ steps.version.outputs.version }}" || echo "La etiqueta ya existía"
+
+      - name: Resumen
+        if: success()
+        run: |
+          {
+            echo "### PetMate API ${{ steps.version.outputs.version }} desplegada"
+            echo "- URL: ${{ steps.infra.outputs.url }}"
+            echo "- Imagen: $IMAGE"
+            echo "- Réplicas:"; az containerapp replica list -n ${{ steps.infra.outputs.app }} -g ${{ steps.infra.outputs.rg }} --query "[].name" -o tsv | sed 's/^/  - /'
+          } >> "$GITHUB_STEP_SUMMARY"
