@@ -17,6 +17,10 @@ COPY src/ src/
 RUN dotnet publish src/PetMate.Api/PetMate.Api.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+# Parches de seguridad del sistema base (Trivy bloquea vulnerabilidades HIGH/CRITICAL con corrección disponible).
+RUN apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build /app/publish .
 
