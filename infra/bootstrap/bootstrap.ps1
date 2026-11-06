@@ -93,6 +93,8 @@ foreach ($envName in 'main') {
     if (-not $has) {
         $body = @{ name = $credName; issuer = 'https://token.actions.githubusercontent.com';
             subject = "repo:${GitHubRepository}:ref:refs/heads/$envName"; audiences = @('api://AzureADTokenExchange') } | ConvertTo-Json -Compress
+        # Nota: si la organización usa el formato de sujeto con IDs (repo:org@<id>/repo@<id>:...), registrar
+        # también ese sujeto exacto (ver el error AADSTS700213 del primer run y docs/infrastructure/azure-deployment.md).
         $file = New-TemporaryFile
         [IO.File]::WriteAllText($file, $body)
         Invoke-AzCli ad app federated-credential create --id $appId --parameters "@$file" | Out-Null
