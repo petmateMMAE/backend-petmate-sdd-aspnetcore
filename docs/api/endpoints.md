@@ -109,8 +109,32 @@ Requiere `Authorization: Bearer <access token vigente>`. Si el access token expi
 
 | Método | Endpoint | Acceso | Spec | Estado |
 |---|---|---|---|---|
-| GET | `/api/v1/users/me/get` | Autenticado | `pm-037` | Planeado |
-| PUT | `/api/v1/users/me/update` | Autenticado | `pm-038` | Planeado |
+| GET | `/api/v1/users/me/get` | Autenticado | `pm-037` / T026 | Implementado (pendiente de cierre humano) |
+| PUT | `/api/v1/users/me/update` | Autenticado | `pm-038` / T027 | Implementado (pendiente de cierre humano) |
+
+### Contratos de perfil
+
+- La identidad sale solo del claim `sub` del Access Token validado: nunca de la ruta, el cuerpo ni la query. No hay forma de leer ni editar el perfil de otra cuenta.
+- `UserProfileResponse` (en `data`): `id`, `email`, `role` (`Owner`/`Business`), `displayName` (`null` hasta que se define), `createdAt`. Nunca incluye el hash ni tokens.
+
+#### GET `/api/v1/users/me/get`
+
+| Código | Cuándo | `data` |
+|---|---|---|
+| 200 | Perfil propio | `UserProfileResponse` |
+| 401 | Sin token, token inválido, expirado o revocado | `null` |
+| 404 | La cuenta del token ya no existe | `null` |
+
+#### PUT `/api/v1/users/me/update`
+
+Cuerpo: `{ "displayName": "Ana Pérez" }`. Se recorta; de 1 a 80 caracteres, sin caracteres de control. Correo y rol no son editables: enviar `email`, `role` u otro miembro desconocido devuelve 400.
+
+| Código | Cuándo | `data` |
+|---|---|---|
+| 200 | Nombre actualizado | `UserProfileResponse` |
+| 400 | Nombre vacío, demasiado largo, con caracteres de control o miembro desconocido | `{ "errors": [...] }` |
+| 401 | Sin autenticación válida | `null` |
+| 404 | La cuenta del token ya no existe | `null` |
 
 ## Mascotas
 

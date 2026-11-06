@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Prueba de humo del despliegue (pm-077#CA-02, pm-084): verifica por HTTPS los 7 endpoints actuales.
+# Prueba de humo del despliegue (pm-077#CA-02, pm-084): verifica por HTTPS los 9 endpoints actuales.
 # Uso: bash scripts/smoke-test.sh https://petmate-api.<dominio>
 # Crea un usuario de prueba con correo aleatorio (no usa datos reales) y nunca imprime tokens.
 set -euo pipefail
@@ -45,6 +45,12 @@ REFRESH=$(jq -r '.data.refreshToken' /tmp/smoke-body)
 check "POST /api/v1/auth/refresh" 200 "$(req POST /api/v1/auth/refresh "$(jq -nc --arg r "$REFRESH" '{refreshToken:$r}')")"
 ACCESS=$(jq -r '.data.accessToken' /tmp/smoke-body)
 REFRESH=$(jq -r '.data.refreshToken' /tmp/smoke-body)
+
+# Perfil propio (pm-037, pm-038).
+check "PUT /api/v1/users/me/update" 200 "$(req PUT /api/v1/users/me/update '{"displayName":"Prueba de humo"}' "$ACCESS")"
+check "GET /api/v1/users/me/get" 200 "$(req GET /api/v1/users/me/get "" "$ACCESS")"
+check "  el perfil devuelve el nombre" "Prueba de humo" "$(jq -r '.data.displayName' /tmp/smoke-body 2>/dev/null || true)"
+check "GET /api/v1/users/me/get sin token" 401 "$(req GET /api/v1/users/me/get)"
 
 check "POST /api/v1/auth/logout" 200 "$(req POST /api/v1/auth/logout "$(jq -nc --arg r "$REFRESH" '{refreshToken:$r}')" "$ACCESS")"
 # El token revocado debe rechazarse en cualquier réplica (lista negra en Redis Auth compartido).

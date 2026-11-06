@@ -30,6 +30,11 @@ internal sealed class UserDocument
     [BsonElement("role")]
     public int Role { get; set; }
 
+    /// <summary>Nombre visible (pm-038). Ausente en las cuentas que nunca lo han definido.</summary>
+    [BsonElement("displayName")]
+    [BsonIgnoreIfNull]
+    public string? DisplayName { get; set; }
+
     [BsonElement("createdAtUtc")]
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime CreatedAtUtc { get; set; }
