@@ -34,13 +34,14 @@ La preparación horizontal es obligatoria. Sin embargo, si Azure no ofrece varia
 
 | Componente | Servicio Azure candidato | Cuota/costo confirmado | Límite | Alternativa $0 | Decisión |
 |---|---|---|---|---|---|
-| API container hosting | Pendiente | Pendiente | Pendiente | Pendiente | No seleccionar aún |
-| Load balancing / ingress | Pendiente | Pendiente | Pendiente | Pendiente | No seleccionar aún |
-| Redis Auth | Pendiente | Pendiente | Pendiente | Pendiente | No seleccionar aún |
-| Redis Cache | Pendiente | Pendiente | Pendiente | Pendiente | No seleccionar aún |
-| Blob Storage | Pendiente | Pendiente | Pendiente | Pendiente | No seleccionar aún |
-| CDN | Pendiente | Pendiente | Pendiente | Pendiente | No seleccionar aún |
-| TLS certificate | Pendiente | Pendiente | Pendiente | Pendiente | No seleccionar aún |
-| Secret injection | Pendiente | Pendiente | Pendiente | Pendiente | No seleccionar aún |
+| API container hosting | Container Apps, perfil Consumption, 2 réplicas fijas (0.25 vCPU / 0.5 GiB) | ~USD 9/mes tras la concesión gratuita (consulta 2026-11-05) | Crédito Azure for Students | No hay hosting de 2 réplicas a $0 | **Seleccionado** (ADR-003) |
+| Load balancing / ingress | Ingress administrado del ambiente | Incluido | — | Es $0 | **Seleccionado** |
+| Redis Auth | Container App `redis:7.4`, TCP interno, TLS, AOF en Azure Files | ~USD 5/mes | Crédito | Redis administrado excede presupuesto | **Seleccionado** (enmienda §8.9) |
+| Redis Cache | Container App `redis:7.4`, TCP interno, TLS, LRU | ~USD 5/mes | Crédito | idem | **Seleccionado** (enmienda §8.9) |
+| Blob Storage | — | — | — | — | Diferido: sin endpoints de imágenes (pm-079…082) |
+| CDN | — | — | — | — | Diferido: sin endpoints de imágenes |
+| TLS certificate | Certificado administrado de `*.azurecontainerapps.io` | Incluido | — | Es $0 | **Seleccionado** |
+| Secret injection | Secretos de Container Apps (desde secretos de GitHub vía Terraform) | Incluido | — | Es $0 | **Seleccionado** (sin Key Vault) |
 
+Total estimado ~USD 26–28/mes con ACR Basic y logs; desembolso directo $0 MXN (crédito de Azure for Students, sin tarjeta). Detalle y fuentes en `azure-deployment.md` §4; confirmar en la calculadora antes del primer `apply`.
 La tabla debe completarse con fuentes oficiales vigentes al momento de planificar el despliegue. No se debe inventar precio ni disponibilidad.

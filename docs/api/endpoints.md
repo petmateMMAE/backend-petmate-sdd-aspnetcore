@@ -21,9 +21,9 @@
 
 | Método | Endpoint | Acceso | Spec | Estado |
 |---|---|---|---|---|
-| GET | `/api/v1/technical/mediator-probe` | Técnico | `00-foundation` / T007 | Implementado; no funcional de negocio |
-| GET | `/api/v1/health/live` | Público (técnico) | `00-foundation` / T011 | Liveness: 200, sin consultar dependencias |
-| GET | `/api/v1/health/ready` | Público (técnico) | `00-foundation` / T011 | Readiness: 200 o 503; `data.dependencies[{name,status}]` para `mongodb`, `redis-auth`, `redis-cache`; sin hosts ni secretos |
+| GET | `/api/v1/technical/mediator-probe` | Técnico | `pm-007` / T007, T042 | Implementado; no funcional de negocio |
+| GET | `/api/v1/health/live` | Público (técnico) | `pm-014` / T011 | Liveness: 200, sin consultar dependencias |
+| GET | `/api/v1/health/ready` | Público (técnico) | `pm-014` / T011 | Readiness: 200 o 503; `data.dependencies[{name,status}]` para `mongodb`, `redis-auth`, `redis-cache`; sin hosts ni secretos |
 
 La ruta existe solo para comprobar MVC, Mediator, versionado y OpenAPI. La alternativa no versionada no se mapea.
 
@@ -31,10 +31,10 @@ La ruta existe solo para comprobar MVC, Mediator, versionado y OpenAPI. La alter
 
 | Método | Endpoint | Acceso | Spec | Estado |
 |---|---|---|---|---|
-| POST | `/api/v1/auth/register` | Público | `01-initial-authentication` / T018 | Implementado (verificado; pendiente de cierre humano) |
-| POST | `/api/v1/auth/login` | Público | `01-initial-authentication` / T019 | Implementado (verificado; pendiente de cierre humano) |
-| POST | `/api/v1/auth/refresh` | Refresh Token | `01-initial-authentication` / T020 | Implementado (verificado; pendiente de cierre humano) |
-| POST | `/api/v1/auth/logout` | Sesión autenticada | `01-initial-authentication` / T021 | Implementado (verificado; pendiente de cierre humano) |
+| POST | `/api/v1/auth/register` | Público | `pm-029` / T018 | Implementado (verificado; pendiente de cierre humano) |
+| POST | `/api/v1/auth/login` | Público | `pm-030` / T019 | Implementado (verificado; pendiente de cierre humano) |
+| POST | `/api/v1/auth/refresh` | Refresh Token | `pm-031` / T020 | Implementado (verificado; pendiente de cierre humano) |
+| POST | `/api/v1/auth/logout` | Sesión autenticada | `pm-032` / T021 | Implementado (verificado; pendiente de cierre humano) |
 
 ### Contratos de autenticación
 
@@ -91,22 +91,36 @@ Requiere `Authorization: Bearer <access token vigente>`. Si el access token expi
 | 403 | El refresh token pertenece a otro usuario o es desconocido | `null` |
 | 503 | Redis Auth o Atlas no disponible (falla cerrada) | `null` |
 
+## Autorización (pm-033 / T022)
+
+- **Denegación por defecto.** Todo endpoint exige un usuario autenticado con rol `Owner` o `Business` salvo que se marque `[AllowAnonymous]` de forma explícita. Una prueba (`PublicSurfaceTests`) fija la lista cerrada de endpoints públicos.
+- **Roles.** Solo existen `Owner` y `Business`; no hay rol de administración. El rol sale únicamente del claim `role` de un JWT con firma, vigencia y lista negra ya validadas; un token con rol ausente, desconocido o con distinto uso de mayúsculas se rechaza con 401.
+- **Políticas.** `RequireOwner` y `RequireBusiness` (convención `Require<Capacidad>`). `RequireOwner` se aplicará a los endpoints de mascotas en `pm-040` a `pm-044`.
+- **Códigos.** 401 si no hay autenticación válida; 403 si hay autenticación válida pero el rol no tiene permiso; ambos con el wrapper estándar (`data: null`). Las rutas inexistentes siguen devolviendo 404 a cualquier llamador.
+
+| Método | Endpoint | Motivo |
+|---|---|---|
+| POST | `/api/v1/auth/register`, `/login`, `/refresh` | Flujo de autenticación inicial |
+| GET | `/api/v1/health/live`, `/ready` | Sondas del balanceador y de Compose |
+| GET | `/api/v1/technical/mediator-probe` | **Temporal:** público para no ampliar el alcance de pm-033. Pendiente revisar su exposición en producción en un trabajo de seguridad posterior |
+| GET | `/openapi/v1.json`, `/scalar/v1` | Solo en Development |
+
 ## Perfil
 
 | Método | Endpoint | Acceso | Spec | Estado |
 |---|---|---|---|---|
-| GET | `/api/v1/users/me/get` | Autenticado | `02-owner-profile` | Planeado |
-| PUT | `/api/v1/users/me/update` | Autenticado | `02-owner-profile` | Planeado |
+| GET | `/api/v1/users/me/get` | Autenticado | `pm-037` | Planeado |
+| PUT | `/api/v1/users/me/update` | Autenticado | `pm-038` | Planeado |
 
 ## Mascotas
 
 | Método | Endpoint | Acceso | Spec | Estado |
 |---|---|---|---|---|
-| POST | `/api/v1/pets/create` | Owner | `03-pet-management` | Planeado |
-| GET | `/api/v1/pets/get-all` | Owner | `03-pet-management` | Planeado |
-| GET | `/api/v1/pets/get-by-id/{id}` | Owner + propietario | `03-pet-management` | Planeado |
-| PUT | `/api/v1/pets/update/{id}` | Owner + propietario | `03-pet-management` | Planeado |
-| DELETE | `/api/v1/pets/delete/{id}` | Owner + propietario | `03-pet-management` | Planeado |
+| POST | `/api/v1/pets/create` | Owner | `pm-040` | Planeado |
+| GET | `/api/v1/pets/get-all` | Owner | `pm-041` | Planeado |
+| GET | `/api/v1/pets/get-by-id/{id}` | Owner + propietario | `pm-042` | Planeado |
+| PUT | `/api/v1/pets/update/{id}` | Owner + propietario | `pm-043` | Planeado |
+| DELETE | `/api/v1/pets/delete/{id}` | Owner + propietario | `pm-044` | Planeado |
 
 ## Códigos HTTP iniciales
 
@@ -123,4 +137,4 @@ No devolver 204 porque la API debe responder con el wrapper.
 
 ## Cambios
 
-Cada nuevo endpoint o modificación requiere spec y actualización de este catálogo, más pruebas de contrato.
+Cada nuevo endpoint o modificación requiere Spec `pm-NNN` y actualización de este catálogo, más pruebas de contrato.

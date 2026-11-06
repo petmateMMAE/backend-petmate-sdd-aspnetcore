@@ -13,3 +13,6 @@ specs/
 .opencode/
 docker-compose*.yml
 Dockerfile
+infra/
+.github/
+scripts/

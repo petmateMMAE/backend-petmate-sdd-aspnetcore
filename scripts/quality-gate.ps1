@@ -82,7 +82,9 @@ Step 'NuGet: auditoría de licencias (lista permitida, costo $0)' {
     $packageRoot = (dotnet nuget locals global-packages -l) -replace '^.*?:\s*', ''
     $unknown = @()
     foreach ($package in $packages) {
-        $nuspec = Join-Path $packageRoot.Trim() "$($package.id.ToLowerInvariant())\$($package.resolvedVersion)\$($package.id.ToLowerInvariant()).nuspec"
+        # Join-Path anidado para que funcione igual en Windows y en Linux (runner de CI).
+        $packageId = $package.id.ToLowerInvariant()
+        $nuspec = Join-Path (Join-Path (Join-Path $packageRoot.Trim() $packageId) $package.resolvedVersion) "$packageId.nuspec"
         if (-not (Test-Path $nuspec)) { $unknown += "$($package.id) (sin nuspec)"; continue }
         [xml]$xml = Get-Content $nuspec
         $license = $xml.package.metadata.license.'#text'

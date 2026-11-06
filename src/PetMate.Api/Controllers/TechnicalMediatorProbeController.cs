@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PetMate.Api.Contracts.Responses;
 using PetMate.Application.Mediator;
@@ -6,6 +7,9 @@ namespace PetMate.Api.Controllers;
 
 /// <summary>Controlador MVC técnico de prueba; no expone una ruta de negocio.</summary>
 [ApiController]
+// Público de forma temporal para no ampliar el alcance de pm-033. Pendiente (decisión P-04): revisar su exposición en producción
+// en un trabajo de seguridad posterior (restringir a Development o protegerlo sin crear un rol de administración).
+[AllowAnonymous]
 [Route("api/v1/technical")]
 public sealed class TechnicalMediatorProbeController(ISender sender) : ControllerBase
 {

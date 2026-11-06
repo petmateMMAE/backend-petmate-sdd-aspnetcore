@@ -17,7 +17,7 @@ permission:
 Revisión independiente, solo lectura. No corrige hallazgos ni modifica specs, código o configuración.
 
 ## Revisa
-- Constitución y gates del slice.
+- Constitución y gates del Spec.
 - Autenticación, autorización, IDOR/BOLA, validaciones y exposición de datos.
 - JWT, refresh rotation, replay, logout y Redis blacklist cuando aplique.
 - MongoDB Atlas, Redis separados, configuración de secretos y logs.

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -8,6 +9,7 @@ namespace PetMate.Api.Controllers;
 
 /// <summary>Estado técnico de la API y sus dependencias; no expone detalles internos ni secretos.</summary>
 [ApiController]
+[AllowAnonymous] // Público a propósito: lo consultan las sondas del balanceador y de Compose (pm-033).
 [Route("api/v1/health")]
 #pragma warning disable CA1822 // MVC no enruta acciones static.
 public sealed class HealthController(HealthCheckService healthChecks) : ControllerBase

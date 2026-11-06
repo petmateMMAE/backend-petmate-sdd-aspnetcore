@@ -6,8 +6,8 @@ Este repositorio utiliza Spec-Driven Development para definir, planificar, imple
 
 1. Lee `AGENTS.md`.
 2. Revisa `.specify/memory/constitution.md` y `Memoria.md`.
-3. Consulta el índice `specs/README.md`.
-4. Revisa los cuatro artefactos del slice que corresponda.
+3. Consulta el registro `specs/README.md` y la matriz `specs/traceability.md`.
+4. Revisa el `spec.md` y el `task.md` del Spec `pm-NNN` que corresponda (y su `plan.md` y `gates.md` si existen).
 5. No ejecutes tareas de implementación hasta que el usuario haya aprobado el spec, plan, tareas y gates.
 
 ## Fuentes de verdad
@@ -15,7 +15,7 @@ Este repositorio utiliza Spec-Driven Development para definir, planificar, imple
 - Reglas no negociables: `.specify/memory/constitution.md`.
 - Operación de agentes: `AGENTS.md`.
 - Estado y decisiones: `Memoria.md`.
-- Roadmap SDD: `specs/README.md`.
+- Registro SDD: `specs/README.md`; trazabilidad: `specs/traceability.md`.
 - Contrato de endpoints: `docs/api/endpoints.md`.
 - Alcance derivado del PDF PetMate: `docs/product-scope.md`.
 
@@ -23,7 +23,7 @@ Los README y documentos auxiliares no sustituyen la constitución ni las especif
 
 ## Documentación de API
 
-La API genera un documento OpenAPI y utiliza Scalar como única UI interactiva. Swagger UI y otras UI alternativas no forman parte del stack. La configuración inicial se realiza en T007 de `00-foundation`.
+La API genera un documento OpenAPI y utiliza Scalar como única UI interactiva. Swagger UI y otras UI alternativas no forman parte del stack. La configuración inicial se realiza en T007 (`pm-008`).
 
 ## Primer hito
 
