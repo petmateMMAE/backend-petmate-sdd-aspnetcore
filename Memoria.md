@@ -300,3 +300,9 @@
 - **DAG:** pm-033 y pm-034 son dependencias directas de pm-035 (pm-035 L10, pm-046 L11, pm-053 L12).
 - **Riesgo registrado:** `mediator-probe` sigue público de forma temporal; hay que revisar su exposición en producción en un trabajo de seguridad posterior.
 - **Evidencia:** `specs/pm-033-authorization-policies/checklists/gates.md`.
+
+## Versión 0.2.0 — perfil propio (2026-11-06)
+
+- Implementados `GET /api/v1/users/me/get` y `PUT /api/v1/users/me/update` (pm-037, pm-038; aprobados por Miguel, en progreso hasta su cierre humano): nombre visible opcional (1-80), identidad solo desde el token, correo y rol no editables. 9 pruebas unitarias y 12 de contrato nuevas; la prueba de humo cubre el perfil.
+- Cuenta demo creada en producción: `demo@petmate.mx` / `PetMateDemo2026` (nombre «Usuario Demo»), sin datos reales, para la revisión.
+- La app móvil ya muestra el perfil del servidor y guarda el nombre del registro en el servidor.
