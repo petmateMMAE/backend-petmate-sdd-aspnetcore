@@ -1,6 +1,7 @@
 using PetMate.ContractTests.Support;
 using System.Net;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -225,6 +226,7 @@ public sealed class ResponseWrapperHttpTests
 
 #pragma warning disable CA1822 // MVC no enruta acciones static.
 [ApiController]
+[AllowAnonymous] // Controlador de prueba de contrato del wrapper: con la política de respaldo (pm-033) debe ser público de forma explícita.
 [Route("api/v1/test-wrapper")]
 public sealed class WrapperTestController(ISender sender) : ControllerBase
 {

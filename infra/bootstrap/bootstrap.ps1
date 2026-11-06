@@ -85,12 +85,14 @@ if (-not $appId) { $appId = Invoke-AzCli ad app create --display-name $appName -
 $spId = Invoke-AzCli ad sp list --filter "appId eq '$appId'" --query '[0].id' -o tsv
 if (-not $spId) { $spId = Invoke-AzCli ad sp create --id $appId --query id -o tsv }
 
-foreach ($envName in 'production', 'atlas-sync') {
+# La organización usa el plan gratuito de GitHub (sin environments en repos privados): Azure confía solo
+# en los workflows que corren desde la rama main.
+foreach ($envName in 'main') {
     $credName = "github-$envName"
     $has = Invoke-AzCli ad app federated-credential list --id $appId --query "[?name=='$credName'].name | [0]" -o tsv
     if (-not $has) {
         $body = @{ name = $credName; issuer = 'https://token.actions.githubusercontent.com';
-            subject = "repo:${GitHubRepository}:environment:$envName"; audiences = @('api://AzureADTokenExchange') } | ConvertTo-Json -Compress
+            subject = "repo:${GitHubRepository}:ref:refs/heads/$envName"; audiences = @('api://AzureADTokenExchange') } | ConvertTo-Json -Compress
         $file = New-TemporaryFile
         [IO.File]::WriteAllText($file, $body)
         Invoke-AzCli ad app federated-credential create --id $appId --parameters "@$file" | Out-Null
@@ -115,4 +117,4 @@ Write-Host "TFSTATE_RESOURCE_GROUP=$StateResourceGroup"
 Write-Host "TFSTATE_STORAGE_ACCOUNT=$stateAccount"
 Write-Host "`nSecretos (los capturas tú; este script no los conoce): TF_MONGODB_URI, TF_JWT_SIGNING_KEY, ALERT_EMAIL,"
 Write-Host "ATLAS_PROJECT_ID, MONGODB_ATLAS_PUBLIC_KEY, MONGODB_ATLAS_PRIVATE_KEY, MONGODB_TEST_URI, MONGODB_TEST_DATABASE"
-Write-Host "Environments: 'production' (con revisores obligatorios) y 'atlas-sync' (sin revisores)."
+Write-Host "Los workflows de despliegue e infraestructura solo corren desde main."

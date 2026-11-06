@@ -106,3 +106,33 @@ variable "tags" {
     costo      = "azure-for-students"
   }
 }
+
+# Modo ahorro (aprobado por el equipo para la fase de pruebas, constitución §8.16):
+#   true  -> la API escala a 0 sin peticiones, se levanta sola con la primera petición (máx. 2 réplicas
+#            con balanceo) y se apaga tras api_cooldown_seconds; Redis solo de 7:00 a 23:00 (hora de México).
+#   false -> configuración de evaluación: 2 réplicas fijas de la API y Redis las 24 h.
+variable "modo_ahorro" {
+  description = "true: escala a cero y Redis con horario (pruebas). false: 2 réplicas fijas y Redis 24 h (evaluación)."
+  type        = bool
+  default     = true
+}
+
+variable "api_cooldown_seconds" {
+  description = "Segundos sin peticiones antes de apagar la API en modo ahorro."
+  type        = number
+  default     = 900
+}
+
+variable "redis_schedule" {
+  description = "Horario en que Redis está encendido en modo ahorro (cron de inicio y fin)."
+  type = object({
+    timezone = string
+    start    = string
+    end      = string
+  })
+  default = {
+    timezone = "America/Mexico_City"
+    start    = "0 7 * * *"
+    end      = "0 23 * * *"
+  }
+}

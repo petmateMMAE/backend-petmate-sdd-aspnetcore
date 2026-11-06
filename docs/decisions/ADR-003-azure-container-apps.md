@@ -39,3 +39,5 @@ El primer despliegue publica el backend actual (7 endpoints) en Azure for Studen
 - El contenedor de Redis corre como root dentro de su contenedor (Container Apps no permite fijar el usuario sin una imagen propia); está aislado en la red interna.
 - Las IPs de salida pueden cambiar; `.github/workflows/atlas-ip-sync.yml` las vuelve a sincronizar cada 6 horas.
 - Costo estimado en `docs/infrastructure/azure-deployment.md` (pm-062).
+- **Modo ahorro** (`modo_ahorro`, aprobado por el equipo para la fase de pruebas): API de 0 a 2 réplicas por peticiones con apagado tras 15 min sin uso, y Redis con horario 7:00–23:00 (regla cron). Baja el costo de ~27 a ~14 USD/mes; primera petición ~10–20 s; sin servicio de noche. Para revisiones se aplica `modo_ahorro = false`.
+- **GitHub plan gratuito:** la organización no tiene environments en repositorios privados, así que los workflows de infraestructura y despliegue se disparan a mano solo desde `main`, y la identidad OIDC de Azure solo confía en `ref:refs/heads/main`.

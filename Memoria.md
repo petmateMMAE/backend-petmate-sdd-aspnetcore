@@ -292,3 +292,10 @@
 - **No ejecutado todavía:** ningún recurso Azure creado, ningún `terraform apply`. Siguiente paso: `infra/bootstrap/bootstrap.ps1 -CheckOnly`.
 - **Riesgos abiertos:** `TRUSTED_PROXIES` solo acepta IPs (rate limit agrupado por proxy hasta medirlas); HSTS no implementado; validar que la región permitida por Azure for Students admita Container Apps; montaje de Azure Files con la red restringida; registro de la app OIDC en el tenant escolar.
 - **Pendiente para la entrega final (fuera de este alcance):** caché en backend, paginación, compresión, eliminar cuenta, imágenes + CDN + moderación, notificaciones push.
+## pm-033 / T022 — políticas de autorización implementadas (2026-11-05)
+
+- **Estado:** implementado y probado en el contenedor SDK (sin Atlas ni Redis reales); **T022 no está cerrada** y el Spec pm-033 está `En progreso`. Pendientes: revisión independiente de seguridad y trazabilidad, aprobación humana y la aplicación de `RequireOwner` a los endpoints de mascotas (pm-040 a pm-044, trazabilidad en pm-045 CA-02).
+- **Decisiones:** política por defecto y de respaldo (denegación por defecto), `RequireOwner` y `RequireBusiness`, rol solo desde claims del JWT validado, sin rol Admin. La política de respaldo también se aplica a rutas inexistentes y endpoints sintéticos (405/415); `UnmatchedRouteResultHandler` conserva sus códigos habituales (decisión D-09, aprobada por el usuario con la condición de que el manejador nunca omita la autorización de endpoints reales de la aplicación; las pruebas de regresión lo verifican).
+- **DAG:** pm-033 y pm-034 son dependencias directas de pm-035 (pm-035 L10, pm-046 L11, pm-053 L12).
+- **Riesgo registrado:** `mediator-probe` sigue público de forma temporal; hay que revisar su exposición en producción en un trabajo de seguridad posterior.
+- **Evidencia:** `specs/pm-033-authorization-policies/checklists/gates.md`.

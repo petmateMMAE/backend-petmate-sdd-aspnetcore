@@ -1,7 +1,8 @@
 # Tres Container Apps en el mismo ambiente:
 #   - redis-auth  : lista negra de JWT. TCP interno + TLS, noeviction, AOF en Azure Files (constitución §5.1).
 #   - redis-cache : caché distribuida. TCP interno + TLS, allkeys-lru, sin persistencia (constitución §5.2).
-#   - petmate-api : la API. Ingress HTTPS externo con 2 réplicas fijas detrás del balanceador del ambiente.
+#   - petmate-api : la API. Ingress HTTPS externo detrás del balanceador del ambiente; 2 réplicas fijas o,
+#                   en modo ahorro (var.modo_ahorro), de 0 a 2 según peticiones.
 
 locals {
   redis_config = {
@@ -60,8 +61,24 @@ resource "azurerm_container_app" "redis" {
 
   template {
     # Redis es estado compartido: una sola réplica por servicio (las 2 instancias son de la API).
-    min_replicas = 1
+    # Modo ahorro: encendido solo en el horario de var.redis_schedule (regla cron de KEDA). Redis Auth no pierde
+    # las revocaciones al apagarse porque el AOF vive en Azure Files.
+    min_replicas = var.modo_ahorro ? 0 : 1
     max_replicas = 1
+
+    dynamic "custom_scale_rule" {
+      for_each = var.modo_ahorro ? [1] : []
+      content {
+        name             = "horario"
+        custom_rule_type = "cron"
+        metadata = {
+          timezone        = var.redis_schedule.timezone
+          start           = var.redis_schedule.start
+          end             = var.redis_schedule.end
+          desiredReplicas = "1"
+        }
+      }
+    }
 
     container {
       name   = each.value
@@ -173,9 +190,17 @@ resource "azurerm_container_app" "api" {
   }
 
   template {
-    # Requisito académico y constitución §8.3: al menos dos instancias, sin escalar a cero.
-    min_replicas = 2
-    max_replicas = 2
+    # Evaluación (modo_ahorro = false): 2 réplicas fijas, requisito académico y constitución §8.3.
+    # Pruebas (modo_ahorro = true): 0 réplicas sin tráfico; la primera petición la levanta y el balanceador
+    # reparte hasta 2 réplicas; se apaga tras var.api_cooldown_seconds sin peticiones.
+    min_replicas               = var.modo_ahorro ? 0 : 2
+    max_replicas               = 2
+    cooldown_period_in_seconds = var.modo_ahorro ? var.api_cooldown_seconds : 300
+
+    http_scale_rule {
+      name                = "peticiones"
+      concurrent_requests = "20"
+    }
 
     container {
       name   = "api"

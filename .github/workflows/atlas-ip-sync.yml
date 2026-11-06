@@ -29,8 +29,7 @@ env:
 
 jobs:
   sync:
-    # Environment sin revisores: solo puede tocar la lista de acceso de Atlas.
-    environment: atlas-sync
+    # Corre desde main (la rama por defecto): solo toca la lista de acceso de Atlas.
     runs-on: ubuntu-latest
     timeout-minutes: 15
     if: vars.TFSTATE_STORAGE_ACCOUNT != ''

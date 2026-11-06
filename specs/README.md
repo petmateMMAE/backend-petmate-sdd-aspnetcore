@@ -47,9 +47,9 @@
 | [pm-030-user-login](pm-030-user-login/spec.md) | En revisión | L6 | pm-011, pm-024, pm-025, pm-026, pm-027 | T019 | `POST /api/v1/auth/login` con respuesta idéntica ante credenciales inválidas |
 | [pm-031-refresh-token-rotation](pm-031-refresh-token-rotation/spec.md) | En revisión | L7 | pm-025, pm-027, pm-030 | T020 | `POST /api/v1/auth/refresh` con rotación atómica y detección de replay |
 | [pm-032-user-logout](pm-032-user-logout/spec.md) | En revisión | L8 | pm-028, pm-031 | T021 | `POST /api/v1/auth/logout` que revoca sesión y `jti` |
-| [pm-033-authorization-policies](pm-033-authorization-policies/spec.md) | Propuesto | L4 | pm-027, pm-028 | T022 | Política de autorización por defecto y por rol Owner/Business |
+| [pm-033-authorization-policies](pm-033-authorization-policies/spec.md) | En progreso | L4 | pm-027, pm-028 | T022 | Política de autorización por defecto y por rol Owner/Business |
 | [pm-034-auth-brute-force-protection](pm-034-auth-brute-force-protection/spec.md) | Propuesto | L9 | pm-030, pm-031, pm-036 | T023, T056 | Cuota por correo y bloqueo contra credential stuffing, y limitador asíncrono de hashing |
-| [pm-035-auth-session-lifecycle-acceptance](pm-035-auth-session-lifecycle-acceptance/spec.md) | Propuesto | L9 | pm-028, pm-029, pm-030, pm-031, pm-032 | T025 | Escenarios de ciclo de vida de sesión entre endpoints y cierre del grupo de autenticación |
+| [pm-035-auth-session-lifecycle-acceptance](pm-035-auth-session-lifecycle-acceptance/spec.md) | Propuesto | L10 | pm-028, pm-029, pm-030, pm-031, pm-032, pm-033, pm-034 | T025 | Escenarios de ciclo de vida de sesión entre endpoints y cierre del grupo de autenticación |
 | [pm-036-rate-limiting](pm-036-rate-limiting/spec.md) | En revisión | L8 | pm-017, pm-029, pm-030, pm-031 | T054, T057 | Límites por política y por IP, auth ya implementado y matriz global pendiente |
 | [pm-037-owner-profile-read](pm-037-owner-profile-read/spec.md) | Propuesto | L5 | pm-024, pm-033 | T026 | `GET /api/v1/users/me/get` del usuario autenticado |
 | [pm-038-owner-profile-update](pm-038-owner-profile-update/spec.md) | Propuesto | L6 | pm-037 | T027, T028 | `PUT /api/v1/users/me/update` con campos aprobados |
@@ -60,14 +60,14 @@
 | [pm-043-pet-update](pm-043-pet-update/spec.md) | Propuesto | L6 | pm-039 | T033 | `PUT /api/v1/pets/update/{id}` de mascota propia con campos permitidos |
 | [pm-044-pet-soft-delete](pm-044-pet-soft-delete/spec.md) | Propuesto | L6 | pm-039 | T034 | `DELETE /api/v1/pets/delete/{id}` con eliminación lógica y `data:null` |
 | [pm-045-pet-ownership-bola](pm-045-pet-ownership-bola/spec.md) | Propuesto | L7 | pm-040, pm-041, pm-042, pm-043, pm-044 | T035, T038, T040 | Matriz de propiedad y BOLA del módulo de mascotas y cierre de seguridad del módulo |
-| [pm-046-first-milestone-acceptance](pm-046-first-milestone-acceptance/spec.md) | Propuesto | L10 | pm-035, pm-038, pm-045 | T041 | Aceptación de extremo a extremo de los 11 endpoints del primer hito |
+| [pm-046-first-milestone-acceptance](pm-046-first-milestone-acceptance/spec.md) | Propuesto | L11 | pm-035, pm-038, pm-045 | T041 | Aceptación de extremo a extremo de los 11 endpoints del primer hito |
 | [pm-047-pagination-convention](pm-047-pagination-convention/spec.md) | Propuesto | L4 | pm-009 | T058 | Parámetros, tope y forma de paginación en listados |
 | [pm-048-response-compression](pm-048-response-compression/spec.md) | Propuesto | L4 | pm-009 | T059 | Compresión de respuestas con evaluación de riesgos |
 | [pm-049-json-serialization-performance](pm-049-json-serialization-performance/spec.md) | Propuesto | L4 | pm-009 | T060 | Serialización JSON eficiente con medición |
 | [pm-050-distributed-cache-infrastructure](pm-050-distributed-cache-infrastructure/spec.md) | Propuesto | L3 | pm-013 | T061 | Adaptador de caché sobre Redis Cache, claves, TTL y política de falla |
 | [pm-051-cache-policy-data-classification](pm-051-cache-policy-data-classification/spec.md) | Propuesto | L4 | pm-050 | T062 | Política de qué datos pueden cachearse y criterios de decisión |
 | [pm-052-database-indexing-efficiency](pm-052-database-indexing-efficiency/spec.md) | Propuesto | L6 | pm-024, pm-025, pm-039 | T063 | Inventario de índices y evidencia de consultas críticas |
-| [pm-053-api-performance-baseline](pm-053-api-performance-baseline/spec.md) | Propuesto | L11 | pm-046 | T064 | Objetivos de latencia medibles y prueba de carga sin costo |
+| [pm-053-api-performance-baseline](pm-053-api-performance-baseline/spec.md) | Propuesto | L12 | pm-046 | T064 | Objetivos de latencia medibles y prueba de carga sin costo |
 | [pm-054-structured-logging-pii-safe](pm-054-structured-logging-pii-safe/spec.md) | Propuesto | L5 | pm-010 | T065 | Logging estructurado con correlación y sin datos personales |
 | [pm-055-ci-pull-request-pipeline](pm-055-ci-pull-request-pipeline/spec.md) | Aprobado | L4 | pm-021 | T012, T066, T067 | Workflow de pull request con paridad respecto al gate local y ramas protegidas |
 | [pm-056-test-coverage-baseline](pm-056-test-coverage-baseline/spec.md) | Propuesto | L4 | pm-021 | T068 | Línea base y umbral de cobertura de pruebas |
@@ -115,10 +115,10 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | L6 | pm-029, pm-030, pm-038, pm-040, pm-041, pm-042, pm-043, pm-044, pm-052, pm-069, pm-070, pm-071, pm-074, pm-079 |
 | L7 | pm-031, pm-045, pm-075 |
 | L8 | pm-032, pm-036, pm-076, pm-078, pm-080 |
-| L9 | pm-034, pm-035, pm-073, pm-081 |
-| L10 | pm-046, pm-077, pm-082 |
-| L11 | pm-053, pm-083 |
-| L12 | pm-084 |
+| L9 | pm-034, pm-073, pm-081 |
+| L10 | pm-035, pm-077, pm-082 |
+| L11 | pm-046, pm-083 |
+| L12 | pm-053, pm-084 |
 
 ## Tasks T001–T097
 
@@ -145,7 +145,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T019 | Histórica | [pm-030](pm-030-user-login/spec.md) | Cerrado y aprobado (2026-11-03, aprobación humana) | Endpoint Login |
 | T020 | Histórica | [pm-031](pm-031-refresh-token-rotation/spec.md) | Cerrado y aprobado (2026-11-03, aprobación humana) | Refresh Token persistente y rotatorio |
 | T021 | Histórica | [pm-032](pm-032-user-logout/spec.md) | Cerrado y aprobado (2026-11-03, aprobación humana) | Endpoint Logout |
-| T022 | Histórica | [pm-033](pm-033-authorization-policies/spec.md) | Propuesto | Políticas de autenticación y autorización |
+| T022 | Histórica | [pm-033](pm-033-authorization-policies/spec.md) | En progreso | Políticas de autenticación y autorización |
 | T023 | Histórica | [pm-034](pm-034-auth-brute-force-protection/spec.md) | Propuesto | Pruebas unitarias, integración y seguridad de auth |
 | T024 | Histórica | [pm-061](pm-061-api-docs-contract-sync/spec.md) | Propuesto | Contratos y documentación de auth |
 | T025 | Histórica | [pm-035](pm-035-auth-session-lifecycle-acceptance/spec.md) | Propuesto | Gates y revisión independiente de auth |
@@ -232,3 +232,8 @@ Los cuatro endpoints de autenticación y los siete endpoints funcionales (11 en 
 - No dupliques aquí requisitos detallados ni tablas completas de endpoints.
 - No marques como `Cerrado` sin gates y aprobación humana; los agentes no se auto-firman.
 - Valida con `scripts/check-sdd.ps1` antes de proponer cambios al registro.
+
+## Historial del registro
+
+- **2026-11-05 — pm-035:** se añadieron `pm-033` y `pm-034` como dependencias directas (aprobado por el usuario). Justificación en [pm-035](pm-035-auth-session-lifecycle-acceptance/spec.md) §6. Efecto en niveles: pm-035 pasa a L10, pm-046 a L11 y pm-053 a L12. No se modificó ninguna Task histórica ni la propiedad de ningún criterio.
+- **2026-11-05 — pm-033 / T022:** pasan a `En progreso` por autorización de implementación del usuario. T022 no está cerrada (ver [task.md](pm-033-authorization-policies/task.md)).

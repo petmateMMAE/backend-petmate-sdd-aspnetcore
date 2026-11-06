@@ -68,6 +68,7 @@ Consulta: 2026-11-05. Precios de lista en USD; **confirmar en la calculadora de 
 | CI/CD | GitHub Actions (repositorio privado, 2 000 min/mes gratis) | incluido | 0 | — |
 | **Total** | | | **~26–28 USD/mes** (~1 USD/día) | |
 
+- **Modo ahorro (por defecto en pruebas):** API ~0–1, Redis ~6–7 (16 h/día), ACR ~5, logs ~1–2 → **~13–15 USD/mes**. La API se apaga tras 15 min sin peticiones y Redis de 23:00 a 7:00. Para una revisión: variable de GitHub `MODO_AHORRO=false` → *Infraestructura → apply*; al terminar, quitarla y volver a aplicar.
 - Crédito disponible: Azure for Students (USD 100 por 12 meses; sin tarjeta; al agotarse la suscripción se deshabilita, no genera cargos) — [FAQ](https://learn.microsoft.com/azure/education-hub/faq).
 - El presupuesto de Terraform (USD 40/mes) avisa al 50, 80 y 100 %.
 - **Sin conflicto académico:** la arquitectura completa (2 instancias + balanceador) cabe en el crédito; no se reduce ningún requisito (pm-062#CA-04).
@@ -81,10 +82,10 @@ Consulta: 2026-11-05. Precios de lista en USD; **confirmar en la calculadora de 
    (regiones permitidas por la política de Azure for Students y disponibilidad de Container Apps).
 3. **Bootstrap** (con autorización): mismo comando sin `-CheckOnly`. Crea `rg-petmate-prod`, `rg-petmate-tfstate`, la cuenta del estado y la identidad OIDC; imprime las variables de GitHub.
 4. **Atlas**: crear la base `petmate_prod`, un usuario con `readWrite` solo en ella y una API key del proyecto (Project IP Access List Admin). Opcional: correr `scripts/mongo/petmate-db.mongodb.js`.
-5. **GitHub** (Settings → Environments y Secrets): environments `production` (revisores obligatorios) y `atlas-sync`; variables y secretos que imprime el bootstrap; `TF_JWT_SIGNING_KEY` nueva.
-6. **Plan**: Actions → *Infraestructura* → `plan`. Revisar con el equipo.
+5. **GitHub** (Settings → Secrets and variables → Actions): variables que imprime el bootstrap y secretos `TF_MONGODB_URI`, `TF_JWT_SIGNING_KEY`, `ALERT_EMAIL`, `ATLAS_PROJECT_ID`, `MONGODB_ATLAS_PUBLIC_KEY`, `MONGODB_ATLAS_PRIVATE_KEY`, `MONGODB_TEST_URI`, `MONGODB_TEST_DATABASE`. Sin environments (plan gratuito): los workflows solo corren desde `main`.
+6. **Plan**: Actions → *Infraestructura* → `plan` (rama `main`). Revisar con el equipo.
 7. **Apply** (con autorización): Actions → *Infraestructura* → `apply`. Crea el ambiente, ACR, los dos Redis, la API (con imagen de arranque) y la lista de acceso de Atlas.
-8. **Primera versión**: etiquetar `main` con `api-v0.1.0` → *Deploy API* construye, escanea, publica, despliega y ejecuta `scripts/smoke-test.sh`.
+8. **Primera versión**: Actions → *Deploy API* → versión `0.1.0` (rama `main`): construye, escanea, publica, despliega, ejecuta `scripts/smoke-test.sh` y crea la etiqueta `api-v0.1.0`. En modo ahorro hacerlo entre 7:00 y 23:00.
 9. **Verificar** (pm-084): las 2 réplicas en el resumen del job; `ready` con `mongodb`, `redis-auth` y `redis-cache` en `Healthy`; logout revoca el token; HTTP redirige a HTTPS; reinicio de `redis-auth` sin perder revocaciones vigentes.
 10. **Proxies**: en Log Analytics revisar la IP de origen que ve la API; si es estable, registrar `TRUSTED_PROXIES` y volver a aplicar.
 11. Registrar la evidencia en `checklists/gates.md` de los specs y en `Memoria.md`.

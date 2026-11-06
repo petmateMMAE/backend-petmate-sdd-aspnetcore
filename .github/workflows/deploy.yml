@@ -1,13 +1,12 @@
 # CD de la API (pm-077, pm-059, pm-074).
-# Se dispara con una etiqueta SemVer `api-vX.Y.Z` (docs/versioning/version-matrix.md) o a mano.
+# Se dispara a mano desde `main` con la versión SemVer; al terminar bien crea la etiqueta `api-vX.Y.Z`.
 # Construye la imagen inmutable, la escanea, la sube a ACR, actualiza la Container App, corre la prueba
 # de humo por HTTPS de los 7 endpoints y, si falla, regresa a la imagen anterior.
-# Requiere aprobación en el environment `production` (revisores obligatorios en GitHub).
+# Sin environments: la organización usa el plan gratuito de GitHub, que no los permite en repositorios privados.
+# El control es que solo quien tiene permiso de escritura lo dispara, solo desde `main`, y Azure solo confía en `main` (OIDC).
 name: Deploy API
 
 on:
-  push:
-    tags: ['api-v*.*.*']
   workflow_dispatch:
     inputs:
       version:
@@ -16,7 +15,7 @@ on:
 
 permissions:
   id-token: write
-  contents: read
+  contents: write
 
 concurrency:
   group: deploy-production
@@ -31,7 +30,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production
+    if: github.ref == 'refs/heads/main'
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +38,7 @@ jobs:
       - name: Versión
         id: version
         run: |
-          if [ "${{ github.event_name }}" = "push" ]; then V="${GITHUB_REF_NAME#api-v}"; else V="${{ inputs.version }}"; fi
+          V="${{ inputs.version }}"
           if ! echo "$V" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then echo "::error::Versión no SemVer: $V"; exit 1; fi
           echo "version=$V" >> "$GITHUB_OUTPUT"
           echo "tag=$V-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
@@ -112,6 +111,14 @@ jobs:
             sleep 10
           done
 
+      - name: Despertar la API (modo ahorro puede tenerla en 0 réplicas)
+        run: |
+          for i in $(seq 1 24); do
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "${{ steps.infra.outputs.url }}/api/v1/health/ready" || true)
+            echo "ready: $CODE"; [ "$CODE" = "200" ] && exit 0; sleep 10
+          done
+          echo "::error::La API no quedó lista. En modo ahorro Redis está apagado de 23:00 a 7:00 (hora de México)."; exit 1
+
       - name: Prueba de humo por HTTPS (7 endpoints)
         id: smoke
         run: bash scripts/smoke-test.sh "${{ steps.infra.outputs.url }}"
@@ -122,6 +129,12 @@ jobs:
           az containerapp update -n ${{ steps.infra.outputs.app }} -g ${{ steps.infra.outputs.rg }} \
             --image "${{ steps.rollout.outputs.previous }}" >/dev/null
           echo "::warning::Despliegue revertido a ${{ steps.rollout.outputs.previous }}"
+
+      - name: Etiqueta de versión
+        if: success()
+        run: |
+          git tag "api-v${{ steps.version.outputs.version }}" "$GITHUB_SHA" 2>/dev/null && \
+            git push origin "api-v${{ steps.version.outputs.version }}" || echo "La etiqueta ya existía"
 
       - name: Resumen
         if: success()

@@ -62,6 +62,7 @@
 | T007 (histórica) | pm-008 | pm-008#CA-01..04 | Alcance histórico: OpenAPI/Scalar. No demuestra por sí sola los criterios de rutas de pm-007; su alcance no se modifica. |
 | T042 (retrospectiva) | pm-007 | pm-007#CA-01..03 | Documenta la evidencia existente de rutas versionadas (origen T007) sin cerrarse. |
 | T055 (nueva) | pm-007 | pm-007#CA-04..05 | Cubre los criterios que faltan (verificación automática de rutas y reglas de nombrado). |
+| T022 (histórica) | pm-033 | pm-033#CA-01..04 | En progreso; no cerrada: la aplicación de Owner a los endpoints de mascotas se cumple en pm-040 a pm-044 y se traza con pm-045 CA-02. |
 | T012 (histórica) | pm-055 | evidencia local parcial | Implementada pero abierta; T066 y T067 cubren los criterios de pm-055. |
 | T047 / T097 | pm-017 | pm-017#CA-01..03 / CA-04 | Evidencia existente indirecta; la directa contra spoofing es trabajo nuevo. |
 | T054 / T057 | pm-036 | pm-036#CA-01,02,04 / CA-03 | Rate limiting de autenticación existente; la matriz global es trabajo nuevo. |

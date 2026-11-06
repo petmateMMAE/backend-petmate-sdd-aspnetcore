@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.OpenApi;
 using PetMate.Api.Authentication;
+using PetMate.Api.Authorization;
 using PetMate.Infrastructure.Security;
 
 /// <summary>
@@ -163,6 +164,6 @@ public static class ApplicationBootstrap
                 bearer.TokenValidationParameters = JwtAccessTokenService.CreateValidationParameters(jwt, time);
                 bearer.EventsType = typeof(RevocationJwtBearerEvents);
             });
-        services.AddAuthorization();
+        services.AddPetMateAuthorization();
     }
 }

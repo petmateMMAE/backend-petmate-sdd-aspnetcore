@@ -1,6 +1,6 @@
 # Spec — pm-035 auth-session-lifecycle-acceptance
 
-> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L9 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L10 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -13,6 +13,8 @@ Escenarios de ciclo de vida de sesión entre endpoints y cierre del grupo de aut
 - [pm-030](../pm-030-user-login/spec.md) — user-login
 - [pm-031](../pm-031-refresh-token-rotation/spec.md) — refresh-token-rotation
 - [pm-032](../pm-032-user-logout/spec.md) — user-logout
+- [pm-033](../pm-033-authorization-policies/spec.md) — authorization-policies
+- [pm-034](../pm-034-auth-brute-force-protection/spec.md) — auth-brute-force-protection
 
 ## 3. Origen
 
@@ -40,6 +42,7 @@ Detalle en [task.md](task.md).
 ## 6. Notas, limitaciones y decisiones pendientes
 
 - Spec de aceptación (reemplaza a los criterios duplicados del slice anterior).
+- **Cambio de dependencias aprobado por el usuario (2026-11-05):** se añadieron pm-033 y pm-034 como dependencias directas. Motivo: T025 cierra el grupo de autenticación y pide revisión de todos sus criterios; sin esas dependencias el grupo, y vía pm-046 el primer hito, podrían cerrarse sin autorización por política ni protección contra fuerza bruta. pm-036 entra de forma transitiva por pm-034. No cambia la propiedad de ningún criterio ni modifica Tasks históricas. Riesgo conocido: los parámetros de pm-034 siguen sin decidir.
 
 ## 7. Aprobación
 
