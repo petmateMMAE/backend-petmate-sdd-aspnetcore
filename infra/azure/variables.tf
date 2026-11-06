@@ -12,7 +12,7 @@ variable "resource_group_name" {
 variable "location" {
   description = "Región. Debe estar permitida por la política de Azure for Students (verificar con infra/bootstrap)."
   type        = string
-  default     = "mexicocentral"
+  default     = "chilecentral"
 }
 
 variable "name_suffix" {
