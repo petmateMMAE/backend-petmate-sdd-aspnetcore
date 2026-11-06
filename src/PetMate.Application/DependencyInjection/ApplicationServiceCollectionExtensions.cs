@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PetMate.Application.Authentication;
 using PetMate.Application.Mediator;
+using PetMate.Application.Users;
 using PetMate.Application.Validation;
 using PetMate.Domain.Sessions;
 
@@ -15,6 +16,7 @@ public static class ApplicationServiceCollectionExtensions
 
         services.AddRequestHandler<TechnicalProbeQuery, string, TechnicalProbeHandler>();
         services.AddAuthentication();
+        services.AddUserProfile();
         services.TryAddSingleton<MediatorRegistry>();
         services.AddScoped<IMediator, MediatorDispatcher>();
         services.AddScoped<ISender, MediatorDispatcher>();
@@ -36,6 +38,16 @@ public static class ApplicationServiceCollectionExtensions
         services.AddRequestValidator<LoginCommand, LoginCommandValidator>();
         services.AddRequestValidator<RefreshCommand, RefreshCommandValidator>();
         services.AddRequestValidator<LogoutCommand, LogoutCommandValidator>();
+        return services;
+    }
+
+    /// <summary>Perfil propio (pm-037, pm-038): consulta y actualización del usuario autenticado.</summary>
+    private static IServiceCollection AddUserProfile(this IServiceCollection services)
+    {
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddRequestHandler<GetMyProfileQuery, UserProfileResult?, GetMyProfileHandler>();
+        services.AddRequestHandler<UpdateMyProfileCommand, UserProfileResult?, UpdateMyProfileHandler>();
+        services.AddRequestValidator<UpdateMyProfileCommand, UpdateMyProfileCommandValidator>();
         return services;
     }
 

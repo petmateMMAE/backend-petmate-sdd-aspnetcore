@@ -11,7 +11,7 @@
 
 ### T027 — Implementar PUT perfil propio
 - **Tipo:** Histórica
-- **Estado:** Propuesto
+- **Estado:** En progreso
 - **Spec principal:** pm-038
 - **Criterios propios:** pm-038#CA-01, pm-038#CA-02
 - **Fuente histórica:** [`_historico/02-owner-profile/task.md`](../_historico/02-owner-profile/task.md) (sección T027)
@@ -19,7 +19,7 @@
 
 ### T028 — Pruebas y gates de perfil
 - **Tipo:** Histórica
-- **Estado:** Propuesto
+- **Estado:** En progreso
 - **Spec principal:** pm-038
 - **Criterios propios:** pm-038#CA-03
 - **También cubre / nota:** También cubre pm-037 (pruebas y gates de perfil).

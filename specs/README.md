@@ -51,8 +51,8 @@
 | [pm-034-auth-brute-force-protection](pm-034-auth-brute-force-protection/spec.md) | Propuesto | L9 | pm-030, pm-031, pm-036 | T023, T056 | Cuota por correo y bloqueo contra credential stuffing, y limitador asíncrono de hashing |
 | [pm-035-auth-session-lifecycle-acceptance](pm-035-auth-session-lifecycle-acceptance/spec.md) | Propuesto | L10 | pm-028, pm-029, pm-030, pm-031, pm-032, pm-033, pm-034 | T025 | Escenarios de ciclo de vida de sesión entre endpoints y cierre del grupo de autenticación |
 | [pm-036-rate-limiting](pm-036-rate-limiting/spec.md) | En revisión | L8 | pm-017, pm-029, pm-030, pm-031 | T054, T057 | Límites por política y por IP, auth ya implementado y matriz global pendiente |
-| [pm-037-owner-profile-read](pm-037-owner-profile-read/spec.md) | Propuesto | L5 | pm-024, pm-033 | T026 | `GET /api/v1/users/me/get` del usuario autenticado |
-| [pm-038-owner-profile-update](pm-038-owner-profile-update/spec.md) | Propuesto | L6 | pm-037 | T027, T028 | `PUT /api/v1/users/me/update` con campos aprobados |
+| [pm-037-owner-profile-read](pm-037-owner-profile-read/spec.md) | En progreso | L5 | pm-024, pm-033 | T026 | `GET /api/v1/users/me/get` del usuario autenticado |
+| [pm-038-owner-profile-update](pm-038-owner-profile-update/spec.md) | En progreso | L6 | pm-037 | T027, T028 | `PUT /api/v1/users/me/update` con campos aprobados |
 | [pm-039-pet-domain-persistence](pm-039-pet-domain-persistence/spec.md) | Propuesto | L5 | pm-012, pm-033 | T029, T036, T037 | Modelo Pet, validadores, persistencia e índice por propietario |
 | [pm-040-pet-create](pm-040-pet-create/spec.md) | Propuesto | L6 | pm-039 | T030 | `POST /api/v1/pets/create` con propietario tomado del token |
 | [pm-041-pet-list](pm-041-pet-list/spec.md) | Propuesto | L6 | pm-039, pm-047 | T031 | `GET /api/v1/pets/get-all` solo de mascotas propias y activas, paginado |
@@ -149,9 +149,9 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T023 | Histórica | [pm-034](pm-034-auth-brute-force-protection/spec.md) | Propuesto | Pruebas unitarias, integración y seguridad de auth |
 | T024 | Histórica | [pm-061](pm-061-api-docs-contract-sync/spec.md) | Propuesto | Contratos y documentación de auth |
 | T025 | Histórica | [pm-035](pm-035-auth-session-lifecycle-acceptance/spec.md) | Propuesto | Gates y revisión independiente de auth |
-| T026 | Histórica | [pm-037](pm-037-owner-profile-read/spec.md) | Propuesto | Implementar GET perfil propio |
-| T027 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | Propuesto | Implementar PUT perfil propio |
-| T028 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | Propuesto | Pruebas y gates de perfil |
+| T026 | Histórica | [pm-037](pm-037-owner-profile-read/spec.md) | En progreso | Implementar GET perfil propio |
+| T027 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | En progreso | Implementar PUT perfil propio |
+| T028 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | En progreso | Pruebas y gates de perfil |
 | T029 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Propuesto | Definir modelo Pet y persistencia |
 | T030 | Histórica | [pm-040](pm-040-pet-create/spec.md) | Propuesto | Crear mascota |
 | T031 | Histórica | [pm-041](pm-041-pet-list/spec.md) | Propuesto | Listar mascotas |
