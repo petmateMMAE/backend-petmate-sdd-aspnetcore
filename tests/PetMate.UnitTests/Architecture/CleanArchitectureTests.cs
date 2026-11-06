@@ -4,7 +4,7 @@ namespace PetMate.UnitTests.Architecture;
 
 /// <summary>
 /// Verifica la dirección de dependencias de Clean Architecture declarada en la constitución (§3.2)
-/// y en specs/00-foundation (RF-003, RF-004, CA-002).
+/// y en `specs/pm-002-clean-architecture-dependency-rules` (CA-02; origen histórico en specs/_historico/00-foundation).
 /// </summary>
 public sealed class CleanArchitectureTests
 {

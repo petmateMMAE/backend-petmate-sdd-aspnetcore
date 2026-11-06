@@ -30,12 +30,13 @@ app.MapControllers();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi("/openapi/{documentName}.json");
+    // Documentación pública solo en Development; con la política de respaldo debe permitirse de forma explícita.
+    app.MapOpenApi("/openapi/{documentName}.json").AllowAnonymous();
     app.MapScalarApiReference("/scalar/v1", options =>
     {
         options.WithTitle("PetMate API");
         options.WithOpenApiRoutePattern("/openapi/{documentName}.json");
-    });
+    }).AllowAnonymous();
 }
 
 app.Run();

@@ -9,9 +9,9 @@ Lee en este orden:
 1. `AGENTS.md`.
 2. `.specify/memory/constitution.md`.
 3. `Memoria.md` (estado actual y decisiones).
-4. `specs/README.md` (roadmap y dependencias).
-5. El `spec.md`, `plan.md`, `task.md` y `checklists/gates.md` del slice que vas a trabajar.
-6. Los documentos canónicos enlazados por ese slice, como `docs/api/endpoints.md` y `docs/security/asvs-l2-checklist.md`.
+4. `specs/README.md` (registro de Specs/Tasks y dependencias) y `specs/traceability.md` (matriz de trazabilidad).
+5. El `spec.md` y el `task.md` del Spec `pm-NNN` que vas a trabajar (y su `plan.md` y `checklists/gates.md` si ya existen), más los Specs de los que depende. Los números de Spec no determinan el orden de trabajo: lo determinan las dependencias.
+6. Los documentos canónicos enlazados por ese Spec, como `docs/api/endpoints.md` y `docs/security/asvs-l2-checklist.md`.
 
 No asumas que la memoria está actualizada: comprueba estado del repositorio y contrástalo con evidencias.
 
@@ -53,6 +53,8 @@ flowchart TD
 - Los controladores solo traducen HTTP a Commands/Queries y sus resultados a HTTP. No contienen reglas de negocio ni acceden directamente a MongoDB/Redis.
 - MongoDB Atlas es el único proveedor de persistencia. Nunca iniciar MongoDB local ni sustituir Atlas en pruebas de integración.
 - Redis de autenticación y Redis de caché son dos servicios separados.
+- El despliegue es exclusivamente en Microsoft Azure con la suscripción Azure for Students (Constitución §8): dos o más instancias detrás de un Load Balancer o equivalente, HTTPS, CI/CD, IaC y observabilidad. No se crean recursos Azure reales ni se habilitan servicios con posibles cargos sin autorización expresa.
+- Estructura SDD plana `specs/pm-NNN-slug/` (Constitución §12.3). La estructura anterior por slices está archivada y no se edita: `specs/_historico/`.
 - Los endpoints de negocio utilizan ruta versionada y acción literal `/api/v1/{resource}/{action}`.
 - Todas las respuestas usan `statusCode`, `message`, `data`; `data` puede ser `null` y `statusCode` debe coincidir con HTTP.
 - Documentación en español; código en inglés; comentarios en español; mensajes API en español.
@@ -114,4 +116,4 @@ Una tarea solo puede marcarse `Verificado` cuando:
 - Se actualizaron contratos y documentación afectada.
 - `checklists/gates.md` contiene evidencia reproducible.
 
-El cierre de slice queda pendiente de aprobación humana.
+El cierre de Spec queda pendiente de aprobación humana.

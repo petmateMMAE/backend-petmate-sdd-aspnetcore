@@ -20,6 +20,14 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 
+# CA propia de los Redis de Azure (certificado público, no es secreto). Solo la pasa el CD
+# (.github/workflows/deploy.yml); en local queda vacía y la imagen no cambia.
+ARG REDIS_CA_CERT_B64=""
+RUN if [ -n "$REDIS_CA_CERT_B64" ]; then \
+      echo "$REDIS_CA_CERT_B64" | base64 -d > /usr/local/share/ca-certificates/petmate-redis-ca.crt \
+      && update-ca-certificates; \
+    fi
+
 # Usuario no root integrado en la imagen oficial (UID 1654).
 USER $APP_UID
 ENV ASPNETCORE_HTTP_PORTS=8080 \

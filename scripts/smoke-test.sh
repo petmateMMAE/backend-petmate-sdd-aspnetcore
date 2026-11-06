@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# Prueba de humo del despliegue (pm-077#CA-02, pm-084): verifica por HTTPS los 7 endpoints actuales.
+# Uso: bash scripts/smoke-test.sh https://petmate-api.<dominio>
+# Crea un usuario de prueba con correo aleatorio (no usa datos reales) y nunca imprime tokens.
+set -euo pipefail
+
+BASE="${1:?Uso: smoke-test.sh <url-https>}"
+BASE="${BASE%/}"
+case "$BASE" in https://*) ;; *) echo "La URL debe ser HTTPS"; exit 1 ;; esac
+
+fail=0
+check() { # nombre esperado obtenido
+  if [ "$2" = "$3" ]; then echo "OK   $1 ($3)"; else echo "FALLO $1: esperado $2, obtenido $3"; fail=1; fi
+}
+req() { # método ruta [cuerpo] [token] -> imprime el código HTTP; el cuerpo queda en /tmp/smoke-body
+  local args=(-sS -o /tmp/smoke-body -w '%{http_code}' -X "$1" "$BASE$2" -H 'Content-Type: application/json' --max-time 30)
+  [ -n "${3:-}" ] && args+=(-d "$3")
+  [ -n "${4:-}" ] && args+=(-H "Authorization: Bearer $4")
+  curl "${args[@]}"
+}
+
+# Esperar a que la API esté lista (réplicas recién creadas).
+for i in $(seq 1 30); do
+  [ "$(req GET /api/v1/health/ready)" = "200" ] && break
+  sleep 10
+done
+
+check "GET /api/v1/health/live" 200 "$(req GET /api/v1/health/live)"
+check "GET /api/v1/health/ready" 200 "$(req GET /api/v1/health/ready)"
+for dep in mongodb redis-auth redis-cache; do
+  status=$(jq -r --arg d "$dep" '.data.dependencies[] | select(.name==$d) | .status' /tmp/smoke-body 2>/dev/null || true)
+  check "  dependencia $dep" Healthy "$status"
+done
+check "GET /api/v1/technical/mediator-probe" 200 "$(req GET /api/v1/technical/mediator-probe)"
+
+EMAIL="smoke-$(date +%s)-$RANDOM@example.com"
+PASSWORD="Smk-$(openssl rand -hex 12)"
+BODY=$(jq -nc --arg e "$EMAIL" --arg p "$PASSWORD" '{email:$e, password:$p}')
+
+check "POST /api/v1/auth/register" 201 "$(req POST /api/v1/auth/register "$BODY")"
+check "POST /api/v1/auth/login" 200 "$(req POST /api/v1/auth/login "$BODY")"
+ACCESS=$(jq -r '.data.accessToken' /tmp/smoke-body)
+REFRESH=$(jq -r '.data.refreshToken' /tmp/smoke-body)
+
+check "POST /api/v1/auth/refresh" 200 "$(req POST /api/v1/auth/refresh "$(jq -nc --arg r "$REFRESH" '{refreshToken:$r}')")"
+ACCESS=$(jq -r '.data.accessToken' /tmp/smoke-body)
+REFRESH=$(jq -r '.data.refreshToken' /tmp/smoke-body)
+
+check "POST /api/v1/auth/logout" 200 "$(req POST /api/v1/auth/logout "$(jq -nc --arg r "$REFRESH" '{refreshToken:$r}')" "$ACCESS")"
+# El token revocado debe rechazarse en cualquier réplica (lista negra en Redis Auth compartido).
+check "logout revoca el access token" 401 "$(req POST /api/v1/auth/logout "$(jq -nc --arg r "$REFRESH" '{refreshToken:$r}')" "$ACCESS")"
+
+# HTTP debe redirigir a HTTPS.
+HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' "http://${BASE#https://}/api/v1/health/live" --max-time 30 || true)
+case "$HTTP_CODE" in 301|302|307|308) echo "OK   HTTP redirige a HTTPS ($HTTP_CODE)";; *) echo "FALLO HTTP no redirige ($HTTP_CODE)"; fail=1;; esac
+
+rm -f /tmp/smoke-body
+[ "$fail" -eq 0 ] && echo "PRUEBA DE HUMO: CORRECTA" || { echo "PRUEBA DE HUMO: FALLÓ"; exit 1; }

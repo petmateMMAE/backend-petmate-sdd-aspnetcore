@@ -5,7 +5,7 @@
 ## SDD y trazabilidad
 - [ ] Spec aprobado y enlazado.
 - [ ] Plan y tareas corresponden al cambio real.
-- [ ] Gates del slice actualizados con evidencia.
+- [ ] Gates del Spec `pm-NNN` actualizados con evidencia.
 - [ ] No se modificó la constitución sin aprobación.
 
 ## Calidad y pruebas

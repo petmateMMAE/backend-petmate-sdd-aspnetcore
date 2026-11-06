@@ -1,4 +1,4 @@
-# PR Checklist — [Slice]
+# PR Checklist — [Spec pm-NNN]
 
 - [ ] Spec/plan/tasks aprobados y trazables.
 - [ ] Build Release.

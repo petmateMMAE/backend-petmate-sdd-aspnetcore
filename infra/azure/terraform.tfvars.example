@@ -1,0 +1,12 @@
+# Copia como terraform.tfvars SOLO para pruebas locales (está ignorado por Git).
+# En CI los valores llegan como TF_VAR_* desde los secretos de GitHub. Valores ficticios.
+subscription_id     = "00000000-0000-0000-0000-000000000000"
+resource_group_name = "rg-petmate-prod"
+location            = "mexicocentral"
+name_suffix         = "prod"
+api_version         = "0.1.0"
+mongodb_database    = "petmate_prod"
+jwt_audience        = "petmate-api"
+alert_email         = "correo-del-proyecto@ejemplo.com"
+monthly_budget_usd  = 40
+# mongodb_uri y jwt_signing_key: nunca en archivos; usar TF_VAR_mongodb_uri y TF_VAR_jwt_signing_key.
