@@ -11,7 +11,7 @@
 
 ### T026 — Implementar GET perfil propio
 - **Tipo:** Histórica
-- **Estado:** Propuesto
+- **Estado:** En progreso
 - **Spec principal:** pm-037
 - **Criterios propios:** pm-037#CA-01, pm-037#CA-02
 - **Fuente histórica:** [`_historico/02-owner-profile/task.md`](../_historico/02-owner-profile/task.md) (sección T026)

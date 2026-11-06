@@ -104,4 +104,52 @@ public sealed class UserTests
         Assert.Equal(later, user.UpdatedAtUtc);
         Assert.Equal(Now, user.CreatedAtUtc);
     }
+
+    // ---------- pm-038: nombre visible ----------
+
+    [Fact]
+    public void New_owner_has_no_display_name()
+        => Assert.Null(User.RegisterOwner(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), Now).DisplayName);
+
+    [Fact]
+    public void ChangeDisplayName_trims_and_updates_timestamp()
+    {
+        var user = User.RegisterOwner(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), Now);
+        var later = Now.AddMinutes(1);
+
+        user.ChangeDisplayName("  Ana Pérez  ", later);
+
+        Assert.Equal("Ana Pérez", user.DisplayName);
+        Assert.Equal(later, user.UpdatedAtUtc);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("Ana\nPérez")]
+    [InlineData("Ana\u0000")]
+    public void ChangeDisplayName_rejects_blank_or_control_characters(string value)
+    {
+        var user = User.RegisterOwner(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), Now);
+
+        Assert.Throws<DomainException>(() => user.ChangeDisplayName(value, Now));
+        Assert.Null(user.DisplayName);
+    }
+
+    [Fact]
+    public void DisplayName_accepts_80_characters_and_rejects_81()
+    {
+        Assert.True(User.IsValidDisplayName(new string('a', User.MaxDisplayNameLength)));
+        Assert.False(User.IsValidDisplayName(new string('a', User.MaxDisplayNameLength + 1)));
+    }
+
+    [Fact]
+    public void Restore_keeps_display_name_and_tolerates_its_absence()
+    {
+        var email = Email.Create("ana@example.com");
+        var hash = PasswordHash.Create(ValidHash);
+
+        Assert.Equal("Ana", User.Restore(Guid.NewGuid(), email, hash, UserRole.Owner, Now, Now, "Ana").DisplayName);
+        Assert.Null(User.Restore(Guid.NewGuid(), email, hash, UserRole.Owner, Now, Now).DisplayName);
+    }
 }
