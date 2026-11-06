@@ -36,4 +36,8 @@ provider "azurerm" {
 
   subscription_id     = var.subscription_id
   storage_use_azuread = true
+
+  # Los proveedores necesarios los registra infra/bootstrap con la cuenta del usuario; la identidad de
+  # GitHub solo tiene permisos sobre el grupo de la app y no puede registrar proveedores en la suscripción.
+  resource_provider_registrations = "none"
 }
