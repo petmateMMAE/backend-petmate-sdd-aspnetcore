@@ -8,13 +8,13 @@
   - Requiere Azure CLI (`az login`) con la cuenta de Azure for Students.
   - Imprime los valores que se capturan como variables de GitHub. No imprime ningún secreto.
 .EXAMPLE
-  ./infra/bootstrap/bootstrap.ps1 -SubscriptionId <id> -Location mexicocentral -CheckOnly
-  ./infra/bootstrap/bootstrap.ps1 -SubscriptionId <id> -Location mexicocentral
+  ./infra/bootstrap/bootstrap.ps1 -SubscriptionId <id> -Location chilecentral -CheckOnly
+  ./infra/bootstrap/bootstrap.ps1 -SubscriptionId <id> -Location chilecentral
 #>
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)] [string]$SubscriptionId,
-    [string]$Location = 'mexicocentral',
+    [string]$Location = 'chilecentral',
     [string]$AppResourceGroup = 'rg-petmate-prod',
     [string]$StateResourceGroup = 'rg-petmate-tfstate',
     [string]$GitHubRepository = 'petmateMMAE/backend-petmate-sdd-aspnetcore',

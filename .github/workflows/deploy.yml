@@ -1,5 +1,9 @@
 # CD de la API (pm-077, pm-059, pm-074).
-# Se dispara a mano desde `main` con la versión SemVer; al terminar bien crea la etiqueta `api-vX.Y.Z`.
+# Se dispara solo en cada push/merge a `main` que toque el código (src/, Dockerfile, props) o a mano.
+# La versión sale del archivo VERSION (o del input manual); al terminar bien crea la etiqueta `api-vX.Y.Z`
+# si no existía. Cada commit genera su propia imagen inmutable `X.Y.Z-<sha7>`.
+# Modo ahorro: entre 23:00 y 7:00 (hora de México) Redis está apagado y la prueba de humo fallaría; el CD
+# hace la reversa automática. Para desplegar de noche, aplicar antes MODO_AHORRO=false.
 # Construye la imagen inmutable, la escanea, la sube a ACR, actualiza la Container App, corre la prueba
 # de humo por HTTPS de los 7 endpoints y, si falla, regresa a la imagen anterior.
 # Sin environments: la organización usa el plan gratuito de GitHub, que no los permite en repositorios privados.
@@ -7,11 +11,19 @@
 name: Deploy API
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'Dockerfile'
+      - 'Directory.Build.props'
+      - 'Directory.Packages.props'
+      - 'VERSION'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Versión SemVer a desplegar (sin la v), p. ej. 0.1.0'
-        required: true
+        description: 'Versión SemVer a desplegar (sin la v). Vacío = la del archivo VERSION'
+        required: false
 
 permissions:
   id-token: write
@@ -39,6 +51,7 @@ jobs:
         id: version
         run: |
           V="${{ inputs.version }}"
+          if [ -z "$V" ]; then V="$(tr -d ' \r\n' < VERSION)"; fi
           if ! echo "$V" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then echo "::error::Versión no SemVer: $V"; exit 1; fi
           echo "version=$V" >> "$GITHUB_OUTPUT"
           echo "tag=$V-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
