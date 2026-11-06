@@ -28,12 +28,13 @@
 
 | Versión | Contenido | Specs | Estado |
 |---|---|---|---|
-| `0.1.0` | Primer despliegue en Azure: 7 endpoints actuales (`auth/register`, `auth/login`, `auth/refresh`, `auth/logout`, `health/live`, `health/ready`, `technical/mediator-probe`), 2 instancias, balanceo, HTTPS, Atlas, Redis Auth y Redis Cache, logs | pm-001…pm-032, pm-055…pm-078, pm-083, pm-084 | Por desplegar |
+| `0.1.0` | Primer despliegue en Azure: 7 endpoints actuales (`auth/register`, `auth/login`, `auth/refresh`, `auth/logout`, `health/live`, `health/ready`, `technical/mediator-probe`), 2 instancias, balanceo, HTTPS, Atlas, Redis Auth y Redis Cache, logs | pm-001…pm-032, pm-055…pm-078, pm-083, pm-084 | **Desplegada** 2026-11-06 (Chile Central) |
 | `0.1.x` | Correcciones del primer despliegue (configuración, TLS de Redis, proxies) sin cambiar contrato | — | Reservada |
-| `0.2.0` | Autorización por rol, perfil Owner y mascotas (primer hito, 11 endpoints de negocio) | pm-033…pm-047 | Planeada |
-| `0.3.0` | Rendimiento de API: caché en backend, paginación, compresión, serialización | pm-047…pm-053 | Planeada |
-| `0.4.0` | Imágenes en Blob Storage + CDN, moderación de contenido | pm-079…pm-082 | Planeada |
-| `0.5.0` | Funciones restantes del producto (negocios, consultas, seguimiento, notificaciones, eliminar cuenta) | specs por crear | Planeada |
+| `0.2.0` | Autorización por rol (denegación por defecto) y perfil propio: `GET users/me/get`, `PUT users/me/update` (nombre visible). 9 endpoints | pm-033, pm-037, pm-038 | **Desplegada** 2026-11-06 (Chile Central) |
+| `0.3.0` | Mascotas: modelo, alta, lista, detalle, edición y borrado lógico (cierre del primer hito, 14 endpoints) | pm-039…pm-047 | Planeada |
+| `0.4.0` | Rendimiento de API: caché en backend, paginación, compresión, serialización | pm-047…pm-053 | Planeada |
+| `0.5.0` | Imágenes en Blob Storage + CDN, moderación de contenido | pm-079…pm-082 | Planeada |
+| `0.6.0` | Funciones restantes del producto (negocios, consultas, seguimiento, notificaciones, eliminar cuenta) | specs por crear | Planeada |
 | `1.0.0` | Versión de la evaluación final (2 de diciembre de 2026) | pm-084 | Planeada |
 
 ## Reglas
