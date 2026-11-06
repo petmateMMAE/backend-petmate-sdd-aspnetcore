@@ -117,6 +117,12 @@ resource "azurerm_container_app_environment" "main" {
     name                  = "Consumption"
     workload_profile_type = "Consumption"
   }
+
+  # Con VNet propia, Azure puede tardar más de 30 min en crear el ambiente (primer apply en mexicocentral).
+  timeouts {
+    create = "90m"
+    update = "60m"
+  }
 }
 
 resource "azurerm_container_app_environment_storage" "redis_auth" {
