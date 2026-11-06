@@ -8,13 +8,13 @@
   - Requiere Azure CLI (`az login`) con la cuenta de Azure for Students.
   - Imprime los valores que se capturan como variables de GitHub. No imprime ningún secreto.
 .EXAMPLE
-  ./infra/bootstrap/bootstrap.ps1 -SubscriptionId <id> -Location mexicocentral -CheckOnly
-  ./infra/bootstrap/bootstrap.ps1 -SubscriptionId <id> -Location mexicocentral
+  ./infra/bootstrap/bootstrap.ps1 -SubscriptionId <id> -Location chilecentral -CheckOnly
+  ./infra/bootstrap/bootstrap.ps1 -SubscriptionId <id> -Location chilecentral
 #>
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)] [string]$SubscriptionId,
-    [string]$Location = 'mexicocentral',
+    [string]$Location = 'chilecentral',
     [string]$AppResourceGroup = 'rg-petmate-prod',
     [string]$StateResourceGroup = 'rg-petmate-tfstate',
     [string]$GitHubRepository = 'petmateMMAE/backend-petmate-sdd-aspnetcore',
@@ -93,6 +93,8 @@ foreach ($envName in 'main') {
     if (-not $has) {
         $body = @{ name = $credName; issuer = 'https://token.actions.githubusercontent.com';
             subject = "repo:${GitHubRepository}:ref:refs/heads/$envName"; audiences = @('api://AzureADTokenExchange') } | ConvertTo-Json -Compress
+        # Nota: si la organización usa el formato de sujeto con IDs (repo:org@<id>/repo@<id>:...), registrar
+        # también ese sujeto exacto (ver el error AADSTS700213 del primer run y docs/infrastructure/azure-deployment.md).
         $file = New-TemporaryFile
         [IO.File]::WriteAllText($file, $body)
         Invoke-AzCli ad app federated-credential create --id $appId --parameters "@$file" | Out-Null
