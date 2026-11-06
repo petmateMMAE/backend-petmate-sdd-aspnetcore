@@ -58,6 +58,9 @@ public sealed class InMemoryUserRepository : IUserRepository
         => Task.FromResult(byId.TryGetValue(id, out var user) ? user : null);
 
     public Task UpdatePasswordHash(User user, CancellationToken cancellationToken) => Task.CompletedTask;
+
+    /// <summary>El usuario en memoria es la misma instancia: el cambio ya quedó aplicado.</summary>
+    public Task UpdateProfile(User user, CancellationToken cancellationToken) => Task.CompletedTask;
 }
 
 /// <summary>Repositorio de sesiones en memoria; <c>TryConsumeToken</c> es atómico (lock), como el update condicional de Atlas.</summary>

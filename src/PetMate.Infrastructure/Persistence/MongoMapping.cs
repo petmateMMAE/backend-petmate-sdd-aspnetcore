@@ -12,6 +12,7 @@ internal static class MongoMapping
         Email = user.Email.Value,
         PasswordHash = user.PasswordHash.Value,
         Role = (int)user.Role,
+        DisplayName = user.DisplayName,
         CreatedAtUtc = user.CreatedAtUtc,
         UpdatedAtUtc = user.UpdatedAtUtc,
     };
@@ -22,7 +23,8 @@ internal static class MongoMapping
         PasswordHash.Create(document.PasswordHash),
         (UserRole)document.Role,
         AsUtc(document.CreatedAtUtc),
-        AsUtc(document.UpdatedAtUtc));
+        AsUtc(document.UpdatedAtUtc),
+        document.DisplayName);
 
     public static RefreshSessionDocument ToDocument(RefreshSession session) => new()
     {

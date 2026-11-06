@@ -63,6 +63,24 @@ public sealed class MongoUserRepository : IUserRepository
         }
     }
 
+    public async Task UpdateProfile(User user, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(user);
+        try
+        {
+            await users.UpdateOneAsync(
+                Builders<UserDocument>.Filter.Eq(document => document.Id, user.Id),
+                Builders<UserDocument>.Update
+                    .Set(document => document.DisplayName, user.DisplayName)
+                    .Set(document => document.UpdatedAtUtc, user.UpdatedAtUtc),
+                cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception exception) when (exception is MongoException or TimeoutException or DomainException)
+        {
+            throw new PersistenceUnavailableException(exception);
+        }
+    }
+
     private async Task<User?> FindOne(FilterDefinition<UserDocument> filter, CancellationToken cancellationToken)
     {
         try
