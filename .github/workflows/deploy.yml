@@ -89,9 +89,15 @@ jobs:
       - name: Publicar imagen inmutable en ACR
         run: |
           az acr login -n ${{ steps.infra.outputs.acr }}
-          docker push "$IMAGE"
-          az acr repository update -n ${{ steps.infra.outputs.acr }} \
-            --image petmate-api:${{ steps.version.outputs.tag }} --write-enabled false --delete-enabled false
+          # Etiqueta inmutable: si ya existe (reintento del mismo commit), se reutiliza la imagen publicada.
+          if az acr repository show -n ${{ steps.infra.outputs.acr }} \
+               --image petmate-api:${{ steps.version.outputs.tag }} >/dev/null 2>&1; then
+            echo "La imagen ${{ steps.version.outputs.tag }} ya existe en ACR y está bloqueada; se reutiliza."
+          else
+            docker push "$IMAGE"
+            az acr repository update -n ${{ steps.infra.outputs.acr }} \
+              --image petmate-api:${{ steps.version.outputs.tag }} --write-enabled false --delete-enabled false
+          fi
 
       - name: Desplegar nueva revisión
         id: rollout
