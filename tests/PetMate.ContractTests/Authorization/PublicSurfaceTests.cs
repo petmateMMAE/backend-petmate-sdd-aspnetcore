@@ -25,6 +25,7 @@ public sealed class PublicSurfaceTests
     // Público de forma temporal (decisión P-04): revisar su exposición en producción en un trabajo de seguridad posterior.
     private static readonly string[] TemporaryPublic = ["GET /api/v1/technical/mediator-probe"];
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public void Development_exposes_only_the_approved_public_endpoints_plus_the_documentation_routes()
     {
@@ -38,6 +39,7 @@ public sealed class PublicSurfaceTests
         Assert.Contains(anonymous, e => e.Contains("/scalar", StringComparison.Ordinal));
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public void Production_exposes_no_documentation_route_and_no_unapproved_public_endpoint()
     {
@@ -49,6 +51,7 @@ public sealed class PublicSurfaceTests
         Assert.Equal(PermanentPublic.Concat(TemporaryPublic).Order(StringComparer.Ordinal), anonymous.Order(StringComparer.Ordinal));
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public void Logout_requires_authorization_and_is_not_public()
     {

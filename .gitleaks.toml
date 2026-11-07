@@ -1,0 +1,21 @@
+# Configuración de gitleaks para el job `secrets-scan` del pipeline (pm-019, pm-055).
+# Se usan las reglas por defecto y solo se excluyen los falsos positivos revisados, archivo por archivo (no carpetas completas):
+#   - Constantes y valores ficticios de pruebas (claves de prueba que solo existen en el entorno aislado de las pruebas y jamás
+#     coinciden con una credencial real).
+#   - Argon2idOptions.cs: nombres de variables de configuración (p. ej. "ARGON2_MAX_CONCURRENCY"), no valores.
+# Cualquier archivo nuevo que dispare una regla debe revisarse; solo si es un falso positivo se agrega aquí con su motivo.
+# Los secretos reales se guardan en GitHub Secrets / Azure y nunca en el repositorio.
+title = "PetMate gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Falsos positivos revisados (valores ficticios de pruebas y nombres de variables de configuración)"
+paths = [
+  '''tests/PetMate\.ContractTests/Support/IsolatedApiFactory\.cs''',
+  '''tests/PetMate\.ContractTests/Users/UserProfileEndpointsTests\.cs''',
+  '''tests/PetMate\.SecurityTests/Authentication/JwtAccessTokenServiceTests\.cs''',
+  '''tests/PetMate\.SecurityTests/Quality/SecretScanTests\.cs''',
+  '''src/PetMate\.Infrastructure/Security/Argon2idOptions\.cs''',
+]

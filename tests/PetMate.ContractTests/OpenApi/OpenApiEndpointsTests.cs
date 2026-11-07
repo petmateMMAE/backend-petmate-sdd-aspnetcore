@@ -9,6 +9,7 @@ namespace PetMate.ContractTests.OpenApi;
 [Collection(ApiEnvironmentGroup.Name)]
 public sealed class OpenApiEndpointsTests
 {
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Development_openapi_document_is_valid_and_contains_technical_route()
     {
@@ -25,6 +26,7 @@ public sealed class OpenApiEndpointsTests
         Assert.Contains("/api/v1/technical/mediator-probe", document.Paths.Keys);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Development_scalar_loads_the_openapi_document()
     {
@@ -38,6 +40,7 @@ public sealed class OpenApiEndpointsTests
         Assert.Contains("openapi", content, StringComparison.OrdinalIgnoreCase);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Production_hides_openapi_and_scalar_by_default()
     {
@@ -48,6 +51,7 @@ public sealed class OpenApiEndpointsTests
         Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/scalar/v1")).StatusCode);
     }
 
+    [Trait("Endpoint", "technical-mediator-probe")]
     [Fact]
     public async Task Only_the_versioned_technical_route_is_mapped()
     {

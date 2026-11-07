@@ -17,6 +17,7 @@ namespace PetMate.ContractTests.Authentication;
 [Collection(ApiEnvironmentGroup.Name)]
 public sealed class JwtPipelineTests
 {
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Request_without_token_returns_wrapped_401()
     {
@@ -28,6 +29,7 @@ public sealed class JwtPipelineTests
         await AssertWrapped(response, HttpStatusCode.Unauthorized);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Valid_token_reaches_the_protected_endpoint_with_the_expected_identity()
     {
@@ -43,6 +45,7 @@ public sealed class JwtPipelineTests
         Assert.Equal($"{userId:D}|Owner", document.RootElement.GetProperty("data").GetString());
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Revoked_jti_is_rejected_with_wrapped_401_even_though_the_token_has_not_expired()
     {
@@ -56,6 +59,7 @@ public sealed class JwtPipelineTests
         await AssertWrapped(response, HttpStatusCode.Unauthorized);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Redis_outage_fails_closed_with_wrapped_503_not_a_false_401_and_never_200()
     {
@@ -72,6 +76,7 @@ public sealed class JwtPipelineTests
         await AssertWrapped(response, HttpStatusCode.ServiceUnavailable, raw);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Token_signed_with_another_key_or_for_another_audience_is_rejected()
     {
@@ -91,6 +96,7 @@ public sealed class JwtPipelineTests
         }
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Expired_token_is_rejected()
     {
@@ -104,6 +110,7 @@ public sealed class JwtPipelineTests
         await AssertWrapped(response, HttpStatusCode.Unauthorized);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Theory]
     [InlineData("Bearer not-a-jwt")]
     [InlineData("Basic dXNlcjpwYXNz")]
