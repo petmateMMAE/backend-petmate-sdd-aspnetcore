@@ -40,10 +40,10 @@ jobs:
   # ───────────── Etapa 1 · Secretos (DevSecOps) ─────────────
   secrets-scan:
     name: "1 · Secretos (gitleaks)"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -56,7 +56,7 @@ jobs:
 
       - name: Informe SARIF
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: gitleaks-sarif
           path: gitleaks.sarif
@@ -67,12 +67,12 @@ jobs:
   build:
     name: "2 · Compilación y analizadores (SAST)"
     needs: secrets-scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
@@ -91,16 +91,16 @@ jobs:
     needs: build
     # Interruptor: crear la variable CODEQL_DISABLED=true en el repositorio si CodeQL no está permitido (ver docs/ci-cd/pipeline.md).
     if: vars.CODEQL_DISABLED != 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
       contents: read
       security-events: write
       actions: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
@@ -109,7 +109,7 @@ jobs:
       - name: Inicializar CodeQL
         id: init
         continue-on-error: true
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: csharp
           build-mode: manual
@@ -124,14 +124,15 @@ jobs:
         id: analyze
         if: steps.init.outcome == 'success'
         continue-on-error: true
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           upload: never
+          upload-database: false
           output: codeql-results
 
       - name: Informe CodeQL
         if: steps.analyze.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: codeql-sarif
           path: codeql-results
@@ -152,12 +153,12 @@ jobs:
   dependencies:
     name: "3 · Dependencias (NuGet)"
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
@@ -168,10 +169,10 @@ jobs:
   iac-scan:
     name: "3 · IaC (Trivy config)"
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Trivy config incluye el motor de reglas de tfsec (tfsec está integrado en Trivy). HIGH y CRITICAL bloquean.
       # Hoy infra/azure e infra/atlas no tienen hallazgos; si apareciera alguno que no se pueda corregir, cambiar
@@ -189,7 +190,7 @@ jobs:
 
       - name: Informe SARIF
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: trivy-iac-sarif
           path: trivy-iac.sarif
@@ -199,10 +200,10 @@ jobs:
   sdd-integrity:
     name: "3 · Integridad SDD"
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Integridad de Specs, Tasks y documentos históricos (check-sdd.ps1)
         shell: pwsh
@@ -212,12 +213,12 @@ jobs:
   unit-tests:
     name: "4 · Pruebas unitarias"
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
@@ -231,7 +232,7 @@ jobs:
 
       - name: Resultados (TRX)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: trx-unit-tests
           path: TestResults
@@ -241,12 +242,12 @@ jobs:
   security-tests:
     name: "4 · Pruebas de seguridad"
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
@@ -260,7 +261,7 @@ jobs:
 
       - name: Resultados (TRX)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: trx-security-tests
           path: TestResults
@@ -271,7 +272,7 @@ jobs:
   endpoint-tests:
     name: "4 · Endpoint · ${{ matrix.endpoint }}"
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -287,9 +288,9 @@ jobs:
           - health-ready
           - technical-mediator-probe
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
@@ -306,7 +307,7 @@ jobs:
 
       - name: Resultados (TRX)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: trx-endpoint-${{ matrix.endpoint }}
           path: TestResults
@@ -316,12 +317,12 @@ jobs:
   contract-transversal:
     name: "4 · Contrato transversal (wrapper, OpenAPI, autorización)"
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
@@ -338,7 +339,7 @@ jobs:
 
       - name: Resultados (TRX)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: trx-contract-transversal
           path: TestResults
@@ -348,24 +349,38 @@ jobs:
   integration-tests:
     name: "4 · Pruebas de integración (Atlas y Redis)"
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
-      MONGODB_TEST_URI: ${{ secrets.MONGODB_TEST_URI }}
-      MONGODB_TEST_DATABASE: ${{ secrets.MONGODB_TEST_DATABASE }}
       MONGODB_DATABASE: petmate_ci_no_usar
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
+      # Las pruebas contra Atlas solo corren si hay secretos Y Atlas responde desde el runner. La lista de acceso de red de Atlas
+      # no incluye las IP de los runners de GitHub (no se abre a 0.0.0.0/0), así que normalmente quedan Skipped con aviso.
+      # Las pruebas de Redis (contenedores del runner) se ejecutan siempre.
       - name: Disponibilidad de la base de pruebas de Atlas
+        id: atlas
+        env:
+          ATLAS_URI: ${{ secrets.MONGODB_TEST_URI }}
+          ATLAS_DB: ${{ secrets.MONGODB_TEST_DATABASE }}
         run: |
-          if [ -z "$MONGODB_TEST_URI" ] || [ -z "$MONGODB_TEST_DATABASE" ]; then
+          if [ -z "$ATLAS_URI" ] || [ -z "$ATLAS_DB" ]; then
             echo "::warning title=Integración con Atlas omitida::Faltan los secretos MONGODB_TEST_URI / MONGODB_TEST_DATABASE (por ejemplo, un PR desde un fork). Las pruebas contra Atlas quedan Skipped y NO cuentan como aprobadas."
-            echo "> **Atención:** sin los secretos de Atlas las pruebas de integración contra MongoDB quedaron *omitidas* (no aprobadas)." >> "$GITHUB_STEP_SUMMARY"
+            echo "> **Atención:** sin los secretos de Atlas las pruebas contra MongoDB quedaron *omitidas* (no aprobadas)." >> "$GITHUB_STEP_SUMMARY"
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          elif timeout 60 docker run --rm -e ATLAS_URI mongo:7.0 \
+                 sh -c 'mongosh "$ATLAS_URI" --quiet --eval "db.runCommand({ ping: 1 }).ok"' >/dev/null 2>&1; then
+            echo "Atlas responde desde el runner."
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning title=Atlas no alcanzable desde el runner::La lista de acceso de red de Atlas no admite la IP de este runner de GitHub. Las pruebas contra Atlas quedan Skipped y NO cuentan como aprobadas; se ejecutan localmente y en la prueba de humo del despliegue."
+            echo "> **Atención:** Atlas no es alcanzable desde el runner (lista de acceso de red). Las pruebas contra MongoDB quedaron *omitidas* (no aprobadas); las de Redis sí se ejecutaron." >> "$GITHUB_STEP_SUMMARY"
+            echo "available=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Redis Auth y Redis Cache de prueba (contenedores efímeros)
@@ -383,6 +398,9 @@ jobs:
           done
 
       - name: Ejecutar pruebas de integración
+        env:
+          MONGODB_TEST_URI: ${{ steps.atlas.outputs.available == 'true' && secrets.MONGODB_TEST_URI || '' }}
+          MONGODB_TEST_DATABASE: ${{ steps.atlas.outputs.available == 'true' && secrets.MONGODB_TEST_DATABASE || '' }}
         run: dotnet test tests/PetMate.IntegrationTests -c Release --logger "trx;LogFileName=integration.trx" --results-directory TestResults
 
       - name: Resumen
@@ -392,7 +410,7 @@ jobs:
 
       - name: Resultados (TRX)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: trx-integration-tests
           path: TestResults
@@ -416,7 +434,7 @@ jobs:
       - endpoint-tests
       - contract-transversal
       - integration-tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Resumen etapa → resultado
@@ -473,10 +491,10 @@ jobs:
   docker-build:
     name: "6 · Imagen, Trivy y SBOM"
     needs: quality-gate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # En pull request solo se construye y se escanea: nunca se publica. La imagen que se despliega se construye en `deploy`
       # (necesita la CA pública de Redis que sale de Terraform) y se vuelve a escanear antes de publicarla.
@@ -503,7 +521,7 @@ jobs:
     name: "7 · Despliegue a Azure"
     needs: [quality-gate, docker-build]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
       id-token: write
@@ -520,7 +538,7 @@ jobs:
       url: ${{ steps.infra.outputs.url }}
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Versión
         id: version
@@ -644,10 +662,10 @@ jobs:
   smoke-test:
     name: "8 · Prueba de humo (API desplegada)"
     needs: deploy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Verificar los endpoints por HTTPS
         run: bash scripts/smoke-test.sh "${{ needs.deploy.outputs.url }}"
@@ -658,7 +676,7 @@ jobs:
     needs: [deploy, smoke-test]
     # Solo informa: no bloquea ni falla el pipeline. Los hallazgos quedan en el informe y en el resumen.
     continue-on-error: true
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Preparar carpeta de informes
@@ -686,7 +704,7 @@ jobs:
 
       - name: Informe de ZAP
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: zap-baseline-report
           path: zap
