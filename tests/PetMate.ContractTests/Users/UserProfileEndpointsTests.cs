@@ -13,8 +13,10 @@ namespace PetMate.ContractTests.Users;
 [Collection(ApiEnvironmentGroup.Name)]
 public sealed class UserProfileEndpointsTests
 {
-    private const string Password = "contrasena-muy-segura-123";
+    private const string Password = "contrasena-segura-1234";
 
+    [Trait("Endpoint", "users-me-get")]
+    [Trait("Endpoint", "users-me-update")]
     [Theory]
     [InlineData("GET", "me/get", null)]
     [InlineData("PUT", "me/update", "{\"displayName\":\"Ana\"}")]
@@ -31,6 +33,7 @@ public sealed class UserProfileEndpointsTests
         Assert.Equal(JsonValueKind.Null, document.RootElement.GetProperty("data").ValueKind);
     }
 
+    [Trait("Endpoint", "users-me-get")]
     [Fact]
     public async Task Get_returns_own_profile_without_secrets_and_without_name_until_it_is_set()
     {
@@ -51,6 +54,7 @@ public sealed class UserProfileEndpointsTests
         Assert.DoesNotContain(Password, raw, StringComparison.Ordinal);
     }
 
+    [Trait("Endpoint", "users-me-update")]
     [Fact]
     public async Task Update_sets_trimmed_name_and_get_returns_it()
     {
@@ -68,6 +72,7 @@ public sealed class UserProfileEndpointsTests
         Assert.Equal("Ana Pérez", current.RootElement.GetProperty("data").GetProperty("displayName").GetString());
     }
 
+    [Trait("Endpoint", "users-me-update")]
     [Theory]
     [InlineData("{\"displayName\":\"\"}")]
     [InlineData("{\"displayName\":\"   \"}")]
@@ -86,6 +91,7 @@ public sealed class UserProfileEndpointsTests
         Assert.Equal("displayName", errors[0].GetProperty("field").GetString());
     }
 
+    [Trait("Endpoint", "users-me-update")]
     [Fact]
     public async Task Update_with_a_name_longer_than_80_returns_400()
     {
@@ -98,6 +104,7 @@ public sealed class UserProfileEndpointsTests
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Trait("Endpoint", "users-me-update")]
     [Theory]
     [InlineData("{\"displayName\":\"Ana\",\"role\":\"Business\"}")]
     [InlineData("{\"displayName\":\"Ana\",\"email\":\"otra@example.com\"}")]
@@ -115,6 +122,7 @@ public sealed class UserProfileEndpointsTests
         Assert.Null(user.DisplayName);
     }
 
+    [Trait("Endpoint", "users-me-get")]
     [Fact]
     public async Task Each_account_only_sees_its_own_profile()
     {

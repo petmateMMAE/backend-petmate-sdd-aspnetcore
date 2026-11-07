@@ -55,7 +55,7 @@ Regiones que permite la política de Azure for Students en esta suscripción: `b
 
 ### 2.2 Despliegue automático y modo ahorro
 
-- **Cada merge a `main` que toque el código** (`src/`, `Dockerfile`, `Directory.*.props` o `VERSION`) dispara *Deploy API*: construye, escanea con Trivy, publica la imagen `X.Y.Z-<sha7>`, crea una revisión nueva, corre la prueba de humo de los 7 endpoints y, si falla, regresa sola a la imagen anterior. Tarda **~9 min** (construir ~3, Trivy ~1, publicar ~1, revisión ~2, prueba ~1). La versión se toma del archivo `VERSION`; al cambiarla se crea la etiqueta `api-vX.Y.Z`. Cambios solo de documentación no despliegan.
+- **Cada merge a `main` que toque el código** (`src/`, `Dockerfile`, `Directory.*.props` o `VERSION`) dispara el pipeline *CI/CD DevSecOps* (ver [docs/ci-cd/pipeline.md](../ci-cd/pipeline.md)); tras la puerta de calidad el job de despliegue construye, escanea con Trivy, publica la imagen `X.Y.Z-<sha7>`, crea una revisión nueva, corre la prueba de humo de los 7 endpoints y, si falla, regresa sola a la imagen anterior. Tarda **~9 min** (construir ~3, Trivy ~1, publicar ~1, revisión ~2, prueba ~1). La versión se toma del archivo `VERSION`; al cambiarla se crea la etiqueta `api-vX.Y.Z`. Cambios solo de documentación no despliegan.
 - **Modo ahorro** (`MODO_AHORRO=true`, variable de GitHub + *Infraestructura → apply*): una vez aplicado es automático — la API se apaga tras 15 min sin peticiones y se prende sola con la siguiente (~10–20 s la primera), y Redis se apaga de 23:00 a 7:00. Un merge a `main` en ese horario fallará la prueba de humo y hará la reversa: para desplegar de noche, aplicar antes `MODO_AHORRO=false`.
 
 ## 3. Configuración de producción (sin cambios de código)
@@ -109,7 +109,7 @@ Consulta: 2026-11-05. Precios de lista en USD; **confirmar en la calculadora de 
 5. **GitHub** (Settings → Secrets and variables → Actions): variables que imprime el bootstrap y secretos `TF_MONGODB_URI`, `TF_JWT_SIGNING_KEY`, `ALERT_EMAIL`, `ATLAS_PROJECT_ID`, `MONGODB_ATLAS_PUBLIC_KEY`, `MONGODB_ATLAS_PRIVATE_KEY`, `MONGODB_TEST_URI`, `MONGODB_TEST_DATABASE`. Sin environments (plan gratuito): los workflows solo corren desde `main`.
 6. **Plan**: Actions → *Infraestructura* → `plan` (rama `main`). Revisar con el equipo.
 7. **Apply** (con autorización): Actions → *Infraestructura* → `apply`. Crea el ambiente, ACR, los dos Redis, la API (con imagen de arranque) y la lista de acceso de Atlas.
-8. **Primera versión**: Actions → *Deploy API* → versión `0.1.0` (rama `main`): construye, escanea, publica, despliega, ejecuta `scripts/smoke-test.sh` y crea la etiqueta `api-v0.1.0`. En modo ahorro hacerlo entre 7:00 y 23:00.
+8. **Primera versión**: Actions → *CI/CD DevSecOps* → Run workflow → versión `0.1.0` (rama `main`): construye, escanea, publica, despliega, ejecuta `scripts/smoke-test.sh` y crea la etiqueta `api-v0.1.0`. En modo ahorro hacerlo entre 7:00 y 23:00.
 9. **Verificar** (pm-084): las 2 réplicas en el resumen del job; `ready` con `mongodb`, `redis-auth` y `redis-cache` en `Healthy`; logout revoca el token; HTTP redirige a HTTPS; reinicio de `redis-auth` sin perder revocaciones vigentes.
 10. **Proxies**: en Log Analytics revisar la IP de origen que ve la API; si es estable, registrar `TRUSTED_PROXIES` y volver a aplicar.
 11. Registrar la evidencia en `checklists/gates.md` de los specs y en `Memoria.md`.

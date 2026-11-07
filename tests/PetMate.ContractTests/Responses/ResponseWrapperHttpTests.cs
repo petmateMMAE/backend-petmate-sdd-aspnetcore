@@ -20,6 +20,7 @@ public sealed class ResponseWrapperHttpTests
 {
     private static readonly string[] WrapperProperties = ["data", "message", "statusCode"];
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Success_returns_exact_wrapper_with_matching_status()
     {
@@ -31,6 +32,7 @@ public sealed class ResponseWrapperHttpTests
         await AssertWrapperAsync(response, HttpStatusCode.OK, expectNullData: false);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Success_with_null_data_serializes_data_null()
     {
@@ -42,6 +44,7 @@ public sealed class ResponseWrapperHttpTests
         await AssertWrapperAsync(response, HttpStatusCode.OK, expectNullData: true);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Theory]
     [InlineData("/api/v1/test-wrapper/unauthorized", HttpStatusCode.Unauthorized)]
     [InlineData("/api/v1/test-wrapper/forbidden", HttpStatusCode.Forbidden)]
@@ -58,6 +61,7 @@ public sealed class ResponseWrapperHttpTests
         Assert.False(string.IsNullOrWhiteSpace(message));
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Wrong_method_returns_wrapped_405()
     {
@@ -69,6 +73,7 @@ public sealed class ResponseWrapperHttpTests
         await AssertWrapperAsync(response, HttpStatusCode.MethodNotAllowed, expectNullData: true);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Controlled_api_exception_keeps_status_and_message()
     {
@@ -81,6 +86,7 @@ public sealed class ResponseWrapperHttpTests
         Assert.Equal("Conflicto controlado de prueba.", message);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Unexpected_exception_returns_500_without_internal_details()
     {
@@ -98,6 +104,7 @@ public sealed class ResponseWrapperHttpTests
         Assert.DoesNotContain("PetMate.", raw, StringComparison.Ordinal);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Invalid_body_binding_returns_wrapped_400_with_generic_spanish_errors()
     {
@@ -114,6 +121,7 @@ public sealed class ResponseWrapperHttpTests
         Assert.Contains("El valor del campo no es válido.", raw, StringComparison.Ordinal);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Invalid_request_through_mediator_returns_wrapped_400_and_skips_handler()
     {
@@ -133,6 +141,7 @@ public sealed class ResponseWrapperHttpTests
         Assert.Equal(0, factory.Services.GetRequiredService<HandlerProbe>().Calls);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Valid_request_through_mediator_executes_handler_and_returns_wrapper()
     {

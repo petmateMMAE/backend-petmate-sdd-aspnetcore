@@ -6,7 +6,9 @@
   auditoría NuGet (vulnerabilidades, paquetes en desuso y licencias) y las cuatro suites de pruebas
   (incluye la detección de secretos de SecurityTests). Cualquier fallo devuelve exit code distinto de 0.
   Las pruebas corren en un contenedor del SDK porque Smart App Control puede bloquear binarios nuevos en el host.
-  Uso: pwsh ./scripts/quality-gate.ps1 [-HostTests] [-SkipTests]
+  Uso: pwsh ./scripts/quality-gate.ps1 [-HostTests] [-SkipTests] [-AuditOnly] [-MinSeverity High]
+  -AuditOnly: solo restore y auditorías NuGet (vulnerabilidades, desuso y licencias); lo usa el job `dependencies` del pipeline.
+  -MinSeverity: gravedad mínima de vulnerabilidad que bloquea (Low = cualquiera, valor local; el pipeline usa High).
 .NOTES
   Si existe .env se pasa al contenedor con --env-file (sin leerlo ni imprimirlo) para las pruebas Atlas.
   Redis: defina PETMATE_IT_REDIS_AUTH y PETMATE_IT_REDIS_CACHE y la red de Compose (petmate_internal) para
@@ -15,7 +17,10 @@
 [CmdletBinding()]
 param(
     [switch]$HostTests,
-    [switch]$SkipTests
+    [switch]$SkipTests,
+    [switch]$AuditOnly,
+    [ValidateSet('Low', 'Moderate', 'High', 'Critical')]
+    [string]$MinSeverity = 'Low'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -37,17 +42,28 @@ function Step([string]$name, [scriptblock]$action) {
 }
 
 Step 'Restore' { dotnet restore PetMate.sln --nologo -v q }
-Step 'Build Release + SAST (analizadores como errores)' { dotnet build PetMate.sln -c Release --no-restore --nologo -warnaserror }
-Step 'Formato (dotnet format --verify-no-changes)' { dotnet format PetMate.sln --verify-no-changes --verbosity minimal }
+if (-not $AuditOnly) {
+    Step 'Build Release + SAST (analizadores como errores)' { dotnet build PetMate.sln -c Release --no-restore --nologo -warnaserror }
+    Step 'Formato (dotnet format --verify-no-changes)' { dotnet format PetMate.sln --verify-no-changes --verbosity minimal }
+}
 
-Step 'NuGet: vulnerabilidades (incluye transitivas)' {
+Step "NuGet: vulnerabilidades (incluye transitivas; bloquean desde $MinSeverity)" {
+    $rank = @{ Low = 0; Moderate = 1; High = 2; Critical = 3 }
     $json = dotnet list PetMate.sln package --vulnerable --include-transitive --format json | Out-String
     $report = $json | ConvertFrom-Json
     $vulnerable = @($report.projects | ForEach-Object { $_.frameworks } | ForEach-Object {
             @($_.topLevelPackages) + @($_.transitivePackages) } | Where-Object { $_ })
-    if ($vulnerable.Count -gt 0) {
-        $vulnerable | ForEach-Object { Write-Host "  vulnerable: $($_.id) $($_.resolvedVersion)" }
-        throw "$($vulnerable.Count) paquetes con vulnerabilidades"
+    $blocking = @()
+    foreach ($package in $vulnerable) {
+        foreach ($advisory in @($package.vulnerabilities)) {
+            $level = if ($rank.ContainsKey([string]$advisory.severity)) { $rank[[string]$advisory.severity] } else { 3 }
+            if ($level -ge $rank[$MinSeverity]) { $blocking += $package; break }
+            Write-Host "  advertencia (por debajo de $MinSeverity): $($package.id) $($package.resolvedVersion) [$($advisory.severity)]" -ForegroundColor Yellow
+        }
+    }
+    if ($blocking.Count -gt 0) {
+        $blocking | ForEach-Object { Write-Host "  vulnerable: $($_.id) $($_.resolvedVersion)" }
+        throw "$($blocking.Count) paquetes con vulnerabilidades de gravedad $MinSeverity o mayor"
     }
     $global:LASTEXITCODE = 0
 }
@@ -104,7 +120,7 @@ Step 'NuGet: auditoría de licencias (lista permitida, costo $0)' {
     $global:LASTEXITCODE = 0
 }
 
-if (-not $SkipTests) {
+if (-not $SkipTests -and -not $AuditOnly) {
     if ($HostTests) {
         Step 'Pruebas en host (Unit, Security, Contract, Integration)' {
             foreach ($suite in 'UnitTests', 'SecurityTests', 'ContractTests', 'IntegrationTests') {
