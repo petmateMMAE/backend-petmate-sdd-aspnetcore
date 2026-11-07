@@ -9,6 +9,7 @@ namespace PetMate.ContractTests.Health;
 [Collection(ApiEnvironmentGroup.Name)]
 public sealed class HealthEndpointsTests
 {
+    [Trait("Endpoint", "health-live")]
     [Fact]
     public async Task Live_returns_200_wrapper_without_checking_dependencies()
     {
@@ -23,6 +24,7 @@ public sealed class HealthEndpointsTests
         Assert.Equal("Healthy", document.RootElement.GetProperty("data").GetProperty("status").GetString());
     }
 
+    [Trait("Endpoint", "health-ready")]
     [Fact]
     public async Task Ready_with_unreachable_dependencies_returns_503_naming_each_unhealthy_dependency_without_secrets()
     {

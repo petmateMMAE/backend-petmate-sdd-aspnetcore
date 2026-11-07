@@ -21,6 +21,7 @@ public sealed class ForgedClaimsTests
     private static readonly string[] BothRoles = ["Owner", "Business"];
     private static readonly string[] AllPaths = ["default", "owner", "business", "unmarked"];
 
+    [Trait("Endpoint", "transversal")]
     [Theory]
     [InlineData("Admin")]
     [InlineData("owner")]
@@ -36,6 +37,7 @@ public sealed class ForgedClaimsTests
         await AssertRejectedEverywhere(factory, token);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Signed_token_without_a_role_claim_is_rejected_with_401()
     {
@@ -44,6 +46,7 @@ public sealed class ForgedClaimsTests
         await AssertRejectedEverywhere(factory, Forge(new Dictionary<string, object>()));
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Signed_token_whose_role_is_an_array_is_rejected_with_401()
     {
@@ -53,6 +56,7 @@ public sealed class ForgedClaimsTests
         await AssertRejectedEverywhere(factory, token);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Long_microsoft_role_claim_does_not_grant_access_when_the_role_claim_is_missing()
     {
@@ -62,6 +66,7 @@ public sealed class ForgedClaimsTests
         await AssertRejectedEverywhere(factory, token);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Owner_role_signed_with_another_key_is_rejected_with_401()
     {
@@ -72,6 +77,7 @@ public sealed class ForgedClaimsTests
         await AssertRejectedEverywhere(factory, token);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Payload_edited_from_business_to_owner_without_re_signing_is_rejected_with_401()
     {
@@ -86,6 +92,7 @@ public sealed class ForgedClaimsTests
         await AssertRejectedEverywhere(factory, tampered);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Unsigned_token_with_alg_none_and_owner_role_is_rejected_with_401()
     {
@@ -99,6 +106,7 @@ public sealed class ForgedClaimsTests
         await AssertRejectedEverywhere(factory, $"{header}.{payload}.");
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Token_that_is_valid_in_every_other_way_but_expired_is_rejected_on_the_owner_policy()
     {

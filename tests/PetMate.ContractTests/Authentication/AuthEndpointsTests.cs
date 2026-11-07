@@ -23,6 +23,7 @@ public sealed class AuthEndpointsTests
 
     // ---------- Register ----------
 
+    [Trait("Endpoint", "auth-register")]
     [Fact]
     public async Task Register_returns_201_wrapper_with_owner_role_and_tokens_and_never_echoes_the_password()
     {
@@ -45,6 +46,7 @@ public sealed class AuthEndpointsTests
         Assert.DoesNotContain("argon2id", raw, StringComparison.OrdinalIgnoreCase);
     }
 
+    [Trait("Endpoint", "auth-register")]
     [Theory]
     [InlineData("{\"email\":\"ana@example.com\",\"password\":\"contraseña-muy-segura-123\",\"role\":\"Business\"}")]
     [InlineData("{\"email\":\"ana@example.com\",\"password\":\"contraseña-muy-segura-123\",\"role\":\"Admin\"}")]
@@ -62,6 +64,7 @@ public sealed class AuthEndpointsTests
         Assert.Empty(factory.Users.All);
     }
 
+    [Trait("Endpoint", "auth-register")]
     [Fact]
     public async Task Register_returns_400_with_all_validation_errors_in_spanish()
     {
@@ -78,6 +81,7 @@ public sealed class AuthEndpointsTests
         Assert.Empty(factory.Users.All);
     }
 
+    [Trait("Endpoint", "auth-register")]
     [Theory]
     [InlineData("")]
     [InlineData("{}")]
@@ -95,6 +99,7 @@ public sealed class AuthEndpointsTests
         AssertWrapper(document, 400);
     }
 
+    [Trait("Endpoint", "auth-register")]
     [Fact]
     public async Task Register_duplicate_email_returns_409_with_a_generic_message_and_does_not_create_a_second_account()
     {
@@ -113,6 +118,7 @@ public sealed class AuthEndpointsTests
 
     // ---------- Login ----------
 
+    [Trait("Endpoint", "auth-login")]
     [Fact]
     public async Task Login_succeeds_and_returns_a_working_access_token_with_the_owner_role()
     {
@@ -127,6 +133,7 @@ public sealed class AuthEndpointsTests
         Assert.Equal(PetMate.Domain.Users.UserRole.Owner, claims.Role);
     }
 
+    [Trait("Endpoint", "auth-login")]
     [Fact]
     public async Task Login_failures_for_unknown_email_and_wrong_password_return_the_same_401_body()
     {
@@ -142,6 +149,7 @@ public sealed class AuthEndpointsTests
         Assert.Equal(await wrongPassword.Content.ReadAsStringAsync(), await unknown.Content.ReadAsStringAsync());
     }
 
+    [Trait("Endpoint", "auth-login")]
     [Fact]
     public async Task Login_is_throttled_with_429_wrapper_and_retry_after_after_the_configured_limit()
     {
@@ -167,6 +175,7 @@ public sealed class AuthEndpointsTests
 
     // ---------- Refresh ----------
 
+    [Trait("Endpoint", "auth-refresh")]
     [Fact]
     public async Task Refresh_rotates_and_the_old_token_cannot_be_reused_which_revokes_the_whole_session()
     {
@@ -188,6 +197,7 @@ public sealed class AuthEndpointsTests
         AssertWrapper(document, 401);
     }
 
+    [Trait("Endpoint", "auth-refresh")]
     [Fact]
     public async Task Expired_access_token_is_rejected_but_the_session_renews_with_the_refresh_token()
     {
@@ -203,6 +213,7 @@ public sealed class AuthEndpointsTests
         Assert.Equal(HttpStatusCode.OK, renewed.StatusCode);
     }
 
+    [Trait("Endpoint", "auth-refresh")]
     [Fact]
     public async Task Refresh_with_garbage_returns_401_wrapper()
     {
@@ -216,6 +227,7 @@ public sealed class AuthEndpointsTests
 
     // ---------- Logout ----------
 
+    [Trait("Endpoint", "auth-logout")]
     [Fact]
     public async Task Logout_requires_a_valid_access_token()
     {
@@ -227,6 +239,7 @@ public sealed class AuthEndpointsTests
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
+    [Trait("Endpoint", "auth-logout")]
     [Fact]
     public async Task Logout_returns_200_with_null_data_then_both_tokens_stop_working()
     {
@@ -247,6 +260,7 @@ public sealed class AuthEndpointsTests
         Assert.Equal(HttpStatusCode.Unauthorized, reuseRefresh.StatusCode);
     }
 
+    [Trait("Endpoint", "auth-logout")]
     [Fact]
     public async Task A_user_cannot_log_out_another_users_session_and_the_victim_keeps_working()
     {
@@ -262,6 +276,7 @@ public sealed class AuthEndpointsTests
         Assert.Equal(HttpStatusCode.OK, victimRefresh.StatusCode);
     }
 
+    [Trait("Endpoint", "auth-logout")]
     [Fact]
     public async Task Logout_without_refresh_token_returns_400_and_with_redis_down_returns_503()
     {
