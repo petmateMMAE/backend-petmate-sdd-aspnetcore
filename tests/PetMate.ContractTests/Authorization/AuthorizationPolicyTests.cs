@@ -24,6 +24,7 @@ public sealed class AuthorizationPolicyTests
     private static readonly string[] OwnerReachable = ["owner", "default", "unmarked", "public"];
     private static readonly string[] BusinessReachable = ["business", "default", "unmarked"];
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Anonymous_is_rejected_with_wrapped_401_everywhere_except_the_explicit_public_endpoint()
     {
@@ -40,6 +41,7 @@ public sealed class AuthorizationPolicyTests
         Assert.Equal(HttpStatusCode.OK, publicResponse.StatusCode);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Unknown_route_keeps_its_wrapped_404_for_anonymous_callers_instead_of_becoming_401()
     {
@@ -51,6 +53,7 @@ public sealed class AuthorizationPolicyTests
         await AuthzAssert.Wrapped(response, HttpStatusCode.NotFound);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Endpoint_without_any_authorization_attribute_is_denied_by_default_to_anonymous()
     {
@@ -62,6 +65,7 @@ public sealed class AuthorizationPolicyTests
         await AuthzAssert.Wrapped(response, HttpStatusCode.Unauthorized);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Owner_reaches_owner_default_unmarked_and_public_but_is_forbidden_on_business()
     {
@@ -81,6 +85,7 @@ public sealed class AuthorizationPolicyTests
         await AuthzAssert.Wrapped(forbidden, HttpStatusCode.Forbidden);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Business_reaches_business_default_and_unmarked_but_is_forbidden_on_the_owner_policy()
     {
@@ -100,6 +105,7 @@ public sealed class AuthorizationPolicyTests
         await AuthzAssert.Wrapped(forbidden, HttpStatusCode.Forbidden);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Forbidden_response_uses_the_standard_message_and_leaks_nothing()
     {
@@ -115,6 +121,7 @@ public sealed class AuthorizationPolicyTests
         Assert.DoesNotContain("Business", raw, StringComparison.Ordinal);
     }
 
+    [Trait("Endpoint", "transversal")]
     [Fact]
     public async Task Revoked_owner_token_is_rejected_with_401_and_a_redis_outage_stays_fail_closed_with_503()
     {

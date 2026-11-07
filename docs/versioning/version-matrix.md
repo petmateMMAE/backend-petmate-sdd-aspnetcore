@@ -20,9 +20,9 @@
 | Revisión de Container Apps | `petmate-api--vX-Y-Z-<run>` | `petmate-api--v0-1-0-12` |
 | Variable en el contenedor | `PETMATE_VERSION=X.Y.Z` | `0.1.0` |
 
-- La etiqueta solo se crea sobre un commit de `main` que pasó el CI (`.github/workflows/ci.yml`).
+- La etiqueta solo se crea sobre un commit de `main` que pasó el pipeline (`.github/workflows/pipeline.yml`: puerta de calidad, imagen y despliegue).
 - La imagen se bloquea contra escritura y borrado al publicarse (`az acr repository update --write-enabled false`).
-- El CD (`.github/workflows/deploy.yml`) escribe en el resumen del job la URL, la imagen y las réplicas.
+- El CD (job `deploy` de `.github/workflows/pipeline.yml`) escribe en el resumen del job la URL, la imagen y las réplicas.
 
 ## Matriz
 

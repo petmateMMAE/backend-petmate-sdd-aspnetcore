@@ -1,0 +1,700 @@
+# CI/CD DevSecOps de PetMate: UN solo pipeline donde se ve todo el flujo (pm-055, pm-057, pm-058, pm-059, pm-060, pm-077).
+#
+#   código -> secretos -> compilación (SAST) -> [SAST CodeQL | dependencias | IaC | SDD | pruebas unitarias | pruebas de seguridad
+#           | una prueba de contrato por endpoint (matriz) | integración] -> puerta de calidad -> imagen + Trivy + SBOM
+#           -> despliegue -> prueba de humo -> DAST
+#
+# - En pull request (a developer, release o main) corre todo hasta la imagen y NO despliega: deploy, smoke-test y dast aparecen
+#   como "skipped" para que el diagrama muestre el flujo completo.
+# - En push a main (código, Dockerfile o VERSION) o a mano desde main, tras pasar la puerta de calidad y la imagen, se despliega.
+# - Las pruebas de cada endpoint son jobs separados al mismo nivel (matriz `endpoint-tests`): `dotnet test --filter "Endpoint=<valor>"`.
+#   Cada método de ContractTests lleva [Trait("Endpoint", "...")] y una prueba de arquitectura lo exige.
+# - Sin `environment:` en el despliegue: el plan gratuito de GitHub no los permite en repositorios privados y además cambiaría el
+#   subject de OIDC. La credencial federada de Azure solo confía en refs/heads/main.
+# Herramientas $0: runners de GitHub, gitleaks, Trivy, Syft, OWASP ZAP (todas de código abierto).
+name: CI/CD DevSecOps
+
+on:
+  pull_request:
+    branches: [developer, release, main]
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'Dockerfile'
+      - 'Directory.Build.props'
+      - 'Directory.Packages.props'
+      - 'VERSION'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versión SemVer a desplegar (sin la v). Vacío = la del archivo VERSION'
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pipeline-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+
+jobs:
+  # ───────────── Etapa 1 · Secretos (DevSecOps) ─────────────
+  secrets-scan:
+    name: "1 · Secretos (gitleaks)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Buscar secretos en el repositorio y su historial
+        # Imagen oficial de código abierto (la acción gitleaks-action exige licencia de pago en organizaciones).
+        run: |
+          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.18.4 detect \
+            --source /repo --config /repo/.gitleaks.toml --redact --no-banner \
+            --report-format sarif --report-path /repo/gitleaks.sarif
+
+      - name: Informe SARIF
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-sarif
+          path: gitleaks.sarif
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # ───────────── Etapa 2 · Compilación + SAST con analizadores ─────────────
+  build:
+    name: "2 · Compilación y analizadores (SAST)"
+    needs: secrets-scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restaurar
+        run: dotnet restore PetMate.sln
+
+      - name: Compilar Release (analizadores de seguridad como errores)
+        run: dotnet build PetMate.sln -c Release --no-restore -warnaserror
+
+      - name: Formato (dotnet format --verify-no-changes)
+        run: dotnet format PetMate.sln --verify-no-changes --verbosity minimal
+
+  # ───────────── Etapa 3 · Seguridad y calidad en paralelo ─────────────
+  sast:
+    name: "3 · SAST (CodeQL)"
+    needs: build
+    # Interruptor: crear la variable CODEQL_DISABLED=true en el repositorio si CodeQL no está permitido (ver docs/ci-cd/pipeline.md).
+    if: vars.CODEQL_DISABLED != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # Los pasos de CodeQL son informativos (continue-on-error): en un repositorio privado sin GitHub Advanced Security no se
+      # pueden publicar alertas. El SAST bloqueante son los analizadores .NET de la etapa 2.
+      - name: Inicializar CodeQL
+        id: init
+        continue-on-error: true
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+          build-mode: manual
+
+      - name: Compilar para CodeQL
+        if: steps.init.outcome == 'success'
+        run: |
+          dotnet restore PetMate.sln
+          dotnet build PetMate.sln -c Release --no-restore
+
+      - name: Analizar con CodeQL (el SARIF queda como artefacto; no se sube a Code Scanning)
+        id: analyze
+        if: steps.init.outcome == 'success'
+        continue-on-error: true
+        uses: github/codeql-action/analyze@v3
+        with:
+          upload: never
+          output: codeql-results
+
+      - name: Informe CodeQL
+        if: steps.analyze.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-sarif
+          path: codeql-results
+          retention-days: 14
+
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "### SAST (CodeQL)"
+            if [ "${{ steps.analyze.outcome }}" = "success" ]; then
+              echo "Análisis completado. El SARIF está en el artefacto \`codeql-sarif\`."
+            else
+              echo "> CodeQL no se pudo ejecutar o publicar (repositorio privado sin GitHub Advanced Security). Etapa informativa."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  dependencies:
+    name: "3 · Dependencias (NuGet)"
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Vulnerabilidades (High y Critical bloquean), paquetes en desuso y licencias
+        shell: pwsh
+        run: ./scripts/quality-gate.ps1 -AuditOnly -MinSeverity High
+
+  iac-scan:
+    name: "3 · IaC (Trivy config)"
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      # Trivy config incluye el motor de reglas de tfsec (tfsec está integrado en Trivy). HIGH y CRITICAL bloquean.
+      # Hoy infra/azure e infra/atlas no tienen hallazgos; si apareciera alguno que no se pueda corregir, cambiar
+      # exit-code a '0' (soft-fail con el SARIF como evidencia) y documentarlo en docs/ci-cd/pipeline.md.
+      - name: Escanear Terraform (infra/)
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          scan-type: config
+          scan-ref: infra
+          severity: CRITICAL,HIGH
+          format: sarif
+          output: trivy-iac.sarif
+          limit-severities-for-sarif: true
+          exit-code: '1'
+
+      - name: Informe SARIF
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-iac-sarif
+          path: trivy-iac.sarif
+          if-no-files-found: ignore
+          retention-days: 14
+
+  sdd-integrity:
+    name: "3 · Integridad SDD"
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Integridad de Specs, Tasks y documentos históricos (check-sdd.ps1)
+        shell: pwsh
+        run: ./scripts/check-sdd.ps1
+
+  # ───────────── Etapa 4 · Pruebas ─────────────
+  unit-tests:
+    name: "4 · Pruebas unitarias"
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Ejecutar pruebas unitarias
+        run: dotnet test tests/PetMate.UnitTests -c Release --logger "trx;LogFileName=unit.trx" --results-directory TestResults
+
+      - name: Resumen
+        if: always()
+        shell: pwsh
+        run: ./scripts/ci-test-summary.ps1 -Title "Pruebas unitarias" -ResultsDir TestResults
+
+      - name: Resultados (TRX)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trx-unit-tests
+          path: TestResults
+          if-no-files-found: ignore
+          retention-days: 7
+
+  security-tests:
+    name: "4 · Pruebas de seguridad"
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Ejecutar pruebas de seguridad (incluye detección de secretos, JWT, autorización, rate limiting)
+        run: dotnet test tests/PetMate.SecurityTests -c Release --logger "trx;LogFileName=security.trx" --results-directory TestResults
+
+      - name: Resumen
+        if: always()
+        shell: pwsh
+        run: ./scripts/ci-test-summary.ps1 -Title "Pruebas de seguridad" -ResultsDir TestResults
+
+      - name: Resultados (TRX)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trx-security-tests
+          path: TestResults
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # Una prueba de contrato por endpoint: cada valor de la matriz es un job independiente, todos al mismo nivel.
+  endpoint-tests:
+    name: "4 · Endpoint · ${{ matrix.endpoint }}"
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        endpoint:
+          - auth-register
+          - auth-login
+          - auth-refresh
+          - auth-logout
+          - users-me-get
+          - users-me-update
+          - health-live
+          - health-ready
+          - technical-mediator-probe
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: "Pruebas de contrato del endpoint ${{ matrix.endpoint }}"
+        run: |
+          dotnet test tests/PetMate.ContractTests -c Release \
+            --filter "Endpoint=${{ matrix.endpoint }}" \
+            --logger "trx;LogFileName=endpoint-${{ matrix.endpoint }}.trx" --results-directory TestResults
+
+      - name: Resumen
+        if: always()
+        shell: pwsh
+        run: ./scripts/ci-test-summary.ps1 -Title "Endpoint ${{ matrix.endpoint }}" -ResultsDir TestResults
+
+      - name: Resultados (TRX)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trx-endpoint-${{ matrix.endpoint }}
+          path: TestResults
+          if-no-files-found: ignore
+          retention-days: 7
+
+  contract-transversal:
+    name: "4 · Contrato transversal (wrapper, OpenAPI, autorización)"
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Pruebas de contrato que no pertenecen a un solo endpoint
+        run: |
+          dotnet test tests/PetMate.ContractTests -c Release \
+            --filter "Endpoint=transversal" \
+            --logger "trx;LogFileName=contract-transversal.trx" --results-directory TestResults
+
+      - name: Resumen
+        if: always()
+        shell: pwsh
+        run: ./scripts/ci-test-summary.ps1 -Title "Contrato transversal" -ResultsDir TestResults
+
+      - name: Resultados (TRX)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trx-contract-transversal
+          path: TestResults
+          if-no-files-found: ignore
+          retention-days: 7
+
+  integration-tests:
+    name: "4 · Pruebas de integración (Atlas y Redis)"
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      MONGODB_TEST_URI: ${{ secrets.MONGODB_TEST_URI }}
+      MONGODB_TEST_DATABASE: ${{ secrets.MONGODB_TEST_DATABASE }}
+      MONGODB_DATABASE: petmate_ci_no_usar
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Disponibilidad de la base de pruebas de Atlas
+        run: |
+          if [ -z "$MONGODB_TEST_URI" ] || [ -z "$MONGODB_TEST_DATABASE" ]; then
+            echo "::warning title=Integración con Atlas omitida::Faltan los secretos MONGODB_TEST_URI / MONGODB_TEST_DATABASE (por ejemplo, un PR desde un fork). Las pruebas contra Atlas quedan Skipped y NO cuentan como aprobadas."
+            echo "> **Atención:** sin los secretos de Atlas las pruebas de integración contra MongoDB quedaron *omitidas* (no aprobadas)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Redis Auth y Redis Cache de prueba (contenedores efímeros)
+        run: |
+          AUTH_PW=$(openssl rand -hex 24); CACHE_PW=$(openssl rand -hex 24)
+          echo "::add-mask::$AUTH_PW"; echo "::add-mask::$CACHE_PW"
+          docker run -d --name redis-auth -p 6381:6379 redis:7.4 redis-server --requirepass "$AUTH_PW" --maxmemory-policy noeviction
+          docker run -d --name redis-cache -p 6382:6379 redis:7.4 redis-server --requirepass "$CACHE_PW" --maxmemory-policy allkeys-lru
+          echo "PETMATE_IT_REDIS_AUTH=localhost:6381,password=$AUTH_PW" >> "$GITHUB_ENV"
+          echo "PETMATE_IT_REDIS_CACHE=localhost:6382,password=$CACHE_PW" >> "$GITHUB_ENV"
+          for _ in $(seq 1 20); do
+            docker exec redis-auth redis-cli -a "$AUTH_PW" ping 2>/dev/null | grep -q PONG && \
+            docker exec redis-cache redis-cli -a "$CACHE_PW" ping 2>/dev/null | grep -q PONG && break
+            sleep 1
+          done
+
+      - name: Ejecutar pruebas de integración
+        run: dotnet test tests/PetMate.IntegrationTests -c Release --logger "trx;LogFileName=integration.trx" --results-directory TestResults
+
+      - name: Resumen
+        if: always()
+        shell: pwsh
+        run: ./scripts/ci-test-summary.ps1 -Title "Pruebas de integración" -ResultsDir TestResults
+
+      - name: Resultados (TRX)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trx-integration-tests
+          path: TestResults
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ───────────── Etapa 5 · Puerta de calidad ─────────────
+  quality-gate:
+    name: "5 · Puerta de calidad"
+    # always(): resume el resultado de todas las etapas aunque alguna haya fallado, y después falla si alguna bloqueante no pasó.
+    if: always()
+    needs:
+      - secrets-scan
+      - build
+      - sast
+      - dependencies
+      - iac-scan
+      - sdd-integrity
+      - unit-tests
+      - security-tests
+      - endpoint-tests
+      - contract-transversal
+      - integration-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Resumen etapa → resultado
+        env:
+          R_SECRETS: ${{ needs.secrets-scan.result }}
+          R_BUILD: ${{ needs.build.result }}
+          R_SAST: ${{ needs.sast.result }}
+          R_DEPENDENCIES: ${{ needs.dependencies.result }}
+          R_IAC: ${{ needs.iac-scan.result }}
+          R_SDD: ${{ needs.sdd-integrity.result }}
+          R_UNIT: ${{ needs.unit-tests.result }}
+          R_SECURITY: ${{ needs.security-tests.result }}
+          R_ENDPOINTS: ${{ needs.endpoint-tests.result }}
+          R_TRANSVERSAL: ${{ needs.contract-transversal.result }}
+          R_INTEGRATION: ${{ needs.integration-tests.result }}
+        run: |
+          failed=0
+          {
+            echo "### Puerta de calidad"
+            echo
+            echo "| Etapa | Resultado | Tipo |"
+            echo "|---|---|---|"
+          } >> "$GITHUB_STEP_SUMMARY"
+          row() { # etapa resultado tipo(bloqueante|informativa)
+            local icon
+            case "$2" in
+              success) icon="✅ correcto" ;;
+              skipped) icon="⏭️ omitida" ;;
+              cancelled) icon="🚫 cancelada" ;;
+              *) icon="❌ $2" ;;
+            esac
+            echo "| $1 | $icon | $3 |" >> "$GITHUB_STEP_SUMMARY"
+            if [ "$3" = "bloqueante" ] && [ "$2" != "success" ]; then failed=1; fi
+          }
+          row "1 · Secretos (gitleaks)" "$R_SECRETS" bloqueante
+          row "2 · Compilación y analizadores (SAST)" "$R_BUILD" bloqueante
+          row "3 · SAST (CodeQL)" "$R_SAST" informativa
+          row "3 · Dependencias (NuGet)" "$R_DEPENDENCIES" bloqueante
+          row "3 · IaC (Trivy config)" "$R_IAC" bloqueante
+          row "3 · Integridad SDD" "$R_SDD" bloqueante
+          row "4 · Pruebas unitarias" "$R_UNIT" bloqueante
+          row "4 · Pruebas de seguridad" "$R_SECURITY" bloqueante
+          row "4 · Pruebas por endpoint (9 jobs)" "$R_ENDPOINTS" bloqueante
+          row "4 · Contrato transversal" "$R_TRANSVERSAL" bloqueante
+          row "4 · Pruebas de integración" "$R_INTEGRATION" bloqueante
+          if [ "$failed" -ne 0 ]; then
+            echo "::error::La puerta de calidad falló: hay etapas bloqueantes sin resultado correcto."
+            echo >> "$GITHUB_STEP_SUMMARY"; echo "**Resultado: FALLÓ**" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo >> "$GITHUB_STEP_SUMMARY"; echo "**Resultado: correcto**" >> "$GITHUB_STEP_SUMMARY"
+
+  # ───────────── Etapa 6 · Imagen ─────────────
+  docker-build:
+    name: "6 · Imagen, Trivy y SBOM"
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      # En pull request solo se construye y se escanea: nunca se publica. La imagen que se despliega se construye en `deploy`
+      # (necesita la CA pública de Redis que sale de Terraform) y se vuelve a escanear antes de publicarla.
+      - name: Construir imagen
+        run: docker build -t petmate-api:ci-${{ github.sha }} .
+
+      - name: Escaneo de la imagen (Trivy, HIGH y CRITICAL bloquean)
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          image-ref: petmate-api:ci-${{ github.sha }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '1'
+
+      - name: SBOM (Syft, SPDX)
+        uses: anchore/sbom-action@v0
+        with:
+          image: petmate-api:ci-${{ github.sha }}
+          format: spdx-json
+          artifact-name: sbom-petmate-api-${{ github.sha }}.spdx.json
+
+  # ───────────── Etapa 7 · Despliegue (solo push a main) ─────────────
+  deploy:
+    name: "7 · Despliegue a Azure"
+    needs: [quality-gate, docker-build]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      id-token: write
+      contents: write
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    env:
+      ARM_USE_OIDC: 'true'
+      ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+    outputs:
+      url: ${{ steps.infra.outputs.url }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Versión
+        id: version
+        run: |
+          V="${{ inputs.version }}"
+          if [ -z "$V" ]; then V="$(tr -d ' \r\n' < VERSION)"; fi
+          if ! echo "$V" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then echo "::error::Versión no SemVer: $V"; exit 1; fi
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "tag=$V-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Leer salidas de la infraestructura
+        id: infra
+        working-directory: infra/azure
+        run: |
+          terraform init -input=false \
+            -backend-config="resource_group_name=${{ vars.TFSTATE_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ vars.TFSTATE_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=tfstate"
+          echo "acr=$(terraform output -raw acr_name)" >> "$GITHUB_OUTPUT"
+          echo "registry=$(terraform output -raw acr_login_server)" >> "$GITHUB_OUTPUT"
+          echo "app=$(terraform output -raw api_app_name)" >> "$GITHUB_OUTPUT"
+          echo "rg=$(terraform output -raw resource_group_name)" >> "$GITHUB_OUTPUT"
+          echo "url=$(terraform output -raw api_url)" >> "$GITHUB_OUTPUT"
+          terraform output -raw redis_ca_cert_pem > "$RUNNER_TEMP/redis-ca.crt"
+
+      - name: Construir imagen (CA de Redis horneada; no es secreta)
+        run: |
+          IMAGE="${{ steps.infra.outputs.registry }}/petmate-api:${{ steps.version.outputs.tag }}"
+          docker build \
+            --build-arg REDIS_CA_CERT_B64="$(base64 -w0 "$RUNNER_TEMP/redis-ca.crt")" \
+            --label org.opencontainers.image.version=${{ steps.version.outputs.version }} \
+            --label org.opencontainers.image.revision=${{ github.sha }} \
+            -t "$IMAGE" .
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+
+      - name: Escaneo de la imagen (Trivy)
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          image-ref: ${{ env.IMAGE }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '1'
+
+      - name: Publicar imagen inmutable en ACR
+        run: |
+          az acr login -n ${{ steps.infra.outputs.acr }}
+          # Etiqueta inmutable: si ya existe (reintento del mismo commit), se reutiliza la imagen publicada.
+          if az acr repository show -n ${{ steps.infra.outputs.acr }} \
+               --image petmate-api:${{ steps.version.outputs.tag }} >/dev/null 2>&1; then
+            echo "La imagen ${{ steps.version.outputs.tag }} ya existe en ACR y está bloqueada; se reutiliza."
+          else
+            docker push "$IMAGE"
+            az acr repository update -n ${{ steps.infra.outputs.acr }} \
+              --image petmate-api:${{ steps.version.outputs.tag }} --write-enabled false --delete-enabled false
+          fi
+
+      - name: Desplegar nueva revisión
+        id: rollout
+        run: |
+          PREVIOUS=$(az containerapp show -n ${{ steps.infra.outputs.app }} -g ${{ steps.infra.outputs.rg }} \
+            --query "properties.template.containers[0].image" -o tsv)
+          echo "previous=$PREVIOUS" >> "$GITHUB_OUTPUT"
+          SUFFIX="v$(echo ${{ steps.version.outputs.version }} | tr . -)-${GITHUB_RUN_NUMBER}"
+          az containerapp update -n ${{ steps.infra.outputs.app }} -g ${{ steps.infra.outputs.rg }} \
+            --image "$IMAGE" --revision-suffix "$SUFFIX" \
+            --set-env-vars PETMATE_VERSION=${{ steps.version.outputs.version }} >/dev/null
+          for i in $(seq 1 30); do
+            STATE=$(az containerapp revision show -n ${{ steps.infra.outputs.app }} -g ${{ steps.infra.outputs.rg }} \
+              --revision "${{ steps.infra.outputs.app }}--$SUFFIX" --query "properties.runningState" -o tsv 2>/dev/null || true)
+            echo "Revisión: $STATE"
+            [ "$STATE" = "Running" ] && break
+            sleep 10
+          done
+
+      - name: Despertar la API (modo ahorro puede tenerla en 0 réplicas)
+        run: |
+          for i in $(seq 1 24); do
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "${{ steps.infra.outputs.url }}/api/v1/health/ready" || true)
+            echo "ready: $CODE"; [ "$CODE" = "200" ] && exit 0; sleep 10
+          done
+          echo "::error::La API no quedó lista. En modo ahorro Redis está apagado de 23:00 a 7:00 (hora de México)."; exit 1
+
+      - name: Prueba de humo por HTTPS (con reversa automática si falla)
+        id: smoke
+        run: bash scripts/smoke-test.sh "${{ steps.infra.outputs.url }}"
+
+      - name: Reversa a la imagen anterior
+        if: failure() && steps.rollout.outputs.previous != ''
+        run: |
+          az containerapp update -n ${{ steps.infra.outputs.app }} -g ${{ steps.infra.outputs.rg }} \
+            --image "${{ steps.rollout.outputs.previous }}" >/dev/null
+          echo "::warning::Despliegue revertido a ${{ steps.rollout.outputs.previous }}"
+
+      - name: Etiqueta de versión
+        if: success()
+        run: |
+          git tag "api-v${{ steps.version.outputs.version }}" "$GITHUB_SHA" 2>/dev/null && \
+            git push origin "api-v${{ steps.version.outputs.version }}" || echo "La etiqueta ya existía"
+
+      - name: Resumen
+        if: success()
+        run: |
+          {
+            echo "### PetMate API ${{ steps.version.outputs.version }} desplegada"
+            echo "- URL: ${{ steps.infra.outputs.url }}"
+            echo "- Imagen: $IMAGE"
+            echo "- Réplicas:"; az containerapp replica list -n ${{ steps.infra.outputs.app }} -g ${{ steps.infra.outputs.rg }} --query "[].name" -o tsv | sed 's/^/  - /'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ───────────── Etapa 8 · Prueba de humo posterior ─────────────
+  smoke-test:
+    name: "8 · Prueba de humo (API desplegada)"
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verificar los endpoints por HTTPS
+        run: bash scripts/smoke-test.sh "${{ needs.deploy.outputs.url }}"
+
+  # ───────────── Etapa 9 · DAST ─────────────
+  dast:
+    name: "9 · DAST (OWASP ZAP baseline)"
+    needs: [deploy, smoke-test]
+    # Solo informa: no bloquea ni falla el pipeline. Los hallazgos quedan en el informe y en el resumen.
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Preparar carpeta de informes
+        run: mkdir -p zap && chmod 777 zap
+
+      - name: ZAP baseline contra la API desplegada (escaneo pasivo)
+        run: |
+          docker run --rm -v "$PWD/zap:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:2.16.1 \
+            zap-baseline.py -t "${{ needs.deploy.outputs.url }}" -r zap-report.html -J zap-report.json -I || true
+
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "### DAST (OWASP ZAP baseline)"
+            if [ -f zap/zap-report.json ] && command -v jq >/dev/null; then
+              echo
+              echo "| Riesgo | Alertas |"
+              echo "|---|---:|"
+              jq -r '[.site[].alerts[]?] | group_by(.riskdesc | split(" ")[0]) | .[] | "| \(.[0].riskdesc | split(" ")[0]) | \(length) |"' zap/zap-report.json
+            else
+              echo "No se generó el informe JSON."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Informe de ZAP
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-baseline-report
+          path: zap
+          if-no-files-found: ignore
+          retention-days: 14
