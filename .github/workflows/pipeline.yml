@@ -6,7 +6,7 @@
 #
 # - En pull request (a developer, release o main) corre todo hasta la imagen y NO despliega: deploy, smoke-test y dast aparecen
 #   como "skipped" para que el diagrama muestre el flujo completo.
-# - En push a main (código, Dockerfile o VERSION) o a mano desde main, tras pasar la puerta de calidad y la imagen, se despliega.
+# - En cada push/merge a main (sin filtro de rutas: el flujo siempre se ve completo) o a mano desde main, tras pasar la puerta de calidad y la imagen, se despliega.
 # - Las pruebas de cada endpoint son jobs separados al mismo nivel (matriz `endpoint-tests`): `dotnet test --filter "Endpoint=<valor>"`.
 #   Cada método de ContractTests lleva [Trait("Endpoint", "...")] y una prueba de arquitectura lo exige.
 # - Sin `environment:` en el despliegue: el plan gratuito de GitHub no los permite en repositorios privados y además cambiaría el
@@ -19,12 +19,6 @@ on:
     branches: [developer, release, main]
   push:
     branches: [main]
-    paths:
-      - 'src/**'
-      - 'Dockerfile'
-      - 'Directory.Build.props'
-      - 'Directory.Packages.props'
-      - 'VERSION'
   workflow_dispatch:
     inputs:
       version:

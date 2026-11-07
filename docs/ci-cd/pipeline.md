@@ -7,7 +7,7 @@
 | Evento | Qué hace |
 |---|---|
 | `pull_request` a `developer`, `release` o `main` | Corre todo hasta la imagen. **No despliega**: `deploy`, `smoke-test` y `dast` aparecen como *skipped* para que el diagrama del run muestre el flujo completo. |
-| `push` a `main` (cambios en `src/`, `Dockerfile`, `Directory.*.props` o `VERSION`) | Corre todo y, si la puerta de calidad y la imagen pasan, despliega a Azure, ejecuta la prueba de humo y el DAST. |
+| `push` a `main` (cada merge, sin filtro de rutas: el pipeline corre solo) | Corre todo y, si la puerta de calidad y la imagen pasan, despliega a Azure, ejecuta la prueba de humo y el DAST. |
 | `workflow_dispatch` | Igual que el push; solo despliega si se lanza desde `main`. Acepta una versión SemVer opcional. |
 
 Flujo de ramas: `feature/*` → `developer` → `release` → `main`. Los PR corren las mismas etapas de validación que `main`.
