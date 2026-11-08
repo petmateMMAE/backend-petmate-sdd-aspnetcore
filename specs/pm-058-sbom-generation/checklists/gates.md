@@ -10,5 +10,5 @@
 ## Evidencia (2026-11-08)
 - Revisión estática de `pipeline.yml`. El cambio de `pipeline.yml` todavía no se ejecutó en GitHub: no se ha hecho push (instrucción del usuario). La evidencia en CI llegará con la siguiente ejecución del pipeline.
 - Observación: la acción usa la etiqueta móvil `@v0`; fijarla a una versión concreta reduciría el riesgo de cadena de suministro (no bloqueante).
-- [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T070.
+- [ ] Revisión independiente (no realizada; el usuario aprobó el cierre sin ella).
+- [x] Aprobación humana del cierre de T070 (2026-11-08).

@@ -343,5 +343,10 @@
 
 - **Estado:** verificadas y en `En progreso`; falta revisión independiente y aprobación humana. T012 y T067 sin cambios.
 - **Cambios:** `check-sdd.ps1` valida CA duplicados, Tasks con más de un Spec principal y trazabilidad completa por criterio; nuevo `check-sdd.tests.ps1` (8 casos) y su paso en el job `sdd-integrity`; resumen de la puerta de calidad sin el conteo fijo de endpoints; `version-matrix.md` corregida (la etiqueta la crea el CD).
-- **Decisiones pendientes del usuario:** (1) Trivy de imagen con `ignore-unfixed: true` (T069); (2) NuGet bloquea desde `High` en CI y desde `Low` en local (T066); (3) aceptar el merge/push a `main` como autorización expresa de la etiqueta (T071).
+- **Decisiones pendientes del usuario:** (1) NuGet bloquea desde `High` en CI y desde `Low` en local (T066); (2) aceptar el merge/push a `main` como autorización expresa de la etiqueta (T071). La de Trivy (T069) quedó resuelta el mismo día (ver abajo).
 - **Limitación:** los cambios de `pipeline.yml` no se han ejecutado en GitHub porque no se ha hecho push.
+
+## Cierres y endurecimiento de la imagen (2026-11-08)
+
+- **T001, T070, T072:** cerradas con aprobación humana (sin revisión independiente); pm-058 y pm-060 `Cerrado`; pm-001 sigue `En revisión` (Spec sin aprobar).
+- **T069 (pm-057):** Trivy ya no ignora vulnerabilidades sin parche. La imagen final es `mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled` (sin shell, sin gestor de paquetes, no root): 0 HIGH/CRITICAL y 2 MEDIUM de `libc6` frente a 19 hallazgos de la imagen anterior; 225 MB frente a 392 MB. La CA de Redis del CD se arma en una etapa `certs`. Se quitó el healthcheck `bash` de la API en Compose. Verificado en local con Atlas real (flujo completo) y Security 155/155. Pendiente: aprobación de T069 y primera ejecución en GitHub/Azure tras el próximo push.

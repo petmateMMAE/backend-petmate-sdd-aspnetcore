@@ -30,7 +30,7 @@ Cada criterio se cita como `pm-001#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T001 | Histórica | Verificado (2026-11-03) | Crear solución y proyectos |
+| T001 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Crear solución y proyectos |
 
 Detalle en [task.md](task.md).
 

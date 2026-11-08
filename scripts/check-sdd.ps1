@@ -79,7 +79,7 @@ foreach ($d in $dirs) { $id = $d.Name.Substring(3, 3); if (-not ($principal.Valu
 
 # estados historicos preservados
 $t001 = [regex]::Match((Read-Text (Join-Path $specsDir 'pm-001-solution-structure\task.md')), '### T001.*?\*\*Estado:\*\* ([^\r\n]+)', 'Singleline').Groups[1].Value
-if ($t001 -notmatch '^Verificado') { Fail 'T001 no conserva el estado Verificado' }
+if ($t001 -notmatch '^(Verificado|Cerrado y aprobado)') { Fail 'T001 no conserva el estado Verificado ni tiene cierre aprobado' }
 $t012 = [regex]::Match((Read-Text (Join-Path $specsDir 'pm-055-ci-pull-request-pipeline\task.md')), '### T012.*?\*\*Estado:\*\* ([^\r\n]+)', 'Singleline').Groups[1].Value
 if ($t012 -notmatch '^Implementada; NO cerrada') { Fail 'T012 no conserva el estado Implementada; NO cerrada' }
 

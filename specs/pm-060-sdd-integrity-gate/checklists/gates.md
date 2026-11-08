@@ -15,5 +15,5 @@
 | `check-sdd.tests.ps1` | 8/8 casos correctos | Windows PowerShell 5.1 |
 | CI | Paso nuevo "Pruebas negativas del gate SDD" en `sdd-integrity` | El cambio de `pipeline.yml` todavía no se ejecutó en GitHub: no se ha hecho push (instrucción del usuario). La evidencia en CI llegará con la siguiente ejecución del pipeline. |
 
-- [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T072.
+- [ ] Revisión independiente (no realizada; el usuario aprobó el cierre sin ella).
+- [x] Aprobación humana del cierre de T072 (2026-11-08).

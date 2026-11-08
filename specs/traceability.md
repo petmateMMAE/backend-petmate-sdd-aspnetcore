@@ -71,9 +71,9 @@
 
 | CA | Task propietaria | Tipo | Estado de la Task | Evidencia |
 |---|---|---|---|---|
-| pm-001#CA-01 | T001 | Histórica | Verificado (2026-11-03) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
-| pm-001#CA-02 | T001 | Histórica | Verificado (2026-11-03) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
-| pm-001#CA-03 | T001 | Histórica | Verificado (2026-11-03) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
+| pm-001#CA-01 | T001 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
+| pm-001#CA-02 | T001 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
+| pm-001#CA-03 | T001 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-002#CA-01 | T002 | Histórica | Cerrado (2026-11-03) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-002#CA-02 | T002 | Histórica | Cerrado (2026-11-03) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-003#CA-01 | T003 | Histórica | Cerrado (2026-11-03) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
@@ -243,14 +243,14 @@
 | pm-056#CA-02 | T068 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-057#CA-01 | T069 | Nueva | En progreso | [gates](pm-057-container-image-scan/checklists/gates.md) |
 | pm-057#CA-02 | T069 | Nueva | En progreso | [gates](pm-057-container-image-scan/checklists/gates.md) |
-| pm-058#CA-01 | T070 | Nueva | En progreso | [gates](pm-058-sbom-generation/checklists/gates.md) |
-| pm-058#CA-02 | T070 | Nueva | En progreso | [gates](pm-058-sbom-generation/checklists/gates.md) |
+| pm-058#CA-01 | T070 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-058-sbom-generation/checklists/gates.md) |
+| pm-058#CA-02 | T070 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-058-sbom-generation/checklists/gates.md) |
 | pm-059#CA-01 | T071 | Nueva | En progreso | [gates](pm-059-release-versioning/checklists/gates.md) |
 | pm-059#CA-02 | T071 | Nueva | En progreso | [gates](pm-059-release-versioning/checklists/gates.md) |
 | pm-059#CA-03 | T071 | Nueva | En progreso | [gates](pm-059-release-versioning/checklists/gates.md) |
-| pm-060#CA-01 | T072 | Nueva | En progreso | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
-| pm-060#CA-02 | T072 | Nueva | En progreso | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
-| pm-060#CA-03 | T072 | Nueva | En progreso | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
+| pm-060#CA-01 | T072 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
+| pm-060#CA-02 | T072 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
+| pm-060#CA-03 | T072 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
 | pm-061#CA-01 | T024 | Histórica | Propuesto | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-061#CA-02 | T039 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
 | pm-061#CA-03 | T073 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |

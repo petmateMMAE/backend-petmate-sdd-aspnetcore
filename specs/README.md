@@ -72,9 +72,9 @@
 | [pm-055-ci-pull-request-pipeline](pm-055-ci-pull-request-pipeline/spec.md) | En progreso | L4 | pm-021 | T012, T066, T067 | Workflow de pull request con paridad respecto al gate local y ramas protegidas |
 | [pm-056-test-coverage-baseline](pm-056-test-coverage-baseline/spec.md) | Propuesto | L4 | pm-021 | T068 | Línea base y umbral de cobertura de pruebas |
 | [pm-057-container-image-scan](pm-057-container-image-scan/spec.md) | En progreso | L5 | pm-015, pm-055 | T069 | Escaneo de la imagen de contenedor con herramienta $0 |
-| [pm-058-sbom-generation](pm-058-sbom-generation/spec.md) | En progreso | L5 | pm-055 | T070 | Generación de SBOM por compilación |
+| [pm-058-sbom-generation](pm-058-sbom-generation/spec.md) | Cerrado | L5 | pm-055 | T070 | Generación de SBOM por compilación |
 | [pm-059-release-versioning](pm-059-release-versioning/spec.md) | En progreso | L5 | pm-055 | T071 | Versionado SemVer, etiquetas y versión trazable a la imagen |
-| [pm-060-sdd-integrity-gate](pm-060-sdd-integrity-gate/spec.md) | En progreso | L5 | pm-055 | T072 | Validación automática de la integridad de specs, tasks y trazabilidad |
+| [pm-060-sdd-integrity-gate](pm-060-sdd-integrity-gate/spec.md) | Cerrado | L5 | pm-055 | T072 | Validación automática de la integridad de specs, tasks y trazabilidad |
 | [pm-061-api-docs-contract-sync](pm-061-api-docs-contract-sync/spec.md) | Propuesto | L5 | pm-007, pm-008, pm-009 | T024, T039, T073 | Rutas del código iguales al catálogo y wrapper representado en OpenAPI |
 | [pm-062-cloud-cost-feasibility-study](pm-062-cloud-cost-feasibility-study/spec.md) | Aprobado | L0 | — | T074 | Estudio con fuentes oficiales del costo $0 MXN por componente en Azure for Students y del costo total de operación de la arquitectura |
 | [pm-063-cloud-provider-selection](pm-063-cloud-provider-selection/spec.md) | Aprobado | L1 | pm-062 | T075 | Registrar Azure for Students como proveedor definitivo y seleccionar mediante ADR el servicio de Azure para cada componente |
@@ -124,7 +124,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 
 | Task | Tipo | Spec principal | Estado | Título |
 |---|---|---|---|---|
-| T001 | Histórica | [pm-001](pm-001-solution-structure/spec.md) | Verificado (2026-11-03) | Crear solución y proyectos |
+| T001 | Histórica | [pm-001](pm-001-solution-structure/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Crear solución y proyectos |
 | T002 | Histórica | [pm-002](pm-002-clean-architecture-dependency-rules/spec.md) | Cerrado (2026-11-03) | Configurar referencias de Clean Architecture |
 | T003 | Histórica | [pm-003](pm-003-code-standards-central-packages/spec.md) | Cerrado (2026-11-03) | Estándares y administración de dependencias |
 | T004 | Histórica | [pm-004](pm-004-external-configuration-secrets/spec.md) | Cerrado (2026-11-03) | Configuración `.env` local y secretos |
@@ -193,9 +193,9 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T067 | Nueva | [pm-055](pm-055-ci-pull-request-pipeline/spec.md) | Propuesto | Configurar ramas protegidas y checks requeridos |
 | T068 | Nueva | [pm-056](pm-056-test-coverage-baseline/spec.md) | Propuesto | Medir la línea base de cobertura |
 | T069 | Nueva | [pm-057](pm-057-container-image-scan/spec.md) | En progreso | Integrar el escaneo de la imagen de contenedor |
-| T070 | Nueva | [pm-058](pm-058-sbom-generation/spec.md) | En progreso | Generar el SBOM por compilación |
+| T070 | Nueva | [pm-058](pm-058-sbom-generation/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Generar el SBOM por compilación |
 | T071 | Nueva | [pm-059](pm-059-release-versioning/spec.md) | En progreso | Definir el versionado de releases |
-| T072 | Nueva | [pm-060](pm-060-sdd-integrity-gate/spec.md) | En progreso | Integrar el gate de integridad SDD en CI |
+| T072 | Nueva | [pm-060](pm-060-sdd-integrity-gate/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Integrar el gate de integridad SDD en CI |
 | T073 | Nueva | [pm-061](pm-061-api-docs-contract-sync/spec.md) | Propuesto | Sincronizar contratos, catálogo y OpenAPI |
 | T074 | Nueva | [pm-062](pm-062-cloud-cost-feasibility-study/spec.md) | Propuesto | Elaborar el estudio de costos de Azure for Students |
 | T075 | Nueva | [pm-063](pm-063-cloud-provider-selection/spec.md) | Propuesto | Registrar la decisión de proveedor y los ADR de servicios Azure |
@@ -243,3 +243,5 @@ Los cuatro endpoints de autenticación y los siete endpoints funcionales (11 en 
 - **2026-11-08 — T036, T037 (pm-039):** pasan a `En progreso` por pedido del usuario. Se verificaron CA-04 y CA-05 y se añadieron dos pruebas de integración (uso del índice por propietario y borrado concurrente). Falta la aprobación humana del cierre.
 - **2026-11-08 — T036, T037:** cierre aprobado por el usuario (sin revisión independiente); pm-039 pasa a `Cerrado`.
 - **2026-11-08 — T066, T069, T070, T071, T072 (pm-055, pm-057, pm-058, pm-059, pm-060):** pasan a `En progreso` por pedido del usuario (grupo de CI). Se crean `plan.md` y `checklists/gates.md`; `check-sdd.ps1` gana tres validaciones y pruebas negativas. Decisiones pendientes: `ignore-unfixed` de Trivy (T069), umbral NuGet Low/High (T066) e interpretación de la autorización de etiquetas (T071).
+- **2026-11-08 — T001, T070, T072:** cierre aprobado por el usuario (sin revisión independiente); pm-058 y pm-060 pasan a `Cerrado`. pm-001 sigue `En revisión` hasta que el usuario apruebe el Spec. `check-sdd.ps1` acepta el cierre aprobado de T001.
+- **2026-11-08 — T069:** a pedido del usuario se quita `ignore-unfixed` de Trivy y la imagen pasa a `aspnet:10.0-noble-chiseled` (0 HIGH/CRITICAL). Pendiente de aprobación humana.

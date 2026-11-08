@@ -11,11 +11,11 @@
 
 ### T072 — Integrar el gate de integridad SDD en CI
 - **Tipo:** Nueva
-- **Estado:** En progreso (verificada; pendiente de revisión independiente y aprobación humana)
+- **Estado:** Cerrado y aprobado (2026-11-08, aprobación humana) — sin revisión independiente
 - **Spec principal:** pm-060
 - **Criterios propios:** pm-060#CA-01, pm-060#CA-02, pm-060#CA-03
 - **Verificar:** ver [plan.md](plan.md) y la evidencia en [checklists/gates.md](checklists/gates.md).
-- **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente · [x] Documentación · [ ] Aprobación humana
+- **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente (no realizada; el usuario aprobó el cierre sin ella) · [x] Documentación · [x] Aprobación humana (2026-11-08)
 - **No hacer:** cerrar la Task sin aprobación humana.
 
 ## Definition of Done
