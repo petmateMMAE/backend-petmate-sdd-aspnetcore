@@ -8,7 +8,7 @@
   Las pruebas corren en un contenedor del SDK porque Smart App Control puede bloquear binarios nuevos en el host.
   Uso: pwsh ./scripts/quality-gate.ps1 [-HostTests] [-SkipTests] [-AuditOnly] [-MinSeverity High]
   -AuditOnly: solo restore y auditorías NuGet (vulnerabilidades, desuso y licencias); lo usa el job `dependencies` del pipeline.
-  -MinSeverity: gravedad mínima de vulnerabilidad que bloquea (Low = cualquiera, valor local; el pipeline usa High).
+  -MinSeverity: gravedad mínima de vulnerabilidad que bloquea (High por defecto, igual en local y en el pipeline; Low = cualquiera).
 .NOTES
   Si existe .env se pasa al contenedor con --env-file (sin leerlo ni imprimirlo) para las pruebas Atlas.
   Redis: defina PETMATE_IT_REDIS_AUTH y PETMATE_IT_REDIS_CACHE y la red de Compose (petmate_internal) para
@@ -20,7 +20,7 @@ param(
     [switch]$SkipTests,
     [switch]$AuditOnly,
     [ValidateSet('Low', 'Moderate', 'High', 'Critical')]
-    [string]$MinSeverity = 'Low'
+    [string]$MinSeverity = 'High'
 )
 
 $ErrorActionPreference = 'Stop'
