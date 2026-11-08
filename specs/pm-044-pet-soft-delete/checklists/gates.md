@@ -1,6 +1,6 @@
 # Gates — pm-044 pet-soft-delete
 
-> Estado: implementado y probado; revisión independiente y aprobación humana pendientes. T034 no está cerrada.
+> Estado: T034 cerrada con aprobación humana el 2026-11-08 (sin revisión independiente).
 
 | Gate | Resultado | Evidencia |
 |---|---|---|
@@ -12,4 +12,4 @@
 | Integridad SDD | OK | `scripts/check-sdd.ps1` |
 
 - [ ] Revisión independiente de seguridad y trazabilidad.
-- [ ] Aprobación humana del cierre de T034.
+- [x] Aprobación humana del cierre de T034 (2026-11-08).

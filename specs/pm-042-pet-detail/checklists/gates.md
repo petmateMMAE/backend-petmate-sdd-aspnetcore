@@ -1,6 +1,6 @@
 # Gates — pm-042 pet-detail
 
-> Estado: implementado y probado; revisión independiente y aprobación humana pendientes. T032 no está cerrada.
+> Estado: T032 cerrada con aprobación humana el 2026-11-08 (sin revisión independiente).
 
 | Gate | Resultado | Evidencia |
 |---|---|---|
@@ -12,4 +12,4 @@
 | Integridad SDD | OK | `scripts/check-sdd.ps1` |
 
 - [ ] Revisión independiente de seguridad y trazabilidad.
-- [ ] Aprobación humana del cierre de T032.
+- [x] Aprobación humana del cierre de T032 (2026-11-08).

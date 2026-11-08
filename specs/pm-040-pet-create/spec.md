@@ -1,6 +1,6 @@
 # Spec — pm-040 pet-create
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Cerrado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -32,7 +32,7 @@ Cada criterio se cita como `pm-040#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T030 | Histórica | En progreso | Crear mascota |
+| T030 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Crear mascota |
 
 Detalle en [task.md](task.md).
 

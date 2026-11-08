@@ -1,6 +1,6 @@
 # Gates — pm-040 pet-create
 
-> Estado: implementado y probado; revisión independiente y aprobación humana pendientes. T030 no está cerrada.
+> Estado: T030 cerrada con aprobación humana el 2026-11-08 (sin revisión independiente).
 
 | Gate | Resultado | Evidencia |
 |---|---|---|
@@ -12,4 +12,4 @@
 | Integridad SDD | OK | `scripts/check-sdd.ps1` |
 
 - [ ] Revisión independiente de seguridad y trazabilidad.
-- [ ] Aprobación humana del cierre de T030.
+- [x] Aprobación humana del cierre de T030 (2026-11-08).

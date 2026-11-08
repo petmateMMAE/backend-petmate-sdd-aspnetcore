@@ -1,6 +1,6 @@
 # Spec — pm-042 pet-detail
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Cerrado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -30,7 +30,7 @@ Cada criterio se cita como `pm-042#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T032 | Histórica | En progreso | Obtener detalle |
+| T032 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Obtener detalle |
 
 Detalle en [task.md](task.md).
 

@@ -330,3 +330,4 @@
 - **Contrato:** solo rol Owner; propietario del token; 201 al crear, 200 en detalle, actualizar y eliminar (borrado físico); 400 con el campo; 404 para mascota ajena o inexistente. Detalle en `docs/api/endpoints.md`.
 - **Pipeline:** cuatro jobs nuevos en la matriz de endpoints (`pets-create`, `pets-get-by-id`, `pets-update`, `pets-delete`) y la prueba de humo cubre crear, ver, actualizar y eliminar.
 - **Evidencia:** Unit 142, Security 155, Contract 142 (26 nuevas), Integration sin cambios; `gates.md` de cada Spec.
+- **Cierre:** el usuario aprobó el cierre de T030, T032, T033 y T034 el 2026-11-08 (sin revisión independiente).

@@ -11,7 +11,7 @@
 
 ### T033 — Actualizar mascota
 - **Tipo:** Histórica
-- **Estado:** En progreso (implementada y probada; pendiente de revisión independiente y aprobación humana)
+- **Estado:** Cerrado y aprobado (2026-11-08, aprobación humana) — sin revisión independiente
 - **Spec principal:** pm-043
 - **Criterios propios:** pm-043#CA-01, pm-043#CA-02
 - **Fuente histórica:** [`_historico/03-pet-management/task.md`](../_historico/03-pet-management/task.md) (sección T033)

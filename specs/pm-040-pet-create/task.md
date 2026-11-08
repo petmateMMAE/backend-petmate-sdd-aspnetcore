@@ -11,7 +11,7 @@
 
 ### T030 — Crear mascota
 - **Tipo:** Histórica
-- **Estado:** En progreso (implementada y probada; pendiente de revisión independiente y aprobación humana)
+- **Estado:** Cerrado y aprobado (2026-11-08, aprobación humana) — sin revisión independiente
 - **Spec principal:** pm-040
 - **Criterios propios:** pm-040#CA-01, pm-040#CA-02, pm-040#CA-03, pm-040#CA-04
 - **Fuente histórica:** [`_historico/03-pet-management/task.md`](../_historico/03-pet-management/task.md) (sección T030)

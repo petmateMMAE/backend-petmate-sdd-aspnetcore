@@ -1,6 +1,6 @@
 # Spec — pm-044 pet-soft-delete
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Cerrado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -31,7 +31,7 @@ Cada criterio se cita como `pm-044#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T034 | Histórica | En progreso | Eliminar mascota |
+| T034 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Eliminar mascota |
 
 Detalle en [task.md](task.md).
 
