@@ -460,3 +460,14 @@
 - **T073 / T024 / T039 (pm-061):** `OpenApiWrapperTests` comprueba que el OpenAPI usa el wrapper; T024 y T039 se verificaron con pruebas existentes.
 - Suites: Unit 188, Security 177, Contract 188, Integration 56 (34 con Atlas; 22 de Redis se omiten sin contraseñas reales).
 - **Pendiente:** revisión independiente y aprobación humana de T065, T068, T073, T024 y T039; decidir la enmienda del umbral; eventos de seguridad en logs (I2).
+
+## Rendimiento, caché e índices — T059 a T064 (2026-11-08)
+
+- **T059:** compresión gzip/Brotli del JSON (también HTTPS) excepto `/api/v1/auth/*` (BREACH, tokens): 12 777 B → 1 909 B. `docs/security/compression-risk.md`.
+- **T060:** `ApiJsonContext` (generación en compilación), JSON idéntico al de reflexión; 321.6 → 196.1 ms por 2000 serializaciones de 50 mascotas.
+- **T061:** `ICacheStore` (`Read`/`Write`/`Remove`; `Get`/`Set` los prohíbe CA1716), `CacheKey` `petmate:cache:v1:{área}:{id}`, TTL 1 s a 1 h, `RedisCacheStore` solo con `RedisCacheConnection`, 250 ms y fallo seguro. Sin consumidores.
+- **T062:** `docs/security/cache-policy.md` + `CachePolicyTests`: ningún endpoint es cacheable; nada consume `ICacheStore` sin decisión documentada.
+- **T063:** `docs/quality/database-indexes.md` + `QueryPlanIntegrationTests` (8 consultas con IXSCAN en Atlas de pruebas). Abierto: desempate por `_id` fuera del índice de mascotas.
+- **T064:** `PerformanceBaselineTests` en proceso (p95: health 10.1 ms, get-all 19.9/13.2 ms); `docs/quality/performance-baseline.md`. La carga real queda para pm-084.
+- El ámbito de correlación del logging ahora usa `LoggerMessage.DefineScope`.
+- **Pendiente:** revisión independiente y aprobación humana de T059 a T064 (y de las del turno anterior); corregir la prueba de concurrencia de refresh, que falló una vez.

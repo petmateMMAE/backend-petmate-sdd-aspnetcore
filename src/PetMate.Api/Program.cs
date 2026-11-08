@@ -16,6 +16,7 @@ if (!string.IsNullOrWhiteSpace(app.Configuration["TRUSTED_PROXIES"]))
     app.UseForwardedHeaders();
 }
 
+app.UseResponseCompression();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseStatusCodePages(ApiBehaviorConfiguration.WriteStatusCodeAsync);
 app.UseMiddleware<RequestBodyLimitMiddleware>();

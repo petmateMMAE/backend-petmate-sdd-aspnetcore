@@ -63,7 +63,9 @@ public static class ApplicationBootstrap
         // JwtBearer registra la excepción interna completa si Redis falla; el middleware global ya la registra saneada.
         builder.Logging.AddFilter("Microsoft.AspNetCore.Authentication.JwtBearer", LogLevel.Critical);
         builder.Services.AddControllers()
+            .AddJsonOptions(options => options.JsonSerializerOptions.TypeInfoResolverChain.Insert(0, PetMate.Api.Contracts.Responses.ApiJsonContext.Default))
             .ConfigureApiBehaviorOptions(PetMate.Api.Middleware.ApiBehaviorConfiguration.Configure);
+        ConfigureCompression(builder.Services);
         builder.Services.AddOpenApi("v1", options =>
         {
             options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
@@ -85,6 +87,20 @@ public static class ApplicationBootstrap
             });
         });
         return builder;
+    }
+
+    // Compresión de respuestas JSON (pm-048): gzip/Brotli con el nivel más rápido; también sobre HTTPS, excepto las rutas de
+    // autenticación (tokens), que SensitiveAwareCompressionProvider nunca comprime. Riesgos en docs/security/compression-risk.md.
+    private static void ConfigureCompression(IServiceCollection services)
+    {
+        services.AddResponseCompression(options =>
+        {
+            options.EnableForHttps = true;
+            options.MimeTypes = ["application/json"];
+        });
+        services.Configure<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Fastest);
+        services.Configure<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Fastest);
+        services.AddSingleton<Microsoft.AspNetCore.ResponseCompression.IResponseCompressionProvider, PetMate.Api.Middleware.SensitiveAwareCompressionProvider>();
     }
 
     // Solo se confía en X-Forwarded-* de los proxies listados en TRUSTED_PROXIES (IPs separadas por coma). Sin la variable,

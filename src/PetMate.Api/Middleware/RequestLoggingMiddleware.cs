@@ -17,6 +17,8 @@ public sealed partial class RequestLoggingMiddleware(RequestDelegate next, ILogg
 
     private const string UnknownRoute = "sin-ruta";
 
+    private static readonly Func<ILogger, string, IDisposable?> CorrelationScope = LoggerMessage.DefineScope<string>("CorrelationId {CorrelationId}");
+
     public async Task InvokeAsync(HttpContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -33,7 +35,7 @@ public sealed partial class RequestLoggingMiddleware(RequestDelegate next, ILogg
             (context.Response, correlationId));
         context.TraceIdentifier = correlationId;
 
-        using var scope = logger.BeginScope(new Dictionary<string, object> { ["CorrelationId"] = correlationId });
+        using var scope = CorrelationScope(logger, correlationId);
         var started = Stopwatch.GetTimestamp();
         try
         {

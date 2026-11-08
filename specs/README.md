@@ -62,12 +62,12 @@
 | [pm-045-pet-ownership-bola](pm-045-pet-ownership-bola/spec.md) | Cerrado | L7 | pm-040, pm-041, pm-042, pm-043, pm-044 | T035, T038, T040 | Matriz de propiedad y BOLA del módulo de mascotas y cierre de seguridad del módulo |
 | [pm-046-first-milestone-acceptance](pm-046-first-milestone-acceptance/spec.md) | Cerrado | L11 | pm-035, pm-038, pm-045 | T041 | Aceptación de extremo a extremo de los 11 endpoints del primer hito |
 | [pm-047-pagination-convention](pm-047-pagination-convention/spec.md) | Cerrado | L4 | pm-009 | T058 | Parámetros, tope y forma de paginación en listados |
-| [pm-048-response-compression](pm-048-response-compression/spec.md) | Propuesto | L4 | pm-009 | T059 | Compresión de respuestas con evaluación de riesgos |
-| [pm-049-json-serialization-performance](pm-049-json-serialization-performance/spec.md) | Propuesto | L4 | pm-009 | T060 | Serialización JSON eficiente con medición |
-| [pm-050-distributed-cache-infrastructure](pm-050-distributed-cache-infrastructure/spec.md) | Propuesto | L3 | pm-013 | T061 | Adaptador de caché sobre Redis Cache, claves, TTL y política de falla |
-| [pm-051-cache-policy-data-classification](pm-051-cache-policy-data-classification/spec.md) | Propuesto | L4 | pm-050 | T062 | Política de qué datos pueden cachearse y criterios de decisión |
-| [pm-052-database-indexing-efficiency](pm-052-database-indexing-efficiency/spec.md) | Propuesto | L6 | pm-024, pm-025, pm-039 | T063 | Inventario de índices y evidencia de consultas críticas |
-| [pm-053-api-performance-baseline](pm-053-api-performance-baseline/spec.md) | Propuesto | L12 | pm-046 | T064 | Objetivos de latencia medibles y prueba de carga sin costo |
+| [pm-048-response-compression](pm-048-response-compression/spec.md) | En progreso | L4 | pm-009 | T059 | Compresión de respuestas con evaluación de riesgos |
+| [pm-049-json-serialization-performance](pm-049-json-serialization-performance/spec.md) | En progreso | L4 | pm-009 | T060 | Serialización JSON eficiente con medición |
+| [pm-050-distributed-cache-infrastructure](pm-050-distributed-cache-infrastructure/spec.md) | En progreso | L3 | pm-013 | T061 | Adaptador de caché sobre Redis Cache, claves, TTL y política de falla |
+| [pm-051-cache-policy-data-classification](pm-051-cache-policy-data-classification/spec.md) | En progreso | L4 | pm-050 | T062 | Política de qué datos pueden cachearse y criterios de decisión |
+| [pm-052-database-indexing-efficiency](pm-052-database-indexing-efficiency/spec.md) | En progreso | L6 | pm-024, pm-025, pm-039 | T063 | Inventario de índices y evidencia de consultas críticas |
+| [pm-053-api-performance-baseline](pm-053-api-performance-baseline/spec.md) | En progreso | L12 | pm-046 | T064 | Objetivos de latencia medibles y prueba de carga sin costo |
 | [pm-054-structured-logging-pii-safe](pm-054-structured-logging-pii-safe/spec.md) | En progreso | L5 | pm-010 | T065 | Logging estructurado con correlación y sin datos personales |
 | [pm-055-ci-pull-request-pipeline](pm-055-ci-pull-request-pipeline/spec.md) | En progreso | L4 | pm-021 | T012, T066, T067 | Workflow de pull request con paridad respecto al gate local y ramas protegidas |
 | [pm-056-test-coverage-baseline](pm-056-test-coverage-baseline/spec.md) | En progreso | L4 | pm-021 | T068 | Línea base y umbral de cobertura de pruebas |
@@ -182,12 +182,12 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T056 | Nueva | [pm-034](pm-034-auth-brute-force-protection/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar cuota por correo, bloqueo y limitador asíncrono de hashing |
 | T057 | Nueva | [pm-036](pm-036-rate-limiting/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Definir la matriz de rate limiting para endpoints no autenticación |
 | T058 | Nueva | [pm-047](pm-047-pagination-convention/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar la convención de paginación |
-| T059 | Nueva | [pm-048](pm-048-response-compression/spec.md) | Propuesto | Implementar y evaluar la compresión HTTP |
-| T060 | Nueva | [pm-049](pm-049-json-serialization-performance/spec.md) | Propuesto | Optimizar y medir la serialización JSON |
-| T061 | Nueva | [pm-050](pm-050-distributed-cache-infrastructure/spec.md) | Propuesto | Implementar el adaptador de caché distribuida sobre Redis Cache |
-| T062 | Nueva | [pm-051](pm-051-cache-policy-data-classification/spec.md) | Propuesto | Definir la política de clasificación de datos y caché |
-| T063 | Nueva | [pm-052](pm-052-database-indexing-efficiency/spec.md) | Propuesto | Inventariar índices y evidenciar consultas críticas |
-| T064 | Nueva | [pm-053](pm-053-api-performance-baseline/spec.md) | Propuesto | Medir la línea base de rendimiento |
+| T059 | Nueva | [pm-048](pm-048-response-compression/spec.md) | En progreso (implementada y verificada; pendiente de aprobación humana) | Implementar y evaluar la compresión HTTP |
+| T060 | Nueva | [pm-049](pm-049-json-serialization-performance/spec.md) | En progreso (implementada y verificada; pendiente de aprobación humana) | Optimizar y medir la serialización JSON |
+| T061 | Nueva | [pm-050](pm-050-distributed-cache-infrastructure/spec.md) | En progreso (implementada y verificada; pendiente de aprobación humana) | Implementar el adaptador de caché distribuida sobre Redis Cache |
+| T062 | Nueva | [pm-051](pm-051-cache-policy-data-classification/spec.md) | En progreso (implementada y verificada; pendiente de aprobación humana) | Definir la política de clasificación de datos y caché |
+| T063 | Nueva | [pm-052](pm-052-database-indexing-efficiency/spec.md) | En progreso (implementada y verificada; pendiente de aprobación humana) | Inventariar índices y evidenciar consultas críticas |
+| T064 | Nueva | [pm-053](pm-053-api-performance-baseline/spec.md) | En progreso (implementada y verificada; pendiente de aprobación humana) | Medir la línea base de rendimiento |
 | T065 | Nueva | [pm-054](pm-054-structured-logging-pii-safe/spec.md) | En progreso (implementada y verificada; pendiente de aprobación humana) | Implementar logging estructurado sin PII |
 | T066 | Nueva | [pm-055](pm-055-ci-pull-request-pipeline/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Crear el workflow de CI de pull request |
 | T067 | Nueva | [pm-055](pm-055-ci-pull-request-pipeline/spec.md) | Propuesto | Configurar ramas protegidas y checks requeridos |
@@ -266,3 +266,4 @@ Los cuatro endpoints de autenticación y los siete endpoints funcionales (11 en 
 - **2026-11-08 — T074, T075 y T076 (pm-062, pm-063, pm-064):** ejecutadas por encargo del usuario como las siguientes tres Tasks viables (specs aprobados, trabajo documental sin recursos reales). Estudio de costos con fuentes oficiales, ADR-005 a ADR-010 con alternativas dentro de Azure, índice de decisiones y estrategia de entornos con pruebas. Las tres esperan revisión y aprobación humana; los ADR siguen «Propuesto».
 - **2026-11-08 — Aprobación humana de T042–T053, T055 y T097:** las 12 retrospectivas quedan «Aprobada y documentada»; T055 y T097 «Cerrado y aprobado». T071 y T074–T076 siguen en progreso por decisión del usuario.
 - **2026-11-08 — pm-054, pm-056 y pm-061 aprobados por el usuario y ejecutados (T065, T068, T073; T024 y T039 verificadas con evidencia):** logging JSON con correlación y sin datos sensibles (`RequestLoggingMiddleware`), línea base de cobertura 93.7 % y documento OpenAPI verificado contra el Response Wrapper. Esperan revisión independiente y aprobación humana; el umbral de cobertura espera enmienda.
+- **2026-11-08 — pm-048 a pm-053 aprobados por el usuario y ejecutados (T059 a T064):** compresión HTTP con exclusión de `/auth/*`, JSON generado en compilación, adaptador de caché sobre Redis Cache con fallo seguro, política de caché (hoy nada se cachea), inventario de índices con `explain` en Atlas y línea base de rendimiento en proceso. Esperan revisión independiente y aprobación humana.

@@ -11,11 +11,11 @@
 
 ### T063 — Inventariar índices y evidenciar consultas críticas
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** En progreso (implementada y verificada; pendiente de aprobación humana)
 - **Spec principal:** pm-052
 - **Criterios propios:** pm-052#CA-01, pm-052#CA-02
-- **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.
-- **Fases (sin completar):** [ ] Implementación · [ ] Pruebas · [ ] Revisión independiente · [ ] Documentación · [ ] Aprobación humana
+- **Verificar:** ver [plan.md](plan.md) y la evidencia en [checklists/gates.md](checklists/gates.md).
+- **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente · [x] Documentación · [ ] Aprobación humana
 - **No hacer:** cerrar la Task sin aprobación humana.
 
 ## Definition of Done

@@ -217,22 +217,22 @@
 | pm-047#CA-01 | T058 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-047-pagination-convention/checklists/gates.md) |
 | pm-047#CA-02 | T058 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-047-pagination-convention/checklists/gates.md) |
 | pm-047#CA-03 | T058 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-047-pagination-convention/checklists/gates.md) |
-| pm-048#CA-01 | T059 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-048#CA-02 | T059 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-048#CA-03 | T059 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-049#CA-01 | T060 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-049#CA-02 | T060 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-050#CA-01 | T061 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-050#CA-02 | T061 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-050#CA-03 | T061 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-051#CA-01 | T062 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-051#CA-02 | T062 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-051#CA-03 | T062 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-052#CA-01 | T063 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-052#CA-02 | T063 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-053#CA-01 | T064 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-053#CA-02 | T064 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-053#CA-03 | T064 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-048#CA-01 | T059 | Nueva | En progreso | [gates](pm-048-response-compression/checklists/gates.md) |
+| pm-048#CA-02 | T059 | Nueva | En progreso | [gates](pm-048-response-compression/checklists/gates.md) |
+| pm-048#CA-03 | T059 | Nueva | En progreso | [gates](pm-048-response-compression/checklists/gates.md) |
+| pm-049#CA-01 | T060 | Nueva | En progreso | [gates](pm-049-json-serialization-performance/checklists/gates.md) |
+| pm-049#CA-02 | T060 | Nueva | En progreso | [gates](pm-049-json-serialization-performance/checklists/gates.md) |
+| pm-050#CA-01 | T061 | Nueva | En progreso | [gates](pm-050-distributed-cache-infrastructure/checklists/gates.md) |
+| pm-050#CA-02 | T061 | Nueva | En progreso | [gates](pm-050-distributed-cache-infrastructure/checklists/gates.md) |
+| pm-050#CA-03 | T061 | Nueva | En progreso | [gates](pm-050-distributed-cache-infrastructure/checklists/gates.md) |
+| pm-051#CA-01 | T062 | Nueva | En progreso | [gates](pm-051-cache-policy-data-classification/checklists/gates.md) |
+| pm-051#CA-02 | T062 | Nueva | En progreso | [gates](pm-051-cache-policy-data-classification/checklists/gates.md) |
+| pm-051#CA-03 | T062 | Nueva | En progreso | [gates](pm-051-cache-policy-data-classification/checklists/gates.md) |
+| pm-052#CA-01 | T063 | Nueva | En progreso | [gates](pm-052-database-indexing-efficiency/checklists/gates.md) |
+| pm-052#CA-02 | T063 | Nueva | En progreso | [gates](pm-052-database-indexing-efficiency/checklists/gates.md) |
+| pm-053#CA-01 | T064 | Nueva | En progreso | [gates](pm-053-api-performance-baseline/checklists/gates.md) |
+| pm-053#CA-02 | T064 | Nueva | En progreso | [gates](pm-053-api-performance-baseline/checklists/gates.md) |
+| pm-053#CA-03 | T064 | Nueva | En progreso | [gates](pm-053-api-performance-baseline/checklists/gates.md) |
 | pm-054#CA-01 | T065 | Nueva | En progreso | [gates](pm-054-structured-logging-pii-safe/checklists/gates.md) |
 | pm-054#CA-02 | T065 | Nueva | En progreso | [gates](pm-054-structured-logging-pii-safe/checklists/gates.md) |
 | pm-054#CA-03 | T065 | Nueva | En progreso | [gates](pm-054-structured-logging-pii-safe/checklists/gates.md) |
