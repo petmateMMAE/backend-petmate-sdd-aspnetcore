@@ -58,6 +58,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton(JwtOptions.Parse(configuration, isDevelopment));
         services.AddSingleton<IAccessTokenService, JwtAccessTokenService>();
         services.AddSingleton<ITokenRevocationStore, RedisTokenRevocationStore>();
+        services.AddSingleton<IAuthAttemptThrottle, RedisAuthAttemptThrottle>();
 
         services.AddSingleton(new RedisAuthConnection(settings.RedisAuth.Connection));
         services.AddSingleton(new RedisCacheConnection(settings.RedisCache.Connection));

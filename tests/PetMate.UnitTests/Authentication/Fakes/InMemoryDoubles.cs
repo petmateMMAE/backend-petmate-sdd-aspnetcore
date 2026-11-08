@@ -325,6 +325,72 @@ public sealed class FakeRefreshTokenFactory : IRefreshTokenFactory
         => RefreshTokenHash.Create(Convert.ToHexString(SHA256.HashData(Encoding.ASCII.GetBytes(raw))));
 }
 
+/// <summary>Cuota y bloqueo por sujeto en memoria, con el reloj controlado (equivalente a la implementación Redis).</summary>
+public sealed class InMemoryAuthAttemptThrottle(TimeProvider clock) : IAuthAttemptThrottle
+{
+    private readonly object gate = new();
+    private readonly Dictionary<string, (int Count, DateTime ExpiresAt)> counters = [];
+    private readonly Dictionary<string, DateTime> locks = [];
+
+    public bool Fail { get; set; }
+
+    public Task<TimeSpan?> GetRemainingLock(string scope, string subject, CancellationToken cancellationToken)
+    {
+        ThrowIfFailing();
+        lock (gate)
+        {
+            var now = clock.GetUtcNow().UtcDateTime;
+            return Task.FromResult<TimeSpan?>(locks.TryGetValue(scope + ":" + subject, out var until) && until > now ? until - now : null);
+        }
+    }
+
+    public Task<TimeSpan?> RecordAttempt(string scope, string subject, AuthThrottleRule rule, CancellationToken cancellationToken)
+    {
+        ThrowIfFailing();
+        lock (gate)
+        {
+            var now = clock.GetUtcNow().UtcDateTime;
+            var key = scope + ":" + subject;
+            if (locks.TryGetValue(key, out var lockedUntil) && lockedUntil > now)
+            {
+                // Con un bloqueo activo no se cuenta: igual que el script de Redis.
+                return Task.FromResult<TimeSpan?>(lockedUntil - now);
+            }
+
+            var current = counters.TryGetValue(key, out var entry) && entry.ExpiresAt > now ? entry : (0, now + rule.Window);
+            var count = current.Item1 + 1;
+            if (count > rule.MaxAttempts)
+            {
+                counters.Remove(key);
+                locks[key] = now + rule.LockDuration;
+                return Task.FromResult<TimeSpan?>(rule.LockDuration);
+            }
+
+            counters[key] = (count, current.Item2);
+            return Task.FromResult<TimeSpan?>(null);
+        }
+    }
+
+    public Task Clear(string scope, string subject, CancellationToken cancellationToken)
+    {
+        ThrowIfFailing();
+        lock (gate)
+        {
+            counters.Remove(scope + ":" + subject);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void ThrowIfFailing()
+    {
+        if (Fail)
+        {
+            throw new AuthDependencyUnavailableException(new InvalidOperationException("Redis simulado no disponible."));
+        }
+    }
+}
+
 /// <summary>Apilado de handlers sobre dobles en memoria.</summary>
 public sealed class AuthTestHarness
 {
@@ -334,17 +400,20 @@ public sealed class AuthTestHarness
         Users = new InMemoryUserRepository();
         Sessions = new InMemorySessionRepository();
         Revocations = new InMemoryRevocationStore(Clock);
+        Throttle = new InMemoryAuthAttemptThrottle(Clock);
         Hasher = new FakeHasher();
         Tokens = new FakeRefreshTokenFactory();
         Access = new FakeAccessTokenService(Clock);
         var issuer = new AuthTokenIssuer(Sessions, Tokens, Access, SessionPolicy.Default);
         Register = new RegisterHandler(Users, Hasher, issuer, Clock);
-        Login = new LoginHandler(Users, Hasher, issuer, Clock);
-        Refresh = new RefreshHandler(Users, Sessions, Tokens, Access, SessionPolicy.Default, Clock);
+        Login = new LoginHandler(Users, Hasher, issuer, Clock, Throttle);
+        Refresh = new RefreshHandler(Users, Sessions, Tokens, Access, SessionPolicy.Default, Clock, Throttle);
         Logout = new LogoutHandler(Sessions, Revocations, Tokens, Clock);
     }
 
     public ManualClock Clock { get; }
+
+    public InMemoryAuthAttemptThrottle Throttle { get; }
 
     public InMemoryUserRepository Users { get; }
 

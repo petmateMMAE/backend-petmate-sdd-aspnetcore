@@ -16,7 +16,8 @@ public sealed class RefreshHandler(
     IRefreshTokenFactory refreshTokens,
     IAccessTokenService accessTokens,
     SessionPolicy policy,
-    TimeProvider timeProvider) : IRequestHandler<RefreshCommand, AuthResult<AuthTokensResult>>
+    TimeProvider timeProvider,
+    IAuthAttemptThrottle? throttle = null) : IRequestHandler<RefreshCommand, AuthResult<AuthTokensResult>>
 {
     private static readonly AuthResult<AuthTokensResult> Invalid = AuthResult.Failure<AuthTokensResult>(AuthError.InvalidRefreshToken);
 
@@ -41,6 +42,21 @@ public sealed class RefreshHandler(
         {
             // Sesión revocada o vencida (inactividad o límite absoluto): no se puede renovar.
             return Invalid;
+        }
+
+        // Cuota por usuario (pm-034), independiente de la IP: se aplica antes de consumir el token para no gastarlo en vano.
+        if (throttle is not null)
+        {
+            var subject = session.UserId.ToString("N");
+            if (await throttle.GetRemainingLock(AuthThrottleRules.RefreshScope, subject, cancellationToken).ConfigureAwait(false) is { } remaining)
+            {
+                return AuthResult.Throttled<AuthTokensResult>(remaining);
+            }
+
+            if (await throttle.RecordAttempt(AuthThrottleRules.RefreshScope, subject, AuthThrottleRules.Refresh, cancellationToken).ConfigureAwait(false) is { } lockedFor)
+            {
+                return AuthResult.Throttled<AuthTokensResult>(lockedFor);
+            }
         }
 
         if (token.IsConsumed || !await sessions.TryConsumeToken(token.Id, now, cancellationToken).ConfigureAwait(false))

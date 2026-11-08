@@ -31,7 +31,7 @@ public sealed class AuthController(ISender sender) : ControllerBase
         var result = await sender.Send(new RegisterCommand(request.Email ?? string.Empty, request.Password ?? string.Empty), cancellationToken);
         return result.IsSuccess
             ? ApiResponseFactory.Create(StatusCodes.Status201Created, "Cuenta creada correctamente.", ToResponse(result.Value!))
-            : Failure(result.Error);
+            : Failure(result.Error, result.RetryAfter);
     }
 
     [AllowAnonymous]
@@ -39,12 +39,13 @@ public sealed class AuthController(ISender sender) : ControllerBase
     [HttpPost("login")]
     [ProducesResponseType(typeof(ApiResponse<AuthResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
     public async Task<ObjectResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new LoginCommand(request.Email ?? string.Empty, request.Password ?? string.Empty), cancellationToken);
         return result.IsSuccess
             ? ApiResponseFactory.Ok("Inicio de sesión correcto.", ToResponse(result.Value!))
-            : Failure(result.Error);
+            : Failure(result.Error, result.RetryAfter);
     }
 
     [AllowAnonymous]
@@ -52,19 +53,22 @@ public sealed class AuthController(ISender sender) : ControllerBase
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(ApiResponse<AuthResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
     public async Task<ObjectResult> Refresh([FromBody] RefreshRequest request, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new RefreshCommand(request.RefreshToken ?? string.Empty), cancellationToken);
         return result.IsSuccess
             ? ApiResponseFactory.Ok("Sesión renovada correctamente.", ToResponse(result.Value!))
-            : Failure(result.Error);
+            : Failure(result.Error, result.RetryAfter);
     }
 
     [Authorize]
+    [EnableRateLimiting(UsersController.RateLimitPolicy)]
     [HttpPost("logout")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
     public async Task<ObjectResult> Logout([FromBody] LogoutRequest request, CancellationToken cancellationToken)
     {
         // Identidad tomada solo del Access Token ya validado (firma, vigencia y lista negra).
@@ -91,7 +95,20 @@ public sealed class AuthController(ISender sender) : ControllerBase
         tokens.RefreshTokenExpiresAtUtc,
         new AuthUserResponse(tokens.UserId, tokens.Email, tokens.Role.ToString()));
 
-    private static ObjectResult Failure(AuthError error) => error switch
+    private ObjectResult Failure(AuthError error, TimeSpan? retryAfter = null)
+    {
+        if (error == AuthError.TooManyRequests)
+        {
+            // Retry-After en segundos enteros (mínimo 1). El mensaje es el mismo para cuota por correo, bloqueo y hashing saturado.
+            var seconds = (int)Math.Ceiling(Math.Max(1, (retryAfter ?? TimeSpan.FromSeconds(1)).TotalSeconds));
+            Response.Headers.RetryAfter = seconds.ToString(CultureInfo.InvariantCulture);
+            return ApiResponseFactory.Create<object?>(StatusCodes.Status429TooManyRequests, ApiResponseMessages.ForStatusCode(StatusCodes.Status429TooManyRequests), null);
+        }
+
+        return Map(error);
+    }
+
+    private static ObjectResult Map(AuthError error) => error switch
     {
         AuthError.EmailAlreadyRegistered => ApiResponseFactory.Create<object?>(
             StatusCodes.Status409Conflict, "No se pudo completar el registro con los datos proporcionados.", null),

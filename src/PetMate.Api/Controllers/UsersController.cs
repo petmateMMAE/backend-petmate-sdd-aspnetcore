@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PetMate.Api.Contracts.Responses;
 using PetMate.Api.Contracts.Users;
 using PetMate.Application.Mediator;
@@ -15,8 +16,12 @@ namespace PetMate.Api.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/v1/users")]
+[EnableRateLimiting(RateLimitPolicy)]
 public sealed class UsersController(ISender sender) : ControllerBase
 {
+    /// <summary>Política de límite por usuario (<c>USERS_RATE_LIMIT_PER_MINUTE</c>, por defecto 60 por minuto).</summary>
+    public const string RateLimitPolicy = "users";
+
     [HttpGet("me/get")]
     [ProducesResponseType(typeof(ApiResponse<UserProfileResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]

@@ -117,6 +117,7 @@ public static class ApplicationBootstrap
     {
         var permitLimit = ReadPerMinuteLimit(configuration, "AUTH_RATE_LIMIT_PER_MINUTE", 10);
         var petsPermitLimit = ReadPerMinuteLimit(configuration, "PETS_RATE_LIMIT_PER_MINUTE", 60);
+        var usersPermitLimit = ReadPerMinuteLimit(configuration, "USERS_RATE_LIMIT_PER_MINUTE", 60);
 
         services.AddRateLimiter(options =>
         {
@@ -131,15 +132,10 @@ public static class ApplicationBootstrap
                     AutoReplenishment = true,
                 }));
             // Mascotas (pm-045 CA-04): límite por usuario autenticado (claim sub), con la IP como respaldo.
-            options.AddPolicy(PetMate.Api.Controllers.PetsController.RateLimitPolicy, context => RateLimitPartition.GetFixedWindowLimiter(
-                context.User.FindFirst("sub")?.Value is { Length: > 0 } subject ? "u:" + subject : "ip:" + RateLimitKey.For(context.Connection.RemoteIpAddress),
-                _ => new FixedWindowRateLimiterOptions
-                {
-                    PermitLimit = petsPermitLimit,
-                    Window = TimeSpan.FromMinutes(1),
-                    QueueLimit = 0,
-                    AutoReplenishment = true,
-                }));
+            options.AddPolicy(PetMate.Api.Controllers.PetsController.RateLimitPolicy, context => PerUserWindow(context, petsPermitLimit));
+
+            // Perfil propio (pm-036 CA-03, matriz de límites): mismo esquema por usuario autenticado.
+            options.AddPolicy(PetMate.Api.Controllers.UsersController.RateLimitPolicy, context => PerUserWindow(context, usersPermitLimit));
             options.OnRejected = async (rejected, _) =>
             {
                 var headers = rejected.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter)
@@ -154,6 +150,18 @@ public static class ApplicationBootstrap
             };
         });
     }
+
+    // Ventana fija de 1 minuto por usuario autenticado (claim sub), con la IP como respaldo.
+    private static RateLimitPartition<string> PerUserWindow(HttpContext context, int permitLimit)
+        => RateLimitPartition.GetFixedWindowLimiter(
+            context.User.FindFirst("sub")?.Value is { Length: > 0 } subject ? "u:" + subject : "ip:" + RateLimitKey.For(context.Connection.RemoteIpAddress),
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = permitLimit,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                AutoReplenishment = true,
+            });
 
     private static int ReadPerMinuteLimit(ConfigurationManager configuration, string name, int defaultValue)
     {

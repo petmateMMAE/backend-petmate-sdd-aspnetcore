@@ -10,14 +10,32 @@ public sealed class RegisterHandler(
     IUserRepository users,
     IPasswordHasher hasher,
     AuthTokenIssuer issuer,
-    TimeProvider timeProvider) : IRequestHandler<RegisterCommand, AuthResult<AuthTokensResult>>
+    TimeProvider timeProvider,
+    IPasswordHashingLimiter? hashingLimiter = null) : IRequestHandler<RegisterCommand, AuthResult<AuthTokensResult>>
 {
     public async Task<AuthResult<AuthTokensResult>> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 
         var email = Email.Create(request.Email);
-        var passwordHash = PasswordHash.Create(hasher.Hash(request.Password));
+        string rawHash;
+        if (hashingLimiter is null)
+        {
+            rawHash = hasher.Hash(request.Password);
+        }
+        else
+        {
+            // Limitador de hashing (pm-034 CA-03): si hay demasiado trabajo en cola se rechaza con 429 en vez de saturar la CPU.
+            var hashed = await hashingLimiter.Run(() => hasher.Hash(request.Password), cancellationToken).ConfigureAwait(false);
+            if (!hashed.Accepted)
+            {
+                return AuthResult.Throttled<AuthTokensResult>(TimeSpan.FromSeconds(1));
+            }
+
+            rawHash = hashed.Value!;
+        }
+
+        var passwordHash = PasswordHash.Create(rawHash);
         var now = timeProvider.GetUtcNow().UtcDateTime;
         var user = User.RegisterOwner(email, passwordHash, now);
 

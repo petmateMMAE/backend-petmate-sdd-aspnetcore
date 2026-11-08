@@ -40,6 +40,7 @@ public class IsolatedApiFactory : WebApplicationFactory<Program>
             ["JWT_ACCESS_TOKEN_MINUTES"] = "15",
             ["AUTH_RATE_LIMIT_PER_MINUTE"] = "1000",
             ["PETS_RATE_LIMIT_PER_MINUTE"] = "1000",
+            ["USERS_RATE_LIMIT_PER_MINUTE"] = "1000",
         };
         foreach (var (key, value) in overrides ?? new Dictionary<string, string>())
         {

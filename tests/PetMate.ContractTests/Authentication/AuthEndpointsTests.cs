@@ -346,17 +346,18 @@ public sealed class AuthEndpointsTests
 
 public sealed class AuthFlowFactory : IsolatedApiFactory
 {
-    public AuthFlowFactory(int? rateLimitPerMinute = null, int? petsRateLimitPerMinute = null)
-        : base("Development", Overrides(rateLimitPerMinute, petsRateLimitPerMinute))
+    public AuthFlowFactory(int? rateLimitPerMinute = null, int? petsRateLimitPerMinute = null, int? usersRateLimitPerMinute = null)
+        : base("Development", Overrides(rateLimitPerMinute, petsRateLimitPerMinute, usersRateLimitPerMinute))
     {
         Clock = new ManualClock(DateTimeOffset.UtcNow);
         Users = new InMemoryUserRepository();
         Sessions = new InMemorySessionRepository();
         Revocations = new InMemoryRevocationStore(Clock);
         Pets = new InMemoryPetRepository();
+        Throttle = new InMemoryAuthAttemptThrottle(Clock);
     }
 
-    private static Dictionary<string, string>? Overrides(int? auth, int? pets)
+    private static Dictionary<string, string>? Overrides(int? auth, int? pets, int? users)
     {
         var overrides = new Dictionary<string, string>();
         if (auth is not null)
@@ -367,6 +368,11 @@ public sealed class AuthFlowFactory : IsolatedApiFactory
         if (pets is not null)
         {
             overrides["PETS_RATE_LIMIT_PER_MINUTE"] = pets.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        if (users is not null)
+        {
+            overrides["USERS_RATE_LIMIT_PER_MINUTE"] = users.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
         return overrides.Count == 0 ? null : overrides;
@@ -381,6 +387,8 @@ public sealed class AuthFlowFactory : IsolatedApiFactory
     public InMemoryRevocationStore Revocations { get; }
 
     public InMemoryPetRepository Pets { get; }
+
+    public InMemoryAuthAttemptThrottle Throttle { get; }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -397,6 +405,8 @@ public sealed class AuthFlowFactory : IsolatedApiFactory
             services.AddSingleton<ITokenRevocationStore>(Revocations);
             services.RemoveAll<IPetRepository>();
             services.AddSingleton<IPetRepository>(Pets);
+            services.RemoveAll<IAuthAttemptThrottle>();
+            services.AddSingleton<IAuthAttemptThrottle>(Throttle);
         });
     }
 }

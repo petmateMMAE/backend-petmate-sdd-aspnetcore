@@ -4,6 +4,7 @@ using PetMate.Application.Authentication;
 using PetMate.Application.Mediator;
 using PetMate.Application.Pagination;
 using PetMate.Application.Pets;
+using PetMate.Application.Security;
 using PetMate.Application.Users;
 using PetMate.Application.Validation;
 using PetMate.Domain.Sessions;
@@ -32,6 +33,8 @@ public static class ApplicationServiceCollectionExtensions
         services.TryAddSingleton(TimeProvider.System);
         services.TryAddSingleton(SessionPolicy.Default);
         services.AddSingleton<AuthTokenIssuer>();
+        // Hashing Argon2id acotado: tantos a la vez como núcleos y el doble en cola; lo demás se rechaza con 429 (pm-034).
+        services.TryAddSingleton<IPasswordHashingLimiter>(new BoundedPasswordHashingLimiter(Environment.ProcessorCount, Environment.ProcessorCount * 2));
 
         services.AddRequestHandler<RegisterCommand, AuthResult<AuthTokensResult>, RegisterHandler>();
         services.AddRequestHandler<LoginCommand, AuthResult<AuthTokensResult>, LoginHandler>();

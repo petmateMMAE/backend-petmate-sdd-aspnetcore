@@ -102,6 +102,15 @@ public sealed class PetOwnershipSecurityTests
     }
 
     [Fact]
+    public void Every_authenticated_and_anonymous_auth_action_that_costs_work_is_rate_limited()
+    {
+        var actions = typeof(PetMate.Api.Controllers.AuthController).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+        Assert.Equal(4, actions.Length);
+        Assert.All(actions, action => Assert.NotEmpty(action.GetCustomAttributes<Microsoft.AspNetCore.RateLimiting.EnableRateLimitingAttribute>()));
+    }
+
+    [Fact]
     public void Listing_is_bounded_so_a_client_cannot_ask_for_every_pet_at_once()
     {
         Assert.Equal(50, PaginationConvention.MaxPageSize);

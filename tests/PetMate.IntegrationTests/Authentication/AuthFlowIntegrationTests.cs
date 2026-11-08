@@ -152,6 +152,86 @@ public sealed class AuthFlowIntegrationTests
         Assert.Equal(AuthError.InvalidRefreshToken, (await stack.Refresh.Handle(new RefreshCommand(tokens.RefreshToken), default)).Error);
     }
 
+    [RequiresEnvironmentFact(Uri, Database, RedisAuth)]
+    public async Task Login_lockout_works_end_to_end_with_real_atlas_redis_and_argon2id()
+    {
+        await using var stack = await Stack.Create();
+        Ok(await stack.Register.Handle(new RegisterCommand("lock.ana@example.com", Password), default));
+        var database = await stack.Redis.GetDatabase();
+        try
+        {
+            for (var i = 0; i < 5; i++)
+            {
+                Assert.Equal(AuthError.InvalidCredentials, (await stack.ThrottledLogin.Handle(new LoginCommand("lock.ana@example.com", "otra-contraseña-123"), default)).Error);
+            }
+
+            var sixth = await stack.ThrottledLogin.Handle(new LoginCommand("lock.ana@example.com", "otra-contraseña-123"), default);
+            var rightPassword = await stack.ThrottledLogin.Handle(new LoginCommand("lock.ana@example.com", Password), default);
+
+            Assert.Equal(AuthError.TooManyRequests, sixth.Error);
+            Assert.Equal(AuthError.TooManyRequests, rightPassword.Error);
+            Assert.InRange(rightPassword.RetryAfter!.Value.TotalMinutes, 14, 15);
+            // Otra cuenta no se ve afectada y un correo inexistente se comporta igual que uno existente.
+            Ok(await stack.Register.Handle(new RegisterCommand("lock.luis@example.com", Password), default));
+            Ok(await stack.ThrottledLogin.Handle(new LoginCommand("lock.luis@example.com", Password), default));
+            var results = new List<AuthError>();
+            for (var i = 0; i < 7; i++)
+            {
+                results.Add((await stack.ThrottledLogin.Handle(new LoginCommand("lock.nadie@example.com", "otra-contraseña-123"), default)).Error);
+            }
+
+            Assert.Equal([.. Enumerable.Repeat(AuthError.InvalidCredentials, 5), AuthError.TooManyRequests, AuthError.TooManyRequests], results);
+        }
+        finally
+        {
+            foreach (var email in new[] { "lock.ana@example.com", "lock.luis@example.com", "lock.nadie@example.com" })
+            {
+                var suffix = "login:" + Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes(email))).ToLowerInvariant();
+                await database.KeyDeleteAsync(["auth:throttle:" + suffix, "auth:lock:" + suffix]);
+            }
+        }
+    }
+
+    [RequiresEnvironmentFact(Uri, Database, RedisAuth)]
+    public async Task A_concurrent_burst_of_guesses_verifies_at_most_the_allowed_passwords_with_real_redis()
+    {
+        await using var stack = await Stack.Create();
+        Ok(await stack.Register.Handle(new RegisterCommand("burst.ana@example.com", Password), default));
+        var counting = new CountingHasher(stack.Hasher);
+        var issuer = new AuthTokenIssuer(stack.Sessions, stack.RefreshTokens, stack.Jwt, SessionPolicy.Default);
+        var login = new LoginHandler(stack.Users, counting, issuer, stack.Clock, stack.Throttle, stack.Limiter);
+        var database = await stack.Redis.GetDatabase();
+        try
+        {
+            var results = await Task.WhenAll(Enumerable.Range(0, 20)
+                .Select(_ => Task.Run(() => login.Handle(new LoginCommand("burst.ana@example.com", "otra-contraseña-123"), default))));
+
+            Assert.True(counting.Verifications <= AuthThrottleRules.Login.MaxAttempts, $"Se verificaron {counting.Verifications} contraseñas.");
+            Assert.Equal(AuthThrottleRules.Login.MaxAttempts, results.Count(r => r.Error == AuthError.InvalidCredentials));
+            Assert.Equal(20 - AuthThrottleRules.Login.MaxAttempts, results.Count(r => r.Error == AuthError.TooManyRequests));
+        }
+        finally
+        {
+            var suffix = "login:" + Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes("burst.ana@example.com"))).ToLowerInvariant();
+            await database.KeyDeleteAsync(["auth:throttle:" + suffix, "auth:lock:" + suffix]);
+        }
+    }
+
+    private sealed class CountingHasher(IPasswordHasher inner) : IPasswordHasher
+    {
+        private int verifications;
+
+        public int Verifications => Volatile.Read(ref verifications);
+
+        public string Hash(string password) => inner.Hash(password);
+
+        public PasswordVerificationResult Verify(string password, string passwordHash)
+        {
+            Interlocked.Increment(ref verifications);
+            return inner.Verify(password, passwordHash);
+        }
+    }
+
     private static AuthTokensResult Ok(AuthResult<AuthTokensResult> result)
     {
         Assert.True(result.IsSuccess, $"Se esperaba éxito y se obtuvo {result.Error}.");
@@ -182,6 +262,9 @@ public sealed class AuthFlowIntegrationTests
             var issuer = new AuthTokenIssuer(Sessions, RefreshTokens, Jwt, SessionPolicy.Default);
             Register = new RegisterHandler(Users, Hasher, issuer, Clock);
             Login = new LoginHandler(Users, Hasher, issuer, Clock);
+            Throttle = new RedisAuthAttemptThrottle(Redis);
+            Limiter = new BoundedPasswordHashingLimiter(2, 4);
+            ThrottledLogin = new LoginHandler(Users, Hasher, issuer, Clock, Throttle, Limiter);
             Refresh = new RefreshHandler(Users, Sessions, RefreshTokens, Jwt, SessionPolicy.Default, Clock);
             Logout = new LogoutHandler(Sessions, Revocations, RefreshTokens, Clock);
         }
@@ -207,6 +290,12 @@ public sealed class AuthFlowIntegrationTests
         public RegisterHandler Register { get; }
 
         public LoginHandler Login { get; }
+
+        public RedisAuthAttemptThrottle Throttle { get; }
+
+        public BoundedPasswordHashingLimiter Limiter { get; }
+
+        public LoginHandler ThrottledLogin { get; }
 
         public RefreshHandler Refresh { get; }
 
