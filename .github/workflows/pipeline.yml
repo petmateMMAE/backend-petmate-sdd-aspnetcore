@@ -209,6 +209,10 @@ jobs:
         shell: pwsh
         run: ./scripts/check-sdd.ps1
 
+      - name: Pruebas negativas del gate SDD (check-sdd.tests.ps1)
+        shell: pwsh
+        run: ./scripts/check-sdd.tests.ps1
+
   # ───────────── Etapa 4 · Pruebas ─────────────
   unit-tests:
     name: "4 · Pruebas unitarias"
@@ -481,7 +485,7 @@ jobs:
           row "3 · Integridad SDD" "$R_SDD" bloqueante
           row "4 · Pruebas unitarias" "$R_UNIT" bloqueante
           row "4 · Pruebas de seguridad" "$R_SECURITY" bloqueante
-          row "4 · Pruebas por endpoint (9 jobs)" "$R_ENDPOINTS" bloqueante
+          row "4 · Pruebas por endpoint (matriz)" "$R_ENDPOINTS" bloqueante
           row "4 · Contrato transversal" "$R_TRANSVERSAL" bloqueante
           row "4 · Pruebas de integración" "$R_INTEGRATION" bloqueante
           if [ "$failed" -ne 0 ]; then

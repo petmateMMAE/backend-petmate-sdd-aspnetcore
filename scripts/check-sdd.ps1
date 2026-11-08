@@ -1,6 +1,6 @@
 # Validacion de integridad SDD (inicial). Solo lectura. Uso: powershell -File scripts/check-sdd.ps1
 # Comprueba IDs, dependencias, ciclos, Tasks, criterios de aceptacion, trazabilidad y preservacion historica.
-# Nota: script inicial entregado en la migracion SDD; su integracion en CI corresponde a pm-060 (T072).
+# Se ejecuta en CI (job "3 · Integridad SDD" de pipeline.yml, pm-060 / T072). Pruebas negativas: scripts/check-sdd.tests.ps1.
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $specsDir = Join-Path $root 'specs'
@@ -31,6 +31,9 @@ foreach ($d in $dirs) {
   $cas = @([regex]::Matches($st, '\| `CA-(\d{2})` \|'))
   $caCount[$id] = $cas.Count
   if ($cas.Count -lt 1) { Fail "$($d.Name): sin criterios de aceptacion" }
+  # CA sin duplicados y numerados de forma consecutiva desde CA-01 (pm-060 CA-01).
+  $caNums = @($cas | ForEach-Object { [int]$_.Groups[1].Value })
+  for ($n = 0; $n -lt $caNums.Count; $n++) { if ($caNums[$n] -ne ($n + 1)) { Fail "$($d.Name): CA duplicado o no consecutivo cerca de CA-$('{0:D2}' -f $caNums[$n])"; break } }
 }
 foreach ($k in $deps.Keys) { foreach ($x in $deps[$k]) { if (-not $deps.ContainsKey($x)) { Fail "pm-$k depende de pm-$x inexistente" } elseif ($x -eq $k) { Fail "pm-$k depende de si mismo" } } }
 # ciclos (Kahn)
@@ -55,6 +58,7 @@ foreach ($d in $dirs) {
     if ($taskIds.ContainsKey($t)) { Fail "$t duplicada" }
     $taskIds[$t] = $true
     $pm = [regex]::Match($b, '\*\*Spec principal:\*\* pm-(\d{3})')
+    if ([regex]::Matches($b, '\*\*Spec principal:\*\*').Count -gt 1 -or [regex]::Matches($b, '\*\*Spec principal:\*\*[^\r\n]*pm-\d{3}[^\r\n]*pm-\d{3}').Count -gt 0) { Fail "$t con mas de un Spec principal" }
     if (-not $pm.Success) { Fail "$t sin Spec principal" } elseif ($pm.Groups[1].Value -ne $id) { Fail "${t}: Spec principal pm-$($pm.Groups[1].Value) no coincide con la carpeta pm-$id" }
     $principal[$t] = $id
     foreach ($c in [regex]::Matches($b, 'pm-(\d{3})#CA-(\d{2})')) {
@@ -84,7 +88,18 @@ $readme = Read-Text (Join-Path $specsDir 'README.md'); $trace = Read-Text (Join-
 foreach ($d in $dirs) { if ($readme -notmatch [regex]::Escape($d.Name)) { Fail "README no lista $($d.Name)" } }
 foreach ($t in $expectedT) { if ($readme -notmatch "\| $t \|") { Fail "README no lista $t" } }
 if ($trace -notmatch 'AC-01') { Fail 'traceability.md sin requisitos academicos' }
-foreach ($d in $dirs) { $id = $d.Name.Substring(3, 3); if ($trace -notmatch "pm-$id#CA-01") { Fail "traceability.md sin pm-$id#CA-01" } }
+# Trazabilidad completa (pm-060 CA-02): cada criterio de cada Spec tiene fila en la matriz con su Task propietaria,
+# y la matriz no cita criterios que no existen.
+$traceRows = @{}
+foreach ($r in [regex]::Matches($trace, '(?m)^\| pm-(\d{3})#CA-(\d{2}) \| (T\d{3}) \|')) { $traceRows["$($r.Groups[1].Value)#$($r.Groups[2].Value)"] = $r.Groups[3].Value }
+foreach ($k in $caCount.Keys) {
+  for ($n = 1; $n -le $caCount[$k]; $n++) {
+    $key = "$k#$('{0:D2}' -f $n)"
+    if (-not $traceRows.ContainsKey($key)) { Fail "traceability.md sin pm-$key" }
+    elseif ($caOwner.ContainsKey($key) -and $caOwner[$key].Count -eq 1 -and $traceRows[$key] -ne $caOwner[$key][0]) { Fail "traceability.md: pm-$key asignado a $($traceRows[$key]) pero su Task propietaria es $($caOwner[$key][0])" }
+  }
+}
+foreach ($key in $traceRows.Keys) { $p = $key.Split('#'); if (-not $caCount.ContainsKey($p[0]) -or [int]$p[1] -gt $caCount[$p[0]]) { Fail "traceability.md cita pm-$key, que no existe" } }
 
 # enlaces relativos de Markdown en specs/pm-*
 foreach ($d in $dirs) {
