@@ -19,6 +19,7 @@ public static class ApiResponseMessages
         StatusCodes.Status404NotFound => "Recurso no encontrado.",
         StatusCodes.Status405MethodNotAllowed => "Método HTTP no permitido para este recurso.",
         StatusCodes.Status409Conflict => "La solicitud entra en conflicto con el estado actual del recurso.",
+        StatusCodes.Status413PayloadTooLarge => "El cuerpo de la solicitud es demasiado grande.",
         StatusCodes.Status415UnsupportedMediaType => "Tipo de contenido no soportado.",
         StatusCodes.Status429TooManyRequests => "Demasiadas solicitudes. Inténtelo de nuevo más tarde.",
         StatusCodes.Status503ServiceUnavailable => "Servicio no disponible temporalmente.",

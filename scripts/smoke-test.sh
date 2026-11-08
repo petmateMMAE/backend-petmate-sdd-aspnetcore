@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Prueba de humo del despliegue (pm-077#CA-02, pm-084): verifica por HTTPS los 13 endpoints actuales.
+# Prueba de humo del despliegue (pm-077#CA-02, pm-084): verifica por HTTPS los 14 endpoints actuales.
 # Uso: bash scripts/smoke-test.sh https://petmate-api.<dominio>
 # Crea un usuario de prueba con correo aleatorio (no usa datos reales) y nunca imprime tokens.
 set -euo pipefail
@@ -52,10 +52,14 @@ check "GET /api/v1/users/me/get" 200 "$(req GET /api/v1/users/me/get "" "$ACCESS
 check "  el perfil devuelve el nombre" "Prueba de humo" "$(jq -r '.data.displayName' /tmp/smoke-body 2>/dev/null || true)"
 check "GET /api/v1/users/me/get sin token" 401 "$(req GET /api/v1/users/me/get)"
 
-# Mascotas del Owner (pm-040, pm-042, pm-043, pm-044): crear, ver, actualizar y eliminar (borrado físico).
+# Mascotas del Owner (pm-040 a pm-044): crear, listar (paginado), ver, actualizar y eliminar (borrado físico).
 PET='{"name":"Prueba de humo","species":"Perro","sex":"Unknown"}'
 check "POST /api/v1/pets/create" 201 "$(req POST /api/v1/pets/create "$PET" "$ACCESS")"
 PET_ID=$(jq -r '.data.id' /tmp/smoke-body 2>/dev/null || true)
+check "GET /api/v1/pets/get-all" 200 "$(req GET "/api/v1/pets/get-all?page=1&pageSize=50" "" "$ACCESS")"
+check "  el listado incluye la mascota creada" 1 "$(jq -r --arg id "$PET_ID" '[.data.items[] | select(.id==$id)] | length' /tmp/smoke-body 2>/dev/null || true)"
+check "GET /api/v1/pets/get-all con pageSize inválido" 400 "$(req GET "/api/v1/pets/get-all?pageSize=51" "" "$ACCESS")"
+check "GET /api/v1/pets/get-all sin token" 401 "$(req GET /api/v1/pets/get-all)"
 check "GET /api/v1/pets/get-by-id/{id}" 200 "$(req GET "/api/v1/pets/get-by-id/$PET_ID" "" "$ACCESS")"
 check "PUT /api/v1/pets/update/{id}" 200 "$(req PUT "/api/v1/pets/update/$PET_ID" '{"name":"Humo","species":"Gato","sex":"Female"}' "$ACCESS")"
 check "POST /api/v1/pets/create sin token" 401 "$(req POST /api/v1/pets/create "$PET")"

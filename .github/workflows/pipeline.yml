@@ -292,6 +292,7 @@ jobs:
           - health-ready
           - technical-mediator-probe
           - pets-create
+          - pets-get-all
           - pets-get-by-id
           - pets-update
           - pets-delete

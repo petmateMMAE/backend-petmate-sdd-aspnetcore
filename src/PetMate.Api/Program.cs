@@ -16,6 +16,7 @@ if (!string.IsNullOrWhiteSpace(app.Configuration["TRUSTED_PROXIES"]))
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseStatusCodePages(ApiBehaviorConfiguration.WriteStatusCodeAsync);
+app.UseMiddleware<RequestBodyLimitMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

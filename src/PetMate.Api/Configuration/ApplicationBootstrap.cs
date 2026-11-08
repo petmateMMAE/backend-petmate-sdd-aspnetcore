@@ -115,14 +115,8 @@ public static class ApplicationBootstrap
 
     private static void ConfigureRateLimiting(IServiceCollection services, ConfigurationManager configuration)
     {
-        var permitLimit = 10;
-        var raw = configuration["AUTH_RATE_LIMIT_PER_MINUTE"];
-        if (!string.IsNullOrWhiteSpace(raw)
-            && (!int.TryParse(raw, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out permitLimit)
-                || permitLimit is < 1 or > 10_000))
-        {
-            throw new InvalidOperationException("Configuración inválida: AUTH_RATE_LIMIT_PER_MINUTE debe ser un entero entre 1 y 10000. No se muestran valores por seguridad.");
-        }
+        var permitLimit = ReadPerMinuteLimit(configuration, "AUTH_RATE_LIMIT_PER_MINUTE", 10);
+        var petsPermitLimit = ReadPerMinuteLimit(configuration, "PETS_RATE_LIMIT_PER_MINUTE", 60);
 
         services.AddRateLimiter(options =>
         {
@@ -132,6 +126,16 @@ public static class ApplicationBootstrap
                 _ => new FixedWindowRateLimiterOptions
                 {
                     PermitLimit = permitLimit,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0,
+                    AutoReplenishment = true,
+                }));
+            // Mascotas (pm-045 CA-04): límite por usuario autenticado (claim sub), con la IP como respaldo.
+            options.AddPolicy(PetMate.Api.Controllers.PetsController.RateLimitPolicy, context => RateLimitPartition.GetFixedWindowLimiter(
+                context.User.FindFirst("sub")?.Value is { Length: > 0 } subject ? "u:" + subject : "ip:" + RateLimitKey.For(context.Connection.RemoteIpAddress),
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = petsPermitLimit,
                     Window = TimeSpan.FromMinutes(1),
                     QueueLimit = 0,
                     AutoReplenishment = true,
@@ -149,6 +153,22 @@ public static class ApplicationBootstrap
                     headers);
             };
         });
+    }
+
+    private static int ReadPerMinuteLimit(ConfigurationManager configuration, string name, int defaultValue)
+    {
+        var raw = configuration[name];
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return defaultValue;
+        }
+
+        if (!int.TryParse(raw, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var value) || value is < 1 or > 10_000)
+        {
+            throw new InvalidOperationException($"Configuración inválida: {name} debe ser un entero entre 1 y 10000. No se muestran valores por seguridad.");
+        }
+
+        return value;
     }
 
     // Autenticación JWT Bearer (T016/T017). Los parámetros salen de JwtOptions (registrado por Infrastructure) y la

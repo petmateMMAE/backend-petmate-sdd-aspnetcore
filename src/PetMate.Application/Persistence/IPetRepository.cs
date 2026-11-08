@@ -16,6 +16,9 @@ public interface IPetRepository
     /// <summary>Mascotas del propietario, de la más reciente a la más antigua, con desplazamiento y tamaño de página.</summary>
     Task<IReadOnlyList<Pet>> ListByOwner(Guid ownerId, int skip, int take, CancellationToken cancellationToken);
 
+    /// <summary>Total de mascotas del propietario (para la paginación, pm-047).</summary>
+    Task<long> CountByOwner(Guid ownerId, CancellationToken cancellationToken);
+
     /// <summary>Persiste los datos editables. Devuelve <c>false</c> si la mascota no existe o pertenece a otro propietario.</summary>
     Task<bool> UpdateOwned(Pet pet, CancellationToken cancellationToken);
 

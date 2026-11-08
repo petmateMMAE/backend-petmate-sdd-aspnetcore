@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PetMate.Application.Authentication;
 using PetMate.Application.Mediator;
+using PetMate.Application.Pagination;
 using PetMate.Application.Pets;
 using PetMate.Application.Users;
 using PetMate.Application.Validation;
@@ -57,8 +58,10 @@ public static class ApplicationServiceCollectionExtensions
     private static IServiceCollection AddPets(this IServiceCollection services)
     {
         services.TryAddSingleton(TimeProvider.System);
-        services.AddRequestHandler<CreatePetCommand, PetResult, CreatePetHandler>();
+        services.AddRequestHandler<CreatePetCommand, CreatePetOutcome, CreatePetHandler>();
         services.AddRequestHandler<GetMyPetQuery, PetResult?, GetMyPetHandler>();
+        services.AddRequestHandler<ListMyPetsQuery, PagedResult<PetResult>, ListMyPetsHandler>();
+        services.AddRequestValidator<ListMyPetsQuery, ListMyPetsQueryValidator>();
         services.AddRequestHandler<UpdateMyPetCommand, PetResult?, UpdateMyPetHandler>();
         services.AddRequestHandler<DeleteMyPetCommand, bool, DeleteMyPetHandler>();
         services.AddRequestValidator<CreatePetCommand, CreatePetCommandValidator>();

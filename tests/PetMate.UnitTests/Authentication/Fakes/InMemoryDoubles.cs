@@ -54,6 +54,9 @@ public sealed class InMemoryPetRepository : IPetRepository
         => Task.FromResult<IReadOnlyList<Pet>>(pets.Values.Where(p => p.OwnerId == ownerId)
             .OrderByDescending(p => p.CreatedAtUtc).ThenByDescending(p => p.Id).Skip(skip).Take(take).ToArray());
 
+    public Task<long> CountByOwner(Guid ownerId, CancellationToken cancellationToken)
+        => Task.FromResult((long)pets.Values.Count(p => p.OwnerId == ownerId));
+
     public Task<bool> UpdateOwned(Pet pet, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(pet);

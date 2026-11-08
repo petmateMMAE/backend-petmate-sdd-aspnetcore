@@ -1,4 +1,5 @@
 using PetMate.Application.Mediator;
+using PetMate.Application.Pagination;
 using PetMate.Application.Persistence;
 using PetMate.Application.Validation;
 using PetMate.Domain.Pets;
@@ -22,10 +23,23 @@ public sealed record PetResult(
 }
 
 /// <summary>pm-040: crea una mascota. El propietario sale del Access Token validado, nunca del cuerpo.</summary>
-public sealed record CreatePetCommand(Guid OwnerId, PetDetails Details) : ICommand<PetResult>;
+public sealed record CreatePetCommand(Guid OwnerId, PetDetails Details) : ICommand<CreatePetOutcome>;
+
+/// <summary>Límites de uso del módulo de mascotas (pm-045 CA-04).</summary>
+public static class PetLimits
+{
+    /// <summary>Máximo de mascotas por propietario; protege la cuota de Atlas frente a creaciones en bucle.</summary>
+    public const int MaxPetsPerOwner = 100;
+}
+
+/// <summary>Resultado de crear: la mascota, o <c>null</c> con <see cref="LimitReached"/> si el propietario ya tiene el máximo.</summary>
+public sealed record CreatePetOutcome(PetResult? Pet, bool LimitReached);
 
 /// <summary>pm-042: detalle de una mascota propia.</summary>
 public sealed record GetMyPetQuery(Guid OwnerId, Guid PetId) : IQuery<PetResult?>;
+
+/// <summary>pm-041: lista paginada de las mascotas del propietario (convención de pm-047; <c>null</c> = valor por defecto).</summary>
+public sealed record ListMyPetsQuery(Guid OwnerId, int? Page, int? PageSize) : IQuery<PagedResult<PetResult>>;
 
 /// <summary>pm-043: reemplaza los datos editables de una mascota propia.</summary>
 public sealed record UpdateMyPetCommand(Guid OwnerId, Guid PetId, PetDetails Details) : ICommand<PetResult?>;
@@ -33,14 +47,21 @@ public sealed record UpdateMyPetCommand(Guid OwnerId, Guid PetId, PetDetails Det
 /// <summary>pm-044: elimina físicamente una mascota propia.</summary>
 public sealed record DeleteMyPetCommand(Guid OwnerId, Guid PetId) : ICommand<bool>;
 
-public sealed class CreatePetHandler(IPetRepository pets, TimeProvider timeProvider) : IRequestHandler<CreatePetCommand, PetResult>
+public sealed class CreatePetHandler(IPetRepository pets, TimeProvider timeProvider) : IRequestHandler<CreatePetCommand, CreatePetOutcome>
 {
-    public async Task<PetResult> Handle(CreatePetCommand request, CancellationToken cancellationToken)
+    public async Task<CreatePetOutcome> Handle(CreatePetCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
+        // La cuenta y el alta no son atómicas: creaciones simultáneas pueden pasar el tope por muy poco; el límite de
+        // peticiones por usuario acota ese margen (el objetivo es frenar el abuso, no llevar un contador exacto).
+        if (await pets.CountByOwner(request.OwnerId, cancellationToken).ConfigureAwait(false) >= PetLimits.MaxPetsPerOwner)
+        {
+            return new CreatePetOutcome(null, LimitReached: true);
+        }
+
         var pet = Pet.Create(request.OwnerId, request.Details, timeProvider.GetUtcNow().UtcDateTime);
         await pets.Add(pet, cancellationToken).ConfigureAwait(false);
-        return PetResult.From(pet);
+        return new CreatePetOutcome(PetResult.From(pet), LimitReached: false);
     }
 }
 
@@ -52,6 +73,28 @@ public sealed class GetMyPetHandler(IPetRepository pets) : IRequestHandler<GetMy
         ArgumentNullException.ThrowIfNull(request);
         var pet = await pets.FindOwned(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
         return pet is null ? null : PetResult.From(pet);
+    }
+}
+
+/// <summary>Solo las mascotas del propietario del token, de la más reciente a la más antigua, con el total.</summary>
+public sealed class ListMyPetsHandler(IPetRepository pets) : IRequestHandler<ListMyPetsQuery, PagedResult<PetResult>>
+{
+    public async Task<PagedResult<PetResult>> Handle(ListMyPetsQuery request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var page = PaginationConvention.ResolvePage(request.Page);
+        var pageSize = PaginationConvention.ResolvePageSize(request.PageSize);
+        var total = await pets.CountByOwner(request.OwnerId, cancellationToken).ConfigureAwait(false);
+
+        // Una página más allá de lo representable queda vacía sin consultar (evita el desbordamiento del desplazamiento).
+        var skip = ((long)page - 1) * pageSize;
+        if (skip >= total || skip > int.MaxValue)
+        {
+            return new PagedResult<PetResult>([], page, pageSize, total);
+        }
+
+        var items = await pets.ListByOwner(request.OwnerId, (int)skip, pageSize, cancellationToken).ConfigureAwait(false);
+        return new PagedResult<PetResult>(items.Select(PetResult.From).ToArray(), page, pageSize, total);
     }
 }
 
@@ -79,6 +122,16 @@ public sealed class DeleteMyPetHandler(IPetRepository pets) : IRequestHandler<De
     {
         ArgumentNullException.ThrowIfNull(request);
         return pets.DeleteOwned(request.PetId, request.OwnerId, cancellationToken);
+    }
+}
+
+/// <summary>Valida <c>page</c> y <c>pageSize</c> según la convención de pm-047.</summary>
+public sealed class ListMyPetsQueryValidator : IRequestValidator<ListMyPetsQuery>
+{
+    public Task<IReadOnlyList<ValidationFailure>> Validate(ListMyPetsQuery request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        return Task.FromResult(PaginationConvention.Check(request.Page, request.PageSize));
     }
 }
 

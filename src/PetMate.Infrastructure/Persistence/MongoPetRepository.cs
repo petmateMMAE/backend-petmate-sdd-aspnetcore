@@ -59,6 +59,10 @@ public sealed class MongoPetRepository : IPetRepository
         }
     }
 
+    public async Task<long> CountByOwner(Guid ownerId, CancellationToken cancellationToken)
+        => await Execute(() => pets.CountDocumentsAsync(
+            Builders<PetDocument>.Filter.Eq(document => document.OwnerId, ownerId), cancellationToken: cancellationToken)).ConfigureAwait(false);
+
     public async Task<bool> UpdateOwned(Pet pet, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(pet);

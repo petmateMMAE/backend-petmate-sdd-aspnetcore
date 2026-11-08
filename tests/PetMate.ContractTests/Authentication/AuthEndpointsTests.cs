@@ -346,14 +346,30 @@ public sealed class AuthEndpointsTests
 
 public sealed class AuthFlowFactory : IsolatedApiFactory
 {
-    public AuthFlowFactory(int? rateLimitPerMinute = null)
-        : base("Development", rateLimitPerMinute is null ? null : new Dictionary<string, string> { ["AUTH_RATE_LIMIT_PER_MINUTE"] = rateLimitPerMinute.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) })
+    public AuthFlowFactory(int? rateLimitPerMinute = null, int? petsRateLimitPerMinute = null)
+        : base("Development", Overrides(rateLimitPerMinute, petsRateLimitPerMinute))
     {
         Clock = new ManualClock(DateTimeOffset.UtcNow);
         Users = new InMemoryUserRepository();
         Sessions = new InMemorySessionRepository();
         Revocations = new InMemoryRevocationStore(Clock);
         Pets = new InMemoryPetRepository();
+    }
+
+    private static Dictionary<string, string>? Overrides(int? auth, int? pets)
+    {
+        var overrides = new Dictionary<string, string>();
+        if (auth is not null)
+        {
+            overrides["AUTH_RATE_LIMIT_PER_MINUTE"] = auth.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        if (pets is not null)
+        {
+            overrides["PETS_RATE_LIMIT_PER_MINUTE"] = pets.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        return overrides.Count == 0 ? null : overrides;
     }
 
     public ManualClock Clock { get; }

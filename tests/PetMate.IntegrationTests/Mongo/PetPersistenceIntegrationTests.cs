@@ -80,6 +80,23 @@ public sealed class PetPersistenceIntegrationTests
     }
 
     [RequiresEnvironmentFact(Uri, Database)]
+    public async Task Count_by_owner_counts_only_the_owner_pets_and_follows_deletes()
+    {
+        await using var context = await MongoTestContext.Create();
+        var owner = Guid.NewGuid();
+        var first = NewPet(owner, "Uno");
+        await context.Pets.Add(first, CancellationToken.None);
+        await context.Pets.Add(NewPet(owner, "Dos"), CancellationToken.None);
+        await context.Pets.Add(NewPet(Guid.NewGuid(), "Ajena"), CancellationToken.None);
+
+        Assert.Equal(2, await context.Pets.CountByOwner(owner, CancellationToken.None));
+        Assert.Equal(0, await context.Pets.CountByOwner(Guid.NewGuid(), CancellationToken.None));
+
+        Assert.True(await context.Pets.DeleteOwned(first.Id, owner, CancellationToken.None));
+        Assert.Equal(1, await context.Pets.CountByOwner(owner, CancellationToken.None));
+    }
+
+    [RequiresEnvironmentFact(Uri, Database)]
     public async Task Owner_update_is_persisted()
     {
         await using var context = await MongoTestContext.Create();
