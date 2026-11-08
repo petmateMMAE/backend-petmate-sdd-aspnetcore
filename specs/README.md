@@ -53,7 +53,7 @@
 | [pm-036-rate-limiting](pm-036-rate-limiting/spec.md) | En revisión | L8 | pm-017, pm-029, pm-030, pm-031 | T054, T057 | Límites por política y por IP, auth ya implementado y matriz global pendiente |
 | [pm-037-owner-profile-read](pm-037-owner-profile-read/spec.md) | En progreso | L5 | pm-024, pm-033 | T026 | `GET /api/v1/users/me/get` del usuario autenticado |
 | [pm-038-owner-profile-update](pm-038-owner-profile-update/spec.md) | En progreso | L6 | pm-037 | T027, T028 | `PUT /api/v1/users/me/update` con campos aprobados |
-| [pm-039-pet-domain-persistence](pm-039-pet-domain-persistence/spec.md) | En progreso | L5 | pm-012, pm-033 | T029, T036, T037 | Modelo Pet, validadores, persistencia e índice por propietario |
+| [pm-039-pet-domain-persistence](pm-039-pet-domain-persistence/spec.md) | Cerrado | L5 | pm-012, pm-033 | T029, T036, T037 | Modelo Pet, validadores, persistencia e índice por propietario |
 | [pm-040-pet-create](pm-040-pet-create/spec.md) | Cerrado | L6 | pm-039 | T030 | `POST /api/v1/pets/create` con propietario tomado del token |
 | [pm-041-pet-list](pm-041-pet-list/spec.md) | Propuesto | L6 | pm-039, pm-047 | T031 | `GET /api/v1/pets/get-all` solo de mascotas propias, paginado |
 | [pm-042-pet-detail](pm-042-pet-detail/spec.md) | Cerrado | L6 | pm-039 | T032 | `GET /api/v1/pets/get-by-id/{id}` solo de mascota propia |
@@ -159,8 +159,8 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T033 | Histórica | [pm-043](pm-043-pet-update/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Actualizar mascota |
 | T034 | Histórica | [pm-044](pm-044-pet-soft-delete/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Eliminar mascota |
 | T035 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | Propuesto | Asegurar autorización y ownership |
-| T036 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Propuesto | Pruebas unitarias Pet |
-| T037 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Propuesto | Pruebas de integración Atlas |
+| T036 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas unitarias Pet |
+| T037 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas de integración Atlas |
 | T038 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | Propuesto | Pruebas de seguridad Pet |
 | T039 | Histórica | [pm-061](pm-061-api-docs-contract-sync/spec.md) | Propuesto | Pruebas de contrato y documentación |
 | T040 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | Propuesto | Gates y revisión independiente Pet |
@@ -240,3 +240,5 @@ Los cuatro endpoints de autenticación y los siete endpoints funcionales (11 en 
 - **2026-11-08 — pm-039 / T029:** pasan a `En progreso` por autorización del usuario (campos de la maqueta móvil y borrado físico). Se reescribieron pm-039 CA-01 y CA-03, pm-044 CA-01 a CA-03 y pm-041 CA-01, con sus mismos identificadores y propietarios.
 - **2026-11-08 — pm-040, pm-042, pm-043, pm-044 (T030, T032, T033, T034):** aprobados por el usuario (opción A) y pasan a `En progreso`. Se añadió pm-040 CA-04 (400 con el campo). pm-041 (T031) espera a la paginación (pm-047).
 - **2026-11-08 — T030, T032, T033, T034:** cierre aprobado por el usuario (sin revisión independiente); pm-040, pm-042, pm-043 y pm-044 pasan a `Cerrado`.
+- **2026-11-08 — T036, T037 (pm-039):** pasan a `En progreso` por pedido del usuario. Se verificaron CA-04 y CA-05 y se añadieron dos pruebas de integración (uso del índice por propietario y borrado concurrente). Falta la aprobación humana del cierre.
+- **2026-11-08 — T036, T037:** cierre aprobado por el usuario (sin revisión independiente); pm-039 pasa a `Cerrado`.

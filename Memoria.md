@@ -331,3 +331,10 @@
 - **Pipeline:** cuatro jobs nuevos en la matriz de endpoints (`pets-create`, `pets-get-by-id`, `pets-update`, `pets-delete`) y la prueba de humo cubre crear, ver, actualizar y eliminar.
 - **Evidencia:** Unit 142, Security 155, Contract 142 (26 nuevas), Integration sin cambios; `gates.md` de cada Spec.
 - **Cierre:** el usuario aprobó el cierre de T030, T032, T033 y T034 el 2026-11-08 (sin revisión independiente).
+
+## pm-039 / T036 y T037 — pruebas de mascotas (2026-11-08)
+
+- **Estado:** cerradas con aprobación humana el 2026-11-08 (sin revisión independiente); pm-039 queda `Cerrado`.
+- **Cambio:** dos pruebas nuevas de integración en `PetPersistenceIntegrationTests`: la consulta de listado usa el índice `ix_pets_ownerId_createdAtUtc` (`explain`, IXSCAN, sin COLLSCAN) y el borrado concurrente de la misma mascota tiene un solo ganador.
+- **Evidencia:** Unit 142/142; Integration 32 aprobadas + 15 omitidas por Redis, con las 8 de mascotas en verde contra Atlas; build Release 0/0. Detalle en `specs/pm-039-pet-domain-persistence/checklists/gates.md`.
+- **Riesgo menor:** el desempate por `_id` en `ListByOwner` no está en el índice (orden en memoria); revisar en pm-052.

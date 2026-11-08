@@ -1,6 +1,6 @@
 # Spec — pm-039 pet-domain-persistence
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L5 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Cerrado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L5 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -35,8 +35,8 @@ Cada criterio se cita como `pm-039#CA-NN`. La columna final indica la Task que l
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
 | T029 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Definir modelo Pet y persistencia |
-| T036 | Histórica | Propuesto | Pruebas unitarias Pet |
-| T037 | Histórica | Propuesto | Pruebas de integración Atlas |
+| T036 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas unitarias Pet |
+| T037 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas de integración Atlas |
 
 Detalle en [task.md](task.md).
 

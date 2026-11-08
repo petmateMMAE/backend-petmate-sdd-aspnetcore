@@ -190,11 +190,11 @@
 | pm-038#CA-01 | T027 | Histórica | Propuesto | `_historico/02-owner-profile/task.md` y su `checklists/gates.md` |
 | pm-038#CA-02 | T027 | Histórica | Propuesto | `_historico/02-owner-profile/task.md` y su `checklists/gates.md` |
 | pm-038#CA-03 | T028 | Histórica | Propuesto | `_historico/02-owner-profile/task.md` y su `checklists/gates.md` |
-| pm-039#CA-01 | T029 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-039#CA-02 | T029 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-039#CA-03 | T029 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-039#CA-04 | T036 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-039#CA-05 | T037 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
+| pm-039#CA-01 | T029 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-039 gates](pm-039-pet-domain-persistence/checklists/gates.md) |
+| pm-039#CA-02 | T029 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-039 gates](pm-039-pet-domain-persistence/checklists/gates.md) |
+| pm-039#CA-03 | T029 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-039 gates](pm-039-pet-domain-persistence/checklists/gates.md) |
+| pm-039#CA-04 | T036 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | `PetTests` y `PetHandlersTests`; evidencia en [pm-039 gates](pm-039-pet-domain-persistence/checklists/gates.md) |
+| pm-039#CA-05 | T037 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | `PetPersistenceIntegrationTests` (Atlas); evidencia en [pm-039 gates](pm-039-pet-domain-persistence/checklists/gates.md) |
 | pm-040#CA-01 | T030 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
 | pm-040#CA-02 | T030 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
 | pm-040#CA-03 | T030 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
