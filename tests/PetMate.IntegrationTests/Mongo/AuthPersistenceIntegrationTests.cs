@@ -41,6 +41,31 @@ public sealed class AuthPersistenceIntegrationTests
     }
 
     [RequiresEnvironmentFact(Uri, Database)]
+    public async Task Profile_update_persists_only_the_name_and_the_update_date_of_that_user()
+    {
+        await using var context = await MongoTestContext.Create();
+        var ana = NewUser("ana.perfil@example.com");
+        var luis = NewUser("luis.perfil@example.com");
+        Assert.True(await context.Users.TryAdd(ana, CancellationToken.None));
+        Assert.True(await context.Users.TryAdd(luis, CancellationToken.None));
+
+        ana.ChangeDisplayName("  Ana Pérez ", Now.AddMinutes(1));
+        await context.Users.UpdateProfile(ana, CancellationToken.None);
+
+        var storedAna = await context.Users.FindById(ana.Id, CancellationToken.None);
+        var storedLuis = await context.Users.FindById(luis.Id, CancellationToken.None);
+        Assert.NotNull(storedAna);
+        Assert.NotNull(storedLuis);
+        Assert.Equal("Ana Pérez", storedAna.DisplayName);
+        Assert.Equal(ana.UpdatedAtUtc, storedAna.UpdatedAtUtc, TimeSpan.FromMilliseconds(1));
+        Assert.Equal(ana.Email, storedAna.Email);
+        Assert.Equal(UserRole.Owner, storedAna.Role);
+        Assert.Equal(ana.PasswordHash, storedAna.PasswordHash);
+        Assert.Equal(ana.CreatedAtUtc, storedAna.CreatedAtUtc, TimeSpan.FromMilliseconds(1));
+        Assert.Null(storedLuis.DisplayName);
+    }
+
+    [RequiresEnvironmentFact(Uri, Database)]
     public async Task Duplicate_normalized_email_is_rejected_by_the_unique_index()
     {
         await using var context = await MongoTestContext.Create();
