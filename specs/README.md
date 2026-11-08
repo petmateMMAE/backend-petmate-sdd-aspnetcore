@@ -47,12 +47,12 @@
 | [pm-030-user-login](pm-030-user-login/spec.md) | En revisión | L6 | pm-011, pm-024, pm-025, pm-026, pm-027 | T019 | `POST /api/v1/auth/login` con respuesta idéntica ante credenciales inválidas |
 | [pm-031-refresh-token-rotation](pm-031-refresh-token-rotation/spec.md) | En revisión | L7 | pm-025, pm-027, pm-030 | T020 | `POST /api/v1/auth/refresh` con rotación atómica y detección de replay |
 | [pm-032-user-logout](pm-032-user-logout/spec.md) | En revisión | L8 | pm-028, pm-031 | T021 | `POST /api/v1/auth/logout` que revoca sesión y `jti` |
-| [pm-033-authorization-policies](pm-033-authorization-policies/spec.md) | En progreso | L4 | pm-027, pm-028 | T022 | Política de autorización por defecto y por rol Owner/Business |
+| [pm-033-authorization-policies](pm-033-authorization-policies/spec.md) | Cerrado | L4 | pm-027, pm-028 | T022 | Política de autorización por defecto y por rol Owner/Business |
 | [pm-034-auth-brute-force-protection](pm-034-auth-brute-force-protection/spec.md) | Propuesto | L9 | pm-030, pm-031, pm-036 | T023, T056 | Cuota por correo y bloqueo contra credential stuffing, y limitador asíncrono de hashing |
 | [pm-035-auth-session-lifecycle-acceptance](pm-035-auth-session-lifecycle-acceptance/spec.md) | Propuesto | L10 | pm-028, pm-029, pm-030, pm-031, pm-032, pm-033, pm-034 | T025 | Escenarios de ciclo de vida de sesión entre endpoints y cierre del grupo de autenticación |
 | [pm-036-rate-limiting](pm-036-rate-limiting/spec.md) | En revisión | L8 | pm-017, pm-029, pm-030, pm-031 | T054, T057 | Límites por política y por IP, auth ya implementado y matriz global pendiente |
-| [pm-037-owner-profile-read](pm-037-owner-profile-read/spec.md) | En progreso | L5 | pm-024, pm-033 | T026 | `GET /api/v1/users/me/get` del usuario autenticado |
-| [pm-038-owner-profile-update](pm-038-owner-profile-update/spec.md) | En progreso | L6 | pm-037 | T027, T028 | `PUT /api/v1/users/me/update` con campos aprobados |
+| [pm-037-owner-profile-read](pm-037-owner-profile-read/spec.md) | Cerrado | L5 | pm-024, pm-033 | T026 | `GET /api/v1/users/me/get` del usuario autenticado |
+| [pm-038-owner-profile-update](pm-038-owner-profile-update/spec.md) | Cerrado | L6 | pm-037 | T027, T028 | `PUT /api/v1/users/me/update` con campos aprobados |
 | [pm-039-pet-domain-persistence](pm-039-pet-domain-persistence/spec.md) | Cerrado | L5 | pm-012, pm-033 | T029, T036, T037 | Modelo Pet, validadores, persistencia e índice por propietario |
 | [pm-040-pet-create](pm-040-pet-create/spec.md) | Cerrado | L6 | pm-039 | T030 | `POST /api/v1/pets/create` con propietario tomado del token |
 | [pm-041-pet-list](pm-041-pet-list/spec.md) | Propuesto | L6 | pm-039, pm-047 | T031 | `GET /api/v1/pets/get-all` solo de mascotas propias, paginado |
@@ -71,7 +71,7 @@
 | [pm-054-structured-logging-pii-safe](pm-054-structured-logging-pii-safe/spec.md) | Propuesto | L5 | pm-010 | T065 | Logging estructurado con correlación y sin datos personales |
 | [pm-055-ci-pull-request-pipeline](pm-055-ci-pull-request-pipeline/spec.md) | En progreso | L4 | pm-021 | T012, T066, T067 | Workflow de pull request con paridad respecto al gate local y ramas protegidas |
 | [pm-056-test-coverage-baseline](pm-056-test-coverage-baseline/spec.md) | Propuesto | L4 | pm-021 | T068 | Línea base y umbral de cobertura de pruebas |
-| [pm-057-container-image-scan](pm-057-container-image-scan/spec.md) | En progreso | L5 | pm-015, pm-055 | T069 | Escaneo de la imagen de contenedor con herramienta $0 |
+| [pm-057-container-image-scan](pm-057-container-image-scan/spec.md) | Cerrado | L5 | pm-015, pm-055 | T069 | Escaneo de la imagen de contenedor con herramienta $0 |
 | [pm-058-sbom-generation](pm-058-sbom-generation/spec.md) | Cerrado | L5 | pm-055 | T070 | Generación de SBOM por compilación |
 | [pm-059-release-versioning](pm-059-release-versioning/spec.md) | En progreso | L5 | pm-055 | T071 | Versionado SemVer, etiquetas y versión trazable a la imagen |
 | [pm-060-sdd-integrity-gate](pm-060-sdd-integrity-gate/spec.md) | Cerrado | L5 | pm-055 | T072 | Validación automática de la integridad de specs, tasks y trazabilidad |
@@ -135,7 +135,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T009 | Histórica | [pm-011](pm-011-request-validation/spec.md) | Cerrado y aprobado (2026-11-03, aprobación humana; política 400 ratificada) | Validación de requests y contratos básicos |
 | T010 | Histórica | [pm-012](pm-012-atlas-connectivity/spec.md) | Cerrado y aprobado (2026-11-03, aprobación humana) | Configuración MongoDB Atlas y Redis separados |
 | T011 | Histórica | [pm-016](pm-016-local-compose-environment/spec.md) | Cerrado y aprobado (2026-11-03, aprobación humana) | Health, contenedor y ejecución local |
-| T012 | Histórica | [pm-055](pm-055-ci-pull-request-pipeline/spec.md) | Implementada; NO cerrada (2026-11-03) | CI base DevSecOps |
+| T012 | Histórica | [pm-055](pm-055-ci-pull-request-pipeline/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | CI base DevSecOps |
 | T013 | Histórica | [pm-022](pm-022-user-domain-roles/spec.md) | Cerrado y aprobado (2026-11-03, aprobación humana) | Modelar usuario, roles y sesión |
 | T014 | Histórica | [pm-024](pm-024-users-persistence/spec.md) | Cerrado y aprobado (2026-11-03, aprobación humana) | Persistencia Atlas de usuarios y sesiones |
 | T015 | Histórica | [pm-026](pm-026-password-hashing-argon2id/spec.md) | Cerrado y aprobado (2026-11-03, aprobación humana) | Hasher Argon2id |
@@ -145,13 +145,13 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T019 | Histórica | [pm-030](pm-030-user-login/spec.md) | Cerrado y aprobado (2026-11-03, aprobación humana) | Endpoint Login |
 | T020 | Histórica | [pm-031](pm-031-refresh-token-rotation/spec.md) | Cerrado y aprobado (2026-11-03, aprobación humana) | Refresh Token persistente y rotatorio |
 | T021 | Histórica | [pm-032](pm-032-user-logout/spec.md) | Cerrado y aprobado (2026-11-03, aprobación humana) | Endpoint Logout |
-| T022 | Histórica | [pm-033](pm-033-authorization-policies/spec.md) | En progreso | Políticas de autenticación y autorización |
+| T022 | Histórica | [pm-033](pm-033-authorization-policies/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Políticas de autenticación y autorización |
 | T023 | Histórica | [pm-034](pm-034-auth-brute-force-protection/spec.md) | Propuesto | Pruebas unitarias, integración y seguridad de auth |
 | T024 | Histórica | [pm-061](pm-061-api-docs-contract-sync/spec.md) | Propuesto | Contratos y documentación de auth |
 | T025 | Histórica | [pm-035](pm-035-auth-session-lifecycle-acceptance/spec.md) | Propuesto | Gates y revisión independiente de auth |
-| T026 | Histórica | [pm-037](pm-037-owner-profile-read/spec.md) | En progreso | Implementar GET perfil propio |
-| T027 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | En progreso | Implementar PUT perfil propio |
-| T028 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | En progreso | Pruebas y gates de perfil |
+| T026 | Histórica | [pm-037](pm-037-owner-profile-read/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar GET perfil propio |
+| T027 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar PUT perfil propio |
+| T028 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas y gates de perfil |
 | T029 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Definir modelo Pet y persistencia |
 | T030 | Histórica | [pm-040](pm-040-pet-create/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Crear mascota |
 | T031 | Histórica | [pm-041](pm-041-pet-list/spec.md) | Propuesto | Listar mascotas |
@@ -189,10 +189,10 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T063 | Nueva | [pm-052](pm-052-database-indexing-efficiency/spec.md) | Propuesto | Inventariar índices y evidenciar consultas críticas |
 | T064 | Nueva | [pm-053](pm-053-api-performance-baseline/spec.md) | Propuesto | Medir la línea base de rendimiento |
 | T065 | Nueva | [pm-054](pm-054-structured-logging-pii-safe/spec.md) | Propuesto | Implementar logging estructurado sin PII |
-| T066 | Nueva | [pm-055](pm-055-ci-pull-request-pipeline/spec.md) | En progreso | Crear el workflow de CI de pull request |
+| T066 | Nueva | [pm-055](pm-055-ci-pull-request-pipeline/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Crear el workflow de CI de pull request |
 | T067 | Nueva | [pm-055](pm-055-ci-pull-request-pipeline/spec.md) | Propuesto | Configurar ramas protegidas y checks requeridos |
 | T068 | Nueva | [pm-056](pm-056-test-coverage-baseline/spec.md) | Propuesto | Medir la línea base de cobertura |
-| T069 | Nueva | [pm-057](pm-057-container-image-scan/spec.md) | En progreso | Integrar el escaneo de la imagen de contenedor |
+| T069 | Nueva | [pm-057](pm-057-container-image-scan/spec.md) | Cerrado | Integrar el escaneo de la imagen de contenedor |
 | T070 | Nueva | [pm-058](pm-058-sbom-generation/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Generar el SBOM por compilación |
 | T071 | Nueva | [pm-059](pm-059-release-versioning/spec.md) | En progreso | Definir el versionado de releases |
 | T072 | Nueva | [pm-060](pm-060-sdd-integrity-gate/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Integrar el gate de integridad SDD en CI |
@@ -245,3 +245,9 @@ Los cuatro endpoints de autenticación y los siete endpoints funcionales (11 en 
 - **2026-11-08 — T066, T069, T070, T071, T072 (pm-055, pm-057, pm-058, pm-059, pm-060):** pasan a `En progreso` por pedido del usuario (grupo de CI). Se crean `plan.md` y `checklists/gates.md`; `check-sdd.ps1` gana tres validaciones y pruebas negativas. Decisiones pendientes: `ignore-unfixed` de Trivy (T069), umbral NuGet Low/High (T066) e interpretación de la autorización de etiquetas (T071).
 - **2026-11-08 — T001, T070, T072:** cierre aprobado por el usuario (sin revisión independiente); pm-058 y pm-060 pasan a `Cerrado`. pm-001 sigue `En revisión` hasta que el usuario apruebe el Spec. `check-sdd.ps1` acepta el cierre aprobado de T001.
 - **2026-11-08 — T069:** a pedido del usuario se quita `ignore-unfixed` de Trivy y la imagen pasa a `aspnet:10.0-noble-chiseled` (0 HIGH/CRITICAL). Pendiente de aprobación humana.
+- **2026-11-08 — T069:** cierre aprobado por el usuario (sin revisión independiente); pm-057 pasa a `Cerrado`.
+- **2026-11-08 — T012:** cierre aprobado por el usuario (sin revisión independiente); pm-055 sigue `En progreso` por T066 y T067. `check-sdd.ps1` acepta el cierre de T012.
+- **2026-11-08 — T066:** umbral de vulnerabilidades NuGet igualado a High en local y en CI (decisión del usuario); T066 sigue pendiente de aprobación.
+- **2026-11-08 — T022:** alcance histórico cumplido (`RequireOwner` en pm-040 a pm-044) y verificado con Atlas y Redis reales; sigue `En progreso` (revisión independiente y aprobación humana).
+- **2026-11-08 — T026, T027, T028:** evidencia escrita (`checklists/gates.md` de pm-037 y pm-038), pruebas añadidas y cierre aprobado por el usuario (sin revisión independiente); pm-037 y pm-038 pasan a `Cerrado`.
+- **2026-11-08 — T022 y T066:** cierre aprobado por el usuario (sin revisión independiente); pm-033 pasa a `Cerrado`. pm-055 sigue `En progreso` por T067.

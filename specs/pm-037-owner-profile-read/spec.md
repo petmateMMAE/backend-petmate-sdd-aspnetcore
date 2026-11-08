@@ -1,6 +1,6 @@
 # Spec — pm-037 owner-profile-read
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L5 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Cerrado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L5 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -31,7 +31,7 @@ Cada criterio se cita como `pm-037#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T026 | Histórica | En progreso | Implementar GET perfil propio |
+| T026 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar GET perfil propio |
 
 Detalle en [task.md](task.md).
 

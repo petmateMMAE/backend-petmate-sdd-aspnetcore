@@ -1,6 +1,6 @@
 # Gates — pm-057 container-image-scan (T069)
 
-> Estado: T069 verificada el 2026-11-08 con imagen chiseled y escaneo estricto; pendiente de revisión independiente y aprobación humana.
+> Estado: T069 verificada el 2026-11-08 con imagen chiseled y escaneo estricto; cerrada con aprobación humana el 2026-11-08 (sin revisión independiente).
 
 | CA | Comprobación | Resultado |
 |---|---|---|
@@ -22,5 +22,5 @@
 | Pruebas de seguridad | 155/155 (contenedor SDK, incluye escaneo de secretos del repositorio) |
 | GitHub | El pipeline con la imagen nueva aún no se ha ejecutado: no se ha hecho push (instrucción del usuario). El primer despliegue confirmará la conexión TLS a los Redis de Azure con la CA horneada. |
 
-- [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T069.
+- [ ] Revisión independiente (no realizada; el usuario aprobó el cierre sin ella).
+- [x] Aprobación humana del cierre de T069 (2026-11-08).

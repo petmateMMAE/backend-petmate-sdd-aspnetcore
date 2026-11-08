@@ -1,6 +1,6 @@
 # Spec — pm-038 owner-profile-update
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Cerrado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -31,8 +31,8 @@ Cada criterio se cita como `pm-038#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T027 | Histórica | En progreso | Implementar PUT perfil propio |
-| T028 | Histórica | En progreso | Pruebas y gates de perfil |
+| T027 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar PUT perfil propio |
+| T028 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas y gates de perfil |
 
 Detalle en [task.md](task.md).
 

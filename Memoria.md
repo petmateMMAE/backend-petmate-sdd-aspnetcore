@@ -343,10 +343,26 @@
 
 - **Estado:** verificadas y en `En progreso`; falta revisión independiente y aprobación humana. T012 y T067 sin cambios.
 - **Cambios:** `check-sdd.ps1` valida CA duplicados, Tasks con más de un Spec principal y trazabilidad completa por criterio; nuevo `check-sdd.tests.ps1` (8 casos) y su paso en el job `sdd-integrity`; resumen de la puerta de calidad sin el conteo fijo de endpoints; `version-matrix.md` corregida (la etiqueta la crea el CD).
-- **Decisiones pendientes del usuario:** (1) NuGet bloquea desde `High` en CI y desde `Low` en local (T066); (2) aceptar el merge/push a `main` como autorización expresa de la etiqueta (T071). La de Trivy (T069) quedó resuelta el mismo día (ver abajo).
+- **Decisiones pendientes del usuario:** (1) aceptar el merge/push a `main` como autorización expresa de la etiqueta (T071). El umbral NuGet quedó igualado a High en local y CI (T066). La de Trivy (T069) quedó resuelta el mismo día (ver abajo).
 - **Limitación:** los cambios de `pipeline.yml` no se han ejecutado en GitHub porque no se ha hecho push.
 
 ## Cierres y endurecimiento de la imagen (2026-11-08)
 
 - **T001, T070, T072:** cerradas con aprobación humana (sin revisión independiente); pm-058 y pm-060 `Cerrado`; pm-001 sigue `En revisión` (Spec sin aprobar).
-- **T069 (pm-057):** Trivy ya no ignora vulnerabilidades sin parche. La imagen final es `mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled` (sin shell, sin gestor de paquetes, no root): 0 HIGH/CRITICAL y 2 MEDIUM de `libc6` frente a 19 hallazgos de la imagen anterior; 225 MB frente a 392 MB. La CA de Redis del CD se arma en una etapa `certs`. Se quitó el healthcheck `bash` de la API en Compose. Verificado en local con Atlas real (flujo completo) y Security 155/155. Pendiente: aprobación de T069 y primera ejecución en GitHub/Azure tras el próximo push.
+- **T069 (pm-057):** Trivy ya no ignora vulnerabilidades sin parche. La imagen final es `mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled` (sin shell, sin gestor de paquetes, no root): 0 HIGH/CRITICAL y 2 MEDIUM de `libc6` frente a 19 hallazgos de la imagen anterior; 225 MB frente a 392 MB. La CA de Redis del CD se arma en una etapa `certs`. Se quitó el healthcheck `bash` de la API en Compose. Verificado en local con Atlas real (flujo completo) y Security 155/155. T069 cerrada con aprobación humana el 2026-11-08 (sin revisión independiente); pm-057 `Cerrado`. Pendiente: primera ejecución en GitHub/Azure tras el próximo push.
+
+## pm-033 / T022 — alcance completo (2026-11-08)
+
+- **Estado:** `RequireOwner` ya está aplicado a los endpoints de mascotas (pm-040 a pm-044); NuGet audit en verde; Unit 152, Security 155, Contract 142 e Integration 48/48 con Atlas real y Redis temporales. T022 sigue `En progreso`: faltan la revisión independiente y la aprobación humana.
+- **Nota técnica:** las pruebas de Redis se omiten si la contraseña contiene «ficticio» (las de `.env` lo hacen); para ejecutarlas se usaron dos Redis temporales con contraseñas aleatorias.
+
+## Cierres del 2026-11-08: T012, T026, T027, T028; T066 igualada
+
+- **T012** cerrada con aprobación humana (sin revisión independiente). **T066**: `quality-gate.ps1` bloquea desde High por defecto, igual que CI; sigue pendiente de aprobación.
+- **T026, T027, T028** cerradas con aprobación humana (sin revisión independiente); pm-037 y pm-038 `Cerrado`. Al escribir la evidencia se detectó que faltaban pruebas unitarias de los casos de uso del perfil y una prueba de Atlas para `UpdateProfile`: se añadieron `ProfileHandlersTests` (10) y `Profile_update_persists_only_the_name_and_the_update_date_of_that_user`.
+- **Totales actuales:** Unit 152, Security 155, Contract 142, Integration 48 (Atlas real y Redis temporales).
+
+## Cierres de T022 y T066 (2026-11-08)
+
+- **T022** (pm-033) y **T066** (pm-055) cerradas con aprobación humana, sin revisión independiente; pm-033 `Cerrado`. pm-055 sigue `En progreso` por T067 (ramas protegidas, requiere autorización expresa).
+- **Pendiente:** T071 (interpretación de la autorización de etiquetas) y la primera ejecución en GitHub de los cambios de `pipeline.yml` (imagen chiseled, pruebas negativas del gate SDD).
