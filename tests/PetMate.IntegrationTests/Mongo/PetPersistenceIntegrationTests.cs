@@ -126,4 +126,47 @@ public sealed class PetPersistenceIntegrationTests
         Assert.Equal(1, owner["key"]["ownerId"].ToInt32());
         Assert.Equal(-1, owner["key"]["createdAtUtc"].ToInt32());
     }
+
+    [RequiresEnvironmentFact(Uri, Database)]
+    public async Task Owner_listing_query_is_served_by_the_owner_index()
+    {
+        await using var context = await MongoTestContext.Create();
+        var owner = Guid.NewGuid();
+        for (var i = 0; i < 3; i++)
+        {
+            await context.Pets.Add(NewPet(owner, $"Mascota {i}"), CancellationToken.None);
+            await context.Pets.Add(NewPet(Guid.NewGuid(), $"Ajena {i}"), CancellationToken.None);
+        }
+
+        // Misma forma que ListByOwner: filtro por propietario y orden por fecha de creación descendente.
+        var explain = new BsonDocument("explain", new BsonDocument
+        {
+            { "find", context.Names.Pets },
+            { "filter", new BsonDocument("ownerId", new BsonBinaryData(owner, GuidRepresentation.Standard)) },
+            { "sort", new BsonDocument { { "createdAtUtc", -1 }, { "_id", -1 } } },
+        });
+        var result = await context.Database.RunCommandAsync<BsonDocument>(explain);
+        var winningPlan = result["queryPlanner"]["winningPlan"].ToJson();
+
+        Assert.Contains("IXSCAN", winningPlan, StringComparison.Ordinal);
+        Assert.Contains(MongoIndexInitializer.PetOwnerIndex, winningPlan, StringComparison.Ordinal);
+        Assert.DoesNotContain("COLLSCAN", winningPlan, StringComparison.Ordinal);
+    }
+
+    [RequiresEnvironmentFact(Uri, Database)]
+    public async Task Concurrent_deletes_of_the_same_pet_let_exactly_one_succeed_and_later_updates_find_nothing()
+    {
+        await using var context = await MongoTestContext.Create();
+        var owner = Guid.NewGuid();
+        var pet = NewPet(owner);
+        await context.Pets.Add(pet, CancellationToken.None);
+
+        var results = await Task.WhenAll(Enumerable.Range(0, 5)
+            .Select(_ => context.Pets.DeleteOwned(pet.Id, owner, CancellationToken.None)));
+
+        Assert.Equal(1, results.Count(deleted => deleted));
+        pet.Update(new PetDetails("Max", "Perro", null, null, PetSex.Male, null), DateTime.UtcNow.AddSeconds(1));
+        Assert.False(await context.Pets.UpdateOwned(pet, CancellationToken.None));
+        Assert.Null(await context.Pets.FindOwned(pet.Id, owner, CancellationToken.None));
+    }
 }
