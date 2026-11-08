@@ -509,12 +509,13 @@ jobs:
       - name: Construir imagen
         run: docker build -t petmate-api:ci-${{ github.sha }} .
 
+      # pm-057: cualquier HIGH o CRITICAL bloquea, tenga o no parche publicado (sin ignore-unfixed ni .trivyignore).
+      # La imagen final es "chiseled" (sin shell ni gestor de paquetes) para minimizar paquetes vulnerables.
       - name: Escaneo de la imagen (Trivy, HIGH y CRITICAL bloquean)
         uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: petmate-api:ci-${{ github.sha }}
           severity: CRITICAL,HIGH
-          ignore-unfixed: true
           exit-code: '1'
 
       - name: SBOM (Syft, SPDX)
@@ -592,12 +593,11 @@ jobs:
             -t "$IMAGE" .
           echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
 
-      - name: Escaneo de la imagen (Trivy)
+      - name: Escaneo de la imagen (Trivy, HIGH y CRITICAL bloquean)
         uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: ${{ env.IMAGE }}
           severity: CRITICAL,HIGH
-          ignore-unfixed: true
           exit-code: '1'
 
       - name: Publicar imagen inmutable en ACR

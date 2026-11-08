@@ -7,7 +7,7 @@
 
 | Servicio | Imagen | Rol | Persistencia | Puerto publicado |
 |---|---|---|---|---|
-| `api` | `petmate-api:local` (build del `Dockerfile`, base `dotnet/aspnet:10.0`) | PetMate.Api, usuario no root (UID 1654) | ninguna (stateless) | `127.0.0.1:${API_PORT:-8080}` → 8080 |
+| `api` | `petmate-api:local` (build del `Dockerfile`, base `dotnet/aspnet:10.0-noble-chiseled`: sin shell ni gestor de paquetes; salud por HTTP en `/api/v1/health/live` y `/ready`) | PetMate.Api, usuario no root (UID 1654) | ninguna (stateless) | `127.0.0.1:${API_PORT:-8080}` → 8080 |
 | `redis-auth` | `redis:7.4` | Lista negra de JWT (`jwt:blacklist:{jti}`) | AOF `everysec` en volumen `petmate_redis_auth_data` | ninguno |
 | `redis-cache` | `redis:7.4` | Caché distribuida | ninguna (tmpfs) | ninguno |
 
