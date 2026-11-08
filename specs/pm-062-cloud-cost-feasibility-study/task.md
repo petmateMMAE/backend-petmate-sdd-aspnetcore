@@ -11,11 +11,11 @@
 
 ### T074 — Elaborar el estudio de costos de Azure for Students
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** En progreso (documentada y verificada; pendiente de aprobación humana)
 - **Spec principal:** pm-062
 - **Criterios propios:** pm-062#CA-01, pm-062#CA-02, pm-062#CA-03, pm-062#CA-04, pm-062#CA-05
-- **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.
-- **Fases (sin completar):** [ ] Implementación · [ ] Pruebas · [ ] Revisión independiente · [ ] Documentación · [ ] Aprobación humana
+- **Verificar:** ver [plan.md](plan.md) y la evidencia en [checklists/gates.md](checklists/gates.md).
+- **Fases:** [x] Implementación (documentación) · [x] Pruebas · [ ] Revisión independiente · [x] Documentación · [ ] Aprobación humana
 - **No hacer:** crear recursos Azure reales o que generen cargos sin autorización expresa; cerrar la Task sin aprobación humana.
 
 ## Definition of Done

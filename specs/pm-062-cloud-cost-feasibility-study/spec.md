@@ -1,6 +1,6 @@
 # Spec — pm-062 cloud-cost-feasibility-study
 
-> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L0 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L0 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -33,7 +33,7 @@ Cada criterio se cita como `pm-062#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T074 | Nueva | Propuesto | Elaborar el estudio de costos de Azure for Students |
+| T074 | Nueva | En progreso (documentada y verificada; pendiente de aprobación humana) | Elaborar el estudio de costos de Azure for Students |
 
 Detalle en [task.md](task.md).
 

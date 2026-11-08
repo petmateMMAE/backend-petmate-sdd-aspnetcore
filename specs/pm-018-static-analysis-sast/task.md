@@ -11,7 +11,7 @@
 
 ### T048 — Documentar la evidencia retrospectiva de análisis estático
 - **Tipo:** Retrospectiva
-- **Estado:** Propuesto (retrospectiva por documentar)
+- **Estado:** En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana)
 - **Spec principal:** pm-018
 - **Criterios propios:** pm-018#CA-01, pm-018#CA-02
 - **Origen:** trabajo implementado bajo T012.
@@ -22,7 +22,7 @@
   - Revisión independiente existente: Ninguna revisión independiente existente
 - **Demostrable con la evidencia existente:** CA-01 y CA-02.
 - **Limitaciones:** T012 sigue abierta; la evidencia es local.
-- **Fases (sin completar):** [ ] Documentación de la evidencia revisada · [ ] Revisión independiente · [ ] Aprobación humana
+- **Fases:** [x] Documentación de la evidencia revisada · [ ] Revisión independiente · [ ] Aprobación humana
 - **No hacer:** cerrar la Task sin aprobación humana; añadir evidencia que no exista.
 
 ## Definition of Done

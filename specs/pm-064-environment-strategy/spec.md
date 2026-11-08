@@ -1,6 +1,6 @@
 # Spec — pm-064 environment-strategy
 
-> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L2 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L2 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -31,7 +31,7 @@ Cada criterio se cita como `pm-064#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T076 | Nueva | Propuesto | Definir la estrategia de entornos |
+| T076 | Nueva | En progreso (documentada y verificada; pendiente de aprobación humana) | Definir la estrategia de entornos |
 
 Detalle en [task.md](task.md).
 

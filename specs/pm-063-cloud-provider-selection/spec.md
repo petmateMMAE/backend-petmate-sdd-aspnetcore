@@ -1,6 +1,6 @@
 # Spec — pm-063 cloud-provider-selection
 
-> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L1 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L1 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -32,7 +32,7 @@ Cada criterio se cita como `pm-063#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T075 | Nueva | Propuesto | Registrar la decisión de proveedor y los ADR de servicios Azure |
+| T075 | Nueva | En progreso (documentada y verificada; pendiente de aprobación humana) | Registrar la decisión de proveedor y los ADR de servicios Azure |
 
 Detalle en [task.md](task.md).
 

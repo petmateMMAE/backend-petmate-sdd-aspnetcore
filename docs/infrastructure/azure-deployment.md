@@ -76,6 +76,8 @@ Confianza en el TLS de Redis: el CD hornea el certificado público de la CA en l
 
 ## 4. Estudio de costos (pm-062)
 
+> El estudio completo, con las 15 componentes, fuentes oficiales y fecha de consulta (2026-11-08), clasificación, conversión a MXN, consumo del crédito y el conflicto académico, está en [azure-cost-study.md](azure-cost-study.md). Esta sección conserva el resumen del 2026-11-05.
+
 Consulta: 2026-11-05. Precios de lista en USD; **confirmar en la calculadora de Azure** antes del primer `apply` y registrar el resultado aquí. Moneda de referencia de la constitución: MXN.
 
 | Componente | Servicio | Clasificación (§8.2) | Estimado USD/mes | Fuente |

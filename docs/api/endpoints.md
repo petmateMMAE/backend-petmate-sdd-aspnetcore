@@ -31,10 +31,10 @@ La ruta existe solo para comprobar MVC, Mediator, versionado y OpenAPI. La alter
 
 | Método | Endpoint | Acceso | Spec | Estado |
 |---|---|---|---|---|
-| POST | `/api/v1/auth/register` | Público | `pm-029` / T018 | Implementado (Task cerrada el 2026-11-03; spec en revisión) |
-| POST | `/api/v1/auth/login` | Público | `pm-030` / T019 | Implementado (Task cerrada el 2026-11-03; spec en revisión) |
-| POST | `/api/v1/auth/refresh` | Refresh Token | `pm-031` / T020 | Implementado (Task cerrada el 2026-11-03; spec en revisión) |
-| POST | `/api/v1/auth/logout` | Sesión autenticada | `pm-032` / T021 | Implementado (Task cerrada el 2026-11-03; spec en revisión) |
+| POST | `/api/v1/auth/register` | Público | `pm-029` / T018 | Implementado (cerrado; spec aprobado el 2026-11-08) |
+| POST | `/api/v1/auth/login` | Público | `pm-030` / T019 | Implementado (cerrado; spec aprobado el 2026-11-08) |
+| POST | `/api/v1/auth/refresh` | Refresh Token | `pm-031` / T020 | Implementado (cerrado; spec aprobado el 2026-11-08) |
+| POST | `/api/v1/auth/logout` | Sesión autenticada | `pm-032` / T021 | Implementado (cerrado; spec aprobado el 2026-11-08) |
 
 ### Contratos de autenticación
 
@@ -110,8 +110,8 @@ Requiere `Authorization: Bearer <access token vigente>`. Si el access token expi
 
 | Método | Endpoint | Acceso | Spec | Estado |
 |---|---|---|---|---|
-| GET | `/api/v1/users/me/get` | Autenticado | `pm-037` / T026 | Implementado (pendiente de cierre humano) |
-| PUT | `/api/v1/users/me/update` | Autenticado | `pm-038` / T027 | Implementado (pendiente de cierre humano) |
+| GET | `/api/v1/users/me/get` | Autenticado | `pm-037` / T026 | Implementado (cerrado el 2026-11-08) |
+| PUT | `/api/v1/users/me/update` | Autenticado | `pm-038` / T027 | Implementado (cerrado el 2026-11-08) |
 
 ### Contratos de perfil
 
@@ -142,7 +142,7 @@ Cuerpo: `{ "displayName": "Ana Pérez" }`. Se recorta; de 1 a 80 caracteres, sin
 | Método | Endpoint | Acceso | Spec | Estado |
 |---|---|---|---|---|
 | POST | `/api/v1/pets/create` | Owner | `pm-040` | Implementado (cerrado) |
-| GET | `/api/v1/pets/get-all` | Owner | `pm-041` / `pm-047` | Implementado (en progreso) |
+| GET | `/api/v1/pets/get-all` | Owner | `pm-041` / `pm-047` | Implementado (cerrado) |
 | GET | `/api/v1/pets/get-by-id/{id}` | Owner + propietario | `pm-042` | Implementado (cerrado) |
 | PUT | `/api/v1/pets/update/{id}` | Owner + propietario | `pm-043` | Implementado (cerrado) |
 | DELETE | `/api/v1/pets/delete/{id}` | Owner + propietario | `pm-044` | Implementado (cerrado) |
@@ -180,6 +180,18 @@ Todas las respuestas de límite son **429** con el Response Wrapper y la cabecer
 | `GET health/live`, `GET health/ready` | — | sin límite: sondas del balanceador (`ready` consulta dependencias; riesgo aceptado y revisable) | — |
 | `GET technical/mediator-probe` | — | sin límite: endpoint técnico público temporal (pm-033, P-04) | — |
 | OpenAPI y Scalar | — | solo existen en Development | — |
+
+## Reglas de nombrado de rutas
+
+Reglas para todo recurso actual y futuro (pm-007 CA-05). `RouteCatalogTests` (ContractTests) las verifica sobre los controladores reales y comprueba que el catálogo y el código tengan exactamente las mismas rutas:
+
+- Toda ruta de negocio empieza por `/api/v1`; la alternativa no versionada no se mapea. Un cambio incompatible del contrato abre `/api/v2` con su propia decisión.
+- Forma: `/api/v1/{recurso}/{acción}` o `/api/v1/{recurso}/{acción}/{id}`. La acción aparece de forma **literal** en la ruta (`create`, `get-all`, `get-by-id`, `update`, `delete`, `login`, ...) y el verbo HTTP la acompaña.
+- Recurso y acción en **minúsculas con guiones** (`pets`, `get-by-id`); un recurso es un sustantivo en plural cuando es una colección (`pets`, `users`) o un nombre de capacidad (`auth`, `health`, `technical`).
+- Un parámetro de ruta solo puede ser `{id}` (en el código `{id:guid}`), va al final y nunca sustituye a la acción.
+- Subrecurso intermedio permitido: solo `me` (`/api/v1/users/me/get`, el perfil del usuario autenticado). Añadir otro exige actualizar esta sección y la prueba.
+- Sin barra final, sin dobles barras y sin mayúsculas. Los endpoints técnicos no funcionales (`/api/v1/technical/...`) se marcan como tales en el catálogo.
+- Todo endpoint nuevo exige una fila en este catálogo, su valor en la matriz del pipeline (`EndpointTraitTests`) y su fila en `docs/testing/endpoints.md`.
 
 ## Códigos HTTP iniciales
 

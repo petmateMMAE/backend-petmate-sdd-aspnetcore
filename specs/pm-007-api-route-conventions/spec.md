@@ -1,6 +1,6 @@
 # Spec — pm-007 api-route-conventions
 
-> Estado: En revisión | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -32,8 +32,8 @@ Cada criterio se cita como `pm-007#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T042 | Retrospectiva | Propuesto (retrospectiva por documentar) | Documentar la evidencia retrospectiva de rutas versionadas |
-| T055 | Nueva | Propuesto | Verificar automáticamente rutas contra el catálogo y documentar reglas de nombrado |
+| T042 | Retrospectiva | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva de rutas versionadas |
+| T055 | Nueva | En progreso (implementada y verificada; pendiente de aprobación humana) | Verificar automáticamente rutas contra el catálogo y documentar reglas de nombrado |
 
 Detalle en [task.md](task.md).
 
@@ -43,7 +43,7 @@ Detalle en [task.md](task.md).
 
 ## 7. Aprobación
 
-- [ ] Requisitos y criterios revisados por el usuario.
-- [ ] Constitución cumplida.
-- Revisor/usuario: pendiente.
+- [x] Requisitos y criterios revisados por el usuario.
+- [x] Constitución cumplida.
+- Revisor/usuario: usuario del proyecto, aprobado el 2026-11-08.
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec. La evidencia histórica de esta funcionalidad permanece en `specs/_historico/`.

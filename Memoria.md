@@ -429,3 +429,21 @@
 - **El usuario aprobó explícitamente el primer hito** (11 endpoints: 4 de autenticación y 7 funcionales); T041 y pm-046 `Cerrado`. Evidencia: `specs/pm-046-first-milestone-acceptance/checklists/gates.md` y `scripts/acceptance-milestone.ps1` (39/39).
 - **Estado del código:** local en `feature/pm-039-pet-model`; lo último subido a `origin/developer` es `b6efa1e`. Quedan cambios sin confirmar (límites de autenticación, cuota por correo, tests, documentación SDD y el script de aceptación).
 - **Pendiente:** hallazgos H3, H4, H6, H7, H8 e I2 (decisión), primera ejecución del pipeline en GitHub (imagen chiseled, límites, gate SDD) y despliegue a Azure con esta versión, specs base «En revisión» (pm-011, pm-013, pm-024 a pm-027, etc.) y la observación de pm-052.
+
+## Specs base aprobados (2026-11-08)
+
+- **Aprobados los 27 specs de pm-001 a pm-027** que seguían «En revisión»: 15 `Cerrado` (Task histórica cerrada) y 12 `Aprobado` (pm-007, pm-010, pm-013, pm-014, pm-015, pm-017 a pm-021, pm-023 y pm-025). Ya no queda ningún spec «En revisión».
+- **Pendiente:** Tasks retrospectivas T042 a T053 (documentar la evidencia existente), T055 (verificación automática de rutas y reglas de nombrado, pm-007) y T097 (evidencia contra la falsificación de `X-Forwarded-For`, pm-017). Aprobar un spec no las cierra.
+
+## Retrospectivas T042–T053 y tareas nuevas T055 y T097 (2026-11-08)
+
+- **Documentadas** las 12 retrospectivas (T042 a T053) con tabla criterio → prueba y sus limitaciones; **construidas** T055 (comprobación automática catálogo ↔ rutas y reglas de nombrado, `RouteCatalogTests`) y T097 (`ForwardedHeadersSpoofingTests`: un cliente no confiable no evade el límite por IP con `X-Forwarded-For`; control positivo con proxy listado).
+- **Totales:** Unit 188/188, Security 170/170, Contract 179/179, Integration 56/56. Evidencia directa de la imagen: usuario 1654, sin shell, Trivy de secretos y de vulnerabilidades sin hallazgos.
+- **Pendiente de aprobación humana:** T042 a T053, T055 y T097 (una retrospectiva no puede marcarse «Cerrado» por regla del gate SDD). Cobertura parcial: pm-010 CA-03 (cancelación del cliente) sin prueba directa.
+
+## Cadena documental de Azure — T074, T075, T076 (2026-11-08)
+
+- **T074 (pm-062):** `docs/infrastructure/azure-cost-study.md` con 15 componentes, fuentes oficiales consultadas el 2026-11-08 (varias páginas de precios son dinámicas y no cargaron: marcadas), tipo de cambio 18.652374 MXN/USD, consumo del crédito (completo ~3.7 meses, modo ahorro ~7 meses) y conflicto académico documentado (12 meses completos exceden el crédito; no se reducen requisitos).
+- **T075 (pm-063):** ADR-005 a ADR-010 (balanceo, almacenamiento, CDN, observabilidad, registro, secretos) con alternativas dentro de Azure, e índice `docs/decisions/README.md`; ADR-003 sigue cubriendo cómputo y Redis. Siguen «Propuesto».
+- **T076 (pm-064):** `docs/infrastructure/environments.md` (desarrollo, pruebas, demo; bases `petmate_dev`, `petmate_test`, `petmate_prod`; nombres y etiquetas) con `EnvironmentStrategyTests` y `DecisionRecordsTests` (Security 177). No se creó ni se consultó ningún recurso de Azure.
+- **Pendiente:** aprobación humana de T074, T075 y T076; confirmar en la calculadora los precios que no cargaron y leer el consumo real en Cost Management.
