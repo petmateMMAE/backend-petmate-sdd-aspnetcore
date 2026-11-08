@@ -338,3 +338,10 @@
 - **Cambio:** dos pruebas nuevas de integración en `PetPersistenceIntegrationTests`: la consulta de listado usa el índice `ix_pets_ownerId_createdAtUtc` (`explain`, IXSCAN, sin COLLSCAN) y el borrado concurrente de la misma mascota tiene un solo ganador.
 - **Evidencia:** Unit 142/142; Integration 32 aprobadas + 15 omitidas por Redis, con las 8 de mascotas en verde contra Atlas; build Release 0/0. Detalle en `specs/pm-039-pet-domain-persistence/checklists/gates.md`.
 - **Riesgo menor:** el desempate por `_id` en `ListByOwner` no está en el índice (orden en memoria); revisar en pm-052.
+
+## Grupo de CI — T066, T069, T070, T071, T072 (2026-11-08)
+
+- **Estado:** verificadas y en `En progreso`; falta revisión independiente y aprobación humana. T012 y T067 sin cambios.
+- **Cambios:** `check-sdd.ps1` valida CA duplicados, Tasks con más de un Spec principal y trazabilidad completa por criterio; nuevo `check-sdd.tests.ps1` (8 casos) y su paso en el job `sdd-integrity`; resumen de la puerta de calidad sin el conteo fijo de endpoints; `version-matrix.md` corregida (la etiqueta la crea el CD).
+- **Decisiones pendientes del usuario:** (1) Trivy de imagen con `ignore-unfixed: true` (T069); (2) NuGet bloquea desde `High` en CI y desde `Low` en local (T066); (3) aceptar el merge/push a `main` como autorización expresa de la etiqueta (T071).
+- **Limitación:** los cambios de `pipeline.yml` no se han ejecutado en GitHub porque no se ha hecho push.

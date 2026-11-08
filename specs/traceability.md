@@ -235,22 +235,22 @@
 | pm-054#CA-01 | T065 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-054#CA-02 | T065 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-054#CA-03 | T065 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-055#CA-01 | T066 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-055#CA-02 | T066 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-055#CA-01 | T066 | Nueva | En progreso | [gates](pm-055-ci-pull-request-pipeline/checklists/gates.md) |
+| pm-055#CA-02 | T066 | Nueva | En progreso | [gates](pm-055-ci-pull-request-pipeline/checklists/gates.md) |
 | pm-055#CA-03 | T067 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-055#CA-04 | T067 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-056#CA-01 | T068 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-056#CA-02 | T068 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-057#CA-01 | T069 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-057#CA-02 | T069 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-058#CA-01 | T070 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-058#CA-02 | T070 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-059#CA-01 | T071 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-059#CA-02 | T071 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-059#CA-03 | T071 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-060#CA-01 | T072 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-060#CA-02 | T072 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-060#CA-03 | T072 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-057#CA-01 | T069 | Nueva | En progreso | [gates](pm-057-container-image-scan/checklists/gates.md) |
+| pm-057#CA-02 | T069 | Nueva | En progreso | [gates](pm-057-container-image-scan/checklists/gates.md) |
+| pm-058#CA-01 | T070 | Nueva | En progreso | [gates](pm-058-sbom-generation/checklists/gates.md) |
+| pm-058#CA-02 | T070 | Nueva | En progreso | [gates](pm-058-sbom-generation/checklists/gates.md) |
+| pm-059#CA-01 | T071 | Nueva | En progreso | [gates](pm-059-release-versioning/checklists/gates.md) |
+| pm-059#CA-02 | T071 | Nueva | En progreso | [gates](pm-059-release-versioning/checklists/gates.md) |
+| pm-059#CA-03 | T071 | Nueva | En progreso | [gates](pm-059-release-versioning/checklists/gates.md) |
+| pm-060#CA-01 | T072 | Nueva | En progreso | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
+| pm-060#CA-02 | T072 | Nueva | En progreso | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
+| pm-060#CA-03 | T072 | Nueva | En progreso | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
 | pm-061#CA-01 | T024 | Histórica | Propuesto | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-061#CA-02 | T039 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
 | pm-061#CA-03 | T073 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |

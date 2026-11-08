@@ -11,11 +11,11 @@
 
 ### T071 — Definir el versionado de releases
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** En progreso (verificada; pendiente de revisión independiente y aprobación humana)
 - **Spec principal:** pm-059
 - **Criterios propios:** pm-059#CA-01, pm-059#CA-02, pm-059#CA-03
-- **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.
-- **Fases (sin completar):** [ ] Implementación · [ ] Pruebas · [ ] Revisión independiente · [ ] Documentación · [ ] Aprobación humana
+- **Verificar:** ver [plan.md](plan.md) y la evidencia en [checklists/gates.md](checklists/gates.md).
+- **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente · [x] Documentación · [ ] Aprobación humana
 - **No hacer:** cerrar la Task sin aprobación humana.
 
 ## Definition of Done
