@@ -42,26 +42,26 @@
 | [pm-025-refresh-sessions-persistence](pm-025-refresh-sessions-persistence/spec.md) | En revisión | L3 | pm-012, pm-023 | T053 | Sesiones y tokens en Atlas con hash único, consumo atómico y TTL |
 | [pm-026-password-hashing-argon2id](pm-026-password-hashing-argon2id/spec.md) | En revisión | L2 | pm-022 | T015 | Hash Argon2id con salt, parámetros mínimos, rehash y concurrencia acotada |
 | [pm-027-access-token-jwt](pm-027-access-token-jwt/spec.md) | En revisión | L2 | pm-004, pm-022 | T016 | Emisión y validación de JWT HS256 de corta vida y configuración segura |
-| [pm-028-token-revocation-redis](pm-028-token-revocation-redis/spec.md) | En revisión | L3 | pm-013, pm-027 | T017 | Lista negra de `jti` en Redis Auth con TTL y falla cerrada |
-| [pm-029-user-registration](pm-029-user-registration/spec.md) | En revisión | L6 | pm-011, pm-024, pm-025, pm-026, pm-027 | T018 | `POST /api/v1/auth/register` que crea siempre un Owner |
-| [pm-030-user-login](pm-030-user-login/spec.md) | En revisión | L6 | pm-011, pm-024, pm-025, pm-026, pm-027 | T019 | `POST /api/v1/auth/login` con respuesta idéntica ante credenciales inválidas |
-| [pm-031-refresh-token-rotation](pm-031-refresh-token-rotation/spec.md) | En revisión | L7 | pm-025, pm-027, pm-030 | T020 | `POST /api/v1/auth/refresh` con rotación atómica y detección de replay |
-| [pm-032-user-logout](pm-032-user-logout/spec.md) | En revisión | L8 | pm-028, pm-031 | T021 | `POST /api/v1/auth/logout` que revoca sesión y `jti` |
+| [pm-028-token-revocation-redis](pm-028-token-revocation-redis/spec.md) | Cerrado | L3 | pm-013, pm-027 | T017 | Lista negra de `jti` en Redis Auth con TTL y falla cerrada |
+| [pm-029-user-registration](pm-029-user-registration/spec.md) | Cerrado | L6 | pm-011, pm-024, pm-025, pm-026, pm-027 | T018 | `POST /api/v1/auth/register` que crea siempre un Owner |
+| [pm-030-user-login](pm-030-user-login/spec.md) | Cerrado | L6 | pm-011, pm-024, pm-025, pm-026, pm-027 | T019 | `POST /api/v1/auth/login` con respuesta idéntica ante credenciales inválidas |
+| [pm-031-refresh-token-rotation](pm-031-refresh-token-rotation/spec.md) | Cerrado | L7 | pm-025, pm-027, pm-030 | T020 | `POST /api/v1/auth/refresh` con rotación atómica y detección de replay |
+| [pm-032-user-logout](pm-032-user-logout/spec.md) | Cerrado | L8 | pm-028, pm-031 | T021 | `POST /api/v1/auth/logout` que revoca sesión y `jti` |
 | [pm-033-authorization-policies](pm-033-authorization-policies/spec.md) | Cerrado | L4 | pm-027, pm-028 | T022 | Política de autorización por defecto y por rol Owner/Business |
-| [pm-034-auth-brute-force-protection](pm-034-auth-brute-force-protection/spec.md) | Propuesto | L9 | pm-030, pm-031, pm-036 | T023, T056 | Cuota por correo y bloqueo contra credential stuffing, y limitador asíncrono de hashing |
-| [pm-035-auth-session-lifecycle-acceptance](pm-035-auth-session-lifecycle-acceptance/spec.md) | Propuesto | L10 | pm-028, pm-029, pm-030, pm-031, pm-032, pm-033, pm-034 | T025 | Escenarios de ciclo de vida de sesión entre endpoints y cierre del grupo de autenticación |
-| [pm-036-rate-limiting](pm-036-rate-limiting/spec.md) | En revisión | L8 | pm-017, pm-029, pm-030, pm-031 | T054, T057 | Límites por política y por IP, auth ya implementado y matriz global pendiente |
+| [pm-034-auth-brute-force-protection](pm-034-auth-brute-force-protection/spec.md) | Cerrado | L9 | pm-030, pm-031, pm-036 | T023, T056 | Cuota por correo y bloqueo contra credential stuffing, y limitador asíncrono de hashing |
+| [pm-035-auth-session-lifecycle-acceptance](pm-035-auth-session-lifecycle-acceptance/spec.md) | Cerrado | L10 | pm-028, pm-029, pm-030, pm-031, pm-032, pm-033, pm-034 | T025 | Escenarios de ciclo de vida de sesión entre endpoints y cierre del grupo de autenticación |
+| [pm-036-rate-limiting](pm-036-rate-limiting/spec.md) | Verificado | L8 | pm-017, pm-029, pm-030, pm-031 | T054, T057 | Límites por política y por IP, y matriz de límites para los endpoints no autenticación |
 | [pm-037-owner-profile-read](pm-037-owner-profile-read/spec.md) | Cerrado | L5 | pm-024, pm-033 | T026 | `GET /api/v1/users/me/get` del usuario autenticado |
 | [pm-038-owner-profile-update](pm-038-owner-profile-update/spec.md) | Cerrado | L6 | pm-037 | T027, T028 | `PUT /api/v1/users/me/update` con campos aprobados |
 | [pm-039-pet-domain-persistence](pm-039-pet-domain-persistence/spec.md) | Cerrado | L5 | pm-012, pm-033 | T029, T036, T037 | Modelo Pet, validadores, persistencia e índice por propietario |
 | [pm-040-pet-create](pm-040-pet-create/spec.md) | Cerrado | L6 | pm-039 | T030 | `POST /api/v1/pets/create` con propietario tomado del token |
-| [pm-041-pet-list](pm-041-pet-list/spec.md) | En progreso | L6 | pm-039, pm-047 | T031 | `GET /api/v1/pets/get-all` solo de mascotas propias, paginado |
+| [pm-041-pet-list](pm-041-pet-list/spec.md) | Cerrado | L6 | pm-039, pm-047 | T031 | `GET /api/v1/pets/get-all` solo de mascotas propias, paginado |
 | [pm-042-pet-detail](pm-042-pet-detail/spec.md) | Cerrado | L6 | pm-039 | T032 | `GET /api/v1/pets/get-by-id/{id}` solo de mascota propia |
 | [pm-043-pet-update](pm-043-pet-update/spec.md) | Cerrado | L6 | pm-039 | T033 | `PUT /api/v1/pets/update/{id}` de mascota propia con campos permitidos |
 | [pm-044-pet-soft-delete](pm-044-pet-soft-delete/spec.md) | Cerrado | L6 | pm-039 | T034 | `DELETE /api/v1/pets/delete/{id}` con borrado físico y `data:null` |
-| [pm-045-pet-ownership-bola](pm-045-pet-ownership-bola/spec.md) | En progreso | L7 | pm-040, pm-041, pm-042, pm-043, pm-044 | T035, T038, T040 | Matriz de propiedad y BOLA del módulo de mascotas y cierre de seguridad del módulo |
-| [pm-046-first-milestone-acceptance](pm-046-first-milestone-acceptance/spec.md) | Propuesto | L11 | pm-035, pm-038, pm-045 | T041 | Aceptación de extremo a extremo de los 11 endpoints del primer hito |
-| [pm-047-pagination-convention](pm-047-pagination-convention/spec.md) | En progreso | L4 | pm-009 | T058 | Parámetros, tope y forma de paginación en listados |
+| [pm-045-pet-ownership-bola](pm-045-pet-ownership-bola/spec.md) | Cerrado | L7 | pm-040, pm-041, pm-042, pm-043, pm-044 | T035, T038, T040 | Matriz de propiedad y BOLA del módulo de mascotas y cierre de seguridad del módulo |
+| [pm-046-first-milestone-acceptance](pm-046-first-milestone-acceptance/spec.md) | Cerrado | L11 | pm-035, pm-038, pm-045 | T041 | Aceptación de extremo a extremo de los 11 endpoints del primer hito |
+| [pm-047-pagination-convention](pm-047-pagination-convention/spec.md) | Cerrado | L4 | pm-009 | T058 | Parámetros, tope y forma de paginación en listados |
 | [pm-048-response-compression](pm-048-response-compression/spec.md) | Propuesto | L4 | pm-009 | T059 | Compresión de respuestas con evaluación de riesgos |
 | [pm-049-json-serialization-performance](pm-049-json-serialization-performance/spec.md) | Propuesto | L4 | pm-009 | T060 | Serialización JSON eficiente con medición |
 | [pm-050-distributed-cache-infrastructure](pm-050-distributed-cache-infrastructure/spec.md) | Propuesto | L3 | pm-013 | T061 | Adaptador de caché sobre Redis Cache, claves, TTL y política de falla |
@@ -146,25 +146,25 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T020 | Histórica | [pm-031](pm-031-refresh-token-rotation/spec.md) | Cerrado y aprobado (2026-11-03, aprobación humana) | Refresh Token persistente y rotatorio |
 | T021 | Histórica | [pm-032](pm-032-user-logout/spec.md) | Cerrado y aprobado (2026-11-03, aprobación humana) | Endpoint Logout |
 | T022 | Histórica | [pm-033](pm-033-authorization-policies/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Políticas de autenticación y autorización |
-| T023 | Histórica | [pm-034](pm-034-auth-brute-force-protection/spec.md) | Propuesto | Pruebas unitarias, integración y seguridad de auth |
+| T023 | Histórica | [pm-034](pm-034-auth-brute-force-protection/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas unitarias, integración y seguridad de auth |
 | T024 | Histórica | [pm-061](pm-061-api-docs-contract-sync/spec.md) | Propuesto | Contratos y documentación de auth |
-| T025 | Histórica | [pm-035](pm-035-auth-session-lifecycle-acceptance/spec.md) | Propuesto | Gates y revisión independiente de auth |
+| T025 | Histórica | [pm-035](pm-035-auth-session-lifecycle-acceptance/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Gates y revisión independiente de auth |
 | T026 | Histórica | [pm-037](pm-037-owner-profile-read/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar GET perfil propio |
 | T027 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar PUT perfil propio |
 | T028 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas y gates de perfil |
 | T029 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Definir modelo Pet y persistencia |
 | T030 | Histórica | [pm-040](pm-040-pet-create/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Crear mascota |
-| T031 | Histórica | [pm-041](pm-041-pet-list/spec.md) | En progreso | Listar mascotas |
+| T031 | Histórica | [pm-041](pm-041-pet-list/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Listar mascotas |
 | T032 | Histórica | [pm-042](pm-042-pet-detail/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Obtener detalle |
 | T033 | Histórica | [pm-043](pm-043-pet-update/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Actualizar mascota |
 | T034 | Histórica | [pm-044](pm-044-pet-soft-delete/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Eliminar mascota |
-| T035 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | En progreso | Asegurar autorización y ownership |
+| T035 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Asegurar autorización y ownership |
 | T036 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas unitarias Pet |
 | T037 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas de integración Atlas |
-| T038 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | En progreso | Pruebas de seguridad Pet |
+| T038 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas de seguridad Pet |
 | T039 | Histórica | [pm-061](pm-061-api-docs-contract-sync/spec.md) | Propuesto | Pruebas de contrato y documentación |
-| T040 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | En progreso | Gates y revisión independiente Pet |
-| T041 | Histórica | [pm-046](pm-046-first-milestone-acceptance/spec.md) | Propuesto | Validación end-to-end y aceptación del primer hito |
+| T040 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Gates y revisión independiente Pet |
+| T041 | Histórica | [pm-046](pm-046-first-milestone-acceptance/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Validación end-to-end y aceptación del primer hito |
 | T042 | Retrospectiva | [pm-007](pm-007-api-route-conventions/spec.md) | Propuesto (retrospectiva por documentar) | Documentar la evidencia retrospectiva de rutas versionadas |
 | T043 | Retrospectiva | [pm-010](pm-010-global-exception-handling/spec.md) | Propuesto (retrospectiva por documentar) | Documentar la evidencia retrospectiva del manejo global de excepciones |
 | T044 | Retrospectiva | [pm-013](pm-013-redis-dual-connectivity/spec.md) | Propuesto (retrospectiva por documentar) | Documentar la evidencia retrospectiva de conectividad Redis dual |
@@ -177,11 +177,11 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T051 | Retrospectiva | [pm-021](pm-021-local-quality-gate/spec.md) | Propuesto (retrospectiva por documentar) | Documentar la evidencia retrospectiva del gate de calidad local |
 | T052 | Retrospectiva | [pm-023](pm-023-refresh-session-domain/spec.md) | Propuesto (retrospectiva por documentar) | Documentar la evidencia retrospectiva del dominio de sesiones |
 | T053 | Retrospectiva | [pm-025](pm-025-refresh-sessions-persistence/spec.md) | Propuesto (retrospectiva por documentar) | Documentar la evidencia retrospectiva de la persistencia de sesiones |
-| T054 | Retrospectiva | [pm-036](pm-036-rate-limiting/spec.md) | Propuesto (retrospectiva por documentar) | Documentar la evidencia retrospectiva del rate limiting de autenticación |
+| T054 | Retrospectiva | [pm-036](pm-036-rate-limiting/spec.md) | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva del rate limiting de autenticación |
 | T055 | Nueva | [pm-007](pm-007-api-route-conventions/spec.md) | Propuesto | Verificar automáticamente rutas contra el catálogo y documentar reglas de nombrado |
-| T056 | Nueva | [pm-034](pm-034-auth-brute-force-protection/spec.md) | Propuesto | Implementar cuota por correo, bloqueo y limitador asíncrono de hashing |
-| T057 | Nueva | [pm-036](pm-036-rate-limiting/spec.md) | Propuesto | Definir la matriz de rate limiting para endpoints no autenticación |
-| T058 | Nueva | [pm-047](pm-047-pagination-convention/spec.md) | En progreso | Implementar la convención de paginación |
+| T056 | Nueva | [pm-034](pm-034-auth-brute-force-protection/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar cuota por correo, bloqueo y limitador asíncrono de hashing |
+| T057 | Nueva | [pm-036](pm-036-rate-limiting/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Definir la matriz de rate limiting para endpoints no autenticación |
+| T058 | Nueva | [pm-047](pm-047-pagination-convention/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar la convención de paginación |
 | T059 | Nueva | [pm-048](pm-048-response-compression/spec.md) | Propuesto | Implementar y evaluar la compresión HTTP |
 | T060 | Nueva | [pm-049](pm-049-json-serialization-performance/spec.md) | Propuesto | Optimizar y medir la serialización JSON |
 | T061 | Nueva | [pm-050](pm-050-distributed-cache-infrastructure/spec.md) | Propuesto | Implementar el adaptador de caché distribuida sobre Redis Cache |
@@ -254,3 +254,10 @@ Los cuatro endpoints de autenticación y los siete endpoints funcionales (11 en 
 - **2026-11-08 — pm-041, pm-045, pm-047:** specs aprobados por el usuario (`Aprobado`). Valores de paginación aprobados en pm-047 §6: `page` desde 1, `pageSize` 20 por defecto y 50 como máximo, respuesta con `items`, `page`, `pageSize`, `totalCount` y `totalPages`. Las Tasks T058, T031, T035, T038 y T040 siguen `Propuesto` hasta que se autorice su implementación.
 - **2026-11-08 — T058, T031, T035, T038, T040 (pm-047, pm-041, pm-045):** implementación autorizada por el usuario; pasan a `En progreso` con `plan.md` y `checklists/gates.md`. T058, T031, T035 y T038 están verificadas y esperan aprobación humana; T040 espera además la revisión independiente del módulo. Queda implementado `GET /api/v1/pets/get-all` (paginado), uno de los 11 endpoints del primer hito; la API suma 14 endpoints.
 - **2026-11-08 — pm-045 CA-04 (T035):** criterio añadido con aprobación del usuario tras la revisión de seguridad: máximo 100 mascotas por propietario, 60 peticiones por minuto por usuario en `/api/v1/pets/*` y 16 KB de cuerpo. La propiedad del criterio es de T035; ningún otro criterio cambió de Task.
+- **2026-11-08 — T031, T035, T038, T040, T058:** cierre aprobado por el usuario; pm-041, pm-045 y pm-047 pasan a `Cerrado`. La revisión independiente del módulo de mascotas se realizó el mismo día (ver pm-045 gates).
+- **2026-11-08 — pm-034, pm-035, pm-036:** specs aprobados por el usuario. pm-034 y pm-036 pasan a `En progreso` con T056, T057 y T054 implementadas/documentadas y pendientes de aprobación; pm-035 queda `Aprobado` (T025 sin iniciar). Valores de pm-034 aprobados: 5 fallos de login por correo en 15 minutos (el sexto bloquea 15 minutos), 30 refrescos por usuario en 15 minutos y hashing acotado a los núcleos con cola del doble. T023, T025 y T041 siguen abiertas.
+- **2026-11-08 — T054, T056, T057:** cierre aprobado por el usuario (sin revisión independiente de las Tasks); T054 queda «Aprobada y documentada» (el gate SDD prohíbe marcar una retrospectiva como «Cerrado»); T056 y T057 quedan cerradas y pm-036 pasa a `Verificado`. pm-034 sigue `En progreso` hasta cerrar T023.
+- **2026-11-08 — T023 y T025:** implementadas/verificadas con la revisión independiente del grupo de autenticación (seguridad: apto con observaciones; trazabilidad: consistente con observaciones). Se corrigieron H1, H2 y H5 y una carrera del script de Redis; quedan abiertos H3, H4, H6, H7, H8 e I2 para decisión. pm-035 pasa a `En progreso`; T025 no puede cerrarse hasta aprobar pm-028 a pm-032.
+- **2026-11-08 — pm-028 a pm-032, T023 y T025:** specs pm-028 a pm-032 aprobados (sus Tasks T017 a T021 ya estaban cerradas); T023 y T025 cerradas con aprobación humana; pm-034 y pm-035 pasan a `Cerrado`. Con esto el grupo de autenticación queda cerrado salvo los hallazgos H3, H4, H6, H7, H8 e I2, pendientes de decisión (ver pm-034 gates). T041 (pm-046) pasa a depender solo de la aprobación de su propio spec.
+- **2026-11-08 — pm-046 / T041:** spec aprobado por el usuario; validación de extremo a extremo de los 11 endpoints realizada y en verde (39/39, imagen chiseled, Atlas y Redis reales; suites y escaneos en verde). T041 queda `En progreso` hasta la aprobación humana explícita del hito (CA-02).
+- **2026-11-08 — T041 / pm-046:** el usuario aprobó explícitamente el primer hito; T041 y pm-046 pasan a `Cerrado`. Primer hito (11 endpoints) aceptado. Quedan pendientes los hallazgos de seguridad H3, H4, H6, H7, H8 e I2, la ejecución del pipeline en GitHub y el despliegue en Azure con esta versión, y los specs base «En revisión».

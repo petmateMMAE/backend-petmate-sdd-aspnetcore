@@ -388,3 +388,44 @@
 - **Implementado por decisión del usuario** (riesgos S1 y S2 de la revisión de seguridad; pm-045 CA-04): máximo 100 mascotas por propietario (409), política `pets` de 60 peticiones por minuto por usuario (`PETS_RATE_LIMIT_PER_MINUTE`, 429 con `Retry-After`) y 16 KB de cuerpo para toda la API (`RequestBodyLimitMiddleware`, 413, incluso fragmentado).
 - **Verificación:** Unit 174/174, Security 166/166, Contract 163/163, Integration 49/49; en Kestrel real con la imagen chiseled (413 con y sin `Content-Length`, 429 tras 60).
 - **Estado:** T035, T038 y T040 siguen pendientes de aprobación humana; T031 y T058 también.
+
+## Cierre del módulo de mascotas (2026-11-08)
+
+- **T031, T035, T038, T040 y T058** cerradas con aprobación humana; pm-041, pm-045 y pm-047 `Cerrado`. Con ellas, pm-039 a pm-045 y pm-047 están cerrados: solo queda abierta T041 (pm-046), bloqueada por pm-035, pm-034 y pm-036.
+- **Observación abierta menor:** el desempate por `_id` del orden de `ListByOwner` no está en el índice (revisar en pm-052).
+
+## Protección contra fuerza bruta y matriz de límites — T056, T057, T054 (2026-11-08)
+
+- **Aprobados por el usuario:** pm-034, pm-035 y pm-036. Valores de T056: login 5 fallos por correo/15 min (el sexto bloquea 15 min, también con la contraseña correcta), refresh 30 por usuario/15 min, hashing acotado a los núcleos con cola del doble; contadores en Redis de autenticación (solo hashes) y falla cerrada (503).
+- **T057:** matriz en `docs/api/endpoints.md`; nueva política `users` (60 por minuto, `USERS_RATE_LIMIT_PER_MINUTE`). **T054:** retrospectiva documentada con la evidencia existente.
+- **Totales:** Unit 186/186, Security 169/169, Contract 168/168, Integration 53/53; verificado con Kestrel y Redis reales (401×5, 429 con `Retry-After: 900`).
+- **Pendiente:** aprobación de T056, T057 y T054; T023, T025 (con revisión independiente del grupo de autenticación) y T041 siguen abiertas. pm-028 a pm-032 siguen «En revisión» y son dependencias formales de pm-035.
+- **Riesgo conocido:** el bloqueo por correo permite bloquear temporalmente la cuenta de otra persona; lo acota el límite por IP.
+
+## Cierre de T054, T056 y T057 (2026-11-08)
+
+- T056 y T057 cerradas con aprobación humana; T054 (retrospectiva) aprobada y documentada, sin estado «Cerrado» porque `check-sdd.ps1` lo prohíbe para retrospectivas; pm-036 `Verificado`; pm-034 `En progreso` (falta T023). Pendientes del camino a T041: T023, T025 (con la revisión independiente del grupo de autenticación) y T041.
+
+## T023 y T025 — grupo de autenticación (2026-11-08)
+
+- **Revisión independiente** (dos agentes de solo lectura): seguridad apto con observaciones, trazabilidad consistente con observaciones. **Corregido:** conteo del intento antes de verificar (H1), cupo del limitador liberado al terminar el hash (H2), límite por usuario en logout (H5) y el script de Redis ya no reinicia el contador durante un bloqueo (hallado con Redis real). Documentación al día (ASVS, endpoints, registro).
+- **Totales:** Unit 188/188, Security 170/170, Contract 170/170, Integration 56/56.
+- **Abiertos para decisión del usuario:** H3 (bloqueo dirigido), H4 (registro enumerable), H6 (`TRUSTED_PROXIES` y límite por instancia), H7 (access tokens vivos hasta 15 minutos tras replay), H8 (sin ventana de gracia del refresh) e I2 (sin log de eventos de seguridad ni `no-store`).
+- **Bloqueo de T025 y T041:** pm-028 a pm-032 siguen «En revisión» y son dependencias formales de pm-035; T023 y T025 esperan aprobación humana.
+
+## Cierre del grupo de autenticación (2026-11-08)
+
+- **Aprobados:** specs pm-028 a pm-032; **cerradas:** T023 y T025; **pm-034 y pm-035 `Cerrado`**. Las dependencias de pm-046 (pm-035, pm-038 y pm-045) están cerradas.
+- **Abiertos para decisión:** H3, H4, H6, H7, H8 e I2 de la revisión de seguridad (ver `specs/pm-034-auth-brute-force-protection/checklists/gates.md`). Siguen «En revisión» otros specs base de los que dependen los anteriores (por ejemplo pm-011, pm-013 y pm-024 a pm-027).
+- **Siguiente:** T041 (pm-046): requiere aprobar el spec pm-046 (hoy `Propuesto`) y después la aceptación de extremo a extremo de los 11 endpoints con tu aprobación explícita del hito.
+
+## Aceptación del primer hito — T041 (2026-11-08)
+
+- **pm-046 aprobado.** Validación de extremo a extremo con `scripts/acceptance-milestone.ps1` (nuevo): **39/39** comprobaciones sobre los 11 endpoints (más sondas), imagen `petmate-api:local` chiseled, Atlas y Redis reales. Suites Unit 188/188, Security 170/170, Contract 170/170, Integration 56/56; NuGet y Trivy (0 HIGH/CRITICAL) en verde.
+- **Pendiente:** aprobación humana explícita del hito (pm-046 CA-02). Abiertos: H3, H4, H6, H7, H8 e I2; primera ejecución del pipeline en GitHub y despliegue con esta versión; specs base «En revisión».
+
+## Primer hito aceptado (2026-11-08)
+
+- **El usuario aprobó explícitamente el primer hito** (11 endpoints: 4 de autenticación y 7 funcionales); T041 y pm-046 `Cerrado`. Evidencia: `specs/pm-046-first-milestone-acceptance/checklists/gates.md` y `scripts/acceptance-milestone.ps1` (39/39).
+- **Estado del código:** local en `feature/pm-039-pet-model`; lo último subido a `origin/developer` es `b6efa1e`. Quedan cambios sin confirmar (límites de autenticación, cuota por correo, tests, documentación SDD y el script de aceptación).
+- **Pendiente:** hallazgos H3, H4, H6, H7, H8 e I2 (decisión), primera ejecución del pipeline en GitHub (imagen chiseled, límites, gate SDD) y despliegue a Azure con esta versión, specs base «En revisión» (pm-011, pm-013, pm-024 a pm-027, etc.) y la observación de pm-052.

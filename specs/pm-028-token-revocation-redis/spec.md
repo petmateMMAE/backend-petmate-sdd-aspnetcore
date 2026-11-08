@@ -1,6 +1,6 @@
 # Spec — pm-028 token-revocation-redis
 
-> Estado: En revisión | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Cerrado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -38,7 +38,7 @@ Detalle en [task.md](task.md).
 
 ## 7. Aprobación
 
-- [ ] Requisitos y criterios revisados por el usuario.
-- [ ] Constitución cumplida.
-- Revisor/usuario: pendiente.
+- [x] Requisitos y criterios revisados por el usuario.
+- [x] Constitución cumplida.
+- Revisor/usuario: usuario del proyecto, aprobado el 2026-11-08.
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec. La evidencia histórica de esta funcionalidad permanece en `specs/_historico/`.

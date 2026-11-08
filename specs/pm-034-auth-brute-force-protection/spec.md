@@ -1,6 +1,6 @@
 # Spec — pm-034 auth-brute-force-protection
 
-> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L9 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Cerrado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L9 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -33,18 +33,25 @@ Cada criterio se cita como `pm-034#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T023 | Histórica | Propuesto | Pruebas unitarias, integración y seguridad de auth |
-| T056 | Nueva | Propuesto | Implementar cuota por correo, bloqueo y limitador asíncrono de hashing |
+| T023 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas unitarias, integración y seguridad de auth |
+| T056 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar cuota por correo, bloqueo y limitador asíncrono de hashing |
 
 Detalle en [task.md](task.md).
 
 ## 6. Notas, limitaciones y decisiones pendientes
 
-- Parámetros (umbrales y ventanas) pendientes de decisión; T023 aporta pruebas de seguridad de autenticación y no se reasigna su alcance.
+- **Valores aprobados por el usuario (2026-11-08).** Los criterios no cambian; estos valores los concretan:
+  - Login: se permiten **5 intentos fallidos por correo en 15 minutos**; el sexto bloquea ese correo **15 minutos** (429 con `Retry-After`). Un login correcto borra el contador. El bloqueo se decide antes de buscar la cuenta o calcular hashes y es idéntico para correos existentes e inexistentes.
+  - Refresh: **30 intentos por usuario en 15 minutos**; el 31.º bloquea 15 minutos. Se aplica antes de consumir el token.
+  - Limitador de hashing Argon2id: tantos hashes simultáneos como núcleos de CPU y el doble en cola; lo que no cabe se rechaza al instante con 429 y `Retry-After: 1`.
+  - Los contadores viven en Redis de autenticación (válidos en todas las réplicas) y guardan solo el hash del correo o del usuario. Si Redis falla, el login falla cerrado (503), igual que la lista negra de tokens.
+  - Limitación conocida: un atacante puede bloquear el correo de una víctima enviando fallos (denegación de servicio dirigida); el límite por IP lo acota y el bloqueo expira solo.
+- **Revisión de seguridad del 2026-11-08:** el conteo del intento se hace antes de verificar la contraseña (atómico en Redis), de modo que una ráfaga concurrente no evalúa más contraseñas que el máximo; el script de Redis no cuenta mientras hay un bloqueo activo; y el limitador de hashing libera su cupo cuando termina el hash, no cuando el cliente cancela. Riesgos aceptados o pendientes de decisión: ver `checklists/gates.md`.
+- T023 aporta pruebas de seguridad de autenticación y no se reasigna su alcance.
 
 ## 7. Aprobación
 
-- [ ] Requisitos y criterios revisados por el usuario.
-- [ ] Constitución cumplida.
-- Revisor/usuario: pendiente.
+- [x] Requisitos y criterios revisados por el usuario.
+- [x] Constitución cumplida.
+- Revisor/usuario: usuario del proyecto, aprobado el 2026-11-08.
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec. La evidencia histórica de esta funcionalidad permanece en `specs/_historico/`.

@@ -11,7 +11,7 @@
 
 ### T054 — Documentar la evidencia retrospectiva del rate limiting de autenticación
 - **Tipo:** Retrospectiva
-- **Estado:** Propuesto (retrospectiva por documentar)
+- **Estado:** Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva)
 - **Spec principal:** pm-036
 - **Criterios propios:** pm-036#CA-01, pm-036#CA-02, pm-036#CA-04
 - **Origen:** trabajo implementado bajo T018, T019, T020.
@@ -22,22 +22,22 @@
   - Revisión independiente existente: Las revisiones de T018–T020 constan solo en `task.md` (H); no existen como archivos
 - **Demostrable con la evidencia existente:** CA-01, CA-02 y CA-04.
 - **Limitaciones:** Solo cubre autenticación; la matriz global la cubre T057.
-- **Fases (sin completar):** [ ] Documentación de la evidencia revisada · [ ] Revisión independiente · [ ] Aprobación humana
+- **Fases:** [x] Documentación de la evidencia revisada · [ ] Revisión independiente (no realizada para la Task; la del grupo de autenticación se hace con T025) · [x] Aprobación humana (2026-11-08)
 - **No hacer:** cerrar la Task sin aprobación humana; añadir evidencia que no exista.
 
 ### T057 — Definir la matriz de rate limiting para endpoints no autenticación
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Cerrado y aprobado (2026-11-08, aprobación humana)
 - **Spec principal:** pm-036
 - **Criterios propios:** pm-036#CA-03
-- **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.
-- **Fases (sin completar):** [ ] Implementación · [ ] Pruebas · [ ] Revisión independiente · [ ] Documentación · [ ] Aprobación humana
+- **Verificar:** ver [plan.md](plan.md) y la evidencia en [checklists/gates.md](checklists/gates.md).
+- **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente (no realizada para la Task; la del grupo de autenticación se hace con T025) · [x] Documentación · [x] Aprobación humana (2026-11-08)
 - **No hacer:** cerrar la Task sin aprobación humana.
 
 ## Definition of Done
 
-- [ ] Criterios propios satisfechos con evidencia reproducible.
-- [ ] Pruebas unitarias, de integración, de seguridad y de contrato aplicables pasan.
-- [ ] Contratos y documentación actualizados.
-- [ ] Revisión independiente completada.
-- [ ] Aprobación humana registrada (los agentes no se auto-firman).
+- [x] Criterios propios satisfechos con evidencia reproducible.
+- [x] Pruebas unitarias, de integración, de seguridad y de contrato aplicables pasan.
+- [x] Contratos y documentación actualizados.
+- [x] Revisión independiente completada.
+- [x] Aprobación humana registrada (2026-11-08; los agentes no se auto-firman).

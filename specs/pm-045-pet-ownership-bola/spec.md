@@ -1,6 +1,6 @@
 # Spec — pm-045 pet-ownership-bola
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L7 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Cerrado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L7 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -36,9 +36,9 @@ Cada criterio se cita como `pm-045#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T035 | Histórica | En progreso | Asegurar autorización y ownership |
-| T038 | Histórica | En progreso | Pruebas de seguridad Pet |
-| T040 | Histórica | En progreso | Gates y revisión independiente Pet |
+| T035 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Asegurar autorización y ownership |
+| T038 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas de seguridad Pet |
+| T040 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Gates y revisión independiente Pet |
 
 Detalle en [task.md](task.md).
 

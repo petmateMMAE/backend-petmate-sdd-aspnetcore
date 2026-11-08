@@ -1,6 +1,6 @@
 # Gates — pm-047 pagination-convention (T058)
 
-> Estado: T058 implementada y verificada el 2026-11-08; pendiente de aprobación humana.
+> Estado: T058 implementada y verificada el 2026-11-08; cerrada con aprobación humana el 2026-11-08.
 
 | CA | Task | Pruebas | Resultado |
 |---|---|---|---|
@@ -16,5 +16,5 @@
 | Extremo a extremo | `docker compose` con la imagen chiseled y Atlas real: página 1 con 2 de 3, página 2 con 1, `pageSize=51`/`page=0`/`page=abc` → 400, sin token → 401 | `Invoke-WebRequest` local |
 | Paquetes nuevos | Ninguno | — |
 
-- [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T058.
+- [x] Revisión independiente del módulo de mascotas (2026-11-08; ver pm-045 gates).
+- [x] Aprobación humana del cierre de T058 (2026-11-08).

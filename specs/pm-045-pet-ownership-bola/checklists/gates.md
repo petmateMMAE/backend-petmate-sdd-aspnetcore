@@ -24,7 +24,7 @@
 - Hallazgos abiertos conocidos (no bloqueantes): desempate por `_id` fuera del índice (pm-052); `ignore-unfixed` ya eliminado (pm-057).
 
 - [x] Revisión independiente de seguridad y de trazabilidad (2026-11-08, dos agentes de solo lectura; ver abajo).
-- [ ] Aprobación humana de T035, T038 y T040.
+- [x] Aprobación humana de T035, T038 y T040 (2026-11-08).
 
 ## Revisión independiente (2026-11-08)
 Dos agentes distintos de quien implementó, en modo de solo lectura, sin ejecutar pruebas (los resultados de las suites son los de este documento).
@@ -47,7 +47,7 @@ Comprobado: cada CA tiene una Task propietaria única; todos los métodos de pru
 Observaciones corregidas el 2026-11-08: M1 (trazabilidad de pm-040 a pm-044 desactualizada), M2 (gates de pm-040/042/043/044 copiados de una plantilla: reescritos con la tabla criterio→prueba), B1 (casillas de aprobación de specs cerrados), B2 (fases y Definition of Done de las Tasks cerradas), B3 (texto de evidencia), B4 (planes retrospectivos de pm-040/042/043/044, con la desviación anotada), B5 y B6 (estado y tiempo verbal en `docs/api/endpoints.md`), B7 (totales de `docs/testing/endpoints.md`), B8 (redacción del registro), B9 (T058 y pm-047 en AC-14), B10 (nota de superado en `Memoria.md`) y B11 (conteo de pruebas de Atlas).
 
 - [x] Decisión del usuario sobre S1 y S2 (2026-11-08): implementar los límites. Hecho y verificado (abajo).
-- [ ] Aprobación humana de T035, T038 y T040.
+- [x] Aprobación humana de T035, T038 y T040 (2026-11-08).
 
 ## Verificación de los límites (2026-11-08)
 | Gate | Resultado | Cómo |

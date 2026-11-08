@@ -1,6 +1,6 @@
 # Gates — pm-041 pet-list (T031)
 
-> Estado: T031 implementada y verificada el 2026-11-08; pendiente de aprobación humana.
+> Estado: T031 implementada y verificada el 2026-11-08; cerrada con aprobación humana el 2026-11-08.
 
 | CA | Task | Pruebas | Resultado |
 |---|---|---|---|
@@ -16,5 +16,5 @@
 | Extremo a extremo | Imagen chiseled y Atlas real: cada usuario solo ve sus mascotas (Ana 3, Luis 1) | `Invoke-WebRequest` local |
 
 - Observación: el desempate por `_id` del orden no está en el índice (se ordena en memoria dentro del propietario); revisar en pm-052.
-- [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T031.
+- [x] Revisión independiente del módulo de mascotas (2026-11-08; ver pm-045 gates).
+- [x] Aprobación humana del cierre de T031 (2026-11-08).

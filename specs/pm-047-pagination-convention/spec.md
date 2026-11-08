@@ -1,6 +1,6 @@
 # Spec — pm-047 pagination-convention
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L4 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Cerrado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L4 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -30,7 +30,7 @@ Cada criterio se cita como `pm-047#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T058 | Nueva | En progreso | Implementar la convención de paginación |
+| T058 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar la convención de paginación |
 
 Detalle en [task.md](task.md).
 

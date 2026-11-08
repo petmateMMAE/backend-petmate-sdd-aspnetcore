@@ -31,14 +31,15 @@ La ruta existe solo para comprobar MVC, Mediator, versionado y OpenAPI. La alter
 
 | Método | Endpoint | Acceso | Spec | Estado |
 |---|---|---|---|---|
-| POST | `/api/v1/auth/register` | Público | `pm-029` / T018 | Implementado (verificado; pendiente de cierre humano) |
-| POST | `/api/v1/auth/login` | Público | `pm-030` / T019 | Implementado (verificado; pendiente de cierre humano) |
-| POST | `/api/v1/auth/refresh` | Refresh Token | `pm-031` / T020 | Implementado (verificado; pendiente de cierre humano) |
-| POST | `/api/v1/auth/logout` | Sesión autenticada | `pm-032` / T021 | Implementado (verificado; pendiente de cierre humano) |
+| POST | `/api/v1/auth/register` | Público | `pm-029` / T018 | Implementado (Task cerrada el 2026-11-03; spec en revisión) |
+| POST | `/api/v1/auth/login` | Público | `pm-030` / T019 | Implementado (Task cerrada el 2026-11-03; spec en revisión) |
+| POST | `/api/v1/auth/refresh` | Refresh Token | `pm-031` / T020 | Implementado (Task cerrada el 2026-11-03; spec en revisión) |
+| POST | `/api/v1/auth/logout` | Sesión autenticada | `pm-032` / T021 | Implementado (Task cerrada el 2026-11-03; spec en revisión) |
 
 ### Contratos de autenticación
 
 - Los cuerpos de entrada rechazan miembros desconocidos: enviar p. ej. `role` devuelve 400. El rol siempre es `Owner` en el registro público.
+- Login y Refresh tienen además cuota por cuenta (pm-034): 5 intentos fallidos de login por correo en 15 minutos y el sexto bloquea 15 minutos (también con la contraseña correcta, sin revelar si el correo existe); 30 refrescos por usuario en 15 minutos. Las respuestas son 429 con el wrapper y `Retry-After`. El hashing de contraseñas está acotado (tantos a la vez como núcleos y el doble en cola): lo que no cabe se rechaza con 429 y `Retry-After: 1`.
 - Register, Login y Refresh están limitados por IP (`AUTH_RATE_LIMIT_PER_MINUTE`, por defecto 10 por minuto): al exceder el límite devuelven 429. Detrás de un proxy debe configurarse `TRUSTED_PROXIES`.
 - `AuthResponse` (en `data` de Register, Login y Refresh): `accessToken`, `tokenType` (`Bearer`), `accessTokenExpiresAt`, `refreshToken`, `refreshTokenExpiresAt`, `user { id, email, role }`. El refresh token se entrega solo ahí.
 - Los ejemplos usan valores ficticios; nunca documentar tokens reales.
@@ -162,6 +163,23 @@ Cuerpo: `{ "displayName": "Ana Pérez" }`. Se recorta; de 1 a 80 caracteres, sin
 - La URL de la foto (`photoUrl`) solo se guarda y se devuelve: el servidor nunca la resuelve ni la descarga. Los textos (`name`, `species`, `breed`) no se sanean ni se codifican (se rechazan solo los caracteres de control): el cliente debe tratarlos como texto al mostrarlos. Cuando exista la carga de imágenes (pm-079/pm-080) se restringirá el origen permitido.
 - Límites contra el abuso (pm-045 CA-04): máximo **100 mascotas por propietario** (crear una más devuelve **409** con el wrapper); **60 peticiones por minuto por usuario** en `/api/v1/pets/*` (`PETS_RATE_LIMIT_PER_MINUTE`; al excederlo, **429** con `Retry-After`); y **16 KB** como tamaño máximo del cuerpo de cualquier petición de la API (**413** con el wrapper, también si el cuerpo llega fragmentado). El tope de 100 se comprueba al crear y no es atómico: peticiones simultáneas pueden superarlo por muy poco.
 - Eliminar es **físico** (decisión del usuario, 2026-11-08): la mascota deja de existir.
+
+## Matriz de límites de tasa
+
+Todas las respuestas de límite son **429** con el Response Wrapper y la cabecera `Retry-After` (pm-036, pm-034, pm-045). Los cuerpos de toda la API están limitados a 16 KB (**413**).
+
+| Endpoints | Clave | Límite | Configuración |
+|---|---|---|---|
+| `POST auth/register`, `auth/login`, `auth/refresh` | IP (IPv6 agrupada por /64) | 10 por minuto | `AUTH_RATE_LIMIT_PER_MINUTE` |
+| `POST auth/login` | correo (solo su hash) | 5 fallos por 15 minutos; el sexto bloquea 15 minutos | Fijo (`AuthThrottleRules`) |
+| `POST auth/refresh` | usuario | 30 por 15 minutos; el 31.º bloquea 15 minutos | Fijo (`AuthThrottleRules`) |
+| `POST auth/register`, `auth/login` | instancia (hashing Argon2id) | núcleos de CPU simultáneos y el doble en cola (429 con `Retry-After: 1`); una segunda compuerta interna del hasher responde 503 si la espera supera 5 s | Fijo |
+| `POST auth/logout` | usuario | 60 por minuto (política `users`) | `USERS_RATE_LIMIT_PER_MINUTE` |
+| `GET users/me/get`, `PUT users/me/update` | usuario | 60 por minuto | `USERS_RATE_LIMIT_PER_MINUTE` |
+| `POST pets/create`, `GET pets/get-all`, `GET pets/get-by-id/{id}`, `PUT pets/update/{id}`, `DELETE pets/delete/{id}` | usuario | 60 por minuto; máximo 100 mascotas por propietario | `PETS_RATE_LIMIT_PER_MINUTE` |
+| `GET health/live`, `GET health/ready` | — | sin límite: sondas del balanceador (`ready` consulta dependencias; riesgo aceptado y revisable) | — |
+| `GET technical/mediator-probe` | — | sin límite: endpoint técnico público temporal (pm-033, P-04) | — |
+| OpenAPI y Scalar | — | solo existen en Development | — |
 
 ## Códigos HTTP iniciales
 
