@@ -50,6 +50,16 @@ public static class ApplicationBootstrap
         ConfigureAuthentication(builder.Services);
         ConfigureRateLimiting(builder.Services, builder.Configuration);
         ConfigureForwardedHeaders(builder.Services, builder.Configuration);
+        // Logs estructurados (JSON) con ámbitos para la correlación (pm-054). Sin paquetes adicionales.
+        builder.Logging.AddJsonConsole(options =>
+        {
+            options.IncludeScopes = true;
+            options.UseUtcTimestamp = true;
+            options.TimestampFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
+        });
+        // El ámbito de Hosting.Diagnostics incluye RequestPath (con identificadores o texto arbitrario del cliente): se desactiva.
+        // La correlación la aporta RequestLoggingMiddleware y la solicitud completa se registra con la plantilla de ruta.
+        builder.Logging.AddFilter("Microsoft.AspNetCore.Hosting.Diagnostics", LogLevel.None);
         // JwtBearer registra la excepción interna completa si Redis falla; el middleware global ya la registra saneada.
         builder.Logging.AddFilter("Microsoft.AspNetCore.Authentication.JwtBearer", LogLevel.Critical);
         builder.Services.AddControllers()

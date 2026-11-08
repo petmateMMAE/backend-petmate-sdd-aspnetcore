@@ -18,4 +18,4 @@
 
 - Limitaciones: La readiness contra Atlas real se verificó a mano (hoy con `docker compose`: mongodb, redis-auth y redis-cache sanos).
 - [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T045.
+- [x] Aprobación humana de T045 (2026-11-08).

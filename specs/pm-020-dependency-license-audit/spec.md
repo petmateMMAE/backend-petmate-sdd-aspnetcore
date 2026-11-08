@@ -1,6 +1,6 @@
 # Spec — pm-020 dependency-license-audit
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L2 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Verificado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L2 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -31,7 +31,7 @@ Cada criterio se cita como `pm-020#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T050 | Retrospectiva | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva de la auditoría de dependencias y licencias |
+| T050 | Retrospectiva | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva de la auditoría de dependencias y licencias |
 
 Detalle en [task.md](task.md).
 

@@ -18,4 +18,4 @@
 
 - Limitaciones: Las pruebas de integración requieren Redis y se omiten sin él (hoy se ejecutaron con Redis temporales). El TLS contra los Redis de Azure no está cubierto aquí (pm-070 y pm-071).
 - [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T044.
+- [x] Aprobación humana de T044 (2026-11-08).

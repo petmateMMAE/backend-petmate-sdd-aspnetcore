@@ -18,4 +18,4 @@
 
 - Limitaciones: Evidencia por ejecución del gate, sin prueba automática que verifique que falla ante un hallazgo; el job `3 · Dependencias` de CI no se ha ejecutado con los cambios recientes.
 - [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T050.
+- [x] Aprobación humana de T050 (2026-11-08).

@@ -11,7 +11,7 @@
 
 ### T047 — Documentar la evidencia retrospectiva de proxies confiables
 - **Tipo:** Retrospectiva
-- **Estado:** En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana)
+- **Estado:** Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva)
 - **Spec principal:** pm-017
 - **Criterios propios:** pm-017#CA-01, pm-017#CA-02, pm-017#CA-03
 - **Origen:** trabajo implementado bajo T018, T019, T020, T021.
@@ -22,16 +22,16 @@
   - Revisión independiente existente: Las revisiones de T016–T021 constan solo en `task.md` (H); no existen como archivos
 - **Demostrable con la evidencia existente:** CA-01 a CA-03.
 - **Limitaciones:** La evidencia es indirecta; la evidencia directa contra spoofing la aporta T097.
-- **Fases:** [x] Documentación de la evidencia revisada · [ ] Revisión independiente · [ ] Aprobación humana
+- **Fases:** [x] Documentación de la evidencia revisada · [ ] Revisión independiente · [x] Aprobación humana
 - **No hacer:** cerrar la Task sin aprobación humana; añadir evidencia que no exista.
 
 ### T097 — Verificar el rechazo de cabeceras reenviadas de proxies no confiables
 - **Tipo:** Nueva
-- **Estado:** En progreso (implementada y verificada; pendiente de aprobación humana)
+- **Estado:** Cerrado y aprobado (2026-11-08, aprobación humana)
 - **Spec principal:** pm-017
 - **Criterios propios:** pm-017#CA-04
 - **Verificar:** ver [plan.md](plan.md) y la evidencia en [checklists/gates.md](checklists/gates.md).
-- **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente · [x] Documentación · [ ] Aprobación humana
+- **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente · [x] Documentación · [x] Aprobación humana
 - **No hacer:** cerrar la Task sin aprobación humana.
 
 ## Definition of Done

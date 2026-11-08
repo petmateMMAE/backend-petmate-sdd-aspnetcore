@@ -11,7 +11,7 @@
 
 ### T042 — Documentar la evidencia retrospectiva de rutas versionadas
 - **Tipo:** Retrospectiva
-- **Estado:** En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana)
+- **Estado:** Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva)
 - **Spec principal:** pm-007
 - **Criterios propios:** pm-007#CA-01, pm-007#CA-02, pm-007#CA-03
 - **Origen:** trabajo implementado bajo T007.
@@ -22,16 +22,16 @@
   - Revisión independiente existente: Revisiones de T007 en `_historico/00-foundation/reviews/` (H)
 - **Demostrable con la evidencia existente:** CA-01 a CA-03 solo para la ruta técnica y las rutas de autenticación existentes.
 - **Limitaciones:** No existe prueba que recorra todas las rutas contra el catálogo (la cubre T055); T007 no demuestra por sí sola estos criterios.
-- **Fases:** [x] Documentación de la evidencia revisada · [ ] Revisión independiente · [ ] Aprobación humana
+- **Fases:** [x] Documentación de la evidencia revisada · [ ] Revisión independiente · [x] Aprobación humana
 - **No hacer:** cerrar la Task sin aprobación humana; añadir evidencia que no exista.
 
 ### T055 — Verificar automáticamente rutas contra el catálogo y documentar reglas de nombrado
 - **Tipo:** Nueva
-- **Estado:** En progreso (implementada y verificada; pendiente de aprobación humana)
+- **Estado:** Cerrado y aprobado (2026-11-08, aprobación humana)
 - **Spec principal:** pm-007
 - **Criterios propios:** pm-007#CA-04, pm-007#CA-05
 - **Verificar:** ver [plan.md](plan.md) y la evidencia en [checklists/gates.md](checklists/gates.md).
-- **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente · [x] Documentación · [ ] Aprobación humana
+- **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente · [x] Documentación · [x] Aprobación humana
 - **No hacer:** cerrar la Task sin aprobación humana.
 
 ## Definition of Done

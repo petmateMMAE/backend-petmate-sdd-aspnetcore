@@ -9,6 +9,8 @@ ApplicationBootstrap.ConfigureCompositionRoot(builder);
 
 var app = builder.Build();
 
+app.UseMiddleware<RequestLoggingMiddleware>();
+
 if (!string.IsNullOrWhiteSpace(app.Configuration["TRUSTED_PROXIES"]))
 {
     app.UseForwardedHeaders();

@@ -88,11 +88,11 @@
 | pm-006#CA-01 | T006 | Histórica | Cerrado (2026-11-03) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-006#CA-02 | T006 | Histórica | Cerrado (2026-11-03) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-006#CA-03 | T006 | Histórica | Cerrado (2026-11-03) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
-| pm-007#CA-01 | T042 | Retrospectiva | En progreso | [gates](pm-007-api-route-conventions/checklists/gates.md) |
-| pm-007#CA-02 | T042 | Retrospectiva | En progreso | [gates](pm-007-api-route-conventions/checklists/gates.md) |
-| pm-007#CA-03 | T042 | Retrospectiva | En progreso | [gates](pm-007-api-route-conventions/checklists/gates.md) |
-| pm-007#CA-04 | T055 | Nueva | En progreso | [gates](pm-007-api-route-conventions/checklists/gates.md) |
-| pm-007#CA-05 | T055 | Nueva | En progreso | [gates](pm-007-api-route-conventions/checklists/gates.md) |
+| pm-007#CA-01 | T042 | Retrospectiva | Aprobada y documentada | [gates](pm-007-api-route-conventions/checklists/gates.md) |
+| pm-007#CA-02 | T042 | Retrospectiva | Aprobada y documentada | [gates](pm-007-api-route-conventions/checklists/gates.md) |
+| pm-007#CA-03 | T042 | Retrospectiva | Aprobada y documentada | [gates](pm-007-api-route-conventions/checklists/gates.md) |
+| pm-007#CA-04 | T055 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-007-api-route-conventions/checklists/gates.md) |
+| pm-007#CA-05 | T055 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-007-api-route-conventions/checklists/gates.md) |
 | pm-008#CA-01 | T007 | Histórica | Cerrado (2026-11-03) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-008#CA-02 | T007 | Histórica | Cerrado (2026-11-03) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-008#CA-03 | T007 | Histórica | Cerrado (2026-11-03) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
@@ -100,53 +100,53 @@
 | pm-009#CA-01 | T008 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-009#CA-02 | T008 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-009#CA-03 | T008 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
-| pm-010#CA-01 | T043 | Retrospectiva | En progreso | [gates](pm-010-global-exception-handling/checklists/gates.md) |
-| pm-010#CA-02 | T043 | Retrospectiva | En progreso | [gates](pm-010-global-exception-handling/checklists/gates.md) |
-| pm-010#CA-03 | T043 | Retrospectiva | En progreso | [gates](pm-010-global-exception-handling/checklists/gates.md) |
-| pm-010#CA-04 | T043 | Retrospectiva | En progreso | [gates](pm-010-global-exception-handling/checklists/gates.md) |
+| pm-010#CA-01 | T043 | Retrospectiva | Aprobada y documentada | [gates](pm-010-global-exception-handling/checklists/gates.md) |
+| pm-010#CA-02 | T043 | Retrospectiva | Aprobada y documentada | [gates](pm-010-global-exception-handling/checklists/gates.md) |
+| pm-010#CA-03 | T043 | Retrospectiva | Aprobada y documentada | [gates](pm-010-global-exception-handling/checklists/gates.md) |
+| pm-010#CA-04 | T043 | Retrospectiva | Aprobada y documentada | [gates](pm-010-global-exception-handling/checklists/gates.md) |
 | pm-011#CA-01 | T009 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana; política 400 ratificada) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-011#CA-02 | T009 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana; política 400 ratificada) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-011#CA-03 | T009 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana; política 400 ratificada) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-012#CA-01 | T010 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-012#CA-02 | T010 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-012#CA-03 | T010 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
-| pm-013#CA-01 | T044 | Retrospectiva | En progreso | [gates](pm-013-redis-dual-connectivity/checklists/gates.md) |
-| pm-013#CA-02 | T044 | Retrospectiva | En progreso | [gates](pm-013-redis-dual-connectivity/checklists/gates.md) |
-| pm-013#CA-03 | T044 | Retrospectiva | En progreso | [gates](pm-013-redis-dual-connectivity/checklists/gates.md) |
-| pm-014#CA-01 | T045 | Retrospectiva | En progreso | [gates](pm-014-health-probes/checklists/gates.md) |
-| pm-014#CA-02 | T045 | Retrospectiva | En progreso | [gates](pm-014-health-probes/checklists/gates.md) |
-| pm-014#CA-03 | T045 | Retrospectiva | En progreso | [gates](pm-014-health-probes/checklists/gates.md) |
-| pm-015#CA-01 | T046 | Retrospectiva | En progreso | [gates](pm-015-api-container-image/checklists/gates.md) |
-| pm-015#CA-02 | T046 | Retrospectiva | En progreso | [gates](pm-015-api-container-image/checklists/gates.md) |
-| pm-015#CA-03 | T046 | Retrospectiva | En progreso | [gates](pm-015-api-container-image/checklists/gates.md) |
+| pm-013#CA-01 | T044 | Retrospectiva | Aprobada y documentada | [gates](pm-013-redis-dual-connectivity/checklists/gates.md) |
+| pm-013#CA-02 | T044 | Retrospectiva | Aprobada y documentada | [gates](pm-013-redis-dual-connectivity/checklists/gates.md) |
+| pm-013#CA-03 | T044 | Retrospectiva | Aprobada y documentada | [gates](pm-013-redis-dual-connectivity/checklists/gates.md) |
+| pm-014#CA-01 | T045 | Retrospectiva | Aprobada y documentada | [gates](pm-014-health-probes/checklists/gates.md) |
+| pm-014#CA-02 | T045 | Retrospectiva | Aprobada y documentada | [gates](pm-014-health-probes/checklists/gates.md) |
+| pm-014#CA-03 | T045 | Retrospectiva | Aprobada y documentada | [gates](pm-014-health-probes/checklists/gates.md) |
+| pm-015#CA-01 | T046 | Retrospectiva | Aprobada y documentada | [gates](pm-015-api-container-image/checklists/gates.md) |
+| pm-015#CA-02 | T046 | Retrospectiva | Aprobada y documentada | [gates](pm-015-api-container-image/checklists/gates.md) |
+| pm-015#CA-03 | T046 | Retrospectiva | Aprobada y documentada | [gates](pm-015-api-container-image/checklists/gates.md) |
 | pm-016#CA-01 | T011 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-016#CA-02 | T011 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
 | pm-016#CA-03 | T011 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/00-foundation/task.md` y su `checklists/gates.md` |
-| pm-017#CA-01 | T047 | Retrospectiva | En progreso | [gates](pm-017-trusted-proxy-forwarded-headers/checklists/gates.md) |
-| pm-017#CA-02 | T047 | Retrospectiva | En progreso | [gates](pm-017-trusted-proxy-forwarded-headers/checklists/gates.md) |
-| pm-017#CA-03 | T047 | Retrospectiva | En progreso | [gates](pm-017-trusted-proxy-forwarded-headers/checklists/gates.md) |
-| pm-017#CA-04 | T097 | Nueva | En progreso | [gates](pm-017-trusted-proxy-forwarded-headers/checklists/gates.md) |
-| pm-018#CA-01 | T048 | Retrospectiva | En progreso | [gates](pm-018-static-analysis-sast/checklists/gates.md) |
-| pm-018#CA-02 | T048 | Retrospectiva | En progreso | [gates](pm-018-static-analysis-sast/checklists/gates.md) |
-| pm-019#CA-01 | T049 | Retrospectiva | En progreso | [gates](pm-019-secret-scanning/checklists/gates.md) |
-| pm-019#CA-02 | T049 | Retrospectiva | En progreso | [gates](pm-019-secret-scanning/checklists/gates.md) |
-| pm-020#CA-01 | T050 | Retrospectiva | En progreso | [gates](pm-020-dependency-license-audit/checklists/gates.md) |
-| pm-020#CA-02 | T050 | Retrospectiva | En progreso | [gates](pm-020-dependency-license-audit/checklists/gates.md) |
-| pm-020#CA-03 | T050 | Retrospectiva | En progreso | [gates](pm-020-dependency-license-audit/checklists/gates.md) |
-| pm-021#CA-01 | T051 | Retrospectiva | En progreso | [gates](pm-021-local-quality-gate/checklists/gates.md) |
-| pm-021#CA-02 | T051 | Retrospectiva | En progreso | [gates](pm-021-local-quality-gate/checklists/gates.md) |
+| pm-017#CA-01 | T047 | Retrospectiva | Aprobada y documentada | [gates](pm-017-trusted-proxy-forwarded-headers/checklists/gates.md) |
+| pm-017#CA-02 | T047 | Retrospectiva | Aprobada y documentada | [gates](pm-017-trusted-proxy-forwarded-headers/checklists/gates.md) |
+| pm-017#CA-03 | T047 | Retrospectiva | Aprobada y documentada | [gates](pm-017-trusted-proxy-forwarded-headers/checklists/gates.md) |
+| pm-017#CA-04 | T097 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-017-trusted-proxy-forwarded-headers/checklists/gates.md) |
+| pm-018#CA-01 | T048 | Retrospectiva | Aprobada y documentada | [gates](pm-018-static-analysis-sast/checklists/gates.md) |
+| pm-018#CA-02 | T048 | Retrospectiva | Aprobada y documentada | [gates](pm-018-static-analysis-sast/checklists/gates.md) |
+| pm-019#CA-01 | T049 | Retrospectiva | Aprobada y documentada | [gates](pm-019-secret-scanning/checklists/gates.md) |
+| pm-019#CA-02 | T049 | Retrospectiva | Aprobada y documentada | [gates](pm-019-secret-scanning/checklists/gates.md) |
+| pm-020#CA-01 | T050 | Retrospectiva | Aprobada y documentada | [gates](pm-020-dependency-license-audit/checklists/gates.md) |
+| pm-020#CA-02 | T050 | Retrospectiva | Aprobada y documentada | [gates](pm-020-dependency-license-audit/checklists/gates.md) |
+| pm-020#CA-03 | T050 | Retrospectiva | Aprobada y documentada | [gates](pm-020-dependency-license-audit/checklists/gates.md) |
+| pm-021#CA-01 | T051 | Retrospectiva | Aprobada y documentada | [gates](pm-021-local-quality-gate/checklists/gates.md) |
+| pm-021#CA-02 | T051 | Retrospectiva | Aprobada y documentada | [gates](pm-021-local-quality-gate/checklists/gates.md) |
 | pm-022#CA-01 | T013 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-022#CA-02 | T013 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
-| pm-023#CA-01 | T052 | Retrospectiva | En progreso | [gates](pm-023-refresh-session-domain/checklists/gates.md) |
-| pm-023#CA-02 | T052 | Retrospectiva | En progreso | [gates](pm-023-refresh-session-domain/checklists/gates.md) |
-| pm-023#CA-03 | T052 | Retrospectiva | En progreso | [gates](pm-023-refresh-session-domain/checklists/gates.md) |
+| pm-023#CA-01 | T052 | Retrospectiva | Aprobada y documentada | [gates](pm-023-refresh-session-domain/checklists/gates.md) |
+| pm-023#CA-02 | T052 | Retrospectiva | Aprobada y documentada | [gates](pm-023-refresh-session-domain/checklists/gates.md) |
+| pm-023#CA-03 | T052 | Retrospectiva | Aprobada y documentada | [gates](pm-023-refresh-session-domain/checklists/gates.md) |
 | pm-024#CA-01 | T014 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-024#CA-02 | T014 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-024#CA-03 | T014 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
-| pm-025#CA-01 | T053 | Retrospectiva | En progreso | [gates](pm-025-refresh-sessions-persistence/checklists/gates.md) |
-| pm-025#CA-02 | T053 | Retrospectiva | En progreso | [gates](pm-025-refresh-sessions-persistence/checklists/gates.md) |
-| pm-025#CA-03 | T053 | Retrospectiva | En progreso | [gates](pm-025-refresh-sessions-persistence/checklists/gates.md) |
-| pm-025#CA-04 | T053 | Retrospectiva | En progreso | [gates](pm-025-refresh-sessions-persistence/checklists/gates.md) |
+| pm-025#CA-01 | T053 | Retrospectiva | Aprobada y documentada | [gates](pm-025-refresh-sessions-persistence/checklists/gates.md) |
+| pm-025#CA-02 | T053 | Retrospectiva | Aprobada y documentada | [gates](pm-025-refresh-sessions-persistence/checklists/gates.md) |
+| pm-025#CA-03 | T053 | Retrospectiva | Aprobada y documentada | [gates](pm-025-refresh-sessions-persistence/checklists/gates.md) |
+| pm-025#CA-04 | T053 | Retrospectiva | Aprobada y documentada | [gates](pm-025-refresh-sessions-persistence/checklists/gates.md) |
 | pm-026#CA-01 | T015 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-026#CA-02 | T015 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-026#CA-03 | T015 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
@@ -233,15 +233,15 @@
 | pm-053#CA-01 | T064 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-053#CA-02 | T064 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-053#CA-03 | T064 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-054#CA-01 | T065 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-054#CA-02 | T065 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-054#CA-03 | T065 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-054#CA-01 | T065 | Nueva | En progreso | [gates](pm-054-structured-logging-pii-safe/checklists/gates.md) |
+| pm-054#CA-02 | T065 | Nueva | En progreso | [gates](pm-054-structured-logging-pii-safe/checklists/gates.md) |
+| pm-054#CA-03 | T065 | Nueva | En progreso | [gates](pm-054-structured-logging-pii-safe/checklists/gates.md) |
 | pm-055#CA-01 | T066 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-055-ci-pull-request-pipeline/checklists/gates.md) |
 | pm-055#CA-02 | T066 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-055-ci-pull-request-pipeline/checklists/gates.md) |
 | pm-055#CA-03 | T067 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-055#CA-04 | T067 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-056#CA-01 | T068 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-056#CA-02 | T068 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-056#CA-01 | T068 | Nueva | En progreso | [gates](pm-056-test-coverage-baseline/checklists/gates.md) |
+| pm-056#CA-02 | T068 | Nueva | En progreso | [gates](pm-056-test-coverage-baseline/checklists/gates.md) |
 | pm-057#CA-01 | T069 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-057-container-image-scan/checklists/gates.md) |
 | pm-057#CA-02 | T069 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-057-container-image-scan/checklists/gates.md) |
 | pm-058#CA-01 | T070 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-058-sbom-generation/checklists/gates.md) |
@@ -252,10 +252,10 @@
 | pm-060#CA-01 | T072 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
 | pm-060#CA-02 | T072 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
 | pm-060#CA-03 | T072 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
-| pm-061#CA-01 | T024 | Histórica | Propuesto | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
-| pm-061#CA-02 | T039 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-061#CA-03 | T073 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-061#CA-04 | T073 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-061#CA-01 | T024 | Histórica | En progreso | [gates](pm-061-api-docs-contract-sync/checklists/gates.md) y `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
+| pm-061#CA-02 | T039 | Histórica | En progreso | [gates](pm-061-api-docs-contract-sync/checklists/gates.md) y `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
+| pm-061#CA-03 | T073 | Nueva | En progreso | [gates](pm-061-api-docs-contract-sync/checklists/gates.md) |
+| pm-061#CA-04 | T073 | Nueva | En progreso | [gates](pm-061-api-docs-contract-sync/checklists/gates.md) |
 | pm-062#CA-01 | T074 | Nueva | En progreso | [gates](pm-062-cloud-cost-feasibility-study/checklists/gates.md) |
 | pm-062#CA-02 | T074 | Nueva | En progreso | [gates](pm-062-cloud-cost-feasibility-study/checklists/gates.md) |
 | pm-062#CA-03 | T074 | Nueva | En progreso | [gates](pm-062-cloud-cost-feasibility-study/checklists/gates.md) |

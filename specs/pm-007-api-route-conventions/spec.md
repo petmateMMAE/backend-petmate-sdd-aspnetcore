@@ -1,6 +1,6 @@
 # Spec — pm-007 api-route-conventions
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Verificado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -32,8 +32,8 @@ Cada criterio se cita como `pm-007#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T042 | Retrospectiva | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva de rutas versionadas |
-| T055 | Nueva | En progreso (implementada y verificada; pendiente de aprobación humana) | Verificar automáticamente rutas contra el catálogo y documentar reglas de nombrado |
+| T042 | Retrospectiva | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva de rutas versionadas |
+| T055 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | Verificar automáticamente rutas contra el catálogo y documentar reglas de nombrado |
 
 Detalle en [task.md](task.md).
 

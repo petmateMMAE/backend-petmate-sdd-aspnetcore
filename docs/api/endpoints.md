@@ -16,6 +16,7 @@
 - Todas las respuestas usan `statusCode`, `message`, `data`; `data` es nullable.
 - `statusCode` dentro del wrapper debe coincidir con HTTP.
 - Mensajes en español.
+- Toda respuesta incluye la cabecera **`X-Correlation-Id`** (pm-054): se conserva la que envíe el cliente si cumple `[A-Za-z0-9-]{8,64}`; en otro caso el servidor genera un valor de 32 caracteres hexadecimales. Se registra como ámbito de todos los logs de la solicitud. Los logs son JSON y por solicitud contienen solo método, plantilla de ruta (nunca valores), código HTTP y duración: sin cuerpos, cabeceras, consulta, IP, correos, nombres ni tokens.
 
 ## Ruta técnica Foundation
 

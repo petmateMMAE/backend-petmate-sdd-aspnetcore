@@ -11,7 +11,7 @@
 
 ### T024 — Contratos y documentación de auth
 - **Tipo:** Histórica
-- **Estado:** Propuesto
+- **Estado:** En progreso (verificada con evidencia; pendiente de aprobación humana)
 - **Spec principal:** pm-061
 - **Criterios propios:** pm-061#CA-01
 - **También cubre / nota:** Contratos de autenticación (pm-061 CA-01).
@@ -20,7 +20,7 @@
 
 ### T039 — Pruebas de contrato y documentación
 - **Tipo:** Histórica
-- **Estado:** Propuesto
+- **Estado:** En progreso (verificada con evidencia; pendiente de aprobación humana)
 - **Spec principal:** pm-061
 - **Criterios propios:** pm-061#CA-02
 - **También cubre / nota:** También cubre pm-039, pm-040, pm-041, pm-042, pm-043, pm-044 (pruebas de contrato y documentación de mascotas).
@@ -29,11 +29,11 @@
 
 ### T073 — Sincronizar contratos, catálogo y OpenAPI
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** En progreso (implementada y verificada; pendiente de aprobación humana)
 - **Spec principal:** pm-061
 - **Criterios propios:** pm-061#CA-03, pm-061#CA-04
-- **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.
-- **Fases (sin completar):** [ ] Implementación · [ ] Pruebas · [ ] Revisión independiente · [ ] Documentación · [ ] Aprobación humana
+- **Verificar:** ver [plan.md](plan.md) y la evidencia en [checklists/gates.md](checklists/gates.md).
+- **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente · [x] Documentación · [ ] Aprobación humana
 - **No hacer:** cerrar la Task sin aprobación humana.
 
 ## Definition of Done

@@ -19,4 +19,4 @@
 
 - Limitaciones: Las pruebas de integración requieren Atlas con base de pruebas (hoy se ejecutaron contra Atlas real). El borrado real por el TTL lo hace el servidor en segundo plano y no se esperó en las pruebas.
 - [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T053.
+- [x] Aprobación humana de T053 (2026-11-08).

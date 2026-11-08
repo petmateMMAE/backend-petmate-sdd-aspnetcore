@@ -344,7 +344,7 @@ public sealed class AuthEndpointsTests
     }
 }
 
-public sealed class AuthFlowFactory : IsolatedApiFactory
+public class AuthFlowFactory : IsolatedApiFactory
 {
     public AuthFlowFactory(int? rateLimitPerMinute = null, int? petsRateLimitPerMinute = null, int? usersRateLimitPerMinute = null)
         : base("Development", Overrides(rateLimitPerMinute, petsRateLimitPerMinute, usersRateLimitPerMinute))

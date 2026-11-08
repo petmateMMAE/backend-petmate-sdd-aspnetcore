@@ -1,6 +1,6 @@
 # Spec — pm-017 trusted-proxy-forwarded-headers
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Verificado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -32,8 +32,8 @@ Cada criterio se cita como `pm-017#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T047 | Retrospectiva | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva de proxies confiables |
-| T097 | Nueva | En progreso (implementada y verificada; pendiente de aprobación humana) | Verificar el rechazo de cabeceras reenviadas de proxies no confiables |
+| T047 | Retrospectiva | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva de proxies confiables |
+| T097 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | Verificar el rechazo de cabeceras reenviadas de proxies no confiables |
 
 Detalle en [task.md](task.md).
 

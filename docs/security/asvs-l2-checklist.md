@@ -22,7 +22,7 @@
 - [ ] `.env` ignorado y `.env.example` sin secretos.
 - [ ] Producción no despliega `.env`; secretos inyectados por entorno seguro.
 - [ ] HTTPS/certificado válido y forwarded headers restringidos a proxies confiables.
-- [ ] Tokens, passwords, URIs y PII no aparecen en logs.
+- [x] Tokens, passwords, URIs y PII no aparecen en logs. _(pm-054 / T065: logs JSON con correlación, solo método, plantilla de ruta, estado y duración; `RequestLoggingTests` captura todos los registros de un flujo completo y busca secretos; pendiente de revisión independiente y de aprobación. Sin eventos de seguridad aún: hallazgo I2)_
 
 ## API y operación
 - [ ] Validación de inputs y límites de tamaño/paginación.

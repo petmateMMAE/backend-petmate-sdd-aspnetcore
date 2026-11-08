@@ -21,25 +21,25 @@
 | [pm-004-external-configuration-secrets](pm-004-external-configuration-secrets/spec.md) | Cerrado | L1 | pm-001 | T004 | Configuración por entorno, `.env` ignorado y validación de arranque sin exponer valores |
 | [pm-005-dependency-injection-composition](pm-005-dependency-injection-composition/spec.md) | Cerrado | L2 | pm-002 | T005 | Módulos de DI por capa sin Service Locator |
 | [pm-006-cqrs-mediator](pm-006-cqrs-mediator/spec.md) | Cerrado | L3 | pm-005 | T006 | Commands y Queries despachados por un Mediator propio con registro explícito |
-| [pm-007-api-route-conventions](pm-007-api-route-conventions/spec.md) | En progreso | L3 | pm-005 | T042, T055 | Patrón `/api/v1/{recurso}/{acción}` y su verificación automática |
+| [pm-007-api-route-conventions](pm-007-api-route-conventions/spec.md) | Verificado | L3 | pm-005 | T042, T055 | Patrón `/api/v1/{recurso}/{acción}` y su verificación automática |
 | [pm-008-openapi-scalar-documentation](pm-008-openapi-scalar-documentation/spec.md) | Cerrado | L4 | pm-005, pm-007 | T007 | Documento OpenAPI generado y Scalar como única UI, solo en Development |
 | [pm-009-response-wrapper-contract](pm-009-response-wrapper-contract/spec.md) | Cerrado | L3 | pm-005 | T008 | Contrato `statusCode/message/data` con `data` nulo y coincidencia con HTTP |
-| [pm-010-global-exception-handling](pm-010-global-exception-handling/spec.md) | En progreso | L4 | pm-009 | T043 | Manejo central de excepciones sin fuga de información, 500/503 y cancelación |
+| [pm-010-global-exception-handling](pm-010-global-exception-handling/spec.md) | Verificado | L4 | pm-009 | T043 | Manejo central de excepciones sin fuga de información, 500/503 y cancelación |
 | [pm-011-request-validation](pm-011-request-validation/spec.md) | Cerrado | L5 | pm-006, pm-009, pm-010 | T009 | Validación de solicitudes antes del handler con 400 y errores en español |
 | [pm-012-atlas-connectivity](pm-012-atlas-connectivity/spec.md) | Cerrado | L2 | pm-004 | T010 | Conexión tipada a MongoDB Atlas, base de pruebas separada y sin Mongo local |
-| [pm-013-redis-dual-connectivity](pm-013-redis-dual-connectivity/spec.md) | En progreso | L2 | pm-004 | T044 | Dos conexiones Redis independientes (Auth y Cache) con TLS fuera de Development |
-| [pm-014-health-probes](pm-014-health-probes/spec.md) | En progreso | L3 | pm-012, pm-013 | T045 | Liveness sin dependencias y readiness con detalle mínimo por dependencia |
-| [pm-015-api-container-image](pm-015-api-container-image/spec.md) | En progreso | L2 | pm-001, pm-004 | T046 | Imagen multi-stage de la API, usuario no root y sin secretos |
+| [pm-013-redis-dual-connectivity](pm-013-redis-dual-connectivity/spec.md) | Verificado | L2 | pm-004 | T044 | Dos conexiones Redis independientes (Auth y Cache) con TLS fuera de Development |
+| [pm-014-health-probes](pm-014-health-probes/spec.md) | Verificado | L3 | pm-012, pm-013 | T045 | Liveness sin dependencias y readiness con detalle mínimo por dependencia |
+| [pm-015-api-container-image](pm-015-api-container-image/spec.md) | Verificado | L2 | pm-001, pm-004 | T046 | Imagen multi-stage de la API, usuario no root y sin secretos |
 | [pm-016-local-compose-environment](pm-016-local-compose-environment/spec.md) | Cerrado | L4 | pm-013, pm-014, pm-015 | T011 | Compose local con API y dos Redis, red, volumen y sin MongoDB |
-| [pm-017-trusted-proxy-forwarded-headers](pm-017-trusted-proxy-forwarded-headers/spec.md) | En progreso | L3 | pm-005 | T047, T097 | IP real del cliente detrás de proxies confiables configurados |
-| [pm-018-static-analysis-sast](pm-018-static-analysis-sast/spec.md) | En progreso | L2 | pm-003 | T048 | Reglas de seguridad de los analizadores como errores de compilación |
-| [pm-019-secret-scanning](pm-019-secret-scanning/spec.md) | En progreso | L2 | pm-004 | T049 | Detección de secretos en archivos versionables con controles positivos y negativos |
-| [pm-020-dependency-license-audit](pm-020-dependency-license-audit/spec.md) | En progreso | L2 | pm-003 | T050 | Auditoría de vulnerabilidades, desuso y licencias NuGet con gobierno de excepciones |
-| [pm-021-local-quality-gate](pm-021-local-quality-gate/spec.md) | En progreso | L3 | pm-018, pm-019, pm-020 | T051 | Orquestación local de restore, build, formato, auditorías y suites |
+| [pm-017-trusted-proxy-forwarded-headers](pm-017-trusted-proxy-forwarded-headers/spec.md) | Verificado | L3 | pm-005 | T047, T097 | IP real del cliente detrás de proxies confiables configurados |
+| [pm-018-static-analysis-sast](pm-018-static-analysis-sast/spec.md) | Verificado | L2 | pm-003 | T048 | Reglas de seguridad de los analizadores como errores de compilación |
+| [pm-019-secret-scanning](pm-019-secret-scanning/spec.md) | Verificado | L2 | pm-004 | T049 | Detección de secretos en archivos versionables con controles positivos y negativos |
+| [pm-020-dependency-license-audit](pm-020-dependency-license-audit/spec.md) | Verificado | L2 | pm-003 | T050 | Auditoría de vulnerabilidades, desuso y licencias NuGet con gobierno de excepciones |
+| [pm-021-local-quality-gate](pm-021-local-quality-gate/spec.md) | Verificado | L3 | pm-018, pm-019, pm-020 | T051 | Orquestación local de restore, build, formato, auditorías y suites |
 | [pm-022-user-domain-roles](pm-022-user-domain-roles/spec.md) | Cerrado | L1 | pm-001 | T013 | Usuario, correo normalizado y roles Owner/Business sin Admin |
-| [pm-023-refresh-session-domain](pm-023-refresh-session-domain/spec.md) | En progreso | L2 | pm-022 | T052 | Sesión con vencimiento por inactividad y absoluto y token de un solo uso |
+| [pm-023-refresh-session-domain](pm-023-refresh-session-domain/spec.md) | Verificado | L2 | pm-022 | T052 | Sesión con vencimiento por inactividad y absoluto y token de un solo uso |
 | [pm-024-users-persistence](pm-024-users-persistence/spec.md) | Cerrado | L3 | pm-012, pm-022 | T014 | Persistencia de usuarios en Atlas con correo único y arranque de índices |
-| [pm-025-refresh-sessions-persistence](pm-025-refresh-sessions-persistence/spec.md) | En progreso | L3 | pm-012, pm-023 | T053 | Sesiones y tokens en Atlas con hash único, consumo atómico y TTL |
+| [pm-025-refresh-sessions-persistence](pm-025-refresh-sessions-persistence/spec.md) | Verificado | L3 | pm-012, pm-023 | T053 | Sesiones y tokens en Atlas con hash único, consumo atómico y TTL |
 | [pm-026-password-hashing-argon2id](pm-026-password-hashing-argon2id/spec.md) | Cerrado | L2 | pm-022 | T015 | Hash Argon2id con salt, parámetros mínimos, rehash y concurrencia acotada |
 | [pm-027-access-token-jwt](pm-027-access-token-jwt/spec.md) | Cerrado | L2 | pm-004, pm-022 | T016 | Emisión y validación de JWT HS256 de corta vida y configuración segura |
 | [pm-028-token-revocation-redis](pm-028-token-revocation-redis/spec.md) | Cerrado | L3 | pm-013, pm-027 | T017 | Lista negra de `jti` en Redis Auth con TTL y falla cerrada |
@@ -68,14 +68,14 @@
 | [pm-051-cache-policy-data-classification](pm-051-cache-policy-data-classification/spec.md) | Propuesto | L4 | pm-050 | T062 | Política de qué datos pueden cachearse y criterios de decisión |
 | [pm-052-database-indexing-efficiency](pm-052-database-indexing-efficiency/spec.md) | Propuesto | L6 | pm-024, pm-025, pm-039 | T063 | Inventario de índices y evidencia de consultas críticas |
 | [pm-053-api-performance-baseline](pm-053-api-performance-baseline/spec.md) | Propuesto | L12 | pm-046 | T064 | Objetivos de latencia medibles y prueba de carga sin costo |
-| [pm-054-structured-logging-pii-safe](pm-054-structured-logging-pii-safe/spec.md) | Propuesto | L5 | pm-010 | T065 | Logging estructurado con correlación y sin datos personales |
+| [pm-054-structured-logging-pii-safe](pm-054-structured-logging-pii-safe/spec.md) | En progreso | L5 | pm-010 | T065 | Logging estructurado con correlación y sin datos personales |
 | [pm-055-ci-pull-request-pipeline](pm-055-ci-pull-request-pipeline/spec.md) | En progreso | L4 | pm-021 | T012, T066, T067 | Workflow de pull request con paridad respecto al gate local y ramas protegidas |
-| [pm-056-test-coverage-baseline](pm-056-test-coverage-baseline/spec.md) | Propuesto | L4 | pm-021 | T068 | Línea base y umbral de cobertura de pruebas |
+| [pm-056-test-coverage-baseline](pm-056-test-coverage-baseline/spec.md) | En progreso | L4 | pm-021 | T068 | Línea base y umbral de cobertura de pruebas |
 | [pm-057-container-image-scan](pm-057-container-image-scan/spec.md) | Cerrado | L5 | pm-015, pm-055 | T069 | Escaneo de la imagen de contenedor con herramienta $0 |
 | [pm-058-sbom-generation](pm-058-sbom-generation/spec.md) | Cerrado | L5 | pm-055 | T070 | Generación de SBOM por compilación |
 | [pm-059-release-versioning](pm-059-release-versioning/spec.md) | En progreso | L5 | pm-055 | T071 | Versionado SemVer, etiquetas y versión trazable a la imagen |
 | [pm-060-sdd-integrity-gate](pm-060-sdd-integrity-gate/spec.md) | Cerrado | L5 | pm-055 | T072 | Validación automática de la integridad de specs, tasks y trazabilidad |
-| [pm-061-api-docs-contract-sync](pm-061-api-docs-contract-sync/spec.md) | Propuesto | L5 | pm-007, pm-008, pm-009 | T024, T039, T073 | Rutas del código iguales al catálogo y wrapper representado en OpenAPI |
+| [pm-061-api-docs-contract-sync](pm-061-api-docs-contract-sync/spec.md) | En progreso | L5 | pm-007, pm-008, pm-009 | T024, T039, T073 | Rutas del código iguales al catálogo y wrapper representado en OpenAPI |
 | [pm-062-cloud-cost-feasibility-study](pm-062-cloud-cost-feasibility-study/spec.md) | En progreso | L0 | — | T074 | Estudio con fuentes oficiales del costo $0 MXN por componente en Azure for Students y del costo total de operación de la arquitectura |
 | [pm-063-cloud-provider-selection](pm-063-cloud-provider-selection/spec.md) | En progreso | L1 | pm-062 | T075 | Registrar Azure for Students como proveedor definitivo y seleccionar mediante ADR el servicio de Azure para cada componente |
 | [pm-064-environment-strategy](pm-064-environment-strategy/spec.md) | En progreso | L2 | pm-063 | T076 | Entornos, bases por entorno y convenciones de nombres |
@@ -147,7 +147,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T021 | Histórica | [pm-032](pm-032-user-logout/spec.md) | Cerrado y aprobado (2026-11-03, aprobación humana) | Endpoint Logout |
 | T022 | Histórica | [pm-033](pm-033-authorization-policies/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Políticas de autenticación y autorización |
 | T023 | Histórica | [pm-034](pm-034-auth-brute-force-protection/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas unitarias, integración y seguridad de auth |
-| T024 | Histórica | [pm-061](pm-061-api-docs-contract-sync/spec.md) | Propuesto | Contratos y documentación de auth |
+| T024 | Histórica | [pm-061](pm-061-api-docs-contract-sync/spec.md) | En progreso (verificada con evidencia; pendiente de aprobación humana) | Contratos y documentación de auth |
 | T025 | Histórica | [pm-035](pm-035-auth-session-lifecycle-acceptance/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Gates y revisión independiente de auth |
 | T026 | Histórica | [pm-037](pm-037-owner-profile-read/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar GET perfil propio |
 | T027 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar PUT perfil propio |
@@ -162,23 +162,23 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T036 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas unitarias Pet |
 | T037 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas de integración Atlas |
 | T038 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas de seguridad Pet |
-| T039 | Histórica | [pm-061](pm-061-api-docs-contract-sync/spec.md) | Propuesto | Pruebas de contrato y documentación |
+| T039 | Histórica | [pm-061](pm-061-api-docs-contract-sync/spec.md) | En progreso (verificada con evidencia; pendiente de aprobación humana) | Pruebas de contrato y documentación |
 | T040 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Gates y revisión independiente Pet |
 | T041 | Histórica | [pm-046](pm-046-first-milestone-acceptance/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Validación end-to-end y aceptación del primer hito |
-| T042 | Retrospectiva | [pm-007](pm-007-api-route-conventions/spec.md) | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva de rutas versionadas |
-| T043 | Retrospectiva | [pm-010](pm-010-global-exception-handling/spec.md) | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva del manejo global de excepciones |
-| T044 | Retrospectiva | [pm-013](pm-013-redis-dual-connectivity/spec.md) | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva de conectividad Redis dual |
-| T045 | Retrospectiva | [pm-014](pm-014-health-probes/spec.md) | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva de health probes |
-| T046 | Retrospectiva | [pm-015](pm-015-api-container-image/spec.md) | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva de la imagen del contenedor |
-| T047 | Retrospectiva | [pm-017](pm-017-trusted-proxy-forwarded-headers/spec.md) | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva de proxies confiables |
-| T048 | Retrospectiva | [pm-018](pm-018-static-analysis-sast/spec.md) | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva de análisis estático |
-| T049 | Retrospectiva | [pm-019](pm-019-secret-scanning/spec.md) | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva del escaneo de secretos |
-| T050 | Retrospectiva | [pm-020](pm-020-dependency-license-audit/spec.md) | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva de la auditoría de dependencias y licencias |
-| T051 | Retrospectiva | [pm-021](pm-021-local-quality-gate/spec.md) | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva del gate de calidad local |
-| T052 | Retrospectiva | [pm-023](pm-023-refresh-session-domain/spec.md) | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva del dominio de sesiones |
-| T053 | Retrospectiva | [pm-025](pm-025-refresh-sessions-persistence/spec.md) | En progreso (retrospectiva documentada; pendiente de revisión y aprobación humana) | Documentar la evidencia retrospectiva de la persistencia de sesiones |
+| T042 | Retrospectiva | [pm-007](pm-007-api-route-conventions/spec.md) | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva de rutas versionadas |
+| T043 | Retrospectiva | [pm-010](pm-010-global-exception-handling/spec.md) | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva del manejo global de excepciones |
+| T044 | Retrospectiva | [pm-013](pm-013-redis-dual-connectivity/spec.md) | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva de conectividad Redis dual |
+| T045 | Retrospectiva | [pm-014](pm-014-health-probes/spec.md) | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva de health probes |
+| T046 | Retrospectiva | [pm-015](pm-015-api-container-image/spec.md) | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva de la imagen del contenedor |
+| T047 | Retrospectiva | [pm-017](pm-017-trusted-proxy-forwarded-headers/spec.md) | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva de proxies confiables |
+| T048 | Retrospectiva | [pm-018](pm-018-static-analysis-sast/spec.md) | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva de análisis estático |
+| T049 | Retrospectiva | [pm-019](pm-019-secret-scanning/spec.md) | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva del escaneo de secretos |
+| T050 | Retrospectiva | [pm-020](pm-020-dependency-license-audit/spec.md) | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva de la auditoría de dependencias y licencias |
+| T051 | Retrospectiva | [pm-021](pm-021-local-quality-gate/spec.md) | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva del gate de calidad local |
+| T052 | Retrospectiva | [pm-023](pm-023-refresh-session-domain/spec.md) | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva del dominio de sesiones |
+| T053 | Retrospectiva | [pm-025](pm-025-refresh-sessions-persistence/spec.md) | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva de la persistencia de sesiones |
 | T054 | Retrospectiva | [pm-036](pm-036-rate-limiting/spec.md) | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | Documentar la evidencia retrospectiva del rate limiting de autenticación |
-| T055 | Nueva | [pm-007](pm-007-api-route-conventions/spec.md) | En progreso (implementada y verificada; pendiente de aprobación humana) | Verificar automáticamente rutas contra el catálogo y documentar reglas de nombrado |
+| T055 | Nueva | [pm-007](pm-007-api-route-conventions/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Verificar automáticamente rutas contra el catálogo y documentar reglas de nombrado |
 | T056 | Nueva | [pm-034](pm-034-auth-brute-force-protection/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar cuota por correo, bloqueo y limitador asíncrono de hashing |
 | T057 | Nueva | [pm-036](pm-036-rate-limiting/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Definir la matriz de rate limiting para endpoints no autenticación |
 | T058 | Nueva | [pm-047](pm-047-pagination-convention/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar la convención de paginación |
@@ -188,15 +188,15 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T062 | Nueva | [pm-051](pm-051-cache-policy-data-classification/spec.md) | Propuesto | Definir la política de clasificación de datos y caché |
 | T063 | Nueva | [pm-052](pm-052-database-indexing-efficiency/spec.md) | Propuesto | Inventariar índices y evidenciar consultas críticas |
 | T064 | Nueva | [pm-053](pm-053-api-performance-baseline/spec.md) | Propuesto | Medir la línea base de rendimiento |
-| T065 | Nueva | [pm-054](pm-054-structured-logging-pii-safe/spec.md) | Propuesto | Implementar logging estructurado sin PII |
+| T065 | Nueva | [pm-054](pm-054-structured-logging-pii-safe/spec.md) | En progreso (implementada y verificada; pendiente de aprobación humana) | Implementar logging estructurado sin PII |
 | T066 | Nueva | [pm-055](pm-055-ci-pull-request-pipeline/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Crear el workflow de CI de pull request |
 | T067 | Nueva | [pm-055](pm-055-ci-pull-request-pipeline/spec.md) | Propuesto | Configurar ramas protegidas y checks requeridos |
-| T068 | Nueva | [pm-056](pm-056-test-coverage-baseline/spec.md) | Propuesto | Medir la línea base de cobertura |
+| T068 | Nueva | [pm-056](pm-056-test-coverage-baseline/spec.md) | En progreso (implementada y verificada; pendiente de aprobación humana) | Medir la línea base de cobertura |
 | T069 | Nueva | [pm-057](pm-057-container-image-scan/spec.md) | Cerrado | Integrar el escaneo de la imagen de contenedor |
 | T070 | Nueva | [pm-058](pm-058-sbom-generation/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Generar el SBOM por compilación |
 | T071 | Nueva | [pm-059](pm-059-release-versioning/spec.md) | En progreso | Definir el versionado de releases |
 | T072 | Nueva | [pm-060](pm-060-sdd-integrity-gate/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Integrar el gate de integridad SDD en CI |
-| T073 | Nueva | [pm-061](pm-061-api-docs-contract-sync/spec.md) | Propuesto | Sincronizar contratos, catálogo y OpenAPI |
+| T073 | Nueva | [pm-061](pm-061-api-docs-contract-sync/spec.md) | En progreso (implementada y verificada; pendiente de aprobación humana) | Sincronizar contratos, catálogo y OpenAPI |
 | T074 | Nueva | [pm-062](pm-062-cloud-cost-feasibility-study/spec.md) | En progreso (documentada y verificada; pendiente de aprobación humana) | Elaborar el estudio de costos de Azure for Students |
 | T075 | Nueva | [pm-063](pm-063-cloud-provider-selection/spec.md) | En progreso (documentada y verificada; pendiente de aprobación humana) | Registrar la decisión de proveedor y los ADR de servicios Azure |
 | T076 | Nueva | [pm-064](pm-064-environment-strategy/spec.md) | En progreso (documentada y verificada; pendiente de aprobación humana) | Definir la estrategia de entornos |
@@ -220,7 +220,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T094 | Nueva | [pm-082](pm-082-cdn-public-delivery/spec.md) | Propuesto | Configurar el CDN de contenido público |
 | T095 | Nueva | [pm-083](pm-083-infrastructure-teardown/spec.md) | Propuesto | Definir y probar el procedimiento de teardown |
 | T096 | Nueva | [pm-084](pm-084-cloud-deployment-acceptance/spec.md) | Propuesto | Ejecutar la aceptación del despliegue cloud |
-| T097 | Nueva | [pm-017](pm-017-trusted-proxy-forwarded-headers/spec.md) | En progreso (implementada y verificada; pendiente de aprobación humana) | Verificar el rechazo de cabeceras reenviadas de proxies no confiables |
+| T097 | Nueva | [pm-017](pm-017-trusted-proxy-forwarded-headers/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Verificar el rechazo de cabeceras reenviadas de proxies no confiables |
 
 ## Primer hito
 
@@ -264,3 +264,5 @@ Los cuatro endpoints de autenticación y los siete endpoints funcionales (11 en 
 - **2026-11-08 — pm-001 a pm-027:** los 27 specs que seguían `En revisión` quedan aprobados por el usuario. Pasan a `Cerrado` los 15 cuya Task histórica ya estaba cerrada (pm-001 a pm-006, pm-008, pm-009, pm-011, pm-012, pm-016, pm-022, pm-024, pm-026 y pm-027) y a `Aprobado` los 12 con Tasks pendientes (pm-007, pm-010, pm-013, pm-014, pm-015, pm-017 a pm-021, pm-023 y pm-025). Siguen abiertas las Tasks retrospectivas T042 a T053, T055 y T097; aprobar un spec no las cierra.
 - **2026-11-08 — T042 a T053, T055 y T097:** documentada la evidencia retrospectiva de las 12 Tasks retrospectivas restantes (pm-007, pm-010, pm-013, pm-014, pm-015, pm-017, pm-018, pm-019, pm-020, pm-021, pm-023 y pm-025) y construidas T055 (`RouteCatalogTests` y reglas de nombrado en `docs/api/endpoints.md`) y T097 (`ForwardedHeadersSpoofingTests`). Los 12 specs pasan a `En progreso`; todas esperan revisión y aprobación humana. Los criterios pm-010 CA-03 (cancelación del cliente) quedan solo con cobertura parcial.
 - **2026-11-08 — T074, T075 y T076 (pm-062, pm-063, pm-064):** ejecutadas por encargo del usuario como las siguientes tres Tasks viables (specs aprobados, trabajo documental sin recursos reales). Estudio de costos con fuentes oficiales, ADR-005 a ADR-010 con alternativas dentro de Azure, índice de decisiones y estrategia de entornos con pruebas. Las tres esperan revisión y aprobación humana; los ADR siguen «Propuesto».
+- **2026-11-08 — Aprobación humana de T042–T053, T055 y T097:** las 12 retrospectivas quedan «Aprobada y documentada»; T055 y T097 «Cerrado y aprobado». T071 y T074–T076 siguen en progreso por decisión del usuario.
+- **2026-11-08 — pm-054, pm-056 y pm-061 aprobados por el usuario y ejecutados (T065, T068, T073; T024 y T039 verificadas con evidencia):** logging JSON con correlación y sin datos sensibles (`RequestLoggingMiddleware`), línea base de cobertura 93.7 % y documento OpenAPI verificado contra el Response Wrapper. Esperan revisión independiente y aprobación humana; el umbral de cobertura espera enmienda.

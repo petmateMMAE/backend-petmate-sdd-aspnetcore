@@ -17,4 +17,4 @@
 
 - Limitaciones: El job gitleaks del pipeline no se ha ejecutado con los cambios recientes.
 - [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T049.
+- [x] Aprobación humana de T049 (2026-11-08).

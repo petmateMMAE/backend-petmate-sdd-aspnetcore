@@ -17,4 +17,4 @@
 
 - Limitaciones: CodeQL es informativo y el job de CI aún no se ha ejecutado con los cambios recientes.
 - [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T048.
+- [x] Aprobación humana de T048 (2026-11-08).

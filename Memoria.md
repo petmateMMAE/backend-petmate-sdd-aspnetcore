@@ -447,3 +447,16 @@
 - **T075 (pm-063):** ADR-005 a ADR-010 (balanceo, almacenamiento, CDN, observabilidad, registro, secretos) con alternativas dentro de Azure, e índice `docs/decisions/README.md`; ADR-003 sigue cubriendo cómputo y Redis. Siguen «Propuesto».
 - **T076 (pm-064):** `docs/infrastructure/environments.md` (desarrollo, pruebas, demo; bases `petmate_dev`, `petmate_test`, `petmate_prod`; nombres y etiquetas) con `EnvironmentStrategyTests` y `DecisionRecordsTests` (Security 177). No se creó ni se consultó ningún recurso de Azure.
 - **Pendiente:** aprobación humana de T074, T075 y T076; confirmar en la calculadora los precios que no cargaron y leer el consumo real en Cost Management.
+
+## Aprobaciones del 2026-11-08 (T042–T053, T055, T097)
+
+- Aprobadas por el usuario: retrospectivas T042–T053 («Aprobada y documentada») y T055 y T097 («Cerrado y aprobado»). Sin revisión independiente de T055/T097.
+- **No aprobadas (decisión del usuario):** T071, T074, T075 y T076 siguen «En progreso».
+
+## Logging, cobertura y contratos — T065, T068, T073 (2026-11-08)
+
+- **T065 (pm-054):** `RequestLoggingMiddleware` + consola JSON con ámbitos. Hallazgo propio: el ámbito `RequestPath` de `Hosting.Diagnostics` filtraba ids y texto del cliente; se desactivó (filtro a `None`). `X-Correlation-Id` se escribe con `OnStarting` porque el Response Wrapper limpia las cabeceras. `AuthFlowFactory` dejó de ser `sealed` para poder capturar logs en pruebas.
+- **T068 (pm-056):** cobertura de líneas 93.7 % con las cuatro suites (78.6 % sin Atlas/Redis). `docs/quality/coverage-baseline.md` y `scripts/coverage-merge.py`. El umbral propuesto (90 % / 75 % en PR) **no está aplicado**: requiere enmienda aprobada por Miguel.
+- **T073 / T024 / T039 (pm-061):** `OpenApiWrapperTests` comprueba que el OpenAPI usa el wrapper; T024 y T039 se verificaron con pruebas existentes.
+- Suites: Unit 188, Security 177, Contract 188, Integration 56 (34 con Atlas; 22 de Redis se omiten sin contraseñas reales).
+- **Pendiente:** revisión independiente y aprobación humana de T065, T068, T073, T024 y T039; decidir la enmienda del umbral; eventos de seguridad en logs (I2).

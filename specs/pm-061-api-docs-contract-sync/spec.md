@@ -1,6 +1,6 @@
 # Spec — pm-061 api-docs-contract-sync
 
-> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L5 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L5 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -33,9 +33,9 @@ Cada criterio se cita como `pm-061#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T024 | Histórica | Propuesto | Contratos y documentación de auth |
-| T039 | Histórica | Propuesto | Pruebas de contrato y documentación |
-| T073 | Nueva | Propuesto | Sincronizar contratos, catálogo y OpenAPI |
+| T024 | Histórica | En progreso (verificada con evidencia; pendiente de aprobación humana) | Contratos y documentación de auth |
+| T039 | Histórica | En progreso (verificada con evidencia; pendiente de aprobación humana) | Pruebas de contrato y documentación |
+| T073 | Nueva | En progreso (implementada y verificada; pendiente de aprobación humana) | Sincronizar contratos, catálogo y OpenAPI |
 
 Detalle en [task.md](task.md).
 
@@ -45,7 +45,7 @@ Detalle en [task.md](task.md).
 
 ## 7. Aprobación
 
-- [ ] Requisitos y criterios revisados por el usuario.
-- [ ] Constitución cumplida.
-- Revisor/usuario: pendiente.
+- [x] Requisitos y criterios revisados por el usuario.
+- [x] Constitución cumplida.
+- Revisor/usuario: Miguel (usuario), 2026-11-08, aprobación en el chat de la sesión ("Si, apruebalos y realizalos"). Sin revisión independiente de seguridad todavía.
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec. La evidencia histórica de esta funcionalidad permanece en `specs/_historico/`.

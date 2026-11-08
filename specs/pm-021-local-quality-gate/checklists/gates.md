@@ -17,4 +17,4 @@
 
 - Limitaciones: El gate completo no corre en el host por Smart App Control (las suites se ejecutan en contenedor); en CI el trabajo se reparte en jobs y la puerta final los agrega.
 - [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T051.
+- [x] Aprobación humana de T051 (2026-11-08).

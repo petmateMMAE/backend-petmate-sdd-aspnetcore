@@ -18,4 +18,4 @@
 
 - Limitaciones: Sin prueba automática del Dockerfile en la suite; la evidencia es la construcción, los escaneos y la inspección de la imagen. El escaneo de vulnerabilidades es pm-057 (cerrado).
 - [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T046.
+- [x] Aprobación humana de T046 (2026-11-08).

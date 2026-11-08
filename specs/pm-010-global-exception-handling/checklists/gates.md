@@ -19,4 +19,4 @@
 
 - Limitaciones: La cancelación por el cliente solo está cubierta por revisión de código; conviene una prueba directa (mejora propuesta, no bloqueante).
 - [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T043.
+- [x] Aprobación humana de T043 (2026-11-08).
