@@ -198,6 +198,7 @@
 | pm-040#CA-01 | T030 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
 | pm-040#CA-02 | T030 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
 | pm-040#CA-03 | T030 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
+| pm-040#CA-04 | T030 | Histórica | En progreso | `specs/pm-040-pet-create/checklists/gates.md` (`PetEndpointsTests`) |
 | pm-041#CA-01 | T031 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
 | pm-041#CA-02 | T031 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
 | pm-042#CA-01 | T032 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |

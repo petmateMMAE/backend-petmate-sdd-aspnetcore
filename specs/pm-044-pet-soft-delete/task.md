@@ -11,7 +11,7 @@
 
 ### T034 — Eliminar mascota
 - **Tipo:** Histórica
-- **Estado:** Propuesto
+- **Estado:** En progreso (implementada y probada; pendiente de revisión independiente y aprobación humana)
 - **Spec principal:** pm-044
 - **Criterios propios:** pm-044#CA-01, pm-044#CA-02, pm-044#CA-03
 - **Fuente histórica:** [`_historico/03-pet-management/task.md`](../_historico/03-pet-management/task.md) (sección T034)

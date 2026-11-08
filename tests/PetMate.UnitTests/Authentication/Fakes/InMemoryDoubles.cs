@@ -4,6 +4,7 @@ using System.Text;
 using PetMate.Application.Authentication;
 using PetMate.Application.Persistence;
 using PetMate.Application.Security;
+using PetMate.Domain.Pets;
 using PetMate.Domain.Sessions;
 using PetMate.Domain.Users;
 
@@ -30,6 +31,37 @@ public sealed class ManualClock(DateTimeOffset start) : TimeProvider
             now += delta;
         }
     }
+}
+
+/// <summary>Repositorio de mascotas en memoria; como Atlas, cada operación filtra por propietario y el borrado es físico.</summary>
+public sealed class InMemoryPetRepository : IPetRepository
+{
+    private readonly ConcurrentDictionary<Guid, Pet> pets = new();
+
+    public IReadOnlyCollection<Pet> All => pets.Values.ToArray();
+
+    public Task Add(Pet pet, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(pet);
+        pets[pet.Id] = pet;
+        return Task.CompletedTask;
+    }
+
+    public Task<Pet?> FindOwned(Guid petId, Guid ownerId, CancellationToken cancellationToken)
+        => Task.FromResult(pets.TryGetValue(petId, out var pet) && pet.OwnerId == ownerId ? pet : null);
+
+    public Task<IReadOnlyList<Pet>> ListByOwner(Guid ownerId, int skip, int take, CancellationToken cancellationToken)
+        => Task.FromResult<IReadOnlyList<Pet>>(pets.Values.Where(p => p.OwnerId == ownerId)
+            .OrderByDescending(p => p.CreatedAtUtc).ThenByDescending(p => p.Id).Skip(skip).Take(take).ToArray());
+
+    public Task<bool> UpdateOwned(Pet pet, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(pet);
+        return Task.FromResult(pets.TryGetValue(pet.Id, out var stored) && stored.OwnerId == pet.OwnerId);
+    }
+
+    public Task<bool> DeleteOwned(Guid petId, Guid ownerId, CancellationToken cancellationToken)
+        => Task.FromResult(pets.TryGetValue(petId, out var pet) && pet.OwnerId == ownerId && pets.TryRemove(petId, out _));
 }
 
 /// <summary>Repositorio de usuarios en memoria con unicidad atómica de correo (equivale al índice único de Atlas).</summary>

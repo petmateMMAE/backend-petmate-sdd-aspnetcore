@@ -353,6 +353,7 @@ public sealed class AuthFlowFactory : IsolatedApiFactory
         Users = new InMemoryUserRepository();
         Sessions = new InMemorySessionRepository();
         Revocations = new InMemoryRevocationStore(Clock);
+        Pets = new InMemoryPetRepository();
     }
 
     public ManualClock Clock { get; }
@@ -362,6 +363,8 @@ public sealed class AuthFlowFactory : IsolatedApiFactory
     public InMemorySessionRepository Sessions { get; }
 
     public InMemoryRevocationStore Revocations { get; }
+
+    public InMemoryPetRepository Pets { get; }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -376,6 +379,8 @@ public sealed class AuthFlowFactory : IsolatedApiFactory
             services.AddSingleton<ISessionRepository>(Sessions);
             services.RemoveAll<ITokenRevocationStore>();
             services.AddSingleton<ITokenRevocationStore>(Revocations);
+            services.RemoveAll<IPetRepository>();
+            services.AddSingleton<IPetRepository>(Pets);
         });
     }
 }

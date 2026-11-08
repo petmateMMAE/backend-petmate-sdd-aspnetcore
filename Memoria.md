@@ -323,3 +323,10 @@
 - **Diseño:** `Pet` en Domain con validaciones; `PetValidation` en Application (errores por campo en español); `IPetRepository` con el propietario en cada filtro (una mascota ajena se comporta como inexistente); `MongoPetRepository` e índice `ix_pets_ownerId_createdAtUtc`. La fotografía es una URL HTTPS hasta que existan pm-079/pm-080.
 - **Evidencia:** 19 pruebas unitarias nuevas y 6 de integración contra Atlas de pruebas, todas en verde (ver `specs/pm-039-pet-domain-persistence/checklists/gates.md`).
 - **Cierre:** el usuario aprobó el cierre de T029 el 2026-11-08 (sin revisión independiente). pm-039 sigue en progreso por T036 y T037.
+
+## pm-040, pm-042, pm-043, pm-044 — endpoints de mascotas (2026-11-08)
+
+- **Estado:** implementados y probados en `feature/pm-039-pet-model` (sin subir). T030, T032, T033 y T034 en `En progreso`; T031 (listar) espera la paginación de pm-047.
+- **Contrato:** solo rol Owner; propietario del token; 201 al crear, 200 en detalle, actualizar y eliminar (borrado físico); 400 con el campo; 404 para mascota ajena o inexistente. Detalle en `docs/api/endpoints.md`.
+- **Pipeline:** cuatro jobs nuevos en la matriz de endpoints (`pets-create`, `pets-get-by-id`, `pets-update`, `pets-delete`) y la prueba de humo cubre crear, ver, actualizar y eliminar.
+- **Evidencia:** Unit 142, Security 155, Contract 142 (26 nuevas), Integration sin cambios; `gates.md` de cada Spec.

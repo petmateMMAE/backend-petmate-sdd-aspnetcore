@@ -287,6 +287,10 @@ jobs:
           - health-live
           - health-ready
           - technical-mediator-probe
+          - pets-create
+          - pets-get-by-id
+          - pets-update
+          - pets-delete
     steps:
       - uses: actions/checkout@v5
 

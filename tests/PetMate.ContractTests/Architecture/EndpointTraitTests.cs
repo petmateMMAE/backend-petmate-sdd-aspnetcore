@@ -27,6 +27,10 @@ public sealed class EndpointTraitTests
         "health-live",
         "health-ready",
         "technical-mediator-probe",
+        "pets-create",
+        "pets-get-by-id",
+        "pets-update",
+        "pets-delete",
     ];
 
     // Ruta HTTP de cada acción de la API de producción -> endpoint del pipeline.
@@ -41,6 +45,10 @@ public sealed class EndpointTraitTests
         ["GET api/v1/health/live"] = "health-live",
         ["GET api/v1/health/ready"] = "health-ready",
         ["GET api/v1/technical/mediator-probe"] = "technical-mediator-probe",
+        ["POST api/v1/pets/create"] = "pets-create",
+        ["GET api/v1/pets/get-by-id/{id:guid}"] = "pets-get-by-id",
+        ["PUT api/v1/pets/update/{id:guid}"] = "pets-update",
+        ["DELETE api/v1/pets/delete/{id:guid}"] = "pets-delete",
     };
 
     [Trait(TraitName, Transversal)]

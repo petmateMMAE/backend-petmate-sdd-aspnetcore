@@ -1,6 +1,6 @@
 # Spec — pm-043 pet-update
 
-> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -30,9 +30,13 @@ Cada criterio se cita como `pm-043#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T033 | Histórica | Propuesto | Actualizar mascota |
+| T033 | Histórica | En progreso | Actualizar mascota |
 
 Detalle en [task.md](task.md).
+
+## 6. Notas, limitaciones y decisiones pendientes
+
+- **Implementación (aprobado por el usuario el 2026-11-08 (opción A)):** endpoint con política `RequireOwner`; el propietario sale del token; mascota ajena o inexistente responde 404. Contrato en [`docs/api/endpoints.md`](../../docs/api/endpoints.md) (sección Mascotas). Pruebas con `[Trait("Endpoint", "pets-update")]` en `PetEndpointsTests` y evidencia en [checklists/gates.md](checklists/gates.md).
 
 ## 7. Aprobación
 

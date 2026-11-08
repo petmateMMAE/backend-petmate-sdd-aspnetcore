@@ -140,11 +140,23 @@ Cuerpo: `{ "displayName": "Ana Pérez" }`. Se recorta; de 1 a 80 caracteres, sin
 
 | Método | Endpoint | Acceso | Spec | Estado |
 |---|---|---|---|---|
-| POST | `/api/v1/pets/create` | Owner | `pm-040` | Planeado |
-| GET | `/api/v1/pets/get-all` | Owner | `pm-041` | Planeado |
-| GET | `/api/v1/pets/get-by-id/{id}` | Owner + propietario | `pm-042` | Planeado |
-| PUT | `/api/v1/pets/update/{id}` | Owner + propietario | `pm-043` | Planeado |
-| DELETE | `/api/v1/pets/delete/{id}` | Owner + propietario | `pm-044` | Planeado |
+| POST | `/api/v1/pets/create` | Owner | `pm-040` | Implementado (en progreso) |
+| GET | `/api/v1/pets/get-all` | Owner | `pm-041` | Planeado (espera la paginación de pm-047) |
+| GET | `/api/v1/pets/get-by-id/{id}` | Owner + propietario | `pm-042` | Implementado (en progreso) |
+| PUT | `/api/v1/pets/update/{id}` | Owner + propietario | `pm-043` | Implementado (en progreso) |
+| DELETE | `/api/v1/pets/delete/{id}` | Owner + propietario | `pm-044` | Implementado (en progreso) |
+
+### Contrato de mascotas
+
+- Acceso: solo rol `Owner` (política `RequireOwner`). Sin token → 401; rol Business → 403. El propietario sale del token, nunca del cuerpo.
+- Cuerpo de `create` y `update` (se rechazan miembros desconocidos como `ownerId`, `id` o `createdAt` con 400):
+  `{ "name": "Firulais", "species": "Perro", "breed": "Mestizo", "birthDate": "2020-05-01", "sex": "Male", "photoUrl": "https://..." }`
+  - `name` 1–50 y `species` 1–40, obligatorios; `breed` hasta 60, opcional.
+  - `birthDate` opcional, `yyyy-MM-dd`, no futura ni de hace más de 50 años.
+  - `sex` obligatorio: `Male`, `Female` o `Unknown`. `photoUrl` opcional: URL HTTPS sin credenciales (la carga de archivos llega con pm-079/pm-080).
+- Respuesta (`data`): `id`, los campos anteriores, `createdAt` y `updatedAt`. Nunca incluye el propietario.
+- Códigos: crear **201**; detalle, actualizar y eliminar **200** (eliminar con `data: null`); datos inválidos **400** con `data.errors`; mascota ajena, inexistente o `{id}` que no es GUID **404**.
+- Eliminar es **físico** (decisión del usuario, 2026-11-08): la mascota deja de existir.
 
 ## Códigos HTTP iniciales
 

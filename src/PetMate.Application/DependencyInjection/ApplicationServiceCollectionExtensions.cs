@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PetMate.Application.Authentication;
 using PetMate.Application.Mediator;
+using PetMate.Application.Pets;
 using PetMate.Application.Users;
 using PetMate.Application.Validation;
 using PetMate.Domain.Sessions;
@@ -17,6 +18,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddRequestHandler<TechnicalProbeQuery, string, TechnicalProbeHandler>();
         services.AddAuthentication();
         services.AddUserProfile();
+        services.AddPets();
         services.TryAddSingleton<MediatorRegistry>();
         services.AddScoped<IMediator, MediatorDispatcher>();
         services.AddScoped<ISender, MediatorDispatcher>();
@@ -48,6 +50,19 @@ public static class ApplicationServiceCollectionExtensions
         services.AddRequestHandler<GetMyProfileQuery, UserProfileResult?, GetMyProfileHandler>();
         services.AddRequestHandler<UpdateMyProfileCommand, UserProfileResult?, UpdateMyProfileHandler>();
         services.AddRequestValidator<UpdateMyProfileCommand, UpdateMyProfileCommandValidator>();
+        return services;
+    }
+
+    /// <summary>Mascotas del Owner (pm-040, pm-042, pm-043, pm-044): crear, detalle, actualizar y eliminar.</summary>
+    private static IServiceCollection AddPets(this IServiceCollection services)
+    {
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddRequestHandler<CreatePetCommand, PetResult, CreatePetHandler>();
+        services.AddRequestHandler<GetMyPetQuery, PetResult?, GetMyPetHandler>();
+        services.AddRequestHandler<UpdateMyPetCommand, PetResult?, UpdateMyPetHandler>();
+        services.AddRequestHandler<DeleteMyPetCommand, bool, DeleteMyPetHandler>();
+        services.AddRequestValidator<CreatePetCommand, CreatePetCommandValidator>();
+        services.AddRequestValidator<UpdateMyPetCommand, UpdateMyPetCommandValidator>();
         return services;
     }
 

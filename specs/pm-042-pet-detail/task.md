@@ -11,7 +11,7 @@
 
 ### T032 — Obtener detalle
 - **Tipo:** Histórica
-- **Estado:** Propuesto
+- **Estado:** En progreso (implementada y probada; pendiente de revisión independiente y aprobación humana)
 - **Spec principal:** pm-042
 - **Criterios propios:** pm-042#CA-01, pm-042#CA-02
 - **Fuente histórica:** [`_historico/03-pet-management/task.md`](../_historico/03-pet-management/task.md) (sección T032)

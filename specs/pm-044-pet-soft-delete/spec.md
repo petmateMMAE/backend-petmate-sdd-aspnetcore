@@ -1,6 +1,6 @@
 # Spec — pm-044 pet-soft-delete
 
-> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -31,13 +31,15 @@ Cada criterio se cita como `pm-044#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T034 | Histórica | Propuesto | Eliminar mascota |
+| T034 | Histórica | En progreso | Eliminar mascota |
 
 Detalle en [task.md](task.md).
 
 ## 6. Notas, limitaciones y decisiones pendientes
 
 - **Borrado físico (decisión del usuario del 2026-11-08):** sustituye a la eliminación lógica del slice histórico. El identificador y el slug `pet-soft-delete` se conservan porque son inmutables (Constitución §12.3). Los criterios se reescribieron con su mismo identificador y propietario (T034).
+
+- **Implementación (aprobado por el usuario el 2026-11-08 (opción A)):** endpoint con política `RequireOwner`; el propietario sale del token; mascota ajena o inexistente responde 404. Contrato en [`docs/api/endpoints.md`](../../docs/api/endpoints.md) (sección Mascotas). Pruebas con `[Trait("Endpoint", "pets-delete")]` en `PetEndpointsTests` y evidencia en [checklists/gates.md](checklists/gates.md).
 
 ## 7. Aprobación
 

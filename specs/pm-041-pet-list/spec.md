@@ -4,7 +4,7 @@
 
 ## 1. Objetivo
 
-`GET /api/v1/pets/get-all` solo de mascotas propias y activas, paginado.
+`GET /api/v1/pets/get-all` solo de mascotas propias, paginado.
 
 ## 2. Dependencias
 

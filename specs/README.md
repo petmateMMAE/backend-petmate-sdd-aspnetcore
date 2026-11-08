@@ -54,11 +54,11 @@
 | [pm-037-owner-profile-read](pm-037-owner-profile-read/spec.md) | En progreso | L5 | pm-024, pm-033 | T026 | `GET /api/v1/users/me/get` del usuario autenticado |
 | [pm-038-owner-profile-update](pm-038-owner-profile-update/spec.md) | En progreso | L6 | pm-037 | T027, T028 | `PUT /api/v1/users/me/update` con campos aprobados |
 | [pm-039-pet-domain-persistence](pm-039-pet-domain-persistence/spec.md) | En progreso | L5 | pm-012, pm-033 | T029, T036, T037 | Modelo Pet, validadores, persistencia e índice por propietario |
-| [pm-040-pet-create](pm-040-pet-create/spec.md) | Propuesto | L6 | pm-039 | T030 | `POST /api/v1/pets/create` con propietario tomado del token |
-| [pm-041-pet-list](pm-041-pet-list/spec.md) | Propuesto | L6 | pm-039, pm-047 | T031 | `GET /api/v1/pets/get-all` solo de mascotas propias y activas, paginado |
-| [pm-042-pet-detail](pm-042-pet-detail/spec.md) | Propuesto | L6 | pm-039 | T032 | `GET /api/v1/pets/get-by-id/{id}` solo de mascota propia |
-| [pm-043-pet-update](pm-043-pet-update/spec.md) | Propuesto | L6 | pm-039 | T033 | `PUT /api/v1/pets/update/{id}` de mascota propia con campos permitidos |
-| [pm-044-pet-soft-delete](pm-044-pet-soft-delete/spec.md) | Propuesto | L6 | pm-039 | T034 | `DELETE /api/v1/pets/delete/{id}` con borrado físico y `data:null` |
+| [pm-040-pet-create](pm-040-pet-create/spec.md) | En progreso | L6 | pm-039 | T030 | `POST /api/v1/pets/create` con propietario tomado del token |
+| [pm-041-pet-list](pm-041-pet-list/spec.md) | Propuesto | L6 | pm-039, pm-047 | T031 | `GET /api/v1/pets/get-all` solo de mascotas propias, paginado |
+| [pm-042-pet-detail](pm-042-pet-detail/spec.md) | En progreso | L6 | pm-039 | T032 | `GET /api/v1/pets/get-by-id/{id}` solo de mascota propia |
+| [pm-043-pet-update](pm-043-pet-update/spec.md) | En progreso | L6 | pm-039 | T033 | `PUT /api/v1/pets/update/{id}` de mascota propia con campos permitidos |
+| [pm-044-pet-soft-delete](pm-044-pet-soft-delete/spec.md) | En progreso | L6 | pm-039 | T034 | `DELETE /api/v1/pets/delete/{id}` con borrado físico y `data:null` |
 | [pm-045-pet-ownership-bola](pm-045-pet-ownership-bola/spec.md) | Propuesto | L7 | pm-040, pm-041, pm-042, pm-043, pm-044 | T035, T038, T040 | Matriz de propiedad y BOLA del módulo de mascotas y cierre de seguridad del módulo |
 | [pm-046-first-milestone-acceptance](pm-046-first-milestone-acceptance/spec.md) | Propuesto | L11 | pm-035, pm-038, pm-045 | T041 | Aceptación de extremo a extremo de los 11 endpoints del primer hito |
 | [pm-047-pagination-convention](pm-047-pagination-convention/spec.md) | Propuesto | L4 | pm-009 | T058 | Parámetros, tope y forma de paginación en listados |
@@ -153,11 +153,11 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T027 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | En progreso | Implementar PUT perfil propio |
 | T028 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | En progreso | Pruebas y gates de perfil |
 | T029 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Definir modelo Pet y persistencia |
-| T030 | Histórica | [pm-040](pm-040-pet-create/spec.md) | Propuesto | Crear mascota |
+| T030 | Histórica | [pm-040](pm-040-pet-create/spec.md) | En progreso | Crear mascota |
 | T031 | Histórica | [pm-041](pm-041-pet-list/spec.md) | Propuesto | Listar mascotas |
-| T032 | Histórica | [pm-042](pm-042-pet-detail/spec.md) | Propuesto | Obtener detalle |
-| T033 | Histórica | [pm-043](pm-043-pet-update/spec.md) | Propuesto | Actualizar mascota |
-| T034 | Histórica | [pm-044](pm-044-pet-soft-delete/spec.md) | Propuesto | Eliminar mascota |
+| T032 | Histórica | [pm-042](pm-042-pet-detail/spec.md) | En progreso | Obtener detalle |
+| T033 | Histórica | [pm-043](pm-043-pet-update/spec.md) | En progreso | Actualizar mascota |
+| T034 | Histórica | [pm-044](pm-044-pet-soft-delete/spec.md) | En progreso | Eliminar mascota |
 | T035 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | Propuesto | Asegurar autorización y ownership |
 | T036 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Propuesto | Pruebas unitarias Pet |
 | T037 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Propuesto | Pruebas de integración Atlas |
@@ -238,3 +238,4 @@ Los cuatro endpoints de autenticación y los siete endpoints funcionales (11 en 
 - **2026-11-05 — pm-035:** se añadieron `pm-033` y `pm-034` como dependencias directas (aprobado por el usuario). Justificación en [pm-035](pm-035-auth-session-lifecycle-acceptance/spec.md) §6. Efecto en niveles: pm-035 pasa a L10, pm-046 a L11 y pm-053 a L12. No se modificó ninguna Task histórica ni la propiedad de ningún criterio.
 - **2026-11-05 — pm-033 / T022:** pasan a `En progreso` por autorización de implementación del usuario. T022 no está cerrada (ver [task.md](pm-033-authorization-policies/task.md)).
 - **2026-11-08 — pm-039 / T029:** pasan a `En progreso` por autorización del usuario (campos de la maqueta móvil y borrado físico). Se reescribieron pm-039 CA-01 y CA-03, pm-044 CA-01 a CA-03 y pm-041 CA-01, con sus mismos identificadores y propietarios.
+- **2026-11-08 — pm-040, pm-042, pm-043, pm-044 (T030, T032, T033, T034):** aprobados por el usuario (opción A) y pasan a `En progreso`. Se añadió pm-040 CA-04 (400 con el campo). pm-041 (T031) espera a la paginación (pm-047).
