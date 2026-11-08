@@ -24,7 +24,7 @@ Cada criterio se cita como `pm-041#CA-NN`. La columna final indica la Task que l
 
 | CA | Criterio | Task propietaria |
 |---|---|---|
-| `CA-01` | Un Owner lista únicamente sus mascotas activas. [origen: 03-pet-management CA-002] | T031 |
+| `CA-01` | Un Owner lista únicamente sus mascotas. [origen: 03-pet-management CA-002; sin estado «activa» porque el borrado es físico, decisión del usuario del 2026-11-08] | T031 |
 | `CA-02` | El listado es paginado con el tope definido en pm-047. | T031 |
 
 ## 5. Tasks

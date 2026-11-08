@@ -315,3 +315,10 @@
 - **Scripts:** `quality-gate.ps1` acepta `-AuditOnly` y `-MinSeverity` (el pipeline bloquea High y Critical; localmente sigue bloqueando cualquier vulnerabilidad); `ci-test-summary.ps1` resume los TRX en el resumen del job; `.gitleaks.toml` con 5 falsos positivos revisados.
 - **Primer run en GitHub (2026-11-06):** todas las etapas en verde salvo integración: 21 pruebas contra Atlas fallaron porque Atlas no admite las IP de los runners (las 18 de Redis y de configuración pasaron). Se añadió un *ping* previo: si Atlas no responde, esas pruebas quedan Skipped con aviso. Acciones actualizadas a Node 24 (checkout, setup-dotnet y upload-artifact v5, CodeQL v4) y runner fijado a `ubuntu-24.04`.
 - **Riesgos abiertos:** CodeQL en repositorio privado requiere GitHub Advanced Security (decisión de Miguel; interruptor `CODEQL_DISABLED`); el pipeline nuevo no se ha podido ejecutar en GitHub desde este equipo, se validó con actionlint, gitleaks, Trivy y las suites en contenedor; la etiqueta de `deploy` y el DAST solo se ven en un run real de `main`.
+
+## pm-039 / T029 — modelo de mascota y persistencia (2026-11-08)
+
+- **Estado:** implementado y probado en la rama `feature/pm-039-pet-model`; T029 y pm-039 en `En progreso` (falta revisión independiente y aprobación humana). Sin endpoints todavía (llegan con pm-040 a pm-044).
+- **Decisiones del usuario:** campos de la maqueta móvil (nombre, especie, raza, fecha de nacimiento, sexo y fotografía) y **borrado físico** en la base de datos. Se reescribieron con sus mismos identificadores pm-039 CA-01/CA-03, pm-044 CA-01 a CA-03 y pm-041 CA-01.
+- **Diseño:** `Pet` en Domain con validaciones; `PetValidation` en Application (errores por campo en español); `IPetRepository` con el propietario en cada filtro (una mascota ajena se comporta como inexistente); `MongoPetRepository` e índice `ix_pets_ownerId_createdAtUtc`. La fotografía es una URL HTTPS hasta que existan pm-079/pm-080.
+- **Evidencia:** 19 pruebas unitarias nuevas y 6 de integración contra Atlas de pruebas, todas en verde (ver `specs/pm-039-pet-domain-persistence/checklists/gates.md`).

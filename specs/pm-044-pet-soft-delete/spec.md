@@ -4,7 +4,7 @@
 
 ## 1. Objetivo
 
-`DELETE /api/v1/pets/delete/{id}` con eliminación lógica y `data:null`.
+`DELETE /api/v1/pets/delete/{id}` con borrado físico y `data:null`.
 
 ## 2. Dependencias
 
@@ -23,9 +23,9 @@ Cada criterio se cita como `pm-044#CA-NN`. La columna final indica la Task que l
 
 | CA | Criterio | Task propietaria |
 |---|---|---|
-| `CA-01` | Un Owner elimina lógicamente una mascota propia y la respuesta lleva `data: null`. [origen: 03-pet-management CA-005] | T034 |
-| `CA-02` | La mascota eliminada deja de aparecer en listados normales. | T034 |
-| `CA-03` | No se borra físicamente sin política de retención aprobada. | T034 |
+| `CA-01` | Un Owner elimina físicamente una mascota propia y la respuesta lleva `data: null`. [origen: 03-pet-management CA-005; borrado físico por decisión del usuario del 2026-11-08] | T034 |
+| `CA-02` | La mascota eliminada deja de existir: no aparece en el listado y su detalle responde 404. | T034 |
+| `CA-03` | Solo el propietario puede eliminarla; una mascota ajena o inexistente responde 404 y no se borra nada. | T034 |
 
 ## 5. Tasks
 
@@ -34,6 +34,10 @@ Cada criterio se cita como `pm-044#CA-NN`. La columna final indica la Task que l
 | T034 | Histórica | Propuesto | Eliminar mascota |
 
 Detalle en [task.md](task.md).
+
+## 6. Notas, limitaciones y decisiones pendientes
+
+- **Borrado físico (decisión del usuario del 2026-11-08):** sustituye a la eliminación lógica del slice histórico. El identificador y el slug `pet-soft-delete` se conservan porque son inmutables (Constitución §12.3). Los criterios se reescribieron con su mismo identificador y propietario (T034).
 
 ## 7. Aprobación
 

@@ -11,6 +11,8 @@ public sealed record MongoCollectionNames(string Prefix = "")
     public string Sessions => Prefix + "refresh_sessions";
 
     public string Tokens => Prefix + "refresh_tokens";
+
+    public string Pets => Prefix + "pets";
 }
 
 // Documentos de persistencia: viven en Infrastructure y mantienen Domain libre de atributos Bson.
@@ -103,4 +105,46 @@ internal sealed class RefreshTokenDocument
     [BsonElement("absoluteExpiresAtUtc")]
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime AbsoluteExpiresAtUtc { get; set; }
+}
+
+/// <summary>Mascota (pm-039). El borrado es físico: no hay campo de estado.</summary>
+internal sealed class PetDocument
+{
+    [BsonId]
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
+    public Guid Id { get; set; }
+
+    [BsonElement("ownerId")]
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
+    public Guid OwnerId { get; set; }
+
+    [BsonElement("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [BsonElement("species")]
+    public string Species { get; set; } = string.Empty;
+
+    [BsonElement("breed")]
+    [BsonIgnoreIfNull]
+    public string? Breed { get; set; }
+
+    /// <summary>Fecha de nacimiento como fecha de calendario (sin hora ni zona), formato ISO yyyy-MM-dd.</summary>
+    [BsonElement("birthDate")]
+    [BsonIgnoreIfNull]
+    public string? BirthDate { get; set; }
+
+    [BsonElement("sex")]
+    public int Sex { get; set; }
+
+    [BsonElement("photoUrl")]
+    [BsonIgnoreIfNull]
+    public string? PhotoUrl { get; set; }
+
+    [BsonElement("createdAtUtc")]
+    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
+    public DateTime CreatedAtUtc { get; set; }
+
+    [BsonElement("updatedAtUtc")]
+    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
+    public DateTime UpdatedAtUtc { get; set; }
 }

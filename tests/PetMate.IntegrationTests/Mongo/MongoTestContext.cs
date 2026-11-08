@@ -39,6 +39,7 @@ internal sealed class MongoTestContext : IAsyncDisposable
         Names = names;
         Users = new MongoUserRepository(database, names);
         Sessions = new MongoSessionRepository(database, names);
+        Pets = new MongoPetRepository(database, names);
         Indexes = new MongoIndexInitializer(database, names);
     }
 
@@ -47,6 +48,8 @@ internal sealed class MongoTestContext : IAsyncDisposable
     public MongoUserRepository Users { get; }
 
     public MongoSessionRepository Sessions { get; }
+
+    public MongoPetRepository Pets { get; }
 
     public MongoIndexInitializer Indexes { get; }
 
@@ -76,7 +79,7 @@ internal sealed class MongoTestContext : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        foreach (var name in new[] { Names.Users, Names.Sessions, Names.Tokens })
+        foreach (var name in new[] { Names.Users, Names.Sessions, Names.Tokens, Names.Pets })
         {
             await database.DropCollectionAsync(name);
         }

@@ -44,6 +44,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton(new MongoCollectionNames());
         services.AddSingleton<IUserRepository, MongoUserRepository>();
         services.AddSingleton<ISessionRepository, MongoSessionRepository>();
+        services.AddSingleton<IPetRepository, MongoPetRepository>();
         services.AddSingleton<MongoIndexInitializer>();
         services.AddHostedService<MongoIndexHostedService>();
 

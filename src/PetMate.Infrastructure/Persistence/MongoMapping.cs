@@ -1,3 +1,5 @@
+using System.Globalization;
+using PetMate.Domain.Pets;
 using PetMate.Domain.Sessions;
 using PetMate.Domain.Users;
 
@@ -64,6 +66,35 @@ internal static class MongoMapping
         RefreshTokenHash.Create(document.TokenHash),
         AsUtc(document.IssuedAtUtc),
         document.ConsumedAtUtc is { } consumed ? AsUtc(consumed) : null);
+
+    public static PetDocument ToDocument(Pet pet) => new()
+    {
+        Id = pet.Id,
+        OwnerId = pet.OwnerId,
+        Name = pet.Name,
+        Species = pet.Species,
+        Breed = pet.Breed,
+        BirthDate = pet.BirthDate?.ToString(BirthDateFormat, CultureInfo.InvariantCulture),
+        Sex = (int)pet.Sex,
+        PhotoUrl = pet.PhotoUrl,
+        CreatedAtUtc = pet.CreatedAtUtc,
+        UpdatedAtUtc = pet.UpdatedAtUtc,
+    };
+
+    public static Pet ToDomain(PetDocument document) => Pet.Restore(
+        document.Id,
+        document.OwnerId,
+        new PetDetails(
+            document.Name,
+            document.Species,
+            document.Breed,
+            document.BirthDate is null ? null : DateOnly.ParseExact(document.BirthDate, BirthDateFormat, CultureInfo.InvariantCulture),
+            (PetSex)document.Sex,
+            document.PhotoUrl),
+        AsUtc(document.CreatedAtUtc),
+        AsUtc(document.UpdatedAtUtc));
+
+    private const string BirthDateFormat = "yyyy-MM-dd";
 
     // El driver devuelve Utc con [BsonDateTimeOptions]; esto protege además a los documentos construidos en memoria.
     private static DateTime AsUtc(DateTime value)

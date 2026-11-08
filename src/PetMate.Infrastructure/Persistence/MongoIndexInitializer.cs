@@ -4,7 +4,7 @@ using MongoDB.Driver;
 
 namespace PetMate.Infrastructure.Persistence;
 
-/// <summary>Crea (de forma idempotente) los índices de autenticación. Ver plan §11.2.</summary>
+/// <summary>Crea (de forma idempotente) los índices de autenticación (plan §11.2) y el de mascotas por propietario (pm-039).</summary>
 public sealed class MongoIndexInitializer(IMongoDatabase database, MongoCollectionNames names)
 {
     public const string UserEmailIndex = "ux_users_email";
@@ -13,12 +13,14 @@ public sealed class MongoIndexInitializer(IMongoDatabase database, MongoCollecti
     public const string TokenTtlIndex = "ttl_refresh_tokens_absoluteExpiresAtUtc";
     public const string SessionUserIndex = "ix_refresh_sessions_userId";
     public const string SessionTtlIndex = "ttl_refresh_sessions_absoluteExpiresAtUtc";
+    public const string PetOwnerIndex = "ix_pets_ownerId_createdAtUtc";
 
     public async Task EnsureIndexes(CancellationToken cancellationToken)
     {
         var users = database.GetCollection<UserDocument>(names.Users);
         var sessions = database.GetCollection<RefreshSessionDocument>(names.Sessions);
         var tokens = database.GetCollection<RefreshTokenDocument>(names.Tokens);
+        var pets = database.GetCollection<PetDocument>(names.Pets);
 
         await users.Indexes.CreateOneAsync(
             new CreateIndexModel<UserDocument>(
@@ -50,6 +52,13 @@ public sealed class MongoIndexInitializer(IMongoDatabase database, MongoCollecti
                     new CreateIndexOptions { ExpireAfter = TimeSpan.Zero, Name = SessionTtlIndex }),
             ],
             cancellationToken).ConfigureAwait(false);
+
+        // pm-039#CA-02: toda consulta de mascotas filtra por propietario y lista de la más reciente a la más antigua.
+        await pets.Indexes.CreateOneAsync(
+            new CreateIndexModel<PetDocument>(
+                Builders<PetDocument>.IndexKeys.Ascending(document => document.OwnerId).Descending(document => document.CreatedAtUtc),
+                new CreateIndexOptions { Name = PetOwnerIndex }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 }
 
