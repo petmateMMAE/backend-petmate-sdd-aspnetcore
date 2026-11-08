@@ -1,6 +1,6 @@
 # Spec — pm-047 pagination-convention
 
-> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L4 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L4 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -30,13 +30,21 @@ Cada criterio se cita como `pm-047#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T058 | Nueva | Propuesto | Implementar la convención de paginación |
+| T058 | Nueva | En progreso | Implementar la convención de paginación |
 
 Detalle en [task.md](task.md).
 
+## 6. Notas, limitaciones y decisiones pendientes
+
+- **Valores aprobados por el usuario (2026-11-08).** Los criterios no cambian; estos valores los concretan:
+  - `page` empieza en 1 y su valor por defecto es 1.
+  - `pageSize` tiene valor por defecto 20 y tope máximo 50.
+  - Un valor fuera de rango, no numérico o menor que 1 devuelve 400 con el formato estándar y el nombre del parámetro; no se recorta en silencio.
+  - Forma de la respuesta dentro de `data`: `items`, `page`, `pageSize`, `totalCount` y `totalPages`.
+
 ## 7. Aprobación
 
-- [ ] Requisitos y criterios revisados por el usuario.
-- [ ] Constitución cumplida.
-- Revisor/usuario: pendiente.
+- [x] Requisitos y criterios revisados por el usuario.
+- [x] Constitución cumplida.
+- Revisor/usuario: usuario del proyecto, aprobado el 2026-11-08.
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec. La evidencia histórica de esta funcionalidad permanece en `specs/_historico/`.

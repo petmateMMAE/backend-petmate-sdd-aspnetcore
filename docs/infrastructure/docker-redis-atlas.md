@@ -28,6 +28,7 @@
 | `JWT_ISSUER`, `JWT_AUDIENCE`, `JWT_SIGNING_KEY` | API | Sí | La clave debe ser aleatoria de al menos 256 bits (≥ 32 bytes); fuera de Development se rechazan plantillas (placeholder, ficticio, no_usar…). |
 | `JWT_ACCESS_TOKEN_MINUTES` | API | No | Vida del access token; 1–60, por defecto 15. |
 | `AUTH_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por IP y minuto en register/login/refresh; 1–10000, por defecto 10. |
+| `PETS_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por usuario y minuto en `/api/v1/pets/*`; 1–10000, por defecto 60. |
 | `TRUSTED_PROXIES` | API | No | IPs de proxies confiables separadas por coma. Sin ella, tras un proxy la IP observada es la del proxy y el rate limit agrupa a todos los clientes. |
 | `ARGON2_MEMORY_KIB`, `ARGON2_ITERATIONS` | API | No | Parámetros de Argon2id; no pueden bajar del mínimo OWASP. |
 | `ARGON2_MAX_CONCURRENCY` | API | No | Hashes simultáneos; por defecto max(2, núcleos). Espera máxima de 5 s, después 503. |

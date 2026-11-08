@@ -95,7 +95,7 @@ Requiere `Authorization: Bearer <access token vigente>`. Si el access token expi
 
 - **Denegación por defecto.** Todo endpoint exige un usuario autenticado con rol `Owner` o `Business` salvo que se marque `[AllowAnonymous]` de forma explícita. Una prueba (`PublicSurfaceTests`) fija la lista cerrada de endpoints públicos.
 - **Roles.** Solo existen `Owner` y `Business`; no hay rol de administración. El rol sale únicamente del claim `role` de un JWT con firma, vigencia y lista negra ya validadas; un token con rol ausente, desconocido o con distinto uso de mayúsculas se rechaza con 401.
-- **Políticas.** `RequireOwner` y `RequireBusiness` (convención `Require<Capacidad>`). `RequireOwner` se aplicará a los endpoints de mascotas en `pm-040` a `pm-044`.
+- **Políticas.** `RequireOwner` y `RequireBusiness` (convención `Require<Capacidad>`). `RequireOwner` está aplicado a los endpoints de mascotas (`pm-040` a `pm-044`).
 - **Códigos.** 401 si no hay autenticación válida; 403 si hay autenticación válida pero el rol no tiene permiso; ambos con el wrapper estándar (`data: null`). Las rutas inexistentes siguen devolviendo 404 a cualquier llamador.
 
 | Método | Endpoint | Motivo |
@@ -140,11 +140,11 @@ Cuerpo: `{ "displayName": "Ana Pérez" }`. Se recorta; de 1 a 80 caracteres, sin
 
 | Método | Endpoint | Acceso | Spec | Estado |
 |---|---|---|---|---|
-| POST | `/api/v1/pets/create` | Owner | `pm-040` | Implementado (en progreso) |
-| GET | `/api/v1/pets/get-all` | Owner | `pm-041` | Planeado (espera la paginación de pm-047) |
-| GET | `/api/v1/pets/get-by-id/{id}` | Owner + propietario | `pm-042` | Implementado (en progreso) |
-| PUT | `/api/v1/pets/update/{id}` | Owner + propietario | `pm-043` | Implementado (en progreso) |
-| DELETE | `/api/v1/pets/delete/{id}` | Owner + propietario | `pm-044` | Implementado (en progreso) |
+| POST | `/api/v1/pets/create` | Owner | `pm-040` | Implementado (cerrado) |
+| GET | `/api/v1/pets/get-all` | Owner | `pm-041` / `pm-047` | Implementado (en progreso) |
+| GET | `/api/v1/pets/get-by-id/{id}` | Owner + propietario | `pm-042` | Implementado (cerrado) |
+| PUT | `/api/v1/pets/update/{id}` | Owner + propietario | `pm-043` | Implementado (cerrado) |
+| DELETE | `/api/v1/pets/delete/{id}` | Owner + propietario | `pm-044` | Implementado (cerrado) |
 
 ### Contrato de mascotas
 
@@ -155,7 +155,12 @@ Cuerpo: `{ "displayName": "Ana Pérez" }`. Se recorta; de 1 a 80 caracteres, sin
   - `birthDate` opcional, `yyyy-MM-dd`, no futura ni de hace más de 50 años.
   - `sex` obligatorio: `Male`, `Female` o `Unknown`. `photoUrl` opcional: URL HTTPS sin credenciales (la carga de archivos llega con pm-079/pm-080).
 - Respuesta (`data`): `id`, los campos anteriores, `createdAt` y `updatedAt`. Nunca incluye el propietario.
-- Códigos: crear **201**; detalle, actualizar y eliminar **200** (eliminar con `data: null`); datos inválidos **400** con `data.errors`; mascota ajena, inexistente o `{id}` que no es GUID **404**.
+- Listado `GET /api/v1/pets/get-all?page=1&pageSize=20` (convención de paginación de pm-047, aplicable a todos los listados): solo las mascotas del propietario del token, de la más reciente a la más antigua; cualquier `ownerId` en la consulta se ignora.
+  - `page` desde 1 (por defecto 1); `pageSize` por defecto 20 y máximo 50. Un valor menor que 1, mayor que 50 o no numérico devuelve **400** con el nombre del parámetro; no se recorta en silencio.
+  - `data`: `{ "items": [...], "page": 1, "pageSize": 20, "totalCount": 3, "totalPages": 1 }`. Una página fuera de rango devuelve `items` vacío con el total real; sin mascotas, `totalCount` y `totalPages` valen 0.
+- Códigos: crear **201** (o **409** en el máximo); listar, detalle, actualizar y eliminar **200** (eliminar con `data: null`); datos inválidos **400** con `data.errors`; mascota ajena, inexistente o `{id}` que no es GUID **404**.
+- La URL de la foto (`photoUrl`) solo se guarda y se devuelve: el servidor nunca la resuelve ni la descarga. Los textos (`name`, `species`, `breed`) no se sanean ni se codifican (se rechazan solo los caracteres de control): el cliente debe tratarlos como texto al mostrarlos. Cuando exista la carga de imágenes (pm-079/pm-080) se restringirá el origen permitido.
+- Límites contra el abuso (pm-045 CA-04): máximo **100 mascotas por propietario** (crear una más devuelve **409** con el wrapper); **60 peticiones por minuto por usuario** en `/api/v1/pets/*` (`PETS_RATE_LIMIT_PER_MINUTE`; al excederlo, **429** con `Retry-After`); y **16 KB** como tamaño máximo del cuerpo de cualquier petición de la API (**413** con el wrapper, también si el cuerpo llega fragmentado). El tope de 100 se comprueba al crear y no es atómico: peticiones simultáneas pueden superarlo por muy poco.
 - Eliminar es **físico** (decisión del usuario, 2026-11-08): la mascota deja de existir.
 
 ## Códigos HTTP iniciales

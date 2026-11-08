@@ -55,13 +55,13 @@
 | [pm-038-owner-profile-update](pm-038-owner-profile-update/spec.md) | Cerrado | L6 | pm-037 | T027, T028 | `PUT /api/v1/users/me/update` con campos aprobados |
 | [pm-039-pet-domain-persistence](pm-039-pet-domain-persistence/spec.md) | Cerrado | L5 | pm-012, pm-033 | T029, T036, T037 | Modelo Pet, validadores, persistencia e índice por propietario |
 | [pm-040-pet-create](pm-040-pet-create/spec.md) | Cerrado | L6 | pm-039 | T030 | `POST /api/v1/pets/create` con propietario tomado del token |
-| [pm-041-pet-list](pm-041-pet-list/spec.md) | Propuesto | L6 | pm-039, pm-047 | T031 | `GET /api/v1/pets/get-all` solo de mascotas propias, paginado |
+| [pm-041-pet-list](pm-041-pet-list/spec.md) | En progreso | L6 | pm-039, pm-047 | T031 | `GET /api/v1/pets/get-all` solo de mascotas propias, paginado |
 | [pm-042-pet-detail](pm-042-pet-detail/spec.md) | Cerrado | L6 | pm-039 | T032 | `GET /api/v1/pets/get-by-id/{id}` solo de mascota propia |
 | [pm-043-pet-update](pm-043-pet-update/spec.md) | Cerrado | L6 | pm-039 | T033 | `PUT /api/v1/pets/update/{id}` de mascota propia con campos permitidos |
 | [pm-044-pet-soft-delete](pm-044-pet-soft-delete/spec.md) | Cerrado | L6 | pm-039 | T034 | `DELETE /api/v1/pets/delete/{id}` con borrado físico y `data:null` |
-| [pm-045-pet-ownership-bola](pm-045-pet-ownership-bola/spec.md) | Propuesto | L7 | pm-040, pm-041, pm-042, pm-043, pm-044 | T035, T038, T040 | Matriz de propiedad y BOLA del módulo de mascotas y cierre de seguridad del módulo |
+| [pm-045-pet-ownership-bola](pm-045-pet-ownership-bola/spec.md) | En progreso | L7 | pm-040, pm-041, pm-042, pm-043, pm-044 | T035, T038, T040 | Matriz de propiedad y BOLA del módulo de mascotas y cierre de seguridad del módulo |
 | [pm-046-first-milestone-acceptance](pm-046-first-milestone-acceptance/spec.md) | Propuesto | L11 | pm-035, pm-038, pm-045 | T041 | Aceptación de extremo a extremo de los 11 endpoints del primer hito |
-| [pm-047-pagination-convention](pm-047-pagination-convention/spec.md) | Propuesto | L4 | pm-009 | T058 | Parámetros, tope y forma de paginación en listados |
+| [pm-047-pagination-convention](pm-047-pagination-convention/spec.md) | En progreso | L4 | pm-009 | T058 | Parámetros, tope y forma de paginación en listados |
 | [pm-048-response-compression](pm-048-response-compression/spec.md) | Propuesto | L4 | pm-009 | T059 | Compresión de respuestas con evaluación de riesgos |
 | [pm-049-json-serialization-performance](pm-049-json-serialization-performance/spec.md) | Propuesto | L4 | pm-009 | T060 | Serialización JSON eficiente con medición |
 | [pm-050-distributed-cache-infrastructure](pm-050-distributed-cache-infrastructure/spec.md) | Propuesto | L3 | pm-013 | T061 | Adaptador de caché sobre Redis Cache, claves, TTL y política de falla |
@@ -154,16 +154,16 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T028 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas y gates de perfil |
 | T029 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Definir modelo Pet y persistencia |
 | T030 | Histórica | [pm-040](pm-040-pet-create/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Crear mascota |
-| T031 | Histórica | [pm-041](pm-041-pet-list/spec.md) | Propuesto | Listar mascotas |
+| T031 | Histórica | [pm-041](pm-041-pet-list/spec.md) | En progreso | Listar mascotas |
 | T032 | Histórica | [pm-042](pm-042-pet-detail/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Obtener detalle |
 | T033 | Histórica | [pm-043](pm-043-pet-update/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Actualizar mascota |
 | T034 | Histórica | [pm-044](pm-044-pet-soft-delete/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Eliminar mascota |
-| T035 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | Propuesto | Asegurar autorización y ownership |
+| T035 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | En progreso | Asegurar autorización y ownership |
 | T036 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas unitarias Pet |
 | T037 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas de integración Atlas |
-| T038 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | Propuesto | Pruebas de seguridad Pet |
+| T038 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | En progreso | Pruebas de seguridad Pet |
 | T039 | Histórica | [pm-061](pm-061-api-docs-contract-sync/spec.md) | Propuesto | Pruebas de contrato y documentación |
-| T040 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | Propuesto | Gates y revisión independiente Pet |
+| T040 | Histórica | [pm-045](pm-045-pet-ownership-bola/spec.md) | En progreso | Gates y revisión independiente Pet |
 | T041 | Histórica | [pm-046](pm-046-first-milestone-acceptance/spec.md) | Propuesto | Validación end-to-end y aceptación del primer hito |
 | T042 | Retrospectiva | [pm-007](pm-007-api-route-conventions/spec.md) | Propuesto (retrospectiva por documentar) | Documentar la evidencia retrospectiva de rutas versionadas |
 | T043 | Retrospectiva | [pm-010](pm-010-global-exception-handling/spec.md) | Propuesto (retrospectiva por documentar) | Documentar la evidencia retrospectiva del manejo global de excepciones |
@@ -181,7 +181,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T055 | Nueva | [pm-007](pm-007-api-route-conventions/spec.md) | Propuesto | Verificar automáticamente rutas contra el catálogo y documentar reglas de nombrado |
 | T056 | Nueva | [pm-034](pm-034-auth-brute-force-protection/spec.md) | Propuesto | Implementar cuota por correo, bloqueo y limitador asíncrono de hashing |
 | T057 | Nueva | [pm-036](pm-036-rate-limiting/spec.md) | Propuesto | Definir la matriz de rate limiting para endpoints no autenticación |
-| T058 | Nueva | [pm-047](pm-047-pagination-convention/spec.md) | Propuesto | Implementar la convención de paginación |
+| T058 | Nueva | [pm-047](pm-047-pagination-convention/spec.md) | En progreso | Implementar la convención de paginación |
 | T059 | Nueva | [pm-048](pm-048-response-compression/spec.md) | Propuesto | Implementar y evaluar la compresión HTTP |
 | T060 | Nueva | [pm-049](pm-049-json-serialization-performance/spec.md) | Propuesto | Optimizar y medir la serialización JSON |
 | T061 | Nueva | [pm-050](pm-050-distributed-cache-infrastructure/spec.md) | Propuesto | Implementar el adaptador de caché distribuida sobre Redis Cache |
@@ -251,3 +251,6 @@ Los cuatro endpoints de autenticación y los siete endpoints funcionales (11 en 
 - **2026-11-08 — T022:** alcance histórico cumplido (`RequireOwner` en pm-040 a pm-044) y verificado con Atlas y Redis reales; sigue `En progreso` (revisión independiente y aprobación humana).
 - **2026-11-08 — T026, T027, T028:** evidencia escrita (`checklists/gates.md` de pm-037 y pm-038), pruebas añadidas y cierre aprobado por el usuario (sin revisión independiente); pm-037 y pm-038 pasan a `Cerrado`.
 - **2026-11-08 — T022 y T066:** cierre aprobado por el usuario (sin revisión independiente); pm-033 pasa a `Cerrado`. pm-055 sigue `En progreso` por T067.
+- **2026-11-08 — pm-041, pm-045, pm-047:** specs aprobados por el usuario (`Aprobado`). Valores de paginación aprobados en pm-047 §6: `page` desde 1, `pageSize` 20 por defecto y 50 como máximo, respuesta con `items`, `page`, `pageSize`, `totalCount` y `totalPages`. Las Tasks T058, T031, T035, T038 y T040 siguen `Propuesto` hasta que se autorice su implementación.
+- **2026-11-08 — T058, T031, T035, T038, T040 (pm-047, pm-041, pm-045):** implementación autorizada por el usuario; pasan a `En progreso` con `plan.md` y `checklists/gates.md`. T058, T031, T035 y T038 están verificadas y esperan aprobación humana; T040 espera además la revisión independiente del módulo. Queda implementado `GET /api/v1/pets/get-all` (paginado), uno de los 11 endpoints del primer hito; la API suma 14 endpoints.
+- **2026-11-08 — pm-045 CA-04 (T035):** criterio añadido con aprobación del usuario tras la revisión de seguridad: máximo 100 mascotas por propietario, 60 peticiones por minuto por usuario en `/api/v1/pets/*` y 16 KB de cuerpo. La propiedad del criterio es de T035; ningún otro criterio cambió de Task.

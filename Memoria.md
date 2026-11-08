@@ -41,7 +41,7 @@
 - Guardar hash del refresh token y metadatos mínimos de sesión en MongoDB Atlas.
 - Logout revoca sesión/refresh token en MongoDB y bloquea el `jti` del access token vigente en Redis de autenticación hasta su expiración.
 - Registro público inicial crea Owner; el onboarding y verificación Business se especifican después. El cliente nunca puede autoasignarse Business.
-- Eliminación de mascotas propuesta como borrado lógico para preservar futuras referencias médicas; se confirma en `03-pet-management` antes de implementar.
+- Eliminación de mascotas propuesta como borrado lógico para preservar futuras referencias médicas; se confirma en `03-pet-management` antes de implementar. **(Superado el 2026-11-08: borrado físico por decisión del usuario.)**
 - El primer hito incluye `/auth/refresh` además de Login/Register/Logout porque es necesario para renovar sesiones.
 - Framework de pruebas base: xUnit 2.9.3 con `Microsoft.NET.Test.Sdk` 17.14.1, `xunit.runner.visualstudio` 3.1.4 y `coverlet.collector` 6.0.4; licencias permisivas y costo $0. Pendiente de ratificación formal en T003/T012.
 - La Api se creó con la plantilla `webapi --use-controllers --no-openapi` para no incorporar el paquete OpenAPI antes de su auditoría; OpenAPI/Scalar pertenece a T007.
@@ -366,3 +366,25 @@
 
 - **T022** (pm-033) y **T066** (pm-055) cerradas con aprobación humana, sin revisión independiente; pm-033 `Cerrado`. pm-055 sigue `En progreso` por T067 (ramas protegidas, requiere autorización expresa).
 - **Pendiente:** T071 (interpretación de la autorización de etiquetas) y la primera ejecución en GitHub de los cambios de `pipeline.yml` (imagen chiseled, pruebas negativas del gate SDD).
+
+## Specs aprobados: pm-047, pm-041, pm-045 (2026-11-08)
+
+- **Aprobados por el usuario** (estado `Aprobado`). Paginación: `page` desde 1, `pageSize` 20 por defecto y 50 máximo, 400 si es inválido, respuesta `items`/`page`/`pageSize`/`totalCount`/`totalPages` (pm-047 §6).
+- **Orden de trabajo:** T058, T031, T035, T038, T040. T041 (pm-046) sigue bloqueada por pm-035, pm-034 y pm-036. No se ha implementado nada todavía.
+
+## Paginación y listado de mascotas — T058, T031, T035, T038, T040 (2026-11-08)
+
+- **Implementado:** `PaginationConvention`/`PagedResult<T>` (pm-047), `GET /api/v1/pets/get-all` con `ListMyPetsQuery`/`CountByOwner` (pm-041) y pruebas de propiedad (pm-045): `PetOwnershipSecurityTests` (7), `PetListTests` (20), `PetListEndpointsTests` (15) y una prueba de Atlas de `CountByOwner`. Endpoint nuevo `pets-get-all` en la matriz del pipeline, en `EndpointTraitTests`, en `docs/` y en la prueba de humo (14 endpoints).
+- **Totales:** Unit 172, Security 162, Contract 157, Integration 49 (Atlas real y Redis temporales); extremo a extremo con la imagen chiseled y Atlas.
+- **Estado:** T058, T031, T035 y T038 verificadas, pendientes de aprobación humana. **T040 no está lista:** falta la revisión independiente de seguridad y trazabilidad del módulo de mascotas (CA-03).
+
+## Revisión independiente del módulo de mascotas (2026-11-08)
+
+- **Seguridad:** apto con observaciones, sin críticos ni altos. **Dos riesgos medios abiertos que necesitan decisión del usuario:** S1 (sin tope de mascotas por Owner ni rate limiting en `/pets/*`) y S2 (sin límite explícito del tamaño del cuerpo). Documentados en `specs/pm-045-pet-ownership-bola/checklists/gates.md`.
+- **Trazabilidad:** consistente con observaciones; se corrigieron todas (gates reescritos de pm-040/042/043/044, trazabilidad, casillas, planes retrospectivos y documentación). Los planes de pm-040/042/043/044 son retrospectivos: desviación del flujo registrada.
+
+## Límites contra el abuso en mascotas (2026-11-08)
+
+- **Implementado por decisión del usuario** (riesgos S1 y S2 de la revisión de seguridad; pm-045 CA-04): máximo 100 mascotas por propietario (409), política `pets` de 60 peticiones por minuto por usuario (`PETS_RATE_LIMIT_PER_MINUTE`, 429 con `Retry-After`) y 16 KB de cuerpo para toda la API (`RequestBodyLimitMiddleware`, 413, incluso fragmentado).
+- **Verificación:** Unit 174/174, Security 166/166, Contract 163/163, Integration 49/49; en Kestrel real con la imagen chiseled (413 con y sin `Content-Length`, 429 tras 60).
+- **Estado:** T035, T038 y T040 siguen pendientes de aprobación humana; T031 y T058 también.

@@ -9,7 +9,7 @@
 | `pm-039#CA-02` | T029 | `PetPersistenceIntegrationTests.Owner_index_exists_and_creation_is_idempotent` (Atlas) | En verde |
 | `pm-039#CA-03` | T029 | `Delete_removes_the_document_physically`, `Another_owner_cannot_read_update_or_delete_the_pet` (Atlas) | En verde |
 | `pm-039#CA-04` | T036 | `PetTests` (19: dominio y `PetValidation`) y `PetHandlersTests` (5: handlers y validadores con reloj del servidor) | En verde (142/142 unitarias); T036 cerrada |
-| `pm-039#CA-05` | T037 | `PetPersistenceIntegrationTests` (8): las 6 de T029 más `Owner_listing_query_is_served_by_the_owner_index` (el plan ganador es IXSCAN sobre `ix_pets_ownerId_createdAtUtc`, sin COLLSCAN) y `Concurrent_deletes_of_the_same_pet_let_exactly_one_succeed_and_later_updates_find_nothing` | En verde contra Atlas; T037 cerrada |
+| `pm-039#CA-05` | T037 | `PetPersistenceIntegrationTests` (8 al cierre de T037; 9 desde que pm-041 añadió `Count_by_owner_counts_only_the_owner_pets_and_follows_deletes`): las 6 de T029 más `Owner_listing_query_is_served_by_the_owner_index` (el plan ganador es IXSCAN sobre `ix_pets_ownerId_createdAtUtc`, sin COLLSCAN) y `Concurrent_deletes_of_the_same_pet_let_exactly_one_succeed_and_later_updates_find_nothing` | En verde contra Atlas; T037 cerrada |
 
 ## Evidencia (2026-11-08)
 | Gate | Resultado | Cómo |

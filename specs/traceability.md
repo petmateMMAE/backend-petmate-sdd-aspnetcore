@@ -21,7 +21,7 @@
 | AC-11 | Gestión segura de secretos | CON-§4, §8.11 | pm-004, pm-027, pm-068, pm-069 | T004, T016, T080, T081 |
 | AC-12 | Redis administrado con TLS y autenticación; datos no expuestos a Internet abierta | CON-§5, §8.8, §8.9 | pm-013, pm-028, pm-050, pm-070, pm-071, pm-072 | T017, T044, T061, T082, T083, T084 |
 | AC-13 | Infraestructura como código (decisión de proyecto, preferentemente Terraform) | CON-§8.15 | pm-066 | T078 |
-| AC-14 | Primer hito funcional (11 endpoints) | CON-§11 | pm-037, pm-038, pm-039, pm-040, pm-041, pm-042, pm-043, pm-044, pm-045, pm-046 | T026, T027, T028, T029, T030, T031, T032, T033, T034, T035, T036, T037, T038, T040, T041 |
+| AC-14 | Primer hito funcional (11 endpoints) | CON-§11 | pm-037, pm-038, pm-039, pm-040, pm-041, pm-042, pm-043, pm-044, pm-045, pm-046, pm-047 | T026, T027, T028, T029, T030, T031, T032, T033, T034, T035, T036, T037, T038, T040, T041, T058 |
 | AC-15 | Almacenamiento de imágenes en la nube y CDN para contenido público | CON-§8.10 | pm-079, pm-080, pm-081, pm-082 | T091, T092, T093, T094 |
 | AC-16 | Protección de datos clínicos y persistencia durante el teardown | CON-§8.15 | pm-083 | T095 |
 
@@ -195,27 +195,28 @@
 | pm-039#CA-03 | T029 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-039 gates](pm-039-pet-domain-persistence/checklists/gates.md) |
 | pm-039#CA-04 | T036 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | `PetTests` y `PetHandlersTests`; evidencia en [pm-039 gates](pm-039-pet-domain-persistence/checklists/gates.md) |
 | pm-039#CA-05 | T037 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | `PetPersistenceIntegrationTests` (Atlas); evidencia en [pm-039 gates](pm-039-pet-domain-persistence/checklists/gates.md) |
-| pm-040#CA-01 | T030 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-040#CA-02 | T030 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-040#CA-03 | T030 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-040#CA-04 | T030 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | `specs/pm-040-pet-create/checklists/gates.md` (`PetEndpointsTests`) |
-| pm-041#CA-01 | T031 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-041#CA-02 | T031 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-042#CA-01 | T032 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-042#CA-02 | T032 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-043#CA-01 | T033 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-043#CA-02 | T033 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-044#CA-01 | T034 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-044#CA-02 | T034 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-044#CA-03 | T034 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-045#CA-01 | T035 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-045#CA-02 | T038 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-045#CA-03 | T040 | Histórica | Propuesto | `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
+| pm-040#CA-01 | T030 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-040 gates](pm-040-pet-create/checklists/gates.md) |
+| pm-040#CA-02 | T030 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-040 gates](pm-040-pet-create/checklists/gates.md) |
+| pm-040#CA-03 | T030 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-040 gates](pm-040-pet-create/checklists/gates.md) |
+| pm-040#CA-04 | T030 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-040 gates](pm-040-pet-create/checklists/gates.md) |
+| pm-041#CA-01 | T031 | Histórica | En progreso | [gates](pm-041-pet-list/checklists/gates.md) |
+| pm-041#CA-02 | T031 | Histórica | En progreso | [gates](pm-041-pet-list/checklists/gates.md) |
+| pm-042#CA-01 | T032 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-042 gates](pm-042-pet-detail/checklists/gates.md) |
+| pm-042#CA-02 | T032 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-042 gates](pm-042-pet-detail/checklists/gates.md) |
+| pm-043#CA-01 | T033 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-043 gates](pm-043-pet-update/checklists/gates.md) |
+| pm-043#CA-02 | T033 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-043 gates](pm-043-pet-update/checklists/gates.md) |
+| pm-044#CA-01 | T034 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-044 gates](pm-044-pet-soft-delete/checklists/gates.md) |
+| pm-044#CA-02 | T034 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-044 gates](pm-044-pet-soft-delete/checklists/gates.md) |
+| pm-044#CA-03 | T034 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-044 gates](pm-044-pet-soft-delete/checklists/gates.md) |
+| pm-045#CA-01 | T035 | Histórica | En progreso | [gates](pm-045-pet-ownership-bola/checklists/gates.md) |
+| pm-045#CA-02 | T038 | Histórica | En progreso | [gates](pm-045-pet-ownership-bola/checklists/gates.md) |
+| pm-045#CA-04 | T035 | Histórica | En progreso | [gates](pm-045-pet-ownership-bola/checklists/gates.md) |
+| pm-045#CA-03 | T040 | Histórica | En progreso | [gates](pm-045-pet-ownership-bola/checklists/gates.md) |
 | pm-046#CA-01 | T041 | Histórica | Propuesto | `_historico/04-first-milestone-closure/task.md` y su `checklists/gates.md` |
 | pm-046#CA-02 | T041 | Histórica | Propuesto | `_historico/04-first-milestone-closure/task.md` y su `checklists/gates.md` |
-| pm-047#CA-01 | T058 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-047#CA-02 | T058 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-047#CA-03 | T058 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-047#CA-01 | T058 | Nueva | En progreso | [gates](pm-047-pagination-convention/checklists/gates.md) |
+| pm-047#CA-02 | T058 | Nueva | En progreso | [gates](pm-047-pagination-convention/checklists/gates.md) |
+| pm-047#CA-03 | T058 | Nueva | En progreso | [gates](pm-047-pagination-convention/checklists/gates.md) |
 | pm-048#CA-01 | T059 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-048#CA-02 | T059 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-048#CA-03 | T059 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |

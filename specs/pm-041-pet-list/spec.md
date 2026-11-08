@@ -1,6 +1,6 @@
 # Spec — pm-041 pet-list
 
-> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -31,13 +31,17 @@ Cada criterio se cita como `pm-041#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T031 | Histórica | Propuesto | Listar mascotas |
+| T031 | Histórica | En progreso | Listar mascotas |
 
 Detalle en [task.md](task.md).
 
+## 6. Notas, limitaciones y decisiones pendientes
+
+- El tope y la forma de la paginación son los de [pm-047](../pm-047-pagination-convention/spec.md) §6 (por defecto 20, máximo 50; `items`, `page`, `pageSize`, `totalCount`, `totalPages`), aprobados el 2026-11-08. El listado ordena por fecha de creación descendente (ya implementado en `ListByOwner`).
+
 ## 7. Aprobación
 
-- [ ] Requisitos y criterios revisados por el usuario.
-- [ ] Constitución cumplida.
-- Revisor/usuario: pendiente.
+- [x] Requisitos y criterios revisados por el usuario.
+- [x] Constitución cumplida.
+- Revisor/usuario: usuario del proyecto, aprobado el 2026-11-08.
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec. La evidencia histórica de esta funcionalidad permanece en `specs/_historico/`.

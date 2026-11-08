@@ -34,7 +34,7 @@
 - **Estado:** Cerrado y aprobado (2026-11-08, aprobación humana) — sin revisión independiente
 - **Spec principal:** pm-039
 - **Criterios propios:** pm-039#CA-05
-- **Alcance histórico cubierto:** CRUD, índice por propietario, consulta de listado servida por ese índice (`explain`), filtros por propietario, borrado concurrente y base de pruebas aislada (`MongoTestGuard` y colecciones con prefijo único). `PetPersistenceIntegrationTests`, 8 pruebas contra Atlas.
+- **Alcance histórico cubierto:** CRUD, índice por propietario, consulta de listado servida por ese índice (`explain`), filtros por propietario, borrado concurrente y base de pruebas aislada (`MongoTestGuard` y colecciones con prefijo único). `PetPersistenceIntegrationTests`, 8 pruebas contra Atlas al cierre (9 desde pm-041).
 - **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente (no realizada; el usuario aprobó el cierre sin ella) · [x] Documentación · [x] Aprobación humana (2026-11-08)
 - **Fuente histórica:** [`_historico/03-pet-management/task.md`](../_historico/03-pet-management/task.md) (sección T037)
 - **Evidencia y fases:** conservadas en la fuente histórica y en su `checklists/gates.md`; no se reescriben.

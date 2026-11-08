@@ -11,11 +11,12 @@
 
 ### T031 — Listar mascotas
 - **Tipo:** Histórica
-- **Estado:** Propuesto
+- **Estado:** En progreso (implementada y verificada; pendiente de aprobación humana)
 - **Spec principal:** pm-041
 - **Criterios propios:** pm-041#CA-01, pm-041#CA-02
 - **Fuente histórica:** [`_historico/03-pet-management/task.md`](../_historico/03-pet-management/task.md) (sección T031)
-- **Evidencia y fases:** conservadas en la fuente histórica y en su `checklists/gates.md`; no se reescriben.
+- **Evidencia y fases:** ver [plan.md](plan.md) y [checklists/gates.md](checklists/gates.md); la fuente histórica conserva el alcance original.
+- **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente · [x] Documentación · [ ] Aprobación humana
 
 ## Definition of Done
 

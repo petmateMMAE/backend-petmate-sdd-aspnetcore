@@ -51,7 +51,7 @@ Detalle en [task.md](task.md).
 
 ## 7. Aprobación
 
-- [ ] Requisitos y criterios revisados por el usuario.
-- [ ] Constitución cumplida.
-- Revisor/usuario: pendiente.
+- [x] Requisitos y criterios revisados por el usuario.
+- [x] Constitución cumplida.
+- Revisor/usuario: usuario del proyecto; aprobó el alcance el 2026-11-08 al autorizar su implementación y cerró la Task el mismo día.
 - Nota: el usuario autorizó implementar T029 con estos campos y borrado físico (decisión del usuario del 2026-11-08); el cierre requiere revisión y aprobación humana. La evidencia histórica de esta funcionalidad permanece en `specs/_historico/`.

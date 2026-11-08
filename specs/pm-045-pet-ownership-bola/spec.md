@@ -1,6 +1,6 @@
 # Spec — pm-045 pet-ownership-bola
 
-> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L7 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L7 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -30,20 +30,21 @@ Cada criterio se cita como `pm-045#CA-NN`. La columna final indica la Task que l
 | `CA-01` | La propiedad se verifica en cada handler y consulta, no solo en el controlador. | T035 |
 | `CA-02` | Un Owner A no puede consultar, actualizar ni eliminar una mascota de un Owner B (IDOR/BOLA); un anónimo recibe 401 y Business no obtiene acceso por defecto. [origen: 03-pet-management CA-006, CA-007] | T038 |
 | `CA-03` | Los gates y la revisión independiente del módulo de mascotas tienen evidencia. | T040 |
+| `CA-04` | El módulo limita el abuso: máximo 100 mascotas por propietario (409 al superarlo), 60 peticiones por minuto por usuario en `/api/v1/pets/*` (429 con `Retry-After`) y cuerpo de petición de hasta 16 KB (413). [añadido con aprobación del usuario, 2026-11-08, a raíz de la revisión de seguridad S1 y S2] | T035 |
 
 ## 5. Tasks
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T035 | Histórica | Propuesto | Asegurar autorización y ownership |
-| T038 | Histórica | Propuesto | Pruebas de seguridad Pet |
-| T040 | Histórica | Propuesto | Gates y revisión independiente Pet |
+| T035 | Histórica | En progreso | Asegurar autorización y ownership |
+| T038 | Histórica | En progreso | Pruebas de seguridad Pet |
+| T040 | Histórica | En progreso | Gates y revisión independiente Pet |
 
 Detalle en [task.md](task.md).
 
 ## 7. Aprobación
 
-- [ ] Requisitos y criterios revisados por el usuario.
-- [ ] Constitución cumplida.
-- Revisor/usuario: pendiente.
+- [x] Requisitos y criterios revisados por el usuario.
+- [x] Constitución cumplida.
+- Revisor/usuario: usuario del proyecto, aprobado el 2026-11-08.
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec. La evidencia histórica de esta funcionalidad permanece en `specs/_historico/`.
