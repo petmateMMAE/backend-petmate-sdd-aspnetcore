@@ -1,6 +1,6 @@
 # Gates — pm-039 pet-domain-persistence
 
-> Estado: implementación y pruebas ejecutadas; revisión independiente y aprobación humana pendientes. T029 no está cerrada.
+> Estado: T029 cerrada con aprobación humana el 2026-11-08 (sin revisión independiente). El Spec sigue en progreso hasta cerrar T036 y T037.
 
 ## Trazabilidad
 | CA | Task | Pruebas | Resultado |
@@ -24,4 +24,4 @@
 
 ## Pendiente
 - [ ] Revisión independiente de seguridad y trazabilidad.
-- [ ] Aprobación humana del cierre de T029.
+- [x] Aprobación humana del cierre de T029 (2026-11-08).

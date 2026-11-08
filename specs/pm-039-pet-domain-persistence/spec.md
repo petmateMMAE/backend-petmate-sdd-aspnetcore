@@ -34,7 +34,7 @@ Cada criterio se cita como `pm-039#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T029 | Histórica | En progreso | Definir modelo Pet y persistencia |
+| T029 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Definir modelo Pet y persistencia |
 | T036 | Histórica | Propuesto | Pruebas unitarias Pet |
 | T037 | Histórica | Propuesto | Pruebas de integración Atlas |
 

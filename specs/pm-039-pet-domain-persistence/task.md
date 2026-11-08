@@ -11,11 +11,11 @@
 
 ### T029 — Definir modelo Pet y persistencia
 - **Tipo:** Histórica
-- **Estado:** En progreso (implementada y probada; pendiente de revisión independiente y aprobación humana)
+- **Estado:** Cerrado y aprobado (2026-11-08, aprobación humana)
 - **Spec principal:** pm-039
 - **Criterios propios:** pm-039#CA-01, pm-039#CA-02, pm-039#CA-03
 - **También cubre / nota:** con la implementación se escribieron pruebas unitarias del modelo y de integración contra Atlas (evidencia para CA-04 y CA-05, que siguen siendo de T036 y T037). Campos y borrado físico por decisión del usuario del 2026-11-08.
-- **Fases:** [x] Implementación · [x] Pruebas (ver [checklists/gates.md](checklists/gates.md)) · [ ] Revisión independiente · [x] Documentación · [ ] Aprobación humana
+- **Fases:** [x] Implementación · [x] Pruebas (ver [checklists/gates.md](checklists/gates.md)) · [ ] Revisión independiente (no realizada; el usuario aprobó el cierre sin ella) · [x] Documentación · [x] Aprobación humana (2026-11-08)
 - **Fuente histórica:** [`_historico/03-pet-management/task.md`](../_historico/03-pet-management/task.md) (sección T029)
 - **Evidencia y fases:** conservadas en la fuente histórica y en su `checklists/gates.md`; no se reescriben.
 

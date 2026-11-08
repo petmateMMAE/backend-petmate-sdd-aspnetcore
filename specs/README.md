@@ -152,7 +152,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T026 | Histórica | [pm-037](pm-037-owner-profile-read/spec.md) | En progreso | Implementar GET perfil propio |
 | T027 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | En progreso | Implementar PUT perfil propio |
 | T028 | Histórica | [pm-038](pm-038-owner-profile-update/spec.md) | En progreso | Pruebas y gates de perfil |
-| T029 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | En progreso | Definir modelo Pet y persistencia |
+| T029 | Histórica | [pm-039](pm-039-pet-domain-persistence/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Definir modelo Pet y persistencia |
 | T030 | Histórica | [pm-040](pm-040-pet-create/spec.md) | Propuesto | Crear mascota |
 | T031 | Histórica | [pm-041](pm-041-pet-list/spec.md) | Propuesto | Listar mascotas |
 | T032 | Histórica | [pm-042](pm-042-pet-detail/spec.md) | Propuesto | Obtener detalle |

@@ -322,3 +322,4 @@
 - **Decisiones del usuario:** campos de la maqueta móvil (nombre, especie, raza, fecha de nacimiento, sexo y fotografía) y **borrado físico** en la base de datos. Se reescribieron con sus mismos identificadores pm-039 CA-01/CA-03, pm-044 CA-01 a CA-03 y pm-041 CA-01.
 - **Diseño:** `Pet` en Domain con validaciones; `PetValidation` en Application (errores por campo en español); `IPetRepository` con el propietario en cada filtro (una mascota ajena se comporta como inexistente); `MongoPetRepository` e índice `ix_pets_ownerId_createdAtUtc`. La fotografía es una URL HTTPS hasta que existan pm-079/pm-080.
 - **Evidencia:** 19 pruebas unitarias nuevas y 6 de integración contra Atlas de pruebas, todas en verde (ver `specs/pm-039-pet-domain-persistence/checklists/gates.md`).
+- **Cierre:** el usuario aprobó el cierre de T029 el 2026-11-08 (sin revisión independiente). pm-039 sigue en progreso por T036 y T037.
