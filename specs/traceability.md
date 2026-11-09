@@ -33,8 +33,8 @@
 | CON-§3 | pm-001, pm-002, pm-003, pm-005, pm-006, pm-015 |
 | CON-§4 | pm-004, pm-012, pm-016, pm-024, pm-039, pm-052, pm-064, pm-068, pm-069 |
 | CON-§5 | pm-013, pm-016, pm-028, pm-050, pm-051, pm-070, pm-071 |
-| CON-§6 | pm-022, pm-023, pm-024, pm-025, pm-026, pm-027, pm-028, pm-029, pm-030, pm-031, pm-032, pm-033, pm-034, pm-035, pm-036, pm-045, pm-051, pm-054, pm-080 |
-| CON-§7 | pm-007, pm-008, pm-009, pm-010, pm-011, pm-014, pm-017, pm-029, pm-030, pm-031, pm-032, pm-036, pm-037, pm-038, pm-040, pm-041, pm-042, pm-043, pm-044, pm-047, pm-048, pm-049, pm-061 |
+| CON-§6 | pm-022, pm-023, pm-024, pm-025, pm-026, pm-027, pm-028, pm-029, pm-030, pm-031, pm-032, pm-033, pm-034, pm-035, pm-036, pm-045, pm-051, pm-054, pm-080, pm-085, pm-086, pm-087, pm-088, pm-089, pm-090, pm-091, pm-092, pm-093, pm-094, pm-095 |
+| CON-§7 | pm-007, pm-008, pm-009, pm-010, pm-011, pm-014, pm-017, pm-029, pm-030, pm-031, pm-032, pm-036, pm-037, pm-038, pm-040, pm-041, pm-042, pm-043, pm-044, pm-047, pm-048, pm-049, pm-061, pm-105, pm-106, pm-107, pm-108, pm-109, pm-110, pm-111, pm-112, pm-113, pm-114, pm-115, pm-116, pm-117, pm-118, pm-119, pm-120, pm-121, pm-122, pm-123, pm-124, pm-125, pm-126, pm-127, pm-128, pm-129, pm-130, pm-131, pm-132, pm-133, pm-134, pm-135, pm-136, pm-137, pm-138, pm-139, pm-140, pm-141, pm-142, pm-143, pm-144, pm-145, pm-146, pm-147, pm-148, pm-149, pm-150, pm-151, pm-152, pm-153, pm-154, pm-155, pm-156, pm-157, pm-158, pm-159, pm-160, pm-161, pm-162, pm-163, pm-164, pm-165, pm-166, pm-167 |
 | CON-§8 | pm-014, pm-015, pm-017, pm-064, pm-084 |
 | CON-§8.1 | pm-062, pm-063 |
 | CON-§8.2 | pm-062, pm-063, pm-065 |
@@ -52,7 +52,7 @@
 | CON-§8.15 | pm-066, pm-067, pm-083 |
 | CON-§9 | pm-003, pm-018, pm-019, pm-020, pm-021, pm-054, pm-055, pm-057, pm-058 |
 | CON-§10 | pm-021, pm-035, pm-053, pm-055, pm-056, pm-060 |
-| CON-§11 | pm-037, pm-038, pm-039, pm-040, pm-041, pm-042, pm-043, pm-044, pm-045, pm-046 |
+| CON-§11 | pm-037, pm-038, pm-039, pm-040, pm-041, pm-042, pm-043, pm-044, pm-045, pm-046, pm-085, pm-086, pm-087, pm-088, pm-089, pm-090, pm-091, pm-092, pm-093, pm-094, pm-095, pm-096, pm-097, pm-098, pm-099, pm-100, pm-101, pm-102, pm-103, pm-104 |
 | CON-§12.3 | pm-060 |
 
 ## 3. Distinciones históricas explícitas
@@ -353,3 +353,328 @@
 | pm-084#CA-02 | T096 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-084#CA-03 | T096 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-084#CA-04 | T096 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-085#CA-01 | T103 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-085#CA-02 | T103 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-085#CA-03 | T103 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-086#CA-01 | T104 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-086#CA-02 | T104 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-086#CA-03 | T104 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-086#CA-04 | T104 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-087#CA-01 | T105 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-087#CA-02 | T105 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-087#CA-03 | T105 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-088#CA-01 | T106 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-088#CA-02 | T106 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-088#CA-03 | T106 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-088#CA-04 | T106 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-089#CA-01 | T107 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-089#CA-02 | T107 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-089#CA-03 | T107 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-090#CA-01 | T108 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-090#CA-02 | T108 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-090#CA-03 | T108 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-091#CA-01 | T109 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-091#CA-02 | T109 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-091#CA-03 | T109 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-092#CA-01 | T110 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-092#CA-02 | T110 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-092#CA-03 | T110 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-093#CA-01 | T111 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-093#CA-02 | T111 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-093#CA-03 | T111 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-094#CA-01 | T112 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-094#CA-02 | T112 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-094#CA-03 | T112 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-095#CA-01 | T113 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-095#CA-02 | T113 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-095#CA-03 | T113 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-096#CA-01 | T114 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-096#CA-02 | T114 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-096#CA-03 | T114 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-097#CA-01 | T115 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-097#CA-02 | T115 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-097#CA-03 | T115 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-097#CA-04 | T115 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-098#CA-01 | T116 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-098#CA-02 | T116 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-098#CA-03 | T116 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-099#CA-01 | T117 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-099#CA-02 | T117 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-099#CA-03 | T117 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-099#CA-04 | T117 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-100#CA-01 | T118 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-100#CA-02 | T118 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-100#CA-03 | T118 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-101#CA-01 | T119 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-101#CA-02 | T119 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-101#CA-03 | T119 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-102#CA-01 | T120 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-102#CA-02 | T120 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-102#CA-03 | T120 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-103#CA-01 | T121 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-103#CA-02 | T121 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-103#CA-03 | T121 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-104#CA-01 | T122 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-104#CA-02 | T122 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-104#CA-03 | T122 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-104#CA-04 | T122 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-105#CA-01 | T123 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-105#CA-02 | T123 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-105#CA-03 | T123 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-105#CA-04 | T123 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-106#CA-01 | T124 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-106#CA-02 | T124 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-106#CA-03 | T124 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-106#CA-04 | T124 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-107#CA-01 | T125 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-107#CA-02 | T125 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-107#CA-03 | T125 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-107#CA-04 | T125 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-108#CA-01 | T126 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-108#CA-02 | T126 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-108#CA-03 | T126 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-108#CA-04 | T126 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-109#CA-01 | T127 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-109#CA-02 | T127 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-109#CA-03 | T127 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-109#CA-04 | T127 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-110#CA-01 | T128 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-110#CA-02 | T128 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-110#CA-03 | T128 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-110#CA-04 | T128 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-111#CA-01 | T129 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-111#CA-02 | T129 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-111#CA-03 | T129 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-111#CA-04 | T129 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-112#CA-01 | T130 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-112#CA-02 | T130 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-112#CA-03 | T130 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-112#CA-04 | T130 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-113#CA-01 | T131 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-113#CA-02 | T131 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-113#CA-03 | T131 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-114#CA-01 | T132 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-114#CA-02 | T132 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-114#CA-03 | T132 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-115#CA-01 | T133 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-115#CA-02 | T133 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-115#CA-03 | T133 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-116#CA-01 | T134 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-116#CA-02 | T134 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-116#CA-03 | T134 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-116#CA-04 | T134 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-117#CA-01 | T135 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-117#CA-02 | T135 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-117#CA-03 | T135 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-118#CA-01 | T136 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-118#CA-02 | T136 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-118#CA-03 | T136 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-119#CA-01 | T137 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-119#CA-02 | T137 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-119#CA-03 | T137 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-119#CA-04 | T137 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-120#CA-01 | T138 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-120#CA-02 | T138 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-120#CA-03 | T138 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-121#CA-01 | T139 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-121#CA-02 | T139 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-121#CA-03 | T139 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-121#CA-04 | T139 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-122#CA-01 | T140 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-122#CA-02 | T140 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-122#CA-03 | T140 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-122#CA-04 | T140 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-123#CA-01 | T141 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-123#CA-02 | T141 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-123#CA-03 | T141 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-123#CA-04 | T141 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-124#CA-01 | T142 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-124#CA-02 | T142 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-124#CA-03 | T142 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-125#CA-01 | T143 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-125#CA-02 | T143 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-125#CA-03 | T143 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-125#CA-04 | T143 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-126#CA-01 | T144 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-126#CA-02 | T144 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-126#CA-03 | T144 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-126#CA-04 | T144 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-127#CA-01 | T145 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-127#CA-02 | T145 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-127#CA-03 | T145 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-128#CA-01 | T146 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-128#CA-02 | T146 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-128#CA-03 | T146 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-129#CA-01 | T147 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-129#CA-02 | T147 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-129#CA-03 | T147 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-130#CA-01 | T148 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-130#CA-02 | T148 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-130#CA-03 | T148 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-131#CA-01 | T149 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-131#CA-02 | T149 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-131#CA-03 | T149 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-132#CA-01 | T150 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-132#CA-02 | T150 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-132#CA-03 | T150 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-133#CA-01 | T151 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-133#CA-02 | T151 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-133#CA-03 | T151 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-134#CA-01 | T152 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-134#CA-02 | T152 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-134#CA-03 | T152 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-135#CA-01 | T153 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-135#CA-02 | T153 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-135#CA-03 | T153 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-135#CA-04 | T153 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-136#CA-01 | T154 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-136#CA-02 | T154 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-136#CA-03 | T154 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-136#CA-04 | T154 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-137#CA-01 | T155 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-137#CA-02 | T155 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-137#CA-03 | T155 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-138#CA-01 | T156 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-138#CA-02 | T156 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-138#CA-03 | T156 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-139#CA-01 | T157 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-139#CA-02 | T157 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-139#CA-03 | T157 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-140#CA-01 | T158 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-140#CA-02 | T158 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-140#CA-03 | T158 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-141#CA-01 | T159 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-141#CA-02 | T159 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-141#CA-03 | T159 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-142#CA-01 | T160 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-142#CA-02 | T160 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-142#CA-03 | T160 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-143#CA-01 | T161 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-143#CA-02 | T161 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-143#CA-03 | T161 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-144#CA-01 | T162 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-144#CA-02 | T162 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-144#CA-03 | T162 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-145#CA-01 | T163 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-145#CA-02 | T163 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-145#CA-03 | T163 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-146#CA-01 | T164 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-146#CA-02 | T164 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-146#CA-03 | T164 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-147#CA-01 | T165 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-147#CA-02 | T165 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-147#CA-03 | T165 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-148#CA-01 | T166 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-148#CA-02 | T166 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-148#CA-03 | T166 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-149#CA-01 | T167 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-149#CA-02 | T167 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-149#CA-03 | T167 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-150#CA-01 | T168 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-150#CA-02 | T168 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-150#CA-03 | T168 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-150#CA-04 | T168 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-151#CA-01 | T169 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-151#CA-02 | T169 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-151#CA-03 | T169 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-152#CA-01 | T170 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-152#CA-02 | T170 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-152#CA-03 | T170 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-153#CA-01 | T171 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-153#CA-02 | T171 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-153#CA-03 | T171 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-153#CA-04 | T171 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-154#CA-01 | T172 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-154#CA-02 | T172 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-154#CA-03 | T172 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-155#CA-01 | T173 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-155#CA-02 | T173 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-155#CA-03 | T173 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-155#CA-04 | T173 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-156#CA-01 | T174 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-156#CA-02 | T174 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-156#CA-03 | T174 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-157#CA-01 | T175 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-157#CA-02 | T175 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-157#CA-03 | T175 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-158#CA-01 | T176 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-158#CA-02 | T176 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-158#CA-03 | T176 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-159#CA-01 | T177 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-159#CA-02 | T177 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-159#CA-03 | T177 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-160#CA-01 | T178 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-160#CA-02 | T178 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-160#CA-03 | T178 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-161#CA-01 | T179 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-161#CA-02 | T179 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-161#CA-03 | T179 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-161#CA-04 | T179 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-162#CA-01 | T180 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-162#CA-02 | T180 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-162#CA-03 | T180 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-163#CA-01 | T181 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-163#CA-02 | T181 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-163#CA-03 | T181 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-164#CA-01 | T182 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-164#CA-02 | T182 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-164#CA-03 | T182 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-165#CA-01 | T183 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-165#CA-02 | T183 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-165#CA-03 | T183 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-166#CA-01 | T184 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-166#CA-02 | T184 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-166#CA-03 | T184 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-167#CA-01 | T185 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-167#CA-02 | T185 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-167#CA-03 | T185 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+
+## 5. Requisitos de las fuentes de producto → Specs
+
+> Fuentes vigentes desde 2026-11-09 (`docs/product-scope.md`): documento v3 (RF-01…RF-41, RNF-01…RNF-24, HU-001…HU-036) y maqueta HTML. Los Specs de nube y calidad (`AC-01`…`AC-16`) son requisitos académicos y técnicos, no de estas fuentes. Todos los Specs nuevos están «Propuesto».
+
+| Requisito | Funcionalidad | Spec(s) |
+|---|---|---|
+| RF-02 | Crear cuenta (nombre, correo, contraseña) | pm-029, pm-085 |
+| RF-03 | Iniciar sesión e indicador de negocio | pm-030, pm-086, pm-087, pm-107 |
+| RF-04 | Recuperar contraseña por correo | pm-088, pm-089, pm-090 |
+| RF-05 | Cerrar sesión | pm-032, pm-152 |
+| RF-08 | Eliminar cuenta | pm-161, pm-162, pm-163 |
+| RF-09 | Registrar mascota (especies, QR, foto) | pm-040, pm-092, pm-093, pm-079, pm-080, pm-081 |
+| RF-10, RF-11 | Ver y editar mascotas | pm-041, pm-047, pm-043 |
+| RF-12 | Eliminar mascota y su carnet | pm-044, pm-104 |
+| RF-13, RF-41 | Mostrar y regenerar el QR | pm-093, pm-094, pm-095, pm-124 |
+| RF-14 | Vacunas | pm-096, pm-097, pm-098, pm-135 |
+| RF-15 | Desparasitaciones | pm-096, pm-099, pm-100, pm-136 |
+| RF-16 | Control de peso | pm-101 |
+| RF-17 | Alergias y condiciones | pm-102, pm-103 |
+| RF-18 | Consultas y recetas (lectura) | pm-133, pm-134, pm-137 |
+| RF-19 | Recordatorios (push desde el servidor) | pm-154, pm-155, pm-156 |
+| RF-20 a RF-22 | Mapa, filtros y tarjeta del negocio | pm-116, pm-117, pm-106 |
+| RF-23 | Perfil y contacto del negocio | pm-119 |
+| RF-25 a RF-27 | Afiliación, ubicación y alta del negocio | pm-105, pm-107, pm-108 |
+| RF-28 | Baja del negocio | pm-110 |
+| RF-30, RF-31 | Editar negocio y ubicación | pm-109, pm-108 |
+| RF-32 | Servicios del negocio | pm-112, pm-113, pm-114, pm-115 |
+| RF-33 | Escanear el QR | pm-125 |
+| RF-34 | Ficha según el tipo de negocio | pm-126, pm-127, pm-128 |
+| RF-35 | Consulta con receta | pm-131, pm-132 |
+| RF-36 | Vacuna o desparasitación por veterinaria | pm-135, pm-136 |
+| RF-37 | Mascotas atendidas | pm-129, pm-130 |
+| RF-39 | Solicitar eliminación sin entrar a la app | pm-164, pm-165 |
+| Maqueta | Compartir historial con negocio, datos y duración | pm-122, pm-123, pm-124 |
+| Maqueta | Seguimiento de la atención | pm-138 a pm-142 |
+| Maqueta | Chat con fotos | pm-143 a pm-150 |
+| Maqueta | Ajustes de notificación y push | pm-151 a pm-153, pm-157 a pm-160 |
+| Maqueta | Búsqueda por nombre y horario estructurado | pm-118, pm-106 |
+| Perfil | Celular opcional | pm-091 |
+| RNF-01 | Contraseñas con hash | pm-026, pm-029 (el mínimo es 12 por decisión del usuario; el documento propone 8) |
+| RNF-03 | QR no adivinable y revocable | pm-093, pm-095, pm-124 |
+| RNF-04 | Permisos en el servidor | pm-045, pm-096, pm-126 |
+| RNF-05, RNF-07 | Acceso temporal y mínimo de datos por tipo de negocio | pm-122, pm-126, pm-128 |
+| RNF-08 | Borrado completo de la cuenta | pm-161, pm-162, pm-163 |
+| RNF-10, RNF-11 | Rendimiento del mapa y del escaneo | pm-116, pm-121, pm-125 |
+| RNF-12 | Fotos de hasta 1 MB | pm-080, pm-111, pm-146 |
+| Integración | Contrato OpenAPI y entorno compartido | pm-166, pm-167 |
+
+Sin Spec por decisión del usuario: cobro, IVA y ticket; verificación de correo o celular; SMS; IA/ML; inventario, punto de venta, suscripciones, empleados, citas y familia. RF-01, RF-06, RF-07, RF-24, RF-29, RF-38 y RF-40 y los RNF móviles son de la app o de la página legal, no del backend.

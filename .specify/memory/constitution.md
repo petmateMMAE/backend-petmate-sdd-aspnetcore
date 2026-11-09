@@ -1,9 +1,9 @@
 ---
-version: 1.2.0
+version: 1.3.0
 status: ratified
 ratified: 2026-11-03
-amended: 2026-11-05
-previous_version: 1.1.0 (historial de Git; 1.0.1 en specs/_historico/constitution-v1.0.1.md)
+amended: 2026-11-09
+previous_version: 1.2.0 (historial de Git; 1.0.1 en specs/_historico/constitution-v1.0.1.md)
 methodology: Spec-Driven Development (SDD)
 project: PetMate Backend
 source_of_truth: .specify/memory/constitution.md
@@ -20,7 +20,7 @@ PetMate Backend será una API REST para la aplicación móvil Android y los nego
 
 La solución inicial utilizará .NET 10 y ASP.NET Core 10. El backend se organizará mediante Clean Architecture, CQRS, el patrón Mediator e inyección de dependencias. El proyecto debe quedar preparado para ejecutarse en contenedores y escalar horizontalmente.
 
-El alcance funcional del producto se deriva de `docs/product-scope.md`, elaborado a partir del PDF descriptivo de PetMate. Este repositorio y esta metodología cubren únicamente el backend; no deben implementar la aplicación Android ni la landing page salvo que una especificación posterior lo autorice expresamente.
+El alcance funcional del producto se deriva de `docs/product-scope.md`, elaborado a partir del documento v3 de requerimientos, historias de usuario y backlog de PetMate y de la maqueta HTML de la aplicación. Este repositorio y esta metodología cubren únicamente el backend; no deben implementar la aplicación Android ni la página legal salvo que una especificación posterior lo autorice expresamente.
 
 ## 2. Principios no negociables
 
@@ -135,16 +135,13 @@ En desarrollo pueden ejecutarse como dos servicios/contendedores Redis diferente
 
 ## 6. Autenticación, sesiones y autorización
 
-### 6.1 Roles
+### 6.1 Cuentas, negocio y roles
 
-Los únicos roles del sistema son:
-
-- `Owner`: propietario de mascotas.
-- `Business`: cuenta de un negocio afiliado.
+Toda cuenta es de **Usuario** (rol `User`). Un Usuario puede tener como máximo **un negocio asociado** de tipo Veterinaria, Tienda o Estética; esa asociación (Afiliado) concede capacidades adicionales según el tipo de negocio, sin retirar al Usuario el acceso a sus mascotas. La cuenta no cambia de rol al afiliarse.
 
 No existe rol `Admin`, `Administrator`, `SuperAdmin` ni equivalente. No crear endpoints o claims administrativos. Las operaciones operativas de infraestructura no se modelan como un rol de usuario de la API.
 
-El registro público inicial crea cuentas `Owner` por defecto. El cliente no puede enviar libremente un rol para elevar privilegios. El alta, verificación y activación de `Business` tendrá una especificación propia posterior; hasta entonces, no inventar un flujo de aprobación ni habilitar acceso Business a datos protegidos. Esta restricción no impide definir el rol Business en el modelo de autorización.
+El registro público crea siempre una cuenta de Usuario; el cliente no puede enviar un rol ni un tipo de negocio para elevar privilegios. La afiliación de un negocio es de autoservicio y **no requiere aprobación manual**; la cédula profesional de las veterinarias se captura pero no se valida. El alta del negocio tendrá sus propias especificaciones.
 
 ### 6.2 Contraseñas
 
@@ -182,9 +179,9 @@ El contrato exacto de Logout (encabezado Authorization, cuerpo, idempotencia y c
 ### 6.5 Autorización
 
 - Aplicar políticas por rol y verificación de propiedad/relación del recurso.
-- Toda operación sobre una mascota debe verificar que pertenece al Owner autenticado o que existe una autorización explícita válida para el negocio.
+- Toda operación sobre una mascota debe verificar que pertenece al Usuario autenticado o que existe una autorización explícita y vigente, otorgada por el dueño al negocio (negocio, datos y duración elegidos), limitada por el tipo de negocio. Sin autorización vigente, un negocio no accede a ningún dato.
 - Se deben probar intentos IDOR/BOLA: cambiar un identificador no debe revelar ni modificar recursos ajenos.
-- Los endpoints iniciales de mascotas son exclusivos de Owner.
+- Los endpoints de mascotas son de cualquier Usuario autenticado y solo sobre sus propias mascotas.
 
 ## 7. Contrato de API y convenciones
 
@@ -240,7 +237,7 @@ No devolver `204 No Content` en operaciones de negocio porque el wrapper forma p
 - Código: inglés (clases, métodos, propiedades, variables, namespaces y nombres de archivos).
 - Comentarios del código: español, solo cuando aporten contexto no evidente.
 - Mensajes de respuesta de la API: español.
-- Nombres de roles almacenados/serializados: `Owner` y `Business`.
+- Nombre del rol almacenado/serializado: `User`. Los tipos de negocio se definen en sus Specs.
 
 ## 8. Azure, contenedores, escalabilidad y contenido multimedia
 
@@ -298,9 +295,11 @@ No se introduce ninguna dependencia pagada, servicio SaaS de pago, plan comercia
 
 ## 11. Producto y alcance funcional
 
-`docs/product-scope.md` es el resumen canónico del documento descriptivo de PetMate y conserva la distinción entre requisitos expresamente descritos y decisiones aún no definidas.
+`docs/product-scope.md` es el resumen canónico de las dos fuentes de producto vigentes (documento v3 de requerimientos, historias y backlog, y maqueta HTML) y de las decisiones del usuario que las completan. Estas fuentes sustituyen al PDF descriptivo del 26 de octubre de 2026.
 
-Los módulos futuros incluyen gestión de usuarios, mascotas, carnet médico, QR y autorizaciones, negocios afiliados, búsqueda geográfica, atención veterinaria, seguimiento, servicios/cobros, recordatorios y notificaciones. Estos módulos no se consideran implementados por aparecer en el documento; requieren specs propias.
+Los módulos incluyen cuenta y sesión, mascotas y QR, carnet de salud, mapa y afiliación de negocios, panel del afiliado, escaneo y atención, seguimiento y chat, avisos push y página legal. Estos módulos no se consideran implementados por aparecer en las fuentes; requieren specs propias, pequeñas y atómicas.
+
+**Fuera de alcance** (decisión del usuario, 2026-11-09): cobro, IVA y ticket de la atención; verificación de correo o de celular; SMS; inteligencia artificial y aprendizaje automático; inventario, punto de venta, suscripciones y pagos, empleados, citas y familia compartida.
 
 La primera entrega prioriza el flujo de autenticación y los siete endpoints funcionales (perfil y mascotas) más los cuatro de autenticación (11 en total) definidos en `specs/README.md` y `docs/api/endpoints.md`. El hito se considera alcanzado únicamente al cerrar la tarea global `T041` (Spec principal `pm-046`) con todos los gates y aprobaciones completados.
 
@@ -356,6 +355,17 @@ No duplicar tablas completas de endpoints, políticas, costos o reglas en varios
 11. **Documentos históricos.** Los artefactos de la estructura anterior se conservan en `specs/_historico/` con su contenido original y verificables mediante `specs/_historico/MANIFIESTO-SHA256.txt`.
 
 ## 13. Historial de cambios
+
+### 2026-11-09 — Versión 1.3.0 (alcance y modelo de cuenta)
+
+Propuesta por el equipo de agentes a partir de las fuentes de producto vigentes y **aprobada por el usuario en el chat de la sesión el 2026-11-09** (§14).
+
+- **Motivo:** el documento v3 de requerimientos e historias y la maqueta, declarados fuente de verdad, definen que la cuenta es siempre de Usuario y que el negocio se le asocia al afiliarse; el modelo de roles excluyentes `Owner`/`Business` deja de ser válido. El PDF descriptivo del 26 de octubre queda sustituido como fuente de alcance.
+- **§1 y §11 enmendados:** nuevas fuentes de producto, lista de módulos y alcance excluido (cobro, verificación de correo, SMS, IA/ML, inventario, punto de venta, suscripciones, empleados, citas y familia).
+- **§6.1 sustituido:** rol único `User` con un negocio asociado opcional; sin aprobación manual de afiliación.
+- **§6.5 y §7 ajustados:** mascotas para cualquier Usuario sobre sus propios recursos; el acceso de un negocio exige una autorización vigente del dueño.
+- **Sin cambios:** la política de contraseña (12 a 128 caracteres, definida en `pm-029`) se mantiene por decisión del usuario, aunque el documento v3 proponga 8; la aplicación debe aplicar la misma política.
+- **Impacto:** `docs/product-scope.md` reescrito; `specs/traceability.md` con la matriz de requisitos; nuevos Specs `pm-085` a `pm-104` (Tasks `T103` a `T122`); los Specs `pm-022`, `pm-033` y `pm-045` se enmiendan mediante `pm-086`, sin reescribir su historia.
 
 ### 2026-11-05 — Versión 1.2.0 (despliegue en Azure)
 

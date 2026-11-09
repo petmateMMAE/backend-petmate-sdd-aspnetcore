@@ -1,0 +1,42 @@
+# Spec — pm-114 service-update
+
+> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.3.0 | Nivel de ejecución: L11 (los números identifican, no ordenan) | Creado el 2026-11-09
+
+## 1. Objetivo
+
+`PUT /api/v1/services/update/{id}` edita un servicio del negocio propio.
+
+## 2. Dependencias
+
+- [pm-112](../pm-112-service-create/spec.md) — service-create
+
+## 3. Origen
+
+- Fuentes: Documento v3: RF-32, HU-030.
+- Los requisitos provienen de las fuentes de producto vigentes (`docs/product-scope.md`).
+- Constitución: §7.
+
+## 4. Criterios de aceptación
+
+Cada criterio se cita como `pm-114#CA-NN`. La columna final indica la Task que lo cubre.
+
+| CA | Criterio | Task propietaria |
+|---|---|---|
+| `CA-01` | El afiliado edita nombre, descripción y precio de un servicio propio. | T132 |
+| `CA-02` | Un servicio de otro negocio o inexistente responde 404. | T132 |
+| `CA-03` | El perfil público refleja el cambio. | T132 |
+
+## 5. Tasks
+
+| Task | Tipo | Estado | Título |
+|---|---|---|---|
+| T132 | Nueva | Propuesto | Editar un servicio del negocio propio |
+
+Detalle en [task.md](task.md).
+
+## 7. Aprobación
+
+- [ ] Requisitos y criterios revisados por el usuario.
+- [ ] Constitución cumplida.
+- Revisor/usuario: pendiente.
+- Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec.

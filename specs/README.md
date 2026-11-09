@@ -5,8 +5,8 @@
 ## Convenciones
 
 - Estructura plana `specs/pm-NNN-slug/` con `spec.md` y `task.md`; `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras la aprobación del Spec.
-- Numeración de Specs `pm-001`…`pm-084`: global, secuencial e inmutable. Un Spec retirado pasa a `Reemplazado`.
-- Tasks globales `T001`…`T102`: `T001`–`T041` históricas (identificador, alcance y estado intactos), `T042`–`T054` retrospectivas, `T055`–`T102` nuevas.
+- Numeración de Specs `pm-001`…`pm-167`: global, secuencial e inmutable. Un Spec retirado pasa a `Reemplazado`.
+- Tasks globales `T001`…`T185`: `T001`–`T041` históricas (identificador, alcance y estado intactos), `T042`–`T054` retrospectivas, `T055`–`T185` nuevas.
 - Cada Task tiene un único Spec principal; criterios citados como `pm-NNN#CA-NN`.
 - Estado de Spec al migrar: `En revisión` si tiene Tasks históricas cerradas, verificadas o implementadas, o retrospectivas (texto nuevo pendiente de aprobación humana); `Propuesto` en los demás casos. Ninguna Task cambia de estado por la migración.
 - Plataforma cloud: Microsoft Azure con Azure for Students (Constitución §8). Los Specs cloud documentan servicios candidatos como hipótesis; ninguno se asume gratuito hasta completar pm-062.
@@ -99,6 +99,89 @@
 | [pm-082-cdn-public-delivery](pm-082-cdn-public-delivery/spec.md) | Propuesto | L10 | pm-073, pm-079 | T094 | Distribución de imágenes públicas mediante CDN |
 | [pm-083-infrastructure-teardown](pm-083-infrastructure-teardown/spec.md) | Aprobado | L11 | pm-066, pm-067, pm-068, pm-069, pm-070, pm-071, pm-072, pm-073, pm-074, pm-075, pm-076, pm-078, pm-079, pm-082 | T095 | Destrucción ordenada y protegida de la infraestructura |
 | [pm-084-cloud-deployment-acceptance](pm-084-cloud-deployment-acceptance/spec.md) | Aprobado | L12 | pm-046, pm-073, pm-075, pm-076, pm-077, pm-078, pm-083 | T096 | Aceptación del sistema desplegado: dos instancias, balanceador, HTTPS y costo |
+| [pm-085-account-registration-name](pm-085-account-registration-name/spec.md) | Propuesto | L7 | pm-029, pm-038 | T103 | `POST /api/v1/auth/register` exige el nombre del usuario además del correo y la contraseña |
+| [pm-086-user-role-unification](pm-086-user-role-unification/spec.md) | Propuesto | L5 | pm-022, pm-027, pm-033 | T104 | Toda cuenta tiene el rol único `User`; los roles excluyentes `Owner` y `Business` dejan de emitirse (Constitución v1 |
+| [pm-087-session-business-link](pm-087-session-business-link/spec.md) | Propuesto | L8 | pm-086, pm-029, pm-030, pm-031 | T105 | Registro, inicio de sesión y refresh informan si la cuenta tiene un negocio asociado y su tipo |
+| [pm-088-transactional-email-adapter](pm-088-transactional-email-adapter/spec.md) | Propuesto | L3 | pm-004, pm-005 | T106 | Existe un puerto de aplicación para enviar correos y un adaptador al proveedor de costo $0 elegido en el plan |
+| [pm-089-password-reset-request](pm-089-password-reset-request/spec.md) | Propuesto | L9 | pm-088, pm-024, pm-036 | T107 | `POST /api/v1/auth/forgot-password` envía al correo registrado un enlace de un solo uso para crear una contraseña nueva |
+| [pm-090-password-reset-confirm](pm-090-password-reset-confirm/spec.md) | Propuesto | L10 | pm-089, pm-026, pm-025, pm-028 | T108 | `POST /api/v1/auth/reset-password` fija una contraseña nueva con un token de restablecimiento válido |
+| [pm-091-profile-optional-phone](pm-091-profile-optional-phone/spec.md) | Propuesto | L7 | pm-038 | T109 | El perfil permite agregar, cambiar y quitar un número de celular opcional |
+| [pm-092-pet-species-sex-rules](pm-092-pet-species-sex-rules/spec.md) | Propuesto | L7 | pm-040, pm-043 | T110 | La mascota acepta solo las especies Perro y Gato y el sexo es opcional |
+| [pm-093-pet-qr-token](pm-093-pet-qr-token/spec.md) | Propuesto | L7 | pm-040, pm-039 | T111 | Al crear una mascota se genera su QR permanente: un token aleatorio y un código corto legible |
+| [pm-094-pet-qr-read](pm-094-pet-qr-read/spec.md) | Propuesto | L8 | pm-093, pm-045 | T112 | `GET /api/v1/pets/get-qr/{id}` devuelve el token y el código corto del QR de una mascota propia |
+| [pm-095-pet-qr-regenerate](pm-095-pet-qr-regenerate/spec.md) | Propuesto | L9 | pm-094 | T113 | `POST /api/v1/pets/regenerate-qr/{id}` genera un token y un código nuevos y deja de aceptar los anteriores |
+| [pm-096-clinical-record-provenance](pm-096-clinical-record-provenance/spec.md) | Propuesto | L8 | pm-039, pm-045 | T114 | Todo registro del carnet guarda quién lo creó, y los creados por un negocio son de solo lectura para el dueño |
+| [pm-097-vaccine-create-list](pm-097-vaccine-create-list/spec.md) | Propuesto | L9 | pm-096 | T115 | El dueño registra y consulta las vacunas de su mascota con `POST /api/v1/vaccines/create` y `GET /api/v1/vaccines/get-all` |
+| [pm-098-vaccine-delete-own](pm-098-vaccine-delete-own/spec.md) | Propuesto | L10 | pm-097 | T116 | `DELETE /api/v1/vaccines/delete/{id}` borra una vacuna que registró el propio dueño |
+| [pm-099-deworming-create-list](pm-099-deworming-create-list/spec.md) | Propuesto | L9 | pm-096 | T117 | El dueño registra y consulta las desparasitaciones de su mascota con `POST /api/v1/dewormings/create` y `GET /api/v1/dewormings/get-all` |
+| [pm-100-deworming-delete-own](pm-100-deworming-delete-own/spec.md) | Propuesto | L10 | pm-099 | T118 | `DELETE /api/v1/dewormings/delete/{id}` borra una desparasitación que registró el propio dueño |
+| [pm-101-weight-create-list](pm-101-weight-create-list/spec.md) | Propuesto | L9 | pm-096 | T119 | El dueño registra y consulta el peso de su mascota con `POST /api/v1/weights/create` y `GET /api/v1/weights/get-all` |
+| [pm-102-allergy-create-list](pm-102-allergy-create-list/spec.md) | Propuesto | L9 | pm-096 | T120 | El dueño registra y consulta las alergias y condiciones de su mascota con `POST /api/v1/allergies/create` y `GET /api/v1/allergies/get-all` |
+| [pm-103-allergy-update-status](pm-103-allergy-update-status/spec.md) | Propuesto | L10 | pm-102 | T121 | `PUT /api/v1/allergies/update/{id}` edita una alergia propia y cambia su estado entre activa y superada |
+| [pm-104-pet-delete-cascade](pm-104-pet-delete-cascade/spec.md) | Propuesto | L10 | pm-044, pm-093, pm-097, pm-099, pm-101, pm-102 | T122 | Eliminar una mascota borra también todo su carnet y deja de funcionar su QR |
+| [pm-105-business-persistence-model](pm-105-business-persistence-model/spec.md) | Propuesto | L6 | pm-086, pm-039 | T123 | Existe el modelo y la colección del negocio afiliado, con un único negocio por cuenta y datos listos para el mapa |
+| [pm-106-business-schedule-model](pm-106-business-schedule-model/spec.md) | Propuesto | L7 | pm-105 | T124 | El horario del negocio se guarda estructurado por día y permite calcular si está abierto en este momento |
+| [pm-107-business-affiliate-create](pm-107-business-affiliate-create/spec.md) | Propuesto | L9 | pm-105, pm-106, pm-087 | T125 | `POST /api/v1/businesses/create` asocia un negocio a la cuenta del usuario autenticado, sin aprobación manual |
+| [pm-108-business-location-update](pm-108-business-location-update/spec.md) | Propuesto | L10 | pm-107 | T126 | `PUT /api/v1/businesses/update-location` cambia las coordenadas del negocio propio |
+| [pm-109-business-profile-update](pm-109-business-profile-update/spec.md) | Propuesto | L10 | pm-107 | T127 | `PUT /api/v1/businesses/update` edita el nombre, la descripción, los teléfonos y el horario del negocio propio |
+| [pm-110-business-delete](pm-110-business-delete/spec.md) | Propuesto | L10 | pm-107 | T128 | `DELETE /api/v1/businesses/delete` elimina el negocio asociado a la cuenta |
+| [pm-111-business-photo-public-storage](pm-111-business-photo-public-storage/spec.md) | Propuesto | L7 | pm-105, pm-079 | T129 | La foto del negocio se guarda en Azure Blob Storage en un contenedor de acceso público separado del de las fotos privadas |
+| [pm-112-service-create](pm-112-service-create/spec.md) | Propuesto | L10 | pm-107 | T130 | `POST /api/v1/services/create` agrega un servicio al catálogo del negocio propio |
+| [pm-113-service-list-own](pm-113-service-list-own/spec.md) | Propuesto | L11 | pm-112 | T131 | `GET /api/v1/services/get-all` devuelve los servicios del negocio asociado a la cuenta |
+| [pm-114-service-update](pm-114-service-update/spec.md) | Propuesto | L11 | pm-112 | T132 | `PUT /api/v1/services/update/{id}` edita un servicio del negocio propio |
+| [pm-115-service-delete](pm-115-service-delete/spec.md) | Propuesto | L11 | pm-112 | T133 | `DELETE /api/v1/services/delete/{id}` elimina un servicio del negocio propio |
+| [pm-116-business-nearby-query](pm-116-business-nearby-query/spec.md) | Propuesto | L10 | pm-107, pm-106, pm-047 | T134 | `GET /api/v1/businesses/get-nearby` devuelve los negocios activos cercanos a unas coordenadas, también para quien no tiene cuenta |
+| [pm-117-business-type-filter](pm-117-business-type-filter/spec.md) | Propuesto | L11 | pm-116 | T135 | La consulta de negocios acepta uno o varios tipos para filtrar el resultado |
+| [pm-118-business-name-search](pm-118-business-name-search/spec.md) | Propuesto | L11 | pm-116 | T136 | La consulta de negocios acepta un texto para filtrar por nombre |
+| [pm-119-business-public-profile](pm-119-business-public-profile/spec.md) | Propuesto | L11 | pm-107, pm-112, pm-106 | T137 | `GET /api/v1/businesses/get-by-id/{id}` devuelve el perfil público de un negocio, también sin cuenta |
+| [pm-120-public-read-rate-limit](pm-120-public-read-rate-limit/spec.md) | Propuesto | L11 | pm-116, pm-036 | T138 | Las consultas públicas de negocios tienen un límite por IP compartido entre réplicas |
+| [pm-121-business-public-cache](pm-121-business-public-cache/spec.md) | Propuesto | L12 | pm-119, pm-050, pm-051 | T139 | Las respuestas públicas de negocios se guardan en Redis Cache con un TTL justificado |
+| [pm-122-access-grant-model](pm-122-access-grant-model/spec.md) | Propuesto | L10 | pm-093, pm-107, pm-045 | T140 | Existe el modelo de autorización con el que el dueño da acceso a un negocio a datos de su mascota por un tiempo limitado |
+| [pm-123-access-grant-create](pm-123-access-grant-create/spec.md) | Propuesto | L11 | pm-122 | T141 | `POST /api/v1/access-grants/create` crea la autorización que el dueño da a un negocio |
+| [pm-124-qr-regeneration-cancels-grants](pm-124-qr-regeneration-cancels-grants/spec.md) | Propuesto | L12 | pm-123, pm-095 | T142 | Regenerar el QR de una mascota cancela todas sus autorizaciones activas |
+| [pm-125-scan-resolve-qr](pm-125-scan-resolve-qr/spec.md) | Propuesto | L10 | pm-093, pm-107 | T143 | `POST /api/v1/scans/resolve` identifica la mascota de un token o código corto escaneado por un negocio |
+| [pm-126-scan-access-check](pm-126-scan-access-check/spec.md) | Propuesto | L11 | pm-125, pm-122 | T144 | Un negocio solo accede a una mascota con una autorización vigente que lo incluya |
+| [pm-127-scan-ficha-veterinary](pm-127-scan-ficha-veterinary/spec.md) | Propuesto | L14 | pm-126, pm-097, pm-099, pm-101, pm-102, pm-133 | T145 | Una veterinaria con autorización vigente recibe la ficha de la mascota con los datos autorizados |
+| [pm-128-scan-ficha-basic](pm-128-scan-ficha-basic/spec.md) | Propuesto | L12 | pm-126, pm-102 | T146 | Una tienda o estética con autorización vigente recibe solo los datos básicos de la mascota |
+| [pm-129-scan-log-record](pm-129-scan-log-record/spec.md) | Propuesto | L11 | pm-125 | T147 | Cada vez que un negocio accede a una mascota se guarda un registro interno del escaneo |
+| [pm-130-attended-pets-list](pm-130-attended-pets-list/spec.md) | Propuesto | L12 | pm-129 | T148 | `GET /api/v1/scans/get-attended` lista las mascotas que el negocio escaneó, sin abrir su ficha |
+| [pm-131-consultation-create](pm-131-consultation-create/spec.md) | Propuesto | L12 | pm-126, pm-107, pm-096 | T149 | `POST /api/v1/consultations/create` registra una consulta en el carnet de una mascota autorizada |
+| [pm-132-prescription-items](pm-132-prescription-items/spec.md) | Propuesto | L13 | pm-131 | T150 | Una consulta admite una receta con varios medicamentos |
+| [pm-133-consultation-owner-list](pm-133-consultation-owner-list/spec.md) | Propuesto | L13 | pm-131, pm-096 | T151 | `GET /api/v1/consultations/get-all` lista las consultas registradas por veterinarias para una mascota del dueño |
+| [pm-134-consultation-owner-detail](pm-134-consultation-owner-detail/spec.md) | Propuesto | L14 | pm-133, pm-132 | T152 | `GET /api/v1/consultations/get-by-id/{id}` devuelve una consulta con su receta completa |
+| [pm-135-business-vaccine-register](pm-135-business-vaccine-register/spec.md) | Propuesto | L12 | pm-126, pm-096, pm-097 | T153 | `POST /api/v1/vaccines/create-by-business` registra una vacuna en el carnet de una mascota autorizada |
+| [pm-136-business-deworming-register](pm-136-business-deworming-register/spec.md) | Propuesto | L12 | pm-126, pm-096, pm-099 | T154 | `POST /api/v1/dewormings/create-by-business` registra una desparasitación en el carnet de una mascota autorizada |
+| [pm-137-clinical-history-view](pm-137-clinical-history-view/spec.md) | Propuesto | L14 | pm-097, pm-099, pm-101, pm-133 | T155 | `GET /api/v1/history/get-all` devuelve el historial médico de una mascota propia con filtro por tipo |
+| [pm-138-followup-open](pm-138-followup-open/spec.md) | Propuesto | L13 | pm-131 | T156 | `POST /api/v1/followups/create` abre el seguimiento de una consulta con estado y próxima revisión |
+| [pm-139-followup-update](pm-139-followup-update/spec.md) | Propuesto | L14 | pm-138 | T157 | `PUT /api/v1/followups/update/{id}` cambia el estado y la próxima revisión |
+| [pm-140-followup-notes](pm-140-followup-notes/spec.md) | Propuesto | L14 | pm-138 | T158 | `POST /api/v1/followups/add-note` agrega una nota con fecha al seguimiento |
+| [pm-141-followup-owner-view](pm-141-followup-owner-view/spec.md) | Propuesto | L14 | pm-138 | T159 | `GET /api/v1/followups/get-by-consultation/{id}` muestra al dueño el estado, la revisión y las notas |
+| [pm-142-followup-business-list](pm-142-followup-business-list/spec.md) | Propuesto | L14 | pm-138, pm-130 | T160 | `GET /api/v1/followups/get-all` lista los seguimientos de la veterinaria con filtros |
+| [pm-143-chat-conversation-open](pm-143-chat-conversation-open/spec.md) | Propuesto | L14 | pm-138 | T161 | Al abrir un seguimiento existe una conversación entre el dueño y la veterinaria de esa atención |
+| [pm-144-chat-send-message](pm-144-chat-send-message/spec.md) | Propuesto | L15 | pm-143 | T162 | `POST /api/v1/messages/send` envía un mensaje a una conversación |
+| [pm-145-chat-list-messages](pm-145-chat-list-messages/spec.md) | Propuesto | L16 | pm-144 | T163 | `GET /api/v1/messages/get-all` devuelve los mensajes de una conversación a partir de un cursor |
+| [pm-146-chat-photo-message](pm-146-chat-photo-message/spec.md) | Propuesto | L16 | pm-144, pm-079 | T164 | Un mensaje puede llevar una foto guardada en Blob privado |
+| [pm-147-chat-close-reopen](pm-147-chat-close-reopen/spec.md) | Propuesto | L15 | pm-143, pm-139 | T165 | La conversación se cierra al dar de alta el seguimiento y la veterinaria puede reabrirla |
+| [pm-148-chat-conversation-list](pm-148-chat-conversation-list/spec.md) | Propuesto | L15 | pm-143 | T166 | `GET /api/v1/conversations/get-all` lista las conversaciones del usuario con su último mensaje |
+| [pm-149-chat-read-state](pm-149-chat-read-state/spec.md) | Propuesto | L17 | pm-145 | T167 | `POST /api/v1/conversations/mark-read` marca como leídos los mensajes de una conversación |
+| [pm-150-chat-realtime-channel](pm-150-chat-realtime-channel/spec.md) | Propuesto | L16 | pm-144 | T168 | Los mensajes llegan al otro participante sin recargar mientras la conversación está abierta |
+| [pm-151-device-token-register](pm-151-device-token-register/spec.md) | Propuesto | L6 | pm-086 | T169 | `POST /api/v1/devices/register` guarda el token de notificaciones del dispositivo del usuario |
+| [pm-152-device-token-unregister](pm-152-device-token-unregister/spec.md) | Propuesto | L7 | pm-151 | T170 | `POST /api/v1/devices/unregister` borra el token de un dispositivo |
+| [pm-153-push-provider-adapter](pm-153-push-provider-adapter/spec.md) | Propuesto | L3 | pm-004, pm-005 | T171 | Existe un puerto de aplicación para enviar notificaciones push y un adaptador a Firebase Cloud Messaging |
+| [pm-154-reminder-generation](pm-154-reminder-generation/spec.md) | Propuesto | L10 | pm-097, pm-099 | T172 | El servidor calcula el recordatorio de cada próxima dosis o fecha registrada en el carnet |
+| [pm-155-reminder-dispatch](pm-155-reminder-dispatch/spec.md) | Propuesto | L11 | pm-154, pm-151, pm-153 | T173 | Un trabajo del servidor envía por push los recordatorios que ya corresponden |
+| [pm-156-reminder-list](pm-156-reminder-list/spec.md) | Propuesto | L11 | pm-154 | T174 | `GET /api/v1/reminders/get-all` lista lo próximo de las mascotas del dueño |
+| [pm-157-notification-settings](pm-157-notification-settings/spec.md) | Propuesto | L6 | pm-086 | T175 | `GET` y `PUT /api/v1/notification-settings` consultan y cambian las preferencias de aviso del usuario |
+| [pm-158-followup-change-push](pm-158-followup-change-push/spec.md) | Propuesto | L15 | pm-139, pm-155 | T176 | Un cambio de estado o de revisión del seguimiento notifica al dueño por push |
+| [pm-159-chat-message-push](pm-159-chat-message-push/spec.md) | Propuesto | L16 | pm-144, pm-155 | T177 | Un mensaje nuevo en el chat notifica por push al otro participante |
+| [pm-160-review-reminder-push](pm-160-review-reminder-push/spec.md) | Propuesto | L14 | pm-138, pm-155 | T178 | Un día antes de la próxima revisión del seguimiento se notifica al dueño |
+| [pm-161-account-delete-request](pm-161-account-delete-request/spec.md) | Propuesto | L6 | pm-086, pm-028, pm-025 | T179 | `DELETE /api/v1/users/me/delete` elimina la cuenta del usuario autenticado tras confirmar su contraseña |
+| [pm-162-account-delete-user-data](pm-162-account-delete-user-data/spec.md) | Propuesto | L11 | pm-161, pm-104, pm-122 | T180 | Al eliminar la cuenta se borran las mascotas y todo lo asociado a ellas |
+| [pm-163-account-delete-business-data](pm-163-account-delete-business-data/spec.md) | Propuesto | L12 | pm-161, pm-110, pm-115, pm-129 | T181 | Al eliminar la cuenta se borra el negocio asociado y sus datos |
+| [pm-164-account-deletion-web-request](pm-164-account-deletion-web-request/spec.md) | Propuesto | L9 | pm-088, pm-036 | T182 | `POST /api/v1/account-deletion/request` inicia la eliminación de una cuenta sin entrar a la app |
+| [pm-165-account-deletion-web-confirm](pm-165-account-deletion-web-confirm/spec.md) | Propuesto | L10 | pm-164, pm-161 | T183 | `POST /api/v1/account-deletion/confirm` elimina la cuenta con el token del enlace |
+| [pm-166-openapi-contract-artifact](pm-166-openapi-contract-artifact/spec.md) | Propuesto | L6 | pm-061, pm-008 | T184 | Cada ejecución de CI genera el documento OpenAPI y lo publica como artefacto para el equipo móvil |
+| [pm-167-integration-environment-flow](pm-167-integration-environment-flow/spec.md) | Propuesto | L6 | pm-055, pm-059 | T185 | Existe un documento que fija cómo el equipo móvil consume el backend durante el desarrollo |
 
 ## Orden de ejecución por niveles
 
@@ -109,18 +192,23 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | L0 | pm-001, pm-062 |
 | L1 | pm-002, pm-003, pm-004, pm-022, pm-063 |
 | L2 | pm-005, pm-012, pm-013, pm-015, pm-018, pm-019, pm-020, pm-023, pm-026, pm-027, pm-064, pm-065 |
-| L3 | pm-006, pm-007, pm-009, pm-014, pm-017, pm-021, pm-024, pm-025, pm-028, pm-050, pm-066 |
+| L3 | pm-006, pm-007, pm-009, pm-014, pm-017, pm-021, pm-024, pm-025, pm-028, pm-050, pm-066, pm-088, pm-153 |
 | L4 | pm-008, pm-010, pm-016, pm-033, pm-047, pm-048, pm-049, pm-051, pm-055, pm-056, pm-067, pm-072 |
-| L5 | pm-011, pm-037, pm-039, pm-054, pm-057, pm-058, pm-059, pm-060, pm-061, pm-068 |
-| L6 | pm-029, pm-030, pm-038, pm-040, pm-041, pm-042, pm-043, pm-044, pm-052, pm-069, pm-070, pm-071, pm-074, pm-079 |
-| L7 | pm-031, pm-045, pm-075 |
-| L8 | pm-032, pm-036, pm-076, pm-078, pm-080 |
-| L9 | pm-034, pm-073, pm-081 |
-| L10 | pm-035, pm-077, pm-082 |
-| L11 | pm-046, pm-083 |
-| L12 | pm-053, pm-084 |
+| L5 | pm-011, pm-037, pm-039, pm-054, pm-057, pm-058, pm-059, pm-060, pm-061, pm-068, pm-086 |
+| L6 | pm-029, pm-030, pm-038, pm-040, pm-041, pm-042, pm-043, pm-044, pm-052, pm-069, pm-070, pm-071, pm-074, pm-079, pm-105, pm-151, pm-157, pm-161, pm-166, pm-167 |
+| L7 | pm-031, pm-045, pm-075, pm-085, pm-091, pm-092, pm-093, pm-106, pm-111, pm-152 |
+| L8 | pm-032, pm-036, pm-076, pm-078, pm-080, pm-087, pm-094, pm-096 |
+| L9 | pm-034, pm-073, pm-081, pm-089, pm-095, pm-097, pm-099, pm-101, pm-102, pm-107, pm-164 |
+| L10 | pm-035, pm-077, pm-082, pm-090, pm-098, pm-100, pm-103, pm-104, pm-108, pm-109, pm-110, pm-112, pm-116, pm-122, pm-125, pm-154, pm-165 |
+| L11 | pm-046, pm-083, pm-113, pm-114, pm-115, pm-117, pm-118, pm-119, pm-120, pm-123, pm-126, pm-129, pm-155, pm-156, pm-162 |
+| L12 | pm-053, pm-084, pm-121, pm-124, pm-128, pm-130, pm-131, pm-135, pm-136, pm-163 |
+| L13 | pm-132, pm-133, pm-138 |
+| L14 | pm-127, pm-134, pm-137, pm-139, pm-140, pm-141, pm-142, pm-143, pm-160 |
+| L15 | pm-144, pm-147, pm-148, pm-158 |
+| L16 | pm-145, pm-146, pm-150, pm-159 |
+| L17 | pm-149 |
 
-## Tasks T001–T102
+## Tasks T001–T185
 
 | Task | Tipo | Spec principal | Estado | Título |
 |---|---|---|---|---|
@@ -226,6 +314,89 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T100 | Nueva | [pm-036](pm-036-rate-limiting/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad) | Límite por IP distribuido en Redis Auth, validación de proxies al arrancar y documentación de saltos |
 | T101 | Nueva | [pm-034](pm-034-auth-brute-force-protection/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad) | Bloqueo de login por par (correo, IP) y techo por correo con espera corta |
 | T102 | Nueva | [pm-029](pm-029-user-registration/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad) | Igualar tiempos del registro y documentar el riesgo aceptado de enumeración (H4) |
+| T103 | Nueva | [pm-085](pm-085-account-registration-name/spec.md) | Propuesto | Exigir el nombre en el registro de la cuenta |
+| T104 | Nueva | [pm-086](pm-086-user-role-unification/spec.md) | Propuesto | Unificar los roles Owner y Business en el rol único User |
+| T105 | Nueva | [pm-087](pm-087-session-business-link/spec.md) | Propuesto | Informar el negocio asociado en la respuesta de sesión |
+| T106 | Nueva | [pm-088](pm-088-transactional-email-adapter/spec.md) | Propuesto | Implementar el puerto y el adaptador de envío de correo |
+| T107 | Nueva | [pm-089](pm-089-password-reset-request/spec.md) | Propuesto | Solicitar el enlace de restablecimiento de contraseña |
+| T108 | Nueva | [pm-090](pm-090-password-reset-confirm/spec.md) | Propuesto | Restablecer la contraseña con el enlace |
+| T109 | Nueva | [pm-091](pm-091-profile-optional-phone/spec.md) | Propuesto | Permitir agregar un celular opcional al perfil |
+| T110 | Nueva | [pm-092](pm-092-pet-species-sex-rules/spec.md) | Propuesto | Restringir la especie a Perro y Gato y hacer opcional el sexo |
+| T111 | Nueva | [pm-093](pm-093-pet-qr-token/spec.md) | Propuesto | Generar el token y el código corto del QR al crear la mascota |
+| T112 | Nueva | [pm-094](pm-094-pet-qr-read/spec.md) | Propuesto | Consultar el QR de una mascota propia |
+| T113 | Nueva | [pm-095](pm-095-pet-qr-regenerate/spec.md) | Propuesto | Regenerar el QR de una mascota propia |
+| T114 | Nueva | [pm-096](pm-096-clinical-record-provenance/spec.md) | Propuesto | Modelar el origen de los registros clínicos |
+| T115 | Nueva | [pm-097](pm-097-vaccine-create-list/spec.md) | Propuesto | Registrar y listar las vacunas de una mascota |
+| T116 | Nueva | [pm-098](pm-098-vaccine-delete-own/spec.md) | Propuesto | Borrar las vacunas registradas por el propio dueño |
+| T117 | Nueva | [pm-099](pm-099-deworming-create-list/spec.md) | Propuesto | Registrar y listar las desparasitaciones de una mascota |
+| T118 | Nueva | [pm-100](pm-100-deworming-delete-own/spec.md) | Propuesto | Borrar las desparasitaciones registradas por el propio dueño |
+| T119 | Nueva | [pm-101](pm-101-weight-create-list/spec.md) | Propuesto | Registrar y listar el peso de una mascota |
+| T120 | Nueva | [pm-102](pm-102-allergy-create-list/spec.md) | Propuesto | Registrar y listar las alergias y condiciones de una mascota |
+| T121 | Nueva | [pm-103](pm-103-allergy-update-status/spec.md) | Propuesto | Editar y marcar como superada una alergia |
+| T122 | Nueva | [pm-104](pm-104-pet-delete-cascade/spec.md) | Propuesto | Eliminar el carnet y el QR al eliminar una mascota |
+| T123 | Nueva | [pm-105](pm-105-business-persistence-model/spec.md) | Propuesto | Crear el modelo y la colección del negocio |
+| T124 | Nueva | [pm-106](pm-106-business-schedule-model/spec.md) | Propuesto | Modelar el horario estructurado y el estado abierto ahora |
+| T125 | Nueva | [pm-107](pm-107-business-affiliate-create/spec.md) | Propuesto | Afiliar el negocio de un usuario |
+| T126 | Nueva | [pm-108](pm-108-business-location-update/spec.md) | Propuesto | Actualizar la ubicación del negocio |
+| T127 | Nueva | [pm-109](pm-109-business-profile-update/spec.md) | Propuesto | Actualizar los datos del negocio propio |
+| T128 | Nueva | [pm-110](pm-110-business-delete/spec.md) | Propuesto | Dar de baja el negocio propio |
+| T129 | Nueva | [pm-111](pm-111-business-photo-public-storage/spec.md) | Propuesto | Guardar la foto pública del negocio en Blob |
+| T130 | Nueva | [pm-112](pm-112-service-create/spec.md) | Propuesto | Crear un servicio del negocio |
+| T131 | Nueva | [pm-113](pm-113-service-list-own/spec.md) | Propuesto | Listar los servicios del negocio propio |
+| T132 | Nueva | [pm-114](pm-114-service-update/spec.md) | Propuesto | Editar un servicio del negocio propio |
+| T133 | Nueva | [pm-115](pm-115-service-delete/spec.md) | Propuesto | Borrar un servicio del negocio propio |
+| T134 | Nueva | [pm-116](pm-116-business-nearby-query/spec.md) | Propuesto | Consultar los negocios cercanos de forma pública |
+| T135 | Nueva | [pm-117](pm-117-business-type-filter/spec.md) | Propuesto | Filtrar los negocios por tipo |
+| T136 | Nueva | [pm-118](pm-118-business-name-search/spec.md) | Propuesto | Buscar negocios por nombre |
+| T137 | Nueva | [pm-119](pm-119-business-public-profile/spec.md) | Propuesto | Consultar el perfil público de un negocio |
+| T138 | Nueva | [pm-120](pm-120-public-read-rate-limit/spec.md) | Propuesto | Limitar por IP las lecturas públicas de negocios |
+| T139 | Nueva | [pm-121](pm-121-business-public-cache/spec.md) | Propuesto | Cachear las respuestas públicas de negocios |
+| T140 | Nueva | [pm-122](pm-122-access-grant-model/spec.md) | Propuesto | Modelar la autorización de acceso a una mascota |
+| T141 | Nueva | [pm-123](pm-123-access-grant-create/spec.md) | Propuesto | Crear una autorización de acceso |
+| T142 | Nueva | [pm-124](pm-124-qr-regeneration-cancels-grants/spec.md) | Propuesto | Cancelar las autorizaciones al regenerar el QR |
+| T143 | Nueva | [pm-125](pm-125-scan-resolve-qr/spec.md) | Propuesto | Resolver un token o código corto a una mascota |
+| T144 | Nueva | [pm-126](pm-126-scan-access-check/spec.md) | Propuesto | Exigir una autorización vigente para ver la mascota |
+| T145 | Nueva | [pm-127](pm-127-scan-ficha-veterinary/spec.md) | Propuesto | Entregar la ficha completa a una veterinaria autorizada |
+| T146 | Nueva | [pm-128](pm-128-scan-ficha-basic/spec.md) | Propuesto | Entregar la ficha básica a una tienda o estética autorizada |
+| T147 | Nueva | [pm-129](pm-129-scan-log-record/spec.md) | Propuesto | Registrar cada escaneo con acceso concedido |
+| T148 | Nueva | [pm-130](pm-130-attended-pets-list/spec.md) | Propuesto | Listar las mascotas atendidas por el negocio |
+| T149 | Nueva | [pm-131](pm-131-consultation-create/spec.md) | Propuesto | Registrar una consulta veterinaria |
+| T150 | Nueva | [pm-132](pm-132-prescription-items/spec.md) | Propuesto | Agregar medicamentos a la receta de una consulta |
+| T151 | Nueva | [pm-133](pm-133-consultation-owner-list/spec.md) | Propuesto | Listar las consultas de una mascota propia |
+| T152 | Nueva | [pm-134](pm-134-consultation-owner-detail/spec.md) | Propuesto | Consultar el detalle de una consulta propia |
+| T153 | Nueva | [pm-135](pm-135-business-vaccine-register/spec.md) | Propuesto | Registrar una vacuna aplicada por la veterinaria |
+| T154 | Nueva | [pm-136](pm-136-business-deworming-register/spec.md) | Propuesto | Registrar una desparasitación aplicada por la veterinaria |
+| T155 | Nueva | [pm-137](pm-137-clinical-history-view/spec.md) | Propuesto | Consultar el historial médico unificado |
+| T156 | Nueva | [pm-138](pm-138-followup-open/spec.md) | Propuesto | Abrir el seguimiento de una consulta |
+| T157 | Nueva | [pm-139](pm-139-followup-update/spec.md) | Propuesto | Cambiar el estado y la revisión del seguimiento |
+| T158 | Nueva | [pm-140](pm-140-followup-notes/spec.md) | Propuesto | Agregar notas al seguimiento |
+| T159 | Nueva | [pm-141](pm-141-followup-owner-view/spec.md) | Propuesto | Consultar el seguimiento de una consulta propia |
+| T160 | Nueva | [pm-142](pm-142-followup-business-list/spec.md) | Propuesto | Listar los seguimientos del negocio |
+| T161 | Nueva | [pm-143](pm-143-chat-conversation-open/spec.md) | Propuesto | Abrir la conversación de un seguimiento |
+| T162 | Nueva | [pm-144](pm-144-chat-send-message/spec.md) | Propuesto | Enviar un mensaje de texto |
+| T163 | Nueva | [pm-145](pm-145-chat-list-messages/spec.md) | Propuesto | Listar los mensajes de una conversación |
+| T164 | Nueva | [pm-146](pm-146-chat-photo-message/spec.md) | Propuesto | Enviar una foto en el chat |
+| T165 | Nueva | [pm-147](pm-147-chat-close-reopen/spec.md) | Propuesto | Cerrar y reabrir la conversación |
+| T166 | Nueva | [pm-148](pm-148-chat-conversation-list/spec.md) | Propuesto | Listar las conversaciones propias |
+| T167 | Nueva | [pm-149](pm-149-chat-read-state/spec.md) | Propuesto | Llevar el estado de lectura del chat |
+| T168 | Nueva | [pm-150](pm-150-chat-realtime-channel/spec.md) | Propuesto | Entregar los mensajes en tiempo real |
+| T169 | Nueva | [pm-151](pm-151-device-token-register/spec.md) | Propuesto | Registrar el dispositivo para recibir avisos |
+| T170 | Nueva | [pm-152](pm-152-device-token-unregister/spec.md) | Propuesto | Quitar el dispositivo al cerrar sesión |
+| T171 | Nueva | [pm-153](pm-153-push-provider-adapter/spec.md) | Propuesto | Implementar el puerto y el adaptador de notificaciones push |
+| T172 | Nueva | [pm-154](pm-154-reminder-generation/spec.md) | Propuesto | Calcular los recordatorios de vacunas y desparasitaciones |
+| T173 | Nueva | [pm-155](pm-155-reminder-dispatch/spec.md) | Propuesto | Enviar los recordatorios vencidos |
+| T174 | Nueva | [pm-156](pm-156-reminder-list/spec.md) | Propuesto | Listar los avisos de las mascotas |
+| T175 | Nueva | [pm-157](pm-157-notification-settings/spec.md) | Propuesto | Guardar los ajustes de notificación |
+| T176 | Nueva | [pm-158](pm-158-followup-change-push/spec.md) | Propuesto | Avisar al dueño de cambios en el seguimiento |
+| T177 | Nueva | [pm-159](pm-159-chat-message-push/spec.md) | Propuesto | Avisar al otro participante de un mensaje nuevo |
+| T178 | Nueva | [pm-160](pm-160-review-reminder-push/spec.md) | Propuesto | Avisar un día antes de la revisión |
+| T179 | Nueva | [pm-161](pm-161-account-delete-request/spec.md) | Propuesto | Eliminar la cuenta con confirmación de contraseña |
+| T180 | Nueva | [pm-162](pm-162-account-delete-user-data/spec.md) | Propuesto | Borrar los datos de mascotas al eliminar la cuenta |
+| T181 | Nueva | [pm-163](pm-163-account-delete-business-data/spec.md) | Propuesto | Borrar el negocio al eliminar la cuenta |
+| T182 | Nueva | [pm-164](pm-164-account-deletion-web-request/spec.md) | Propuesto | Solicitar la eliminación de la cuenta desde la web |
+| T183 | Nueva | [pm-165](pm-165-account-deletion-web-confirm/spec.md) | Propuesto | Confirmar la eliminación de la cuenta desde la web |
+| T184 | Nueva | [pm-166](pm-166-openapi-contract-artifact/spec.md) | Propuesto | Publicar el contrato OpenAPI como artefacto de CI |
+| T185 | Nueva | [pm-167](pm-167-integration-environment-flow/spec.md) | Propuesto | Documentar el flujo del entorno de integración con la app |
 
 ## Primer hito
 
@@ -279,3 +450,5 @@ Los cuatro endpoints de autenticación y los siete endpoints funcionales (11 en 
 - **2026-11-08 — Aprobación humana de T098 a T102:** quedan «Cerrado y aprobado» y sus specs pm-028, pm-029, pm-031, pm-034 y pm-036 «Verificado». Sin revisión independiente de seguridad de estos cambios (el usuario aprobó sin ella).
 - **2026-11-08 — T071:** el usuario elige la opción 2 (la etiqueta `api-vX.Y.Z` solo con lanzamiento manual y `create_tag`; el merge no etiqueta). Revisión independiente realizada (apto con observaciones, corregidas). Falta la aprobación humana y la primera ejecución real en GitHub.
 - **2026-11-08 — T071 aprobada y cerrada por el usuario** (versionado SemVer, etiqueta solo con lanzamiento manual y `create_tag`, versión trazable a la imagen). El spec pm-059 queda «Verificado». La primera ejecución real del paso de etiqueta en GitHub sigue pendiente.
+- **2026-11-09 — Enmienda de la Constitución v1.3.0 y Specs del primer hito (H-1):** el usuario aprueba las fuentes de producto vigentes (documento v3 y maqueta, que sustituyen al PDF del 26 oct), el modelo de cuenta con negocio asociado y las decisiones registradas en `docs/product-scope.md`. Se crean `pm-085` a `pm-104` (20 Specs atómicos, uno por Task, `T103` a `T122`) en estado «Propuesto», sin plan ni implementación. Quedan fuera de alcance el cobro, la verificación de correo, el SMS y la IA/ML. La política de contraseña (12 a 128) se mantiene. El gate `check-sdd` amplía sus rangos a `pm-001`…`pm-104` y `T001`…`T122`.
+- **2026-11-09 — Specs de los hitos siguientes:** se crean `pm-105` a `pm-167` (63 Specs atómicos, uno por Task, `T123` a `T185`) en estado «Propuesto», sin plan ni implementación: negocios y mapa (105 a 121), autorizaciones y escaneo (122 a 130), atención clínica por negocios (131 a 137), seguimiento y chat (138 a 150), avisos push (151 a 160), eliminación de cuenta (161 a 165) e integración con la app (166 y 167). Todas las funcionalidades de las fuentes tienen ya un Spec, salvo lo excluido (cobro, verificación de correo, SMS, IA/ML). El gate `check-sdd` amplía sus rangos a `pm-001`…`pm-167` y `T001`…`T185`.

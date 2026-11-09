@@ -511,3 +511,19 @@ Aprobados por el usuario (H7, H3, H8 opción A; H4 opción B; H6 A+B+C) y regist
 ## T071 cerrada (2026-11-08)
 
 - Aprobada y cerrada por el usuario tras la revisión independiente (apto con observaciones, corregidas). Spec pm-059 «Verificado». **Límite:** el pipeline no ha corrido en GitHub con estos cambios; la primera ejecución real del paso de etiqueta (y de la entrada `create_tag`) está pendiente. Riesgo documentado: `terraform apply` puede revertir `PETMATE_VERSION`.
+
+## Fuentes de producto, enmienda v1.3.0 y Specs del primer hito (2026-11-09)
+
+- **Fuentes de producto vigentes:** documento v3 (RF/RNF/HU) y maqueta HTML; sustituyen al PDF del 26 de octubre. Resumen y decisiones del usuario en `docs/product-scope.md`; huellas SHA-256 de las dos fuentes allí.
+- **Constitución v1.3.0** (aprobada por el usuario en el chat): §6.1 cuenta única `User` con un negocio asociado opcional, afiliación de autoservicio; §6.5 y §7 ajustados; §11 con módulos y alcance excluido; historial §13.
+- **Decisiones registradas:** sin verificación de correo ni SMS; celular opcional después del registro; **contraseña 12–128 se mantiene** (el documento propone 8); especies Perro y Gato; QR permanente con autorizaciones de acceso (negocio, datos y duración elegidos, sin revocación ni vista de accesos para el dueño); push con FCM; seguimiento y chat dentro; cobro e IA/ML fuera; un tipo por negocio; fotos de negocios públicas en Blob; integración con la app antes que la nube.
+- **Specs creados** (`pm-085` a `pm-104`, Tasks `T103` a `T122`), uno por Task y en estado «Propuesto», sin plan ni implementación: cuenta y sesión (085 a 091), mascotas y QR (092 a 095), carnet (096 a 103) y cascada de borrado (104). Pm-079 a pm-081 (Blob) siguen «Propuesto» y cubren las fotos de mascotas.
+- **Gate SDD:** `scripts/check-sdd.ps1` amplía sus rangos a `pm-001`…`pm-104` y `T001`…`T122`; pasa con 104 Specs y 122 Tasks.
+- **Pendiente:** Specs de los hitos siguientes (mapa y afiliación, escaneo y atención, avisos, seguimiento y chat, eliminación de cuenta); el dominio de envío de correo (sin dominio solo funcionan las pruebas); verificar el estado del despliegue de Azure; aprobar cada Spec antes de planificar.
+
+## Specs de los hitos siguientes (2026-11-09)
+
+- **63 Specs atómicos** (`pm-105` a `pm-167`, Tasks `T123` a `T185`), uno por Task y en estado «Propuesto», sin plan ni implementación: negocios y mapa (105 a 121), autorizaciones y escaneo (122 a 130), atención clínica por negocios (131 a 137), seguimiento y chat (138 a 150), avisos push y recordatorios (151 a 160), eliminación de cuenta (161 a 165) y contrato OpenAPI y entorno de integración (166 y 167).
+- **Cobertura:** todas las funcionalidades de las fuentes de producto tienen ya un Spec, salvo lo excluido por el usuario (cobro, verificación de correo, SMS, IA/ML). Total del repositorio: 167 Specs y 185 Tasks; el gate `check-sdd` pasa.
+- **Supuestos que el usuario debe confirmar** (están como nota en el Spec correspondiente): eliminación de cuenta inmediata, con el plazo de 30 días del aviso de privacidad solo para copias de seguridad (pm-161); verificación de identidad de la eliminación web por enlace al correo (pm-164); si el peso de una consulta se suma al historial de peso (pm-131); tiempo real del chat solo si es viable (pm-150); aviso de promociones de la maqueta sin funcionalidad definida (pm-157).
+- **Pendiente:** aprobar cada Spec antes de planificarlo (`AGENTS.md`); el dominio de envío de correo; verificar el estado del despliegue de Azure; y decidir el orden de trabajo del primer Spec a planificar.
