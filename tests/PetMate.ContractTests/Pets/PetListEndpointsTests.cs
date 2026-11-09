@@ -22,8 +22,8 @@ public sealed class PetListEndpointsTests
     public async Task Get_all_returns_the_standard_page_shape_with_defaults_and_only_the_own_pets()
     {
         using var factory = new AuthFlowFactory();
-        using var ana = Client(factory, Guid.NewGuid(), UserRole.Owner);
-        using var luis = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var ana = Client(factory, Guid.NewGuid(), UserRole.User);
+        using var luis = Client(factory, Guid.NewGuid(), UserRole.User);
         await CreatePet(ana, "Firulais");
         await CreatePet(ana, "Michi");
         await CreatePet(luis, "Ajena");
@@ -50,7 +50,7 @@ public sealed class PetListEndpointsTests
     public async Task Get_all_with_no_pets_returns_an_empty_page()
     {
         using var factory = new AuthFlowFactory();
-        using var client = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
 
         using var response = await Get(client, "");
         using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
@@ -67,7 +67,7 @@ public sealed class PetListEndpointsTests
     public async Task Get_all_pages_through_the_pets_and_an_out_of_range_page_is_empty()
     {
         using var factory = new AuthFlowFactory();
-        using var client = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
         for (var i = 0; i < 3; i++)
         {
             await CreatePet(client, $"Mascota {i}");
@@ -91,7 +91,7 @@ public sealed class PetListEndpointsTests
     public async Task Get_all_accepts_the_maximum_page_size_of_50()
     {
         using var factory = new AuthFlowFactory();
-        using var client = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
 
         using var response = await Get(client, "?pageSize=50");
         using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
@@ -114,7 +114,7 @@ public sealed class PetListEndpointsTests
     public async Task Get_all_with_an_invalid_parameter_returns_400_naming_it(string query, string field)
     {
         using var factory = new AuthFlowFactory();
-        using var client = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
 
         using var response = await Get(client, query);
         var raw = await response.Content.ReadAsStringAsync();
@@ -131,8 +131,8 @@ public sealed class PetListEndpointsTests
     {
         using var factory = new AuthFlowFactory();
         var victim = Guid.NewGuid();
-        using var attacker = Client(factory, Guid.NewGuid(), UserRole.Owner);
-        using var owner = Client(factory, victim, UserRole.Owner);
+        using var attacker = Client(factory, Guid.NewGuid(), UserRole.User);
+        using var owner = Client(factory, victim, UserRole.User);
         await CreatePet(owner, "Privada");
 
         using var response = await Get(attacker, $"?ownerId={victim}&userId={victim}");
@@ -148,13 +148,10 @@ public sealed class PetListEndpointsTests
     {
         using var factory = new AuthFlowFactory();
         using var anonymous = factory.CreateClient();
-        using var business = Client(factory, Guid.NewGuid(), UserRole.Business);
 
         using var unauthenticated = await Get(anonymous, "");
-        using var forbidden = await Get(business, "");
 
         Assert.Equal(HttpStatusCode.Unauthorized, unauthenticated.StatusCode);
-        Assert.Equal(HttpStatusCode.Forbidden, forbidden.StatusCode);
         Assert.Equal(401, JsonDocument.Parse(await unauthenticated.Content.ReadAsStringAsync()).RootElement.GetProperty("statusCode").GetInt32());
     }
 

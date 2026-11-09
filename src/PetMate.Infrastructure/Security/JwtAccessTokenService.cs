@@ -110,6 +110,13 @@ public sealed class JwtAccessTokenService : IAccessTokenService
         return TryRead(jwt, out var claims) ? claims : null;
     }
 
+    /// <summary>El único rol vigente es <c>User</c>; los tokens anteriores con <c>Owner</c> se aceptan como <c>User</c> hasta que expiran (pm-086#CA-04).</summary>
+    private static bool TryReadRole(string roleName, out UserRole role)
+    {
+        role = UserRole.User;
+        return roleName is "User" or "Owner";
+    }
+
     /// <summary>Extrae y valida los claims obligatorios de un JWT ya verificado criptográficamente.</summary>
     public static bool TryRead(JsonWebToken jwt, out AccessTokenClaims? claims)
     {
@@ -120,7 +127,7 @@ public sealed class JwtAccessTokenService : IAccessTokenService
             || userId == Guid.Empty
             || !jwt.TryGetPayloadValue<string>(JwtRegisteredClaimNames.Jti, out var jti) || string.IsNullOrWhiteSpace(jti)
             || !jwt.TryGetPayloadValue<string>("role", out var roleName)
-            || !Enum.TryParse<UserRole>(roleName, ignoreCase: false, out var role) || Enum.GetName(role) != roleName)
+            || !TryReadRole(roleName, out var role))
         {
             return false;
         }

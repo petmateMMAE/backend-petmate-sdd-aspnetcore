@@ -11,7 +11,7 @@
 
 ### T117 — Registrar y listar las desparasitaciones de una mascota
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-099
 - **Criterios propios:** pm-099#CA-01, pm-099#CA-02, pm-099#CA-03, pm-099#CA-04
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

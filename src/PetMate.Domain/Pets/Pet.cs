@@ -23,13 +23,17 @@ public sealed record PetDetails(string Name, string Species, string? Breed, Date
 public sealed class Pet
 {
     public const int MaxNameLength = 50;
-    public const int MaxSpeciesLength = 40;
+    /// <summary>Especies permitidas (lista cerrada, decisión 2026-11-09).</summary>
+    public const string SpeciesDog = "Perro";
+
+    public const string SpeciesCat = "Gato";
     public const int MaxBreedLength = 60;
     public const int MaxPhotoUrlLength = 2048;
     public const int MaxAgeInYears = 50;
 
-    private Pet(Guid id, Guid ownerId, PetDetails details, DateTime createdAtUtc, DateTime updatedAtUtc)
+    private Pet(Guid id, Guid ownerId, PetDetails details, PetQr qr, DateTime createdAtUtc, DateTime updatedAtUtc)
     {
+        Qr = qr;
         Id = id;
         OwnerId = ownerId;
         Name = details.Name;
@@ -59,6 +63,9 @@ public sealed class Pet
     /// <summary>URL HTTPS de la fotografía. La carga de archivos llega con pm-079/pm-080; nunca se guarda en disco local.</summary>
     public string? PhotoUrl { get; private set; }
 
+    /// <summary>QR permanente de la mascota (pm-093). Nunca se incluye en las respuestas de mascotas.</summary>
+    public PetQr Qr { get; private set; }
+
     public DateTime CreatedAtUtc { get; }
 
     public DateTime UpdatedAtUtc { get; private set; }
@@ -67,7 +74,14 @@ public sealed class Pet
     public static Pet Create(Guid ownerId, PetDetails details, DateTime nowUtc)
     {
         var now = Guard.Utc(nowUtc, nameof(nowUtc));
-        return new Pet(Guid.CreateVersion7(), Guard.NotEmpty(ownerId, nameof(ownerId)), Normalize(details, now), now, now);
+        return new Pet(Guid.CreateVersion7(), Guard.NotEmpty(ownerId, nameof(ownerId)), Normalize(details, now), PetQr.Generate(), now, now);
+    }
+
+    /// <summary>Genera un QR nuevo (pm-095). El anterior deja de ser válido de inmediato.</summary>
+    public void RegenerateQr(DateTime nowUtc)
+    {
+        Qr = PetQr.Generate();
+        UpdatedAtUtc = Guard.Utc(nowUtc, nameof(nowUtc));
     }
 
     /// <summary>Reemplaza los datos editables. El identificador, el propietario y la fecha de alta no cambian.</summary>
@@ -85,7 +99,7 @@ public sealed class Pet
     }
 
     /// <summary>Rehidrata una mascota persistida y vuelve a validar sus invariantes. Interno: Infrastructure y pruebas.</summary>
-    internal static Pet Restore(Guid id, Guid ownerId, PetDetails details, DateTime createdAtUtc, DateTime updatedAtUtc)
+    internal static Pet Restore(Guid id, Guid ownerId, PetDetails details, DateTime createdAtUtc, DateTime updatedAtUtc, PetQr? qr = null)
     {
         var created = Guard.Utc(createdAtUtc, nameof(createdAtUtc));
         var updated = Guard.Utc(updatedAtUtc, nameof(updatedAtUtc));
@@ -95,12 +109,12 @@ public sealed class Pet
         }
 
         // La fecha de nacimiento se valida contra la última modificación: así un registro antiguo sigue siendo válido.
-        return new Pet(Guard.NotEmpty(id, nameof(id)), Guard.NotEmpty(ownerId, nameof(ownerId)), Normalize(details, updated), created, updated);
+        return new Pet(Guard.NotEmpty(id, nameof(id)), Guard.NotEmpty(ownerId, nameof(ownerId)), Normalize(details, updated, legacySpecies: true), qr ?? PetQr.Generate(), created, updated);
     }
 
     public static bool IsValidName(string? value) => IsValidText(value, MaxNameLength, required: true);
 
-    public static bool IsValidSpecies(string? value) => IsValidText(value, MaxSpeciesLength, required: true);
+    public static bool IsValidSpecies(string? value) => value?.Trim() is SpeciesDog or SpeciesCat;
 
     public static bool IsValidBreed(string? value) => IsValidText(value, MaxBreedLength, required: false);
 
@@ -125,11 +139,12 @@ public sealed class Pet
             && string.IsNullOrEmpty(uri.UserInfo);
     }
 
-    private static PetDetails Normalize(PetDetails details, DateTime nowUtc)
+    // legacySpecies: al rehidratar se acepta una especie guardada antes de la lista cerrada, para que una mascota heredada no rompa los listados.
+    private static PetDetails Normalize(PetDetails details, DateTime nowUtc, bool legacySpecies = false)
     {
         ArgumentNullException.ThrowIfNull(details);
         var today = DateOnly.FromDateTime(nowUtc);
-        if (!IsValidName(details.Name) || !IsValidSpecies(details.Species) || !IsValidBreed(details.Breed)
+        if (!IsValidName(details.Name) || !(IsValidSpecies(details.Species) || (legacySpecies && IsValidText(details.Species, 40, required: true))) || !IsValidBreed(details.Breed)
             || !IsValidSex(details.Sex) || !IsValidBirthDate(details.BirthDate, today) || !IsValidPhotoUrl(details.PhotoUrl))
         {
             throw new DomainException("Los datos de la mascota no son válidos.");

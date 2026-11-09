@@ -24,12 +24,13 @@ public sealed class PetOwnershipSecurityTests
     [Fact]
     public void Every_repository_operation_except_add_requires_the_owner()
     {
-        // Add y UpdateOwned reciben la entidad, que lleva su propietario; UpdateOwned filtra por Id y OwnerId de la entidad.
-        var methods = typeof(IPetRepository).GetMethods().Where(m => m.Name is not (nameof(IPetRepository.Add) or nameof(IPetRepository.UpdateOwned))).ToArray();
+        // Add, UpdateOwned y ReplaceQrOwned reciben la entidad, que lleva su propietario; los dos últimos filtran por Id y OwnerId de la entidad.
+        string[] entityBased = [nameof(IPetRepository.Add), nameof(IPetRepository.UpdateOwned), nameof(IPetRepository.ReplaceQrOwned)];
+        var methods = typeof(IPetRepository).GetMethods().Where(m => !entityBased.Contains(m.Name)).ToArray();
 
         Assert.NotEmpty(methods);
         Assert.All(methods, method => Assert.Contains(method.GetParameters(), p => OwnerNames.Contains(p.Name, StringComparer.Ordinal) && p.ParameterType == typeof(Guid)));
-        Assert.All(new[] { nameof(IPetRepository.Add), nameof(IPetRepository.UpdateOwned) },
+        Assert.All(entityBased,
             name => Assert.Contains(typeof(IPetRepository).GetMethod(name)!.GetParameters(), p => p.ParameterType == typeof(PetMate.Domain.Pets.Pet)));
     }
 
@@ -49,7 +50,7 @@ public sealed class PetOwnershipSecurityTests
             .Where(type => type.Namespace == typeof(CreatePetCommand).Namespace && (type.Name.EndsWith("Command", StringComparison.Ordinal) || type.Name.EndsWith("Query", StringComparison.Ordinal)))
             .ToArray();
 
-        Assert.Equal(5, requests.Length);
+        Assert.Equal(7, requests.Length);
         Assert.All(requests, request =>
         {
             var first = request.GetConstructors().Single().GetParameters()[0];
@@ -72,7 +73,7 @@ public sealed class PetOwnershipSecurityTests
         var controller = typeof(PetsController);
         var authorize = Assert.Single(controller.GetCustomAttributes<AuthorizeAttribute>());
 
-        Assert.Equal(AuthorizationPolicies.RequireOwner, authorize.Policy);
+        Assert.Equal(AuthorizationPolicies.RequireUser, authorize.Policy);
         Assert.Empty(controller.GetCustomAttributes<AllowAnonymousAttribute>());
         Assert.All(controller.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
             action => Assert.Empty(action.GetCustomAttributes<AllowAnonymousAttribute>()));
@@ -106,7 +107,7 @@ public sealed class PetOwnershipSecurityTests
     {
         var actions = typeof(PetMate.Api.Controllers.AuthController).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
-        Assert.Equal(4, actions.Length);
+        Assert.Equal(6, actions.Length);
         Assert.All(actions, action => Assert.NotEmpty(action.GetCustomAttributes<Microsoft.AspNetCore.RateLimiting.EnableRateLimitingAttribute>()));
     }
 

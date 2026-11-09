@@ -20,3 +20,6 @@ public sealed record PetResponse(
     string? PhotoUrl,
     DateTime CreatedAt,
     DateTime UpdatedAt);
+
+/// <summary>QR permanente de una mascota (pm-094): token que va dentro del código y código corto para escribirlo a mano.</summary>
+public sealed record PetQrResponse(Guid PetId, string QrToken, string QrCode);

@@ -75,8 +75,8 @@ public sealed class AuthHardeningTests
         var store = factory.Services.GetRequiredService<ITokenRevocationStore>();
         var userId = Guid.NewGuid();
         var sessionId = Guid.NewGuid();
-        var bound = tokens.Issue(userId, UserRole.Owner, sessionId);
-        var legacy = tokens.Issue(userId, UserRole.Owner);
+        var bound = tokens.Issue(userId, UserRole.User, sessionId);
+        var legacy = tokens.Issue(userId, UserRole.User);
         using var client = factory.CreateClient();
 
         Assert.Equal(HttpStatusCode.OK, await Get(client, bound.Value));

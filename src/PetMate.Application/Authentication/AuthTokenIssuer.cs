@@ -27,6 +27,8 @@ public sealed class AuthTokenIssuer(
             session.IdleExpiresAtUtc,
             user.Id,
             user.Email.Value,
-            user.Role);
+            user.Role,
+            user.DisplayName,
+            BusinessType: null);
     }
 }

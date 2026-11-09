@@ -13,6 +13,16 @@ public sealed record MongoCollectionNames(string Prefix = "")
     public string Tokens => Prefix + "refresh_tokens";
 
     public string Pets => Prefix + "pets";
+
+    public string Vaccines => Prefix + "vaccines";
+
+    public string Dewormings => Prefix + "dewormings";
+
+    public string Weights => Prefix + "weights";
+
+    public string Allergies => Prefix + "allergies";
+
+    public string PasswordResets => Prefix + "password_resets";
 }
 
 // Documentos de persistencia: viven en Infrastructure y mantienen Domain libre de atributos Bson.
@@ -36,6 +46,11 @@ internal sealed class UserDocument
     [BsonElement("displayName")]
     [BsonIgnoreIfNull]
     public string? DisplayName { get; set; }
+
+    /// <summary>Celular opcional (pm-091), 10 dígitos.</summary>
+    [BsonElement("phone")]
+    [BsonIgnoreIfNull]
+    public string? Phone { get; set; }
 
     [BsonElement("createdAtUtc")]
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
@@ -147,4 +162,13 @@ internal sealed class PetDocument
     [BsonElement("updatedAtUtc")]
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime UpdatedAtUtc { get; set; }
+
+    /// <summary>Token del QR (pm-093). Es nulo solo en mascotas anteriores al QR, que se completan al leerlas.</summary>
+    [BsonElement("qrToken")]
+    [BsonIgnoreIfNull]
+    public string? QrToken { get; set; }
+
+    [BsonElement("qrCode")]
+    [BsonIgnoreIfNull]
+    public string? QrCode { get; set; }
 }

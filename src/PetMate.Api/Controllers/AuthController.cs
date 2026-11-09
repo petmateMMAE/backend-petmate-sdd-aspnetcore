@@ -29,7 +29,7 @@ public sealed partial class AuthController(ISender sender, ILogger<AuthControlle
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
     public async Task<ObjectResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new RegisterCommand(request.Email ?? string.Empty, request.Password ?? string.Empty), cancellationToken);
+        var result = await sender.Send(new RegisterCommand(request.Email ?? string.Empty, request.Password ?? string.Empty, request.DisplayName ?? string.Empty), cancellationToken);
         return result.IsSuccess
             ? ApiResponseFactory.Create(StatusCodes.Status201Created, "Cuenta creada correctamente.", ToResponse(result.Value!))
             : Failure(result.Error, result.RetryAfter);
@@ -61,6 +61,36 @@ public sealed partial class AuthController(ISender sender, ILogger<AuthControlle
 
         return result.IsSuccess
             ? ApiResponseFactory.Ok("Inicio de sesión correcto.", ToResponse(result.Value!))
+            : Failure(result.Error, result.RetryAfter);
+    }
+
+    [AllowAnonymous]
+    [EnableRateLimiting(RateLimitPolicy)]
+    [ServiceFilter(typeof(PetMate.Api.Authentication.AuthIpThrottleFilter))]
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<ValidationErrorsData>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
+    public async Task<ObjectResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new ForgotPasswordCommand(request.Email ?? string.Empty), cancellationToken);
+        return result.IsSuccess
+            ? ApiResponseFactory.Create<object?>(StatusCodes.Status200OK, "Si el correo está registrado, recibirás un enlace para crear una contraseña nueva.", null)
+            : Failure(result.Error, result.RetryAfter);
+    }
+
+    [AllowAnonymous]
+    [EnableRateLimiting(RateLimitPolicy)]
+    [ServiceFilter(typeof(PetMate.Api.Authentication.AuthIpThrottleFilter))]
+    [HttpPost("reset-password")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<ValidationErrorsData>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
+    public async Task<ObjectResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new ResetPasswordCommand(request.Token ?? string.Empty, request.NewPassword ?? string.Empty), cancellationToken);
+        return result.IsSuccess
+            ? ApiResponseFactory.Create<object?>(StatusCodes.Status200OK, "Contraseña actualizada correctamente. Inicia sesión con la nueva contraseña.", null)
             : Failure(result.Error, result.RetryAfter);
     }
 
@@ -128,7 +158,7 @@ public sealed partial class AuthController(ISender sender, ILogger<AuthControlle
         tokens.AccessToken.ExpiresAtUtc,
         tokens.RefreshToken,
         tokens.RefreshTokenExpiresAtUtc,
-        new AuthUserResponse(tokens.UserId, tokens.Email, tokens.Role.ToString()));
+        new AuthUserResponse(tokens.UserId, tokens.Email, tokens.Role.ToString(), tokens.DisplayName, tokens.BusinessType is null ? null : new BusinessSummaryResponse(tokens.BusinessType)));
 
     private ObjectResult Failure(AuthError error, TimeSpan? retryAfter = null)
     {
@@ -151,6 +181,8 @@ public sealed partial class AuthController(ISender sender, ILogger<AuthControlle
             StatusCodes.Status401Unauthorized, "Credenciales inválidas.", null),
         AuthError.InvalidRefreshToken => ApiResponseFactory.Create<object?>(
             StatusCodes.Status401Unauthorized, "La sesión no es válida o ha expirado.", null),
+        AuthError.InvalidResetToken => ApiResponseFactory.Create<object?>(
+            StatusCodes.Status400BadRequest, "El enlace no es válido o ya venció. Solicita uno nuevo.", null),
         AuthError.Forbidden => ApiResponseFactory.Create<object?>(
             StatusCodes.Status403Forbidden, ApiResponseMessages.ForStatusCode(StatusCodes.Status403Forbidden), null),
         _ => ApiResponseFactory.InternalServerError(),

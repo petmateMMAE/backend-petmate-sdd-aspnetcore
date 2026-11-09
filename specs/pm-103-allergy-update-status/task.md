@@ -11,7 +11,7 @@
 
 ### T121 — Editar y marcar como superada una alergia
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-103
 - **Criterios propios:** pm-103#CA-01, pm-103#CA-02, pm-103#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

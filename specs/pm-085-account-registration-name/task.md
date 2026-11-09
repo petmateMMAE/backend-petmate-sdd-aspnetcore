@@ -11,7 +11,7 @@
 
 ### T103 — Exigir el nombre en el registro de la cuenta
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-085
 - **Criterios propios:** pm-085#CA-01, pm-085#CA-02, pm-085#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

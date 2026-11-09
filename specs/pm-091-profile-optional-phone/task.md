@@ -11,7 +11,7 @@
 
 ### T109 — Permitir agregar un celular opcional al perfil
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-091
 - **Criterios propios:** pm-091#CA-01, pm-091#CA-02, pm-091#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

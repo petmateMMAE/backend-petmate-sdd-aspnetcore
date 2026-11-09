@@ -72,6 +72,7 @@ public sealed class MongoUserRepository : IUserRepository
                 Builders<UserDocument>.Filter.Eq(document => document.Id, user.Id),
                 Builders<UserDocument>.Update
                     .Set(document => document.DisplayName, user.DisplayName)
+                    .Set(document => document.Phone, user.Phone)
                     .Set(document => document.UpdatedAtUtc, user.UpdatedAtUtc),
                 cancellationToken: cancellationToken).ConfigureAwait(false);
         }

@@ -9,20 +9,17 @@ namespace PetMate.Api.Authorization;
 /// </summary>
 public static class AuthorizationPolicies
 {
-    /// <summary>Exige un usuario autenticado con el rol Owner.</summary>
-    public const string RequireOwner = "RequireOwner";
-
-    /// <summary>Exige un usuario autenticado con el rol Business.</summary>
-    public const string RequireBusiness = "RequireBusiness";
+    /// <summary>Exige un usuario autenticado con el rol User (el único rol, pm-086). Cada recurso se limita además a su propietario.</summary>
+    public const string RequireUser = "RequireUser";
 
     /// <summary>Nombre del claim de rol dentro del JWT validado.</summary>
     public const string RoleClaim = "role";
 
-    /// <summary>Valor del claim de rol para propietarios de mascotas.</summary>
-    public const string OwnerRole = "Owner";
+    /// <summary>Valor del claim de rol de toda cuenta.</summary>
+    public const string UserRoleName = "User";
 
-    /// <summary>Valor del claim de rol para negocios.</summary>
-    public const string BusinessRole = "Business";
+    /// <summary>Rol que llevaban los tokens emitidos antes de pm-086; se acepta como <c>User</c> hasta que el token expira.</summary>
+    public const string LegacyOwnerRoleName = "Owner";
 
     /// <summary>
     /// Registra la política por defecto y la política de respaldo (denegación por defecto) y las políticas por rol.
@@ -36,14 +33,13 @@ public static class AuthorizationPolicies
         // Un endpoint sin atributos de autorización exige esta política: se debe marcar [AllowAnonymous] de forma explícita.
         var baseline = new AuthorizationPolicyBuilder()
             .RequireAuthenticatedUser()
-            .RequireClaim(RoleClaim, OwnerRole, BusinessRole)
+            .RequireClaim(RoleClaim, UserRoleName, LegacyOwnerRoleName)
             .Build();
 
         services.AddAuthorizationBuilder()
             .SetDefaultPolicy(baseline)
             .SetFallbackPolicy(baseline)
-            .AddPolicy(RequireOwner, policy => policy.RequireAuthenticatedUser().RequireClaim(RoleClaim, OwnerRole))
-            .AddPolicy(RequireBusiness, policy => policy.RequireAuthenticatedUser().RequireClaim(RoleClaim, BusinessRole));
+            .AddPolicy(RequireUser, policy => policy.RequireAuthenticatedUser().RequireClaim(RoleClaim, UserRoleName, LegacyOwnerRoleName));
 
         services.AddSingleton<IAuthorizationMiddlewareResultHandler, UnmatchedRouteResultHandler>();
 

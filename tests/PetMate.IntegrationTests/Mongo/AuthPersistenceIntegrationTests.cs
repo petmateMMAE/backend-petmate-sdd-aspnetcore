@@ -16,7 +16,7 @@ public sealed class AuthPersistenceIntegrationTests
 
     private static DateTime Now => DateTime.UtcNow;
 
-    private static User NewUser(string email) => User.RegisterOwner(Email.Create(email), PasswordHash.Create(ValidHash), Now);
+    private static User NewUser(string email) => User.Register(Email.Create(email), PasswordHash.Create(ValidHash), "Ana", Now);
 
     private static string Sha256Hex() => Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
 
@@ -33,7 +33,7 @@ public sealed class AuthPersistenceIntegrationTests
         Assert.NotNull(byEmail);
         Assert.NotNull(byId);
         Assert.Equal(user.Id, byEmail.Id);
-        Assert.Equal(UserRole.Owner, byEmail.Role);
+        Assert.Equal(UserRole.User, byEmail.Role);
         Assert.Equal(user.PasswordHash, byEmail.PasswordHash);
         Assert.Equal(DateTimeKind.Utc, byEmail.CreatedAtUtc.Kind);
         Assert.Null(await context.Users.FindByEmail(Email.Create("otra@example.com"), CancellationToken.None));
@@ -59,10 +59,69 @@ public sealed class AuthPersistenceIntegrationTests
         Assert.Equal("Ana Pérez", storedAna.DisplayName);
         Assert.Equal(ana.UpdatedAtUtc, storedAna.UpdatedAtUtc, TimeSpan.FromMilliseconds(1));
         Assert.Equal(ana.Email, storedAna.Email);
-        Assert.Equal(UserRole.Owner, storedAna.Role);
+        Assert.Equal(UserRole.User, storedAna.Role);
         Assert.Equal(ana.PasswordHash, storedAna.PasswordHash);
         Assert.Equal(ana.CreatedAtUtc, storedAna.CreatedAtUtc, TimeSpan.FromMilliseconds(1));
-        Assert.Null(storedLuis.DisplayName);
+        Assert.Equal("Ana", storedLuis.DisplayName);
+        Assert.Null(storedLuis.Phone);
+    }
+
+    [RequiresEnvironmentFact(Uri, Database)]
+    public async Task Profile_update_persists_and_removes_the_optional_phone()
+    {
+        await using var context = await MongoTestContext.Create();
+        var ana = NewUser("ana.celular@example.com");
+        Assert.True(await context.Users.TryAdd(ana, CancellationToken.None));
+
+        ana.ChangePhone("+52 55 1234 5678", Now.AddMinutes(1));
+        await context.Users.UpdateProfile(ana, CancellationToken.None);
+        Assert.Equal("5512345678", (await context.Users.FindById(ana.Id, CancellationToken.None))!.Phone);
+
+        ana.ChangePhone(null, Now.AddMinutes(2));
+        await context.Users.UpdateProfile(ana, CancellationToken.None);
+        Assert.Null((await context.Users.FindById(ana.Id, CancellationToken.None))!.Phone);
+    }
+
+    [RequiresEnvironmentFact(Uri, Database)]
+    public async Task Password_reset_token_is_consumed_once_only_while_valid_and_by_a_single_winner()
+    {
+        await using var context = await MongoTestContext.Create();
+        var userId = Guid.NewGuid();
+        var hash = RefreshTokenHash.Create(Sha256Hex());
+        var token = PasswordResetToken.Issue(userId, hash, Now);
+        await context.PasswordResets.Add(token, CancellationToken.None);
+
+        Assert.Null(await context.PasswordResets.TryConsume(RefreshTokenHash.Create(Sha256Hex()), Now, CancellationToken.None));
+        Assert.Null(await context.PasswordResets.TryConsume(hash, token.ExpiresAtUtc.AddSeconds(1), CancellationToken.None));
+        var winners = await Task.WhenAll(Enumerable.Range(0, 8).Select(_ => context.PasswordResets.TryConsume(hash, Now, CancellationToken.None)));
+
+        Assert.Equal(1, winners.Count(w => w == userId));
+        Assert.Null(await context.PasswordResets.TryConsume(hash, Now, CancellationToken.None));
+    }
+
+    [RequiresEnvironmentFact(Uri, Database)]
+    public async Task Revoking_all_sessions_of_a_user_returns_only_the_active_ones_of_that_user()
+    {
+        await using var context = await MongoTestContext.Create();
+        var userId = Guid.NewGuid();
+        var other = Guid.NewGuid();
+        var active = RefreshSession.Start(userId, Now, SessionPolicy.Default);
+        var already = RefreshSession.Start(userId, Now, SessionPolicy.Default);
+        var foreign = RefreshSession.Start(other, Now, SessionPolicy.Default);
+        foreach (var session in new[] { active, already, foreign })
+        {
+            await context.Sessions.AddSession(session, RefreshToken.Issue(session.Id, RefreshTokenHash.Create(Sha256Hex()), Now), CancellationToken.None);
+        }
+
+        already.Revoke(Now, SessionRevocationReason.Logout);
+        await context.Sessions.Revoke(already, CancellationToken.None);
+
+        var revoked = await context.Sessions.RevokeAllForUser(userId, Now.AddMinutes(1), SessionRevocationReason.PasswordReset, CancellationToken.None);
+
+        Assert.Equal([active.Id], revoked);
+        Assert.Equal(SessionRevocationReason.PasswordReset, (await context.Sessions.FindSession(active.Id, CancellationToken.None))!.RevocationReason);
+        Assert.False((await context.Sessions.FindSession(foreign.Id, CancellationToken.None))!.IsRevoked);
+        Assert.Empty(await context.Sessions.RevokeAllForUser(userId, Now.AddMinutes(2), SessionRevocationReason.PasswordReset, CancellationToken.None));
     }
 
     [RequiresEnvironmentFact(Uri, Database)]
@@ -231,10 +290,10 @@ public sealed class AuthPersistenceIntegrationTests
     }
 
     [Fact]
-    public void Mapping_round_trips_without_a_database_and_keeps_business_role_and_utc()
+    public void Mapping_round_trips_without_a_database_and_keeps_the_user_role_and_utc()
     {
         var ownerDocument = MongoMapping.ToDocument(NewUser("neg@example.com"));
-        ownerDocument.Role = (int)UserRole.Business;
+        ownerDocument.Role = 1; // valor que antes se llamaba Owner (pm-086)
         var user = MongoMapping.ToDomain(ownerDocument);
         var session = RefreshSession.Start(user.Id, Now, SessionPolicy.Default);
         session.Revoke(Now, SessionRevocationReason.Logout);
@@ -244,7 +303,7 @@ public sealed class AuthPersistenceIntegrationTests
         var restoredSession = MongoMapping.ToDomain(MongoMapping.ToDocument(session));
         var restoredToken = MongoMapping.ToDomain(MongoMapping.ToDocument(token, session.AbsoluteExpiresAtUtc));
 
-        Assert.Equal(UserRole.Business, restoredUser.Role);
+        Assert.Equal(UserRole.User, restoredUser.Role);
         Assert.Equal(user.Email, restoredUser.Email);
         Assert.Equal(SessionRevocationReason.Logout, restoredSession.RevocationReason);
         Assert.Equal(token.TokenHash, restoredToken.TokenHash);

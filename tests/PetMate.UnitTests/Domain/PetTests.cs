@@ -62,12 +62,23 @@ public sealed class PetTests
     [Fact]
     public void Text_lengths_are_enforced_at_the_boundaries()
     {
-        Pet.Create(Owner, Valid(name: new string('a', Pet.MaxNameLength), species: new string('b', Pet.MaxSpeciesLength), breed: new string('c', Pet.MaxBreedLength)), Now);
+        Pet.Create(Owner, Valid(name: new string('a', Pet.MaxNameLength), breed: new string('c', Pet.MaxBreedLength)), Now);
 
         Assert.Throws<DomainException>(() => Pet.Create(Owner, Valid(name: new string('a', Pet.MaxNameLength + 1)), Now));
-        Assert.Throws<DomainException>(() => Pet.Create(Owner, Valid(species: new string('b', Pet.MaxSpeciesLength + 1)), Now));
         Assert.Throws<DomainException>(() => Pet.Create(Owner, Valid(breed: new string('c', Pet.MaxBreedLength + 1)), Now));
         Assert.Throws<DomainException>(() => Pet.Create(Owner, Valid(species: " "), Now));
+    }
+
+    [Theory]
+    [InlineData("Perro", true)]
+    [InlineData("Gato", true)]
+    [InlineData("perro", false)]
+    [InlineData("Conejo", false)]
+    [InlineData("", false)]
+    public void Species_is_a_closed_list_of_Perro_and_Gato(string species, bool valid)
+    {
+        Assert.Equal(valid, Pet.IsValidSpecies(species));
+        Assert.False(Pet.IsValidSpecies(null));
     }
 
     [Fact]

@@ -1,8 +1,11 @@
 namespace PetMate.Domain.Users;
 
-/// <summary>Roles únicos del sistema. No existe rol de administración (constitución §6.1).</summary>
+/// <summary>
+/// Rol único del sistema (Constitución v1.3.0 §6.1, pm-086): toda cuenta es <c>User</c>; tener un negocio asociado no cambia el
+/// rol. No existe rol de administración. El valor 1 es el que antes se llamaba <c>Owner</c>, por lo que los datos guardados
+/// siguen siendo válidos.
+/// </summary>
 public enum UserRole
 {
-    Owner = 1,
-    Business = 2,
+    User = 1,
 }

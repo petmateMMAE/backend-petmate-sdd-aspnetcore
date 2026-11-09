@@ -19,11 +19,13 @@ public sealed class ForgedClaimsTests
 {
     private const string LongRoleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
     private static readonly string[] BothRoles = ["Owner", "Business"];
-    private static readonly string[] AllPaths = ["default", "owner", "business", "unmarked"];
+    private static readonly string[] AllPaths = ["default", "user", "unmarked"];
 
     [Trait("Endpoint", "transversal")]
     [Theory]
     [InlineData("Admin")]
+    [InlineData("Business")]
+    [InlineData("user")]
     [InlineData("owner")]
     [InlineData("OWNER")]
     [InlineData("1")]
@@ -35,6 +37,20 @@ public sealed class ForgedClaimsTests
         var token = Forge(new Dictionary<string, object> { ["role"] = role });
 
         await AssertRejectedEverywhere(factory, token);
+    }
+
+    [Trait("Endpoint", "transversal")]
+    [Fact]
+    public async Task Signed_token_with_the_previous_Owner_role_is_accepted_as_User_until_it_expires()
+    {
+        using var factory = new AuthApiFactory();
+        using var client = AuthzAssert.Bearer(factory, Forge(new Dictionary<string, object> { ["role"] = "Owner" }));
+
+        foreach (var path in new[] { "default", "user", "unmarked" })
+        {
+            using var response = await client.GetAsync($"/api/v1/test-authz/{path}");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
     }
 
     [Trait("Endpoint", "transversal")]
@@ -79,14 +95,14 @@ public sealed class ForgedClaimsTests
 
     [Trait("Endpoint", "transversal")]
     [Fact]
-    public async Task Payload_edited_from_business_to_owner_without_re_signing_is_rejected_with_401()
+    public async Task Payload_edited_from_user_to_owner_without_re_signing_is_rejected_with_401()
     {
         using var factory = new AuthApiFactory();
-        var valid = factory.Services.GetRequiredService<IAccessTokenService>().Issue(Guid.NewGuid(), UserRole.Business).Value;
+        var valid = factory.Services.GetRequiredService<IAccessTokenService>().Issue(Guid.NewGuid(), UserRole.User).Value;
         var parts = valid.Split('.');
         var payload = Base64UrlEncoder.Decode(parts[1]);
-        Assert.Contains("\"role\":\"Business\"", payload, StringComparison.Ordinal);
-        var edited = payload.Replace("\"role\":\"Business\"", "\"role\":\"Owner\"", StringComparison.Ordinal);
+        Assert.Contains("\"role\":\"User\"", payload, StringComparison.Ordinal);
+        var edited = payload.Replace("\"role\":\"User\"", "\"role\":\"Owner\"", StringComparison.Ordinal);
         var tampered = $"{parts[0]}.{Base64UrlEncoder.Encode(edited)}.{parts[2]}";
 
         await AssertRejectedEverywhere(factory, tampered);
@@ -111,11 +127,11 @@ public sealed class ForgedClaimsTests
     public async Task Token_that_is_valid_in_every_other_way_but_expired_is_rejected_on_the_owner_policy()
     {
         using var factory = new AuthApiFactory();
-        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(Guid.NewGuid(), UserRole.Owner);
+        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(Guid.NewGuid(), UserRole.User);
         factory.Clock.Advance(TimeSpan.FromMinutes(16));
         using var client = AuthzAssert.Bearer(factory, token.Value);
 
-        using var response = await client.GetAsync("/api/v1/test-authz/owner");
+        using var response = await client.GetAsync("/api/v1/test-authz/user");
 
         await AuthzAssert.Wrapped(response, HttpStatusCode.Unauthorized);
     }

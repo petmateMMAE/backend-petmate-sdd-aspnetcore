@@ -291,6 +291,8 @@ jobs:
           - auth-login
           - auth-refresh
           - auth-logout
+          - auth-forgot-password
+          - auth-reset-password
           - users-me-get
           - users-me-update
           - health-live
@@ -301,6 +303,19 @@ jobs:
           - pets-get-by-id
           - pets-update
           - pets-delete
+          - pets-get-qr
+          - pets-regenerate-qr
+          - vaccines-create
+          - vaccines-get-all
+          - vaccines-delete
+          - dewormings-create
+          - dewormings-get-all
+          - dewormings-delete
+          - weights-create
+          - weights-get-all
+          - allergies-create
+          - allergies-get-all
+          - allergies-update
     steps:
       - uses: actions/checkout@v5
 

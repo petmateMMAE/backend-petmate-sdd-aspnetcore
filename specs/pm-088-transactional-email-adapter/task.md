@@ -11,7 +11,7 @@
 
 ### T106 — Implementar el puerto y el adaptador de envío de correo
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-088
 - **Criterios propios:** pm-088#CA-01, pm-088#CA-02, pm-088#CA-03, pm-088#CA-04
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

@@ -527,3 +527,29 @@ Aprobados por el usuario (H7, H3, H8 opción A; H4 opción B; H6 A+B+C) y regist
 - **Cobertura:** todas las funcionalidades de las fuentes de producto tienen ya un Spec, salvo lo excluido por el usuario (cobro, verificación de correo, SMS, IA/ML). Total del repositorio: 167 Specs y 185 Tasks; el gate `check-sdd` pasa.
 - **Supuestos que el usuario debe confirmar** (están como nota en el Spec correspondiente): eliminación de cuenta inmediata, con el plazo de 30 días del aviso de privacidad solo para copias de seguridad (pm-161); verificación de identidad de la eliminación web por enlace al correo (pm-164); si el peso de una consulta se suma al historial de peso (pm-131); tiempo real del chat solo si es viable (pm-150); aviso de promociones de la maqueta sin funcionalidad definida (pm-157).
 - **Pendiente:** aprobar cada Spec antes de planificarlo (`AGENTS.md`); el dominio de envío de correo; verificar el estado del despliegue de Azure; y decidir el orden de trabajo del primer Spec a planificar.
+
+## Aprobación de los Specs del primer hito (2026-11-09)
+
+- El usuario aprobó `pm-085` a `pm-104` (20 Specs). Estado «Aprobado»; las Tasks `T103` a `T122` siguen «Propuesto» y se aprobarán con su plan.
+- **Siguiente paso:** redactar el `plan.md` de cada Spec antes de implementar (orden por dependencias). Antes de implementar `pm-088` se elige el proveedor de correo de costo $0 y se verifica en fuentes oficiales; sin dominio de envío solo funcionan las pruebas.
+- **Fuera de este hito:** `pm-079` a `pm-081` (fotos de mascotas en Blob) siguen «Propuesto» y hay que aprobarlos para cubrir `pm-092#CA` de foto y RF-09 completo.
+- **2026-11-09:** el usuario aprobó las Tasks `T114` a `T122` (carnet y cascada). Estado «Aprobada para iniciar»; siguen pendientes los `plan.md`. `T103` a `T113` continúan «Propuesto».
+- **2026-11-09:** el usuario aprobó las Tasks `T110` a `T113` (especie, sexo y QR; incluye el visto bueno a la cascada de T122). Estado «Aprobada para iniciar»; siguen pendientes los `plan.md`. `T103` a `T109` continúan «Propuesto».
+
+## Implementación de T110 a T122 (2026-11-09)
+
+- **Hecho:** especie Perro/Gato y sexo opcional (T110); QR permanente con token de 256 bits y código corto, lectura y regeneración (T111-T113); carnet con origen del registro, vacunas, desparasitaciones, pesos y alergias (T114-T121); cascada de borrado de mascota (T122). 11 endpoints nuevos del carnet más `pets/get-qr` y `pets/regenerate-qr`.
+- **Evidencia:** build Release `-warnaserror` limpio; unitarias 233, seguridad 188, contrato 242 (contenedor Docker, SAC bloquea Argon2 en el host); integración Atlas 30 (base de pruebas).
+- **Decisiones aplicadas:** fecha no futura; tope 200 registros por mascota y tipo (409); listados con la convención de `pm-047`; 403 «lo registró el negocio» al borrar/editar registros de negocio; 60 solicitudes/min por usuario (`CARNET_RATE_LIMIT_PER_MINUTE`) y 16 KB de cuerpo; cascada por pasos (hijos primero, mascota al final), idempotente y sin transacción.
+- **Pendiente:** revisión independiente (seguridad y trazabilidad) y aprobación humana de cierre; confirmar el tope de 200 kg del peso (guarda de cordura, no estaba en el Spec); la cancelación de autorizaciones al regenerar el QR espera al módulo de compartir; mascotas guardadas con otra especie fallarían al leerse (la base de pruebas se limpia sola; revisar datos reales antes de desplegar). Sin commit ni push.
+- **2026-11-09:** T110 a T113 verificadas tras revisión independiente (sin hallazgos bloqueantes) y aprobación del usuario; T114 a T122 siguen pendientes de revisión y cierre. Corregido: las mascotas con especie heredada se siguen leyendo.
+- **2026-11-09:** T114 a T122 verificadas tras revisión independiente (sin hallazgos bloqueantes) y aprobación del usuario. Pruebas: unitarias 233, seguridad 188, contrato 249.
+- **2026-11-09:** el usuario aprobó las Tasks `T103` a `T109` (cuenta y sesión). Estado «Aprobada para iniciar»; siguen pendientes los `plan.md`. ya no quedan Tasks del primer hito en «Propuesto».
+
+## Implementación de T103 a T109 (2026-11-09)
+
+- **Hecho:** nombre obligatorio en el registro (T103); rol único `User` con aceptación del `Owner` anterior hasta que expire el token (T104); `business` en la sesión, siempre `null` por ahora (T105); puerto y adaptador de correo con Resend y adaptador deshabilitado sin configuración (T106); `forgot-password` y `reset-password` con token de un solo uso, límites y revocación de todas las sesiones (T107, T108); celular opcional en el perfil (T109).
+- **Evidencia:** build Release `-warnaserror` limpio; unitarias 259, seguridad 186, contrato 269 (Docker), integración Atlas 33.
+- **Pendiente:** revisión independiente y aprobación de cierre de T103 a T109; el envío real de correo necesita un dominio verificado y `EMAIL_API_KEY`, `EMAIL_FROM`, `PASSWORD_RESET_URL_BASE`; `scripts/smoke-test.sh` y `acceptance-milestone.ps1` ya envían el nombre pero no se ejecutaron. Sin commit ni push.
+- **2026-11-09:** revisión independiente de T103 a T109 sin hallazgos bloqueantes; se corrigieron 503 que delataba la cuenta, enlaces antiguos vigentes y el orden de revocación. Unitarias 261. Pendiente solo la aprobación de cierre.
+- **2026-11-09:** T103 a T109 verificadas con aprobación del usuario. Primer hito (T103 a T122) cerrado; pendiente el envío real de correo (dominio y llave).

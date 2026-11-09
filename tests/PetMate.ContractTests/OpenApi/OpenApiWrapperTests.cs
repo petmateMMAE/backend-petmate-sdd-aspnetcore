@@ -69,6 +69,8 @@ public sealed class OpenApiWrapperTests
                 var isPublic = path.Name.Contains("/auth/register", StringComparison.Ordinal)
                     || path.Name.Contains("/auth/login", StringComparison.Ordinal)
                     || path.Name.Contains("/auth/refresh", StringComparison.Ordinal)
+                    || path.Name.Contains("/auth/forgot-password", StringComparison.Ordinal)
+                    || path.Name.Contains("/auth/reset-password", StringComparison.Ordinal)
                     || path.Name.Contains("/health/", StringComparison.Ordinal)
                     || path.Name.Contains("/technical/", StringComparison.Ordinal);
                 if (!isPublic)

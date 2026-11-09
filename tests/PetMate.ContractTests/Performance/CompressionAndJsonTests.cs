@@ -60,7 +60,7 @@ public sealed class CompressionAndJsonTests(ITestOutputHelper output)
         using var client = factory.CreateClient();
         var body = new { email = "compresion@example.com", password = "contraseña-muy-segura-123" };
 
-        var register = await Post(client, "register", body);
+        var register = await Post(client, "register", new { displayName = "Ana", email = "compresion@example.com", password = "contraseña-muy-segura-123" });
         var login = await Post(client, "login", body);
         var failed = await Post(client, "login", new { email = "compresion@example.com", password = "otra-contraseña-123" });
 
@@ -100,8 +100,8 @@ public sealed class CompressionAndJsonTests(ITestOutputHelper output)
             new ApiResponse<object>(404, "No encontrado.", null),
             new ApiResponse<string>(200, "ok", "mediated"),
             new ApiResponse<ValidationErrorsData>(400, "inválido", new ValidationErrorsData([new ValidationErrorItem("email", "obligatorio")])),
-            new ApiResponse<AuthResponse>(200, "ok", new AuthResponse("a", "Bearer", DateTime.UtcNow, "r", DateTime.UtcNow, new AuthUserResponse(Guid.NewGuid(), "a@b.test", "Owner"))),
-            new ApiResponse<UserProfileResponse>(200, "ok", new UserProfileResponse(Guid.NewGuid(), "a@b.test", "Owner", null, DateTime.UtcNow)),
+            new ApiResponse<AuthResponse>(200, "ok", new AuthResponse("a", "Bearer", DateTime.UtcNow, "r", DateTime.UtcNow, new AuthUserResponse(Guid.NewGuid(), "a@b.test", "User", "Ana", null))),
+            new ApiResponse<UserProfileResponse>(200, "ok", new UserProfileResponse(Guid.NewGuid(), "a@b.test", "User", null, DateTime.UtcNow)),
             new ApiResponse<PetResponse>(201, "ok", pet),
             new ApiResponse<PagedResponse<PetResponse>>(200, "ok", new PagedResponse<PetResponse>([pet, pet], 1, 20, 2, 1)),
             new ApiResponse<HealthData>(200, "ok", new HealthData("Healthy", [new DependencyHealth("redis", "Healthy")])),
@@ -140,7 +140,7 @@ public sealed class CompressionAndJsonTests(ITestOutputHelper output)
 
     private static HttpClient Client(AuthFlowFactory factory)
     {
-        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(Guid.NewGuid(), UserRole.Owner);
+        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(Guid.NewGuid(), UserRole.User);
         var client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
         return client;

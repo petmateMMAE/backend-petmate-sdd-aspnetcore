@@ -6,19 +6,19 @@ using PetMate.Domain.Users;
 namespace PetMate.Application.Users;
 
 /// <summary>Perfil propio (pm-037/pm-038). Nunca incluye el hash de la contraseña. <c>ToString</c> no imprime el correo.</summary>
-public sealed record UserProfileResult(Guid Id, string Email, UserRole Role, string? DisplayName, DateTime CreatedAtUtc)
+public sealed record UserProfileResult(Guid Id, string Email, UserRole Role, string? DisplayName, DateTime CreatedAtUtc, string? Phone = null)
 {
     public override string ToString() => nameof(UserProfileResult);
 
     internal static UserProfileResult From(User user)
-        => new(user.Id, user.Email.Value, user.Role, user.DisplayName, user.CreatedAtUtc);
+        => new(user.Id, user.Email.Value, user.Role, user.DisplayName, user.CreatedAtUtc, user.Phone);
 }
 
 /// <summary>pm-037: perfil del usuario autenticado. El identificador sale solo del Access Token validado.</summary>
 public sealed record GetMyProfileQuery(Guid UserId) : IQuery<UserProfileResult?>;
 
-/// <summary>pm-038: actualiza los campos editables del perfil propio (por ahora, el nombre visible).</summary>
-public sealed record UpdateMyProfileCommand(Guid UserId, string DisplayName) : ICommand<UserProfileResult?>
+/// <summary>pm-038, pm-091: actualiza los campos editables del perfil propio (nombre visible y celular opcional).</summary>
+public sealed record UpdateMyProfileCommand(Guid UserId, string DisplayName, string? Phone = null) : ICommand<UserProfileResult?>
 {
     public override string ToString() => nameof(UpdateMyProfileCommand);
 }
@@ -47,7 +47,10 @@ public sealed class UpdateMyProfileHandler(IUserRepository users, TimeProvider t
             return null;
         }
 
-        user.ChangeDisplayName(request.DisplayName, timeProvider.GetUtcNow().UtcDateTime);
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+        user.ChangeDisplayName(request.DisplayName, now);
+        // Reemplazo completo (pm-091): un celular ausente, nulo o vacío lo quita.
+        user.ChangePhone(request.Phone, now);
         await users.UpdateProfile(user, cancellationToken).ConfigureAwait(false);
         return UserProfileResult.From(user);
     }
@@ -61,14 +64,20 @@ public sealed class UpdateMyProfileCommandValidator : IRequestValidator<UpdateMy
     public Task<IReadOnlyList<ValidationFailure>> Validate(UpdateMyProfileCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        if (User.IsValidDisplayName(request.DisplayName))
+        var failures = new List<ValidationFailure>();
+        if (!User.IsValidDisplayName(request.DisplayName))
         {
-            return NoFailures;
+            var message = string.IsNullOrWhiteSpace(request.DisplayName)
+                ? "El nombre es obligatorio."
+                : $"El nombre debe tener entre 1 y {User.MaxDisplayNameLength} caracteres y no contener caracteres de control.";
+            failures.Add(new ValidationFailure("displayName", message));
         }
 
-        var message = string.IsNullOrWhiteSpace(request.DisplayName)
-            ? "El nombre es obligatorio."
-            : $"El nombre debe tener entre 1 y {User.MaxDisplayNameLength} caracteres y no contener caracteres de control.";
-        return Task.FromResult<IReadOnlyList<ValidationFailure>>([new ValidationFailure("displayName", message)]);
+        if (!User.TryNormalizePhone(request.Phone, out _))
+        {
+            failures.Add(new ValidationFailure("phone", $"El celular debe tener {User.PhoneDigits} dígitos (se admite el prefijo +52, espacios y guiones)."));
+        }
+
+        return failures.Count == 0 ? NoFailures : Task.FromResult<IReadOnlyList<ValidationFailure>>(failures);
     }
 }

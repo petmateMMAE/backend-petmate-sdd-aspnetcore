@@ -12,11 +12,11 @@ using PetMate.Domain.Pets;
 namespace PetMate.Api.Controllers;
 
 /// <summary>
-/// Mascotas del Owner autenticado (pm-040, pm-041, pm-042, pm-043, pm-044). Solo el rol Owner (política RequireOwner). El propietario
+/// Mascotas del Owner autenticado (pm-040, pm-041, pm-042, pm-043, pm-044). Cualquier User autenticado (política RequireUser). El propietario
 /// sale únicamente del claim <c>sub</c> del Access Token validado; una mascota ajena o inexistente responde 404 por igual.
 /// </summary>
 [ApiController]
-[Authorize(Policy = AuthorizationPolicies.RequireOwner)]
+[Authorize(Policy = AuthorizationPolicies.RequireUser)]
 [Route("api/v1/pets")]
 [EnableRateLimiting(RateLimitPolicy)]
 public sealed class PetsController(ISender sender) : ControllerBase
@@ -95,6 +95,40 @@ public sealed class PetsController(ISender sender) : ControllerBase
         return pet is null ? Status(StatusCodes.Status404NotFound) : ApiResponseFactory.Ok("Mascota actualizada correctamente.", ToResponse(pet));
     }
 
+    [HttpGet("get-qr/{id:guid}")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    [ProducesResponseType(typeof(ApiResponse<PetQrResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<ObjectResult> GetQr(Guid id, CancellationToken cancellationToken)
+    {
+        if (!TryGetOwnerId(out var ownerId))
+        {
+            return Status(StatusCodes.Status401Unauthorized);
+        }
+
+        var qr = await sender.Send(new GetPetQrQuery(ownerId, id), cancellationToken);
+        return qr is null ? Status(StatusCodes.Status404NotFound) : ApiResponseFactory.Ok("QR obtenido correctamente.", ToQrResponse(qr));
+    }
+
+    [HttpPost("regenerate-qr/{id:guid}")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    [ProducesResponseType(typeof(ApiResponse<PetQrResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<ObjectResult> RegenerateQr(Guid id, CancellationToken cancellationToken)
+    {
+        if (!TryGetOwnerId(out var ownerId))
+        {
+            return Status(StatusCodes.Status401Unauthorized);
+        }
+
+        var qr = await sender.Send(new RegeneratePetQrCommand(ownerId, id), cancellationToken);
+        return qr is null ? Status(StatusCodes.Status404NotFound) : ApiResponseFactory.Ok("QR regenerado correctamente.", ToQrResponse(qr));
+    }
+
     [HttpDelete("delete/{id:guid}")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
@@ -125,8 +159,10 @@ public sealed class PetsController(ISender sender) : ControllerBase
             request.Species ?? string.Empty,
             request.Breed,
             request.BirthDate,
-            Enum.TryParse<PetSex>(request.Sex, ignoreCase: false, out var sex) && Enum.IsDefined(sex) && Enum.GetName(sex) == request.Sex ? sex : 0,
+            request.Sex is null ? PetSex.Unknown : Enum.TryParse<PetSex>(request.Sex, ignoreCase: false, out var sex) && Enum.IsDefined(sex) && Enum.GetName(sex) == request.Sex ? sex : 0,
             request.PhotoUrl);
+
+    private static PetQrResponse ToQrResponse(PetQrResult qr) => new(qr.PetId, qr.Token, qr.Code);
 
     private static PetResponse ToResponse(PetResult pet)
         => new(pet.Id, pet.Name, pet.Species, pet.Breed, pet.BirthDate, pet.Sex.ToString(), pet.PhotoUrl, pet.CreatedAtUtc, pet.UpdatedAtUtc);

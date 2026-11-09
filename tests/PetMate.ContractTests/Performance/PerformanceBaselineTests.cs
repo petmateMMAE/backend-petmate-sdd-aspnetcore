@@ -29,7 +29,7 @@ public sealed class PerformanceBaselineTests(ITestOutputHelper output)
     public async Task Read_endpoints_meet_the_in_process_latency_objectives_under_concurrent_load()
     {
         using var factory = new AuthFlowFactory(petsRateLimitPerMinute: 10_000, usersRateLimitPerMinute: 10_000);
-        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(Guid.NewGuid(), UserRole.Owner);
+        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(Guid.NewGuid(), UserRole.User);
         using var client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
         for (var i = 0; i < 20; i++)

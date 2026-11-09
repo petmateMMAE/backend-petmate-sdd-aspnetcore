@@ -27,7 +27,7 @@ public sealed class PetEndpointsTests
     {
         using var factory = new AuthFlowFactory();
         var owner = Guid.NewGuid();
-        using var client = Client(factory, owner, UserRole.Owner);
+        using var client = Client(factory, owner, UserRole.User);
 
         using var response = await Send(client, HttpMethod.Post, "create", ValidBody);
         var raw = await response.Content.ReadAsStringAsync();
@@ -52,7 +52,7 @@ public sealed class PetEndpointsTests
     public async Task Create_rejects_owner_id_or_server_fields_in_the_body_and_creates_nothing(string body)
     {
         using var factory = new AuthFlowFactory();
-        using var client = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
 
         using var response = await Send(client, HttpMethod.Post, "create", body);
 
@@ -61,17 +61,34 @@ public sealed class PetEndpointsTests
     }
 
     [Trait("Endpoint", "pets-create")]
+    [Fact]
+    public async Task Create_without_sex_stores_Unknown_and_accepts_Gato()
+    {
+        using var factory = new AuthFlowFactory();
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
+
+        using var response = await Send(client, HttpMethod.Post, "create", "{\"name\":\"Misu\",\"species\":\"Gato\"}");
+        using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var data = document.RootElement.GetProperty("data");
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.Equal("Unknown", data.GetProperty("sex").GetString());
+        Assert.Equal("Gato", data.GetProperty("species").GetString());
+    }
+
+    [Trait("Endpoint", "pets-create")]
     [Theory]
     [InlineData("{\"name\":\"\",\"species\":\"Perro\",\"sex\":\"Male\"}", "name")]
     [InlineData("{\"name\":\"Firulais\",\"species\":\" \",\"sex\":\"Male\"}", "species")]
     [InlineData("{\"name\":\"Firulais\",\"species\":\"Perro\",\"sex\":\"Macho\"}", "sex")]
-    [InlineData("{\"name\":\"Firulais\",\"species\":\"Perro\"}", "sex")]
+    [InlineData("{\"name\":\"Firulais\",\"species\":\"Conejo\",\"sex\":\"Male\"}", "species")]
+    [InlineData("{\"name\":\"Firulais\",\"species\":\"perro\",\"sex\":\"Male\"}", "species")]
     [InlineData("{\"name\":\"Firulais\",\"species\":\"Perro\",\"sex\":\"Male\",\"birthDate\":\"2999-01-01\"}", "birthDate")]
     [InlineData("{\"name\":\"Firulais\",\"species\":\"Perro\",\"sex\":\"Male\",\"photoUrl\":\"http://inseguro.example.com/f.jpg\"}", "photoUrl")]
     public async Task Create_with_an_invalid_field_returns_400_naming_the_field(string body, string field)
     {
         using var factory = new AuthFlowFactory();
-        using var client = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
 
         using var response = await Send(client, HttpMethod.Post, "create", body);
 
@@ -87,7 +104,7 @@ public sealed class PetEndpointsTests
     public async Task Create_with_an_empty_or_malformed_body_returns_400_wrapper(string body)
     {
         using var factory = new AuthFlowFactory();
-        using var client = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
 
         using var response = await Send(client, HttpMethod.Post, "create", body);
 
@@ -100,13 +117,10 @@ public sealed class PetEndpointsTests
     {
         using var factory = new AuthFlowFactory();
         using var anonymous = factory.CreateClient();
-        using var business = Client(factory, Guid.NewGuid(), UserRole.Business);
 
         using var unauthenticated = await Send(anonymous, HttpMethod.Post, "create", ValidBody);
-        using var forbidden = await Send(business, HttpMethod.Post, "create", ValidBody);
 
         await AssertWrapper(unauthenticated, HttpStatusCode.Unauthorized);
-        await AssertWrapper(forbidden, HttpStatusCode.Forbidden);
         Assert.Empty(factory.Pets.All);
     }
 
@@ -117,7 +131,7 @@ public sealed class PetEndpointsTests
     public async Task Get_by_id_returns_the_owner_pet()
     {
         using var factory = new AuthFlowFactory();
-        using var client = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
         var id = await CreatePet(client);
 
         using var response = await Send(client, HttpMethod.Get, $"get-by-id/{id}");
@@ -133,8 +147,8 @@ public sealed class PetEndpointsTests
     public async Task Get_by_id_of_another_owner_missing_or_malformed_id_returns_404()
     {
         using var factory = new AuthFlowFactory();
-        using var ana = Client(factory, Guid.NewGuid(), UserRole.Owner);
-        using var luis = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var ana = Client(factory, Guid.NewGuid(), UserRole.User);
+        using var luis = Client(factory, Guid.NewGuid(), UserRole.User);
         var id = await CreatePet(ana);
 
         using var foreign = await Send(luis, HttpMethod.Get, $"get-by-id/{id}");
@@ -151,13 +165,11 @@ public sealed class PetEndpointsTests
     public async Task Get_by_id_requires_an_owner_token()
     {
         using var factory = new AuthFlowFactory();
-        using var owner = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var owner = Client(factory, Guid.NewGuid(), UserRole.User);
         var id = await CreatePet(owner);
         using var anonymous = factory.CreateClient();
-        using var business = Client(factory, Guid.NewGuid(), UserRole.Business);
 
         await AssertWrapper(await Send(anonymous, HttpMethod.Get, $"get-by-id/{id}"), HttpStatusCode.Unauthorized);
-        await AssertWrapper(await Send(business, HttpMethod.Get, $"get-by-id/{id}"), HttpStatusCode.Forbidden);
     }
 
     // ---------- Actualizar (pm-043) ----------
@@ -167,7 +179,7 @@ public sealed class PetEndpointsTests
     public async Task Update_replaces_the_editable_fields_of_the_owner_pet()
     {
         using var factory = new AuthFlowFactory();
-        using var client = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
         var id = await CreatePet(client);
 
         using var response = await Send(client, HttpMethod.Put, $"update/{id}", "{\"name\":\"  Max  \",\"species\":\"Perro\",\"sex\":\"Unknown\"}");
@@ -189,7 +201,7 @@ public sealed class PetEndpointsTests
     public async Task Update_with_an_invalid_field_returns_400_and_changes_nothing(string body, string field)
     {
         using var factory = new AuthFlowFactory();
-        using var client = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
         var id = await CreatePet(client);
 
         using var response = await Send(client, HttpMethod.Put, $"update/{id}", body);
@@ -203,7 +215,7 @@ public sealed class PetEndpointsTests
     public async Task Update_rejects_an_owner_id_in_the_body()
     {
         using var factory = new AuthFlowFactory();
-        using var client = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
         var id = await CreatePet(client);
 
         using var response = await Send(client, HttpMethod.Put, $"update/{id}", "{\"name\":\"Max\",\"species\":\"Perro\",\"sex\":\"Male\",\"ownerId\":\"" + Guid.NewGuid() + "\"}");
@@ -217,8 +229,8 @@ public sealed class PetEndpointsTests
     public async Task Update_of_another_owner_or_missing_pet_returns_404_and_changes_nothing()
     {
         using var factory = new AuthFlowFactory();
-        using var ana = Client(factory, Guid.NewGuid(), UserRole.Owner);
-        using var luis = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var ana = Client(factory, Guid.NewGuid(), UserRole.User);
+        using var luis = Client(factory, Guid.NewGuid(), UserRole.User);
         var id = await CreatePet(ana);
         const string body = "{\"name\":\"Robado\",\"species\":\"Perro\",\"sex\":\"Male\"}";
 
@@ -232,13 +244,11 @@ public sealed class PetEndpointsTests
     public async Task Update_requires_an_owner_token()
     {
         using var factory = new AuthFlowFactory();
-        using var owner = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var owner = Client(factory, Guid.NewGuid(), UserRole.User);
         var id = await CreatePet(owner);
         using var anonymous = factory.CreateClient();
-        using var business = Client(factory, Guid.NewGuid(), UserRole.Business);
 
         await AssertWrapper(await Send(anonymous, HttpMethod.Put, $"update/{id}", ValidBody), HttpStatusCode.Unauthorized);
-        await AssertWrapper(await Send(business, HttpMethod.Put, $"update/{id}", ValidBody), HttpStatusCode.Forbidden);
     }
 
     // ---------- Eliminar (pm-044) ----------
@@ -248,7 +258,7 @@ public sealed class PetEndpointsTests
     public async Task Delete_removes_the_owner_pet_physically_and_then_it_no_longer_exists()
     {
         using var factory = new AuthFlowFactory();
-        using var client = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
         var id = await CreatePet(client);
 
         using var response = await Send(client, HttpMethod.Delete, $"delete/{id}");
@@ -266,8 +276,8 @@ public sealed class PetEndpointsTests
     public async Task Delete_of_another_owner_pet_returns_404_and_deletes_nothing()
     {
         using var factory = new AuthFlowFactory();
-        using var ana = Client(factory, Guid.NewGuid(), UserRole.Owner);
-        using var luis = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var ana = Client(factory, Guid.NewGuid(), UserRole.User);
+        using var luis = Client(factory, Guid.NewGuid(), UserRole.User);
         var id = await CreatePet(ana);
 
         await AssertWrapper(await Send(luis, HttpMethod.Delete, $"delete/{id}"), HttpStatusCode.NotFound);
@@ -279,14 +289,117 @@ public sealed class PetEndpointsTests
     public async Task Delete_requires_an_owner_token()
     {
         using var factory = new AuthFlowFactory();
-        using var owner = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var owner = Client(factory, Guid.NewGuid(), UserRole.User);
         var id = await CreatePet(owner);
         using var anonymous = factory.CreateClient();
-        using var business = Client(factory, Guid.NewGuid(), UserRole.Business);
 
         await AssertWrapper(await Send(anonymous, HttpMethod.Delete, $"delete/{id}"), HttpStatusCode.Unauthorized);
-        await AssertWrapper(await Send(business, HttpMethod.Delete, $"delete/{id}"), HttpStatusCode.Forbidden);
         Assert.Single(factory.Pets.All);
+    }
+
+    // ---------- QR (pm-094, pm-095) ----------
+
+    [Trait("Endpoint", "pets-get-qr")]
+    [Fact]
+    public async Task Get_qr_returns_token_and_code_for_the_owner_pet_with_no_store()
+    {
+        using var factory = new AuthFlowFactory();
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
+        var id = await CreatePet(client);
+
+        using var response = await Send(client, HttpMethod.Get, $"get-qr/{id}");
+        using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var data = document.RootElement.GetProperty("data");
+        using var detail = await Send(client, HttpMethod.Get, $"get-by-id/{id}");
+        var detailBody = await detail.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(id, data.GetProperty("petId").GetString());
+        Assert.Equal(43, data.GetProperty("qrToken").GetString()!.Length);
+        Assert.Equal(8, data.GetProperty("qrCode").GetString()!.Length);
+        Assert.Contains("no-store", response.Headers.CacheControl?.ToString(), StringComparison.Ordinal);
+        Assert.DoesNotContain("qrToken", detailBody, StringComparison.Ordinal);
+        Assert.DoesNotContain("qrCode", detailBody, StringComparison.Ordinal);
+    }
+
+    [Trait("Endpoint", "pets-get-qr")]
+    [Fact]
+    public async Task Get_qr_of_another_owner_pet_or_a_missing_pet_returns_the_same_404()
+    {
+        using var factory = new AuthFlowFactory();
+        using var ana = Client(factory, Guid.NewGuid(), UserRole.User);
+        using var luis = Client(factory, Guid.NewGuid(), UserRole.User);
+        var id = await CreatePet(ana);
+
+        using var foreign = await Send(luis, HttpMethod.Get, $"get-qr/{id}");
+        using var missing = await Send(luis, HttpMethod.Get, $"get-qr/{Guid.NewGuid()}");
+
+        var foreignBody = await foreign.Content.ReadAsStringAsync();
+        var missingBody = await missing.Content.ReadAsStringAsync();
+        Assert.Equal(HttpStatusCode.NotFound, foreign.StatusCode);
+        Assert.Equal(missingBody, foreignBody);
+        Assert.DoesNotContain(factory.Pets.All.Single().Qr.Token, foreignBody, StringComparison.Ordinal);
+    }
+
+    [Trait("Endpoint", "pets-get-qr")]
+    [Fact]
+    public async Task Get_qr_requires_an_owner_token()
+    {
+        using var factory = new AuthFlowFactory();
+        using var owner = Client(factory, Guid.NewGuid(), UserRole.User);
+        var id = await CreatePet(owner);
+        using var anonymous = factory.CreateClient();
+
+        await AssertWrapper(await Send(anonymous, HttpMethod.Get, $"get-qr/{id}"), HttpStatusCode.Unauthorized);
+    }
+
+    [Trait("Endpoint", "pets-regenerate-qr")]
+    [Fact]
+    public async Task Regenerate_qr_replaces_token_and_code_and_the_old_ones_stop_being_current()
+    {
+        using var factory = new AuthFlowFactory();
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
+        var id = await CreatePet(client);
+        var before = factory.Pets.All.Single().Qr;
+
+        using var response = await Send(client, HttpMethod.Post, $"regenerate-qr/{id}");
+        using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var data = document.RootElement.GetProperty("data");
+        using var read = await Send(client, HttpMethod.Get, $"get-qr/{id}");
+        using var readDocument = JsonDocument.Parse(await read.Content.ReadAsStringAsync());
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("no-store", response.Headers.CacheControl?.ToString(), StringComparison.Ordinal);
+        Assert.NotEqual(before.Token, data.GetProperty("qrToken").GetString());
+        Assert.NotEqual(before.Code, data.GetProperty("qrCode").GetString());
+        Assert.Equal(data.GetProperty("qrToken").GetString(), readDocument.RootElement.GetProperty("data").GetProperty("qrToken").GetString());
+    }
+
+    [Trait("Endpoint", "pets-regenerate-qr")]
+    [Fact]
+    public async Task Regenerate_qr_of_another_owner_pet_returns_404_and_keeps_the_qr()
+    {
+        using var factory = new AuthFlowFactory();
+        using var ana = Client(factory, Guid.NewGuid(), UserRole.User);
+        using var luis = Client(factory, Guid.NewGuid(), UserRole.User);
+        var id = await CreatePet(ana);
+        var before = factory.Pets.All.Single().Qr;
+
+        await AssertWrapper(await Send(luis, HttpMethod.Post, $"regenerate-qr/{id}"), HttpStatusCode.NotFound);
+
+        Assert.Equal(before, factory.Pets.All.Single().Qr);
+    }
+
+    [Trait("Endpoint", "pets-regenerate-qr")]
+    [Fact]
+    public async Task Regenerate_qr_requires_an_owner_token()
+    {
+        using var factory = new AuthFlowFactory();
+        using var owner = Client(factory, Guid.NewGuid(), UserRole.User);
+        var id = await CreatePet(owner);
+        using var anonymous = factory.CreateClient();
+
+        await AssertWrapper(await Send(anonymous, HttpMethod.Post, $"regenerate-qr/{id}"), HttpStatusCode.Unauthorized);
     }
 
     // ---------- helpers ----------

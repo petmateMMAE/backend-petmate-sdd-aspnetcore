@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace PetMate.Infrastructure.Persistence;
@@ -14,6 +15,14 @@ public sealed class MongoIndexInitializer(IMongoDatabase database, MongoCollecti
     public const string SessionUserIndex = "ix_refresh_sessions_userId";
     public const string SessionTtlIndex = "ttl_refresh_sessions_absoluteExpiresAtUtc";
     public const string PetOwnerIndex = "ix_pets_ownerId_createdAtUtc";
+    public const string PetQrTokenIndex = "ux_pets_qrToken";
+    public const string PetQrCodeIndex = "ux_pets_qrCode";
+    public const string PasswordResetHashIndex = "ux_password_resets_tokenHash";
+    public const string PasswordResetTtlIndex = "ttl_password_resets_expiresAtUtc";
+    public const string VaccinePetIndex = "ix_vaccines_ownerId_petId_appliedOn";
+    public const string DewormingPetIndex = "ix_dewormings_ownerId_petId_appliedOn";
+    public const string WeightPetIndex = "ix_weights_ownerId_petId_measuredOn";
+    public const string AllergyPetIndex = "ix_allergies_ownerId_petId_status";
 
     public async Task EnsureIndexes(CancellationToken cancellationToken)
     {
@@ -58,6 +67,55 @@ public sealed class MongoIndexInitializer(IMongoDatabase database, MongoCollecti
             new CreateIndexModel<PetDocument>(
                 Builders<PetDocument>.IndexKeys.Ascending(document => document.OwnerId).Descending(document => document.CreatedAtUtc),
                 new CreateIndexOptions { Name = PetOwnerIndex }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        // pm-093: el token y el código corto del QR son únicos. El índice es parcial porque las mascotas anteriores al QR
+        // no los tienen hasta que se leen por primera vez.
+        var hasQr = new BsonDocument("$type", "string");
+        await pets.Indexes.CreateManyAsync(
+            [
+                new CreateIndexModel<PetDocument>(
+                    Builders<PetDocument>.IndexKeys.Ascending(document => document.QrToken),
+                    new CreateIndexOptions<PetDocument> { Name = PetQrTokenIndex, Unique = true, PartialFilterExpression = new BsonDocument("qrToken", hasQr) }),
+                new CreateIndexModel<PetDocument>(
+                    Builders<PetDocument>.IndexKeys.Ascending(document => document.QrCode),
+                    new CreateIndexOptions<PetDocument> { Name = PetQrCodeIndex, Unique = true, PartialFilterExpression = new BsonDocument("qrCode", hasQr) }),
+            ],
+            cancellationToken).ConfigureAwait(false);
+
+        // pm-089: el hash del token es único y los documentos se borran al vencer (con un día de margen para auditoría).
+        var resetCollection = database.GetCollection<PasswordResetDocument>(names.PasswordResets);
+        await resetCollection.Indexes.CreateManyAsync(
+            [
+                new CreateIndexModel<PasswordResetDocument>(
+                    Builders<PasswordResetDocument>.IndexKeys.Ascending(d => d.TokenHash),
+                    new CreateIndexOptions { Name = PasswordResetHashIndex, Unique = true }),
+                new CreateIndexModel<PasswordResetDocument>(
+                    Builders<PasswordResetDocument>.IndexKeys.Ascending(d => d.ExpiresAtUtc),
+                    new CreateIndexOptions { Name = PasswordResetTtlIndex, ExpireAfter = TimeSpan.FromDays(1) }),
+            ],
+            cancellationToken).ConfigureAwait(false);
+
+        // pm-097 a pm-102: los listados del carnet filtran por dueño y mascota y ordenan por fecha (o estado, en alergias).
+        await database.GetCollection<VaccineDocument>(names.Vaccines).Indexes.CreateOneAsync(
+            new CreateIndexModel<VaccineDocument>(
+                Builders<VaccineDocument>.IndexKeys.Ascending(d => d.OwnerId).Ascending(d => d.PetId).Descending(d => d.AppliedOn),
+                new CreateIndexOptions { Name = VaccinePetIndex }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+        await database.GetCollection<DewormingDocument>(names.Dewormings).Indexes.CreateOneAsync(
+            new CreateIndexModel<DewormingDocument>(
+                Builders<DewormingDocument>.IndexKeys.Ascending(d => d.OwnerId).Ascending(d => d.PetId).Descending(d => d.AppliedOn),
+                new CreateIndexOptions { Name = DewormingPetIndex }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+        await database.GetCollection<WeightDocument>(names.Weights).Indexes.CreateOneAsync(
+            new CreateIndexModel<WeightDocument>(
+                Builders<WeightDocument>.IndexKeys.Ascending(d => d.OwnerId).Ascending(d => d.PetId).Descending(d => d.MeasuredOn),
+                new CreateIndexOptions { Name = WeightPetIndex }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+        await database.GetCollection<AllergyDocument>(names.Allergies).Indexes.CreateOneAsync(
+            new CreateIndexModel<AllergyDocument>(
+                Builders<AllergyDocument>.IndexKeys.Ascending(d => d.OwnerId).Ascending(d => d.PetId).Ascending(d => d.Status),
+                new CreateIndexOptions { Name = AllergyPetIndex }),
             cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 }

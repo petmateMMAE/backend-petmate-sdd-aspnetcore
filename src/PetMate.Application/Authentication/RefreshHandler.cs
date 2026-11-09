@@ -104,7 +104,9 @@ public sealed class RefreshHandler(
             session.IdleExpiresAtUtc,
             user.Id,
             user.Email.Value,
-            user.Role));
+            user.Role,
+            user.DisplayName,
+            BusinessType: null));
     }
 
     private async Task RevokeForReplay(RefreshSession session, DateTime now, CancellationToken cancellationToken)

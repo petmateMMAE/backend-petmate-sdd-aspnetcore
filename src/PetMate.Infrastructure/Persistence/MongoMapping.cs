@@ -15,6 +15,7 @@ internal static class MongoMapping
         PasswordHash = user.PasswordHash.Value,
         Role = (int)user.Role,
         DisplayName = user.DisplayName,
+        Phone = user.Phone,
         CreatedAtUtc = user.CreatedAtUtc,
         UpdatedAtUtc = user.UpdatedAtUtc,
     };
@@ -26,7 +27,8 @@ internal static class MongoMapping
         (UserRole)document.Role,
         AsUtc(document.CreatedAtUtc),
         AsUtc(document.UpdatedAtUtc),
-        document.DisplayName);
+        document.DisplayName,
+        document.Phone);
 
     public static RefreshSessionDocument ToDocument(RefreshSession session) => new()
     {
@@ -79,6 +81,8 @@ internal static class MongoMapping
         PhotoUrl = pet.PhotoUrl,
         CreatedAtUtc = pet.CreatedAtUtc,
         UpdatedAtUtc = pet.UpdatedAtUtc,
+        QrToken = pet.Qr.Token,
+        QrCode = pet.Qr.Code,
     };
 
     public static Pet ToDomain(PetDocument document) => Pet.Restore(
@@ -92,7 +96,8 @@ internal static class MongoMapping
             (PetSex)document.Sex,
             document.PhotoUrl),
         AsUtc(document.CreatedAtUtc),
-        AsUtc(document.UpdatedAtUtc));
+        AsUtc(document.UpdatedAtUtc),
+        PetQr.IsWellFormed(document.QrToken, document.QrCode) ? new PetQr(document.QrToken!, document.QrCode!) : null);
 
     private const string BirthDateFormat = "yyyy-MM-dd";
 

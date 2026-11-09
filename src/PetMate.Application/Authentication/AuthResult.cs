@@ -19,6 +19,9 @@ public enum AuthError
 
     /// <summary>Cuota por correo o usuario agotada, bloqueo temporal o demasiado trabajo de hashing en cola (pm-034): 429 con <c>Retry-After</c>.</summary>
     TooManyRequests,
+
+    /// <summary>Token de restablecimiento inexistente, usado o vencido: indistinguibles a propósito (pm-090).</summary>
+    InvalidResetToken,
 }
 
 /// <summary>Valor vacío para resultados sin datos (<c>data: null</c>).</summary>

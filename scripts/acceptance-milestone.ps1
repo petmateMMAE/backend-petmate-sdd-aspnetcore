@@ -40,14 +40,14 @@ Check 'GET health/live' 200 (Call GET 'health/live').Code
 Check 'GET health/ready' 200 (Call GET 'health/ready').Code
 
 "== Autenticacion (4 endpoints) =="
-$r = Call POST 'auth/register' @{ email = $ana; password = $pw }
+$r = Call POST 'auth/register' @{ displayName = "Ana"; email = $ana; password = $pw }
 Check 'POST auth/register' 201 $r.Code
 Check '  rol Owner y sin contrasena en la respuesta' 'Owner' $r.Json.data.user.role
 $regRaw = ($r.Json | ConvertTo-Json -Depth 6)
 Check '  la respuesta no contiene la contrasena' $false ($regRaw -like "*$pw*")
-Check 'POST auth/register (correo repetido)' 409 (Call POST 'auth/register' @{ email = $ana; password = $pw }).Code
-Check 'POST auth/register (contrasena corta)' 400 (Call POST 'auth/register' @{ email = $luis; password = 'corta' }).Code
-$null = Call POST 'auth/register' @{ email = $luis; password = $pw }
+Check 'POST auth/register (correo repetido)' 409 (Call POST 'auth/register' @{ displayName = "Ana"; email = $ana; password = $pw }).Code
+Check 'POST auth/register (contrasena corta)' 400 (Call POST 'auth/register' @{ displayName = "Luis"; email = $luis; password = "corta" }).Code
+$null = Call POST 'auth/register' @{ displayName = "Luis"; email = $luis; password = $pw }
 $l = Call POST 'auth/login' @{ email = $ana; password = $pw }
 Check 'POST auth/login' 200 $l.Code
 $at = $l.Json.data.accessToken; $rt = $l.Json.data.refreshToken

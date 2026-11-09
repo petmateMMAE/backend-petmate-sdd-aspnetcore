@@ -11,7 +11,7 @@
 
 ### T115 — Registrar y listar las vacunas de una mascota
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-097
 - **Criterios propios:** pm-097#CA-01, pm-097#CA-02, pm-097#CA-03, pm-097#CA-04
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

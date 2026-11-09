@@ -151,6 +151,7 @@ public static class ApplicationBootstrap
         var permitLimit = ReadPerMinuteLimit(configuration, "AUTH_RATE_LIMIT_PER_MINUTE", 10);
         var petsPermitLimit = ReadPerMinuteLimit(configuration, "PETS_RATE_LIMIT_PER_MINUTE", 60);
         var usersPermitLimit = ReadPerMinuteLimit(configuration, "USERS_RATE_LIMIT_PER_MINUTE", 60);
+        var carnetPermitLimit = ReadPerMinuteLimit(configuration, "CARNET_RATE_LIMIT_PER_MINUTE", 60);
 
         services.AddSingleton(new PetMate.Api.Authentication.AuthIpThrottleOptions(permitLimit));
         services.AddScoped<PetMate.Api.Authentication.AuthIpThrottleFilter>();
@@ -168,6 +169,9 @@ public static class ApplicationBootstrap
                 }));
             // Mascotas (pm-045 CA-04): límite por usuario autenticado (claim sub), con la IP como respaldo.
             options.AddPolicy(PetMate.Api.Controllers.PetsController.RateLimitPolicy, context => PerUserWindow(context, petsPermitLimit));
+
+            // Carnet de salud (pm-096): mismo esquema por usuario autenticado, con su propia variable.
+            options.AddPolicy(PetMate.Api.Controllers.CarnetControllerBase.RateLimitPolicy, context => PerUserWindow(context, carnetPermitLimit));
 
             // Perfil propio (pm-036 CA-03, matriz de límites): mismo esquema por usuario autenticado.
             options.AddPolicy(PetMate.Api.Controllers.UsersController.RateLimitPolicy, context => PerUserWindow(context, usersPermitLimit));

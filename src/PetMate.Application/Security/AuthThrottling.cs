@@ -15,6 +15,9 @@ public static class AuthThrottleRules
     /// <summary>Límite por IP de las rutas de autenticación, compartido entre réplicas (H6).</summary>
     public const string IpScope = "auth-ip";
 
+    /// <summary>Solicitudes de restablecimiento por correo (pm-089#CA-03).</summary>
+    public const string ForgotPasswordScope = "forgot-email";
+
     public static readonly AuthThrottleRule Login = new(5, TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(15));
 
     // H3: el bloqueo duro (5 fallos en 15 minutos, 15 de bloqueo) se cuenta por par (correo, IP). El techo por correo (50 intentos
@@ -22,6 +25,9 @@ public static class AuthThrottleRules
     public static readonly AuthThrottleRule LoginEmailCeiling = new(50, TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(1));
 
     public static readonly AuthThrottleRule Refresh = new(30, TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(15));
+
+    // pm-089: 3 solicitudes por correo en 15 minutos; la cuarta espera 15 minutos. Cuentan existan o no las cuentas.
+    public static readonly AuthThrottleRule ForgotPassword = new(3, TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(15));
 }
 
 /// <summary>

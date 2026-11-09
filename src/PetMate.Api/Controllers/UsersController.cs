@@ -49,7 +49,7 @@ public sealed class UsersController(ISender sender) : ControllerBase
             return Unauthenticated();
         }
 
-        var profile = await sender.Send(new UpdateMyProfileCommand(userId, request.DisplayName ?? string.Empty), cancellationToken);
+        var profile = await sender.Send(new UpdateMyProfileCommand(userId, request.DisplayName ?? string.Empty, request.Phone), cancellationToken);
         return profile is null ? NotFoundAccount() : ApiResponseFactory.Ok("Perfil actualizado correctamente.", ToResponse(profile));
     }
 
@@ -62,5 +62,5 @@ public sealed class UsersController(ISender sender) : ControllerBase
         StatusCodes.Status404NotFound, ApiResponseMessages.ForStatusCode(StatusCodes.Status404NotFound), null);
 
     private static UserProfileResponse ToResponse(UserProfileResult profile)
-        => new(profile.Id, profile.Email, profile.Role.ToString(), profile.DisplayName, profile.CreatedAtUtc);
+        => new(profile.Id, profile.Email, profile.Role.ToString(), profile.DisplayName, profile.CreatedAtUtc, profile.Phone);
 }

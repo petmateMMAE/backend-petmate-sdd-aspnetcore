@@ -36,10 +36,12 @@ La ruta existe solo para comprobar MVC, Mediator, versionado y OpenAPI. La alter
 | POST | `/api/v1/auth/login` | Público | `pm-030` / T019 | Implementado (cerrado; spec aprobado el 2026-11-08) |
 | POST | `/api/v1/auth/refresh` | Refresh Token | `pm-031` / T020 | Implementado (cerrado; spec aprobado el 2026-11-08) |
 | POST | `/api/v1/auth/logout` | Sesión autenticada | `pm-032` / T021 | Implementado (cerrado; spec aprobado el 2026-11-08) |
+| POST | `/api/v1/auth/forgot-password` | Público | `pm-089` / T107 | Implementado (pendiente de cierre) |
+| POST | `/api/v1/auth/reset-password` | Público | `pm-090` / T108 | Implementado (pendiente de cierre) |
 
 ### Contratos de autenticación
 
-- Los cuerpos de entrada rechazan miembros desconocidos: enviar p. ej. `role` devuelve 400. El rol siempre es `Owner` en el registro público.
+- Los cuerpos de entrada rechazan miembros desconocidos: enviar p. ej. `role` devuelve 400. El rol siempre es `User` en el registro público.
 - Login y Refresh tienen además cuota por cuenta (pm-034, T101/H3): 5 intentos fallidos de login por **par (correo, IP)** en 15 minutos y el sexto bloquea ese par 15 minutos (también con la contraseña correcta, sin revelar si el correo existe), de modo que quien falla desde su IP no deja fuera al propietario que entra desde otra. Un **techo por correo**, independiente de la IP, de 50 intentos en 15 minutos impone una espera de 1 minuto a todas las IPs ante ataques distribuidos. 30 refrescos por usuario en 15 minutos. Las respuestas son 429 con el wrapper y `Retry-After`. El hashing de contraseñas está acotado (tantos a la vez como núcleos y el doble en cola): lo que no cabe se rechaza con 429 y `Retry-After: 1`.
 - Register, Login y Refresh están limitados por IP (`AUTH_RATE_LIMIT_PER_MINUTE`, por defecto 10 por minuto): al exceder el límite devuelven 429. El límite se cuenta **en Redis de autenticación**, compartido entre todas las réplicas (T100/H6), además de la barrera en proceso; si Redis no responde las rutas devuelven 503 (falla cerrada). Detrás de un proxy debe configurarse `TRUSTED_PROXIES` (con `REQUIRE_TRUSTED_PROXIES=true` Production no arranca sin ella; sin esa variable solo se advierte al arrancar). Con el ingress de Azure Container Apps hay **un salto** de proxy, por lo que `ForwardLimit = 1` es correcto; si se añade otro (por ejemplo un balanceador delante), hay que revisar la lista y el límite de saltos.
 - **Access tokens ligados a la sesión (T098/H7):** el JWT incluye el claim `sid` y deja de valer en cuanto su sesión se revoca (logout o replay), no al expirar. Los tokens emitidos antes del cambio, sin `sid`, valen hasta expirar.
@@ -50,15 +52,19 @@ La ruta existe solo para comprobar MVC, Mediator, versionado y OpenAPI. La alter
 
 #### POST `/api/v1/auth/register`
 
-Cuerpo: `{ "email": "usuario@ejemplo.com", "password": "contraseña-de-12-a-128-caracteres" }`
+Cuerpo: `{ "displayName": "Ana", "email": "usuario@ejemplo.com", "password": "contraseña-de-12-a-128-caracteres" }`. El nombre es obligatorio (1 a 80 caracteres, pm-085); el celular no se pide en el registro.
 
 | Código | Cuándo | `data` |
 |---|---|---|
 | 201 | Cuenta creada | `AuthResponse` |
-| 400 | Validación (correo inválido, contraseña fuera de 12–128 caracteres, miembro desconocido) | `{ "errors": [{ "field", "message" }] }` |
+| 400 | Validación (nombre ausente o fuera de 1–80, correo inválido, contraseña fuera de 12–128 caracteres, miembro desconocido) | `{ "errors": [{ "field", "message" }] }` |
 | 409 | Correo ya registrado; mensaje genérico «No se pudo completar el registro con los datos proporcionados.» | `null` |
 | 429 | Límite de solicitudes | `null` |
 | 503 | Atlas o Redis Auth no disponible | `null` |
+
+#### Respuesta de sesión (Register, Login y Refresh)
+
+`data.user` incluye `id`, `email`, `role` (siempre `User`, pm-086), `displayName` y `business` (pm-087: `{ "type": ... }` con el tipo del negocio asociado o `null`; mientras no exista el módulo de negocios es siempre `null`; lo calcula el servidor). El nombre es obligatorio en el registro (pm-085): `displayName` de 1 a 80 caracteres.
 
 #### POST `/api/v1/auth/login`
 
@@ -96,11 +102,37 @@ Requiere `Authorization: Bearer <access token vigente>`. Si el access token expi
 | 403 | El refresh token pertenece a otro usuario o es desconocido | `null` |
 | 503 | Redis Auth o Atlas no disponible (falla cerrada) | `null` |
 
+#### POST `/api/v1/auth/forgot-password` (pm-089)
+
+Cuerpo: `{ "email": "usuario@ejemplo.com" }`. La respuesta es **la misma** exista o no el correo.
+
+| Código | Cuándo | `data` |
+|---|---|---|
+| 200 | «Si el correo está registrado, recibirás un enlace…»; para una cuenta existente se envía un enlace con un token aleatorio de 256 bits, de un solo uso, que vence en 1 hora (solo se guarda su hash) | `null` |
+| 400 | Correo con formato inválido o miembro desconocido | `{ "errors": [...] }` |
+| 429 | Más de 3 solicitudes por correo en 15 minutos (cuentan existan o no las cuentas) o límite por IP; `Retry-After` | `null` |
+| 503 | Atlas o Redis Auth no disponible | `null` |
+
+El envío usa el puerto `IEmailSender`. Un fallo o espera agotada (5 s) del proveedor no cambia la respuesta ni se revela. Limitación conocida: la solicitud de una cuenta existente tarda un poco más que la de una inexistente (llamada al proveedor), lo que un atacante paciente podría medir.
+
+#### POST `/api/v1/auth/reset-password` (pm-090)
+
+Cuerpo: `{ "token": "<token del enlace>", "newPassword": "<12 a 128 caracteres>" }`
+
+| Código | Cuándo | `data` |
+|---|---|---|
+| 200 | Contraseña cambiada; el token queda usado y **todas las sesiones y access tokens** de la cuenta quedan revocados | `null` |
+| 400 | Validación (contraseña fuera de 12–128), o token inexistente, usado o vencido (mismo mensaje: «El enlace no es válido o ya venció. Solicita uno nuevo.») | `{ "errors": [...] }` o `null` |
+| 429 | Límite por IP o hashing saturado | `null` |
+| 503 | Atlas o Redis Auth no disponible | `null` |
+
+Correo transaccional (pm-088): proveedor **Resend** (plan gratuito: 3 000 correos al mes y 100 al día, verificado el 2026-11-09 en resend.com/pricing), sin paquetes nuevos. Variables de entorno: `EMAIL_API_KEY` (secreta), `EMAIL_FROM` (remitente de un dominio verificado con SPF y DKIM) y `PASSWORD_RESET_URL_BASE` (URL HTTPS a la que se añade `?token=`). Si falta alguna, no se envía ningún correo y el endpoint responde igual. Hoy no hay dominio verificado, por lo que el envío real no está operativo.
+
 ## Autorización (pm-033 / T022)
 
-- **Denegación por defecto.** Todo endpoint exige un usuario autenticado con rol `Owner` o `Business` salvo que se marque `[AllowAnonymous]` de forma explícita. Una prueba (`PublicSurfaceTests`) fija la lista cerrada de endpoints públicos.
-- **Roles.** Solo existen `Owner` y `Business`; no hay rol de administración. El rol sale únicamente del claim `role` de un JWT con firma, vigencia y lista negra ya validadas; un token con rol ausente, desconocido o con distinto uso de mayúsculas se rechaza con 401.
-- **Políticas.** `RequireOwner` y `RequireBusiness` (convención `Require<Capacidad>`). `RequireOwner` está aplicado a los endpoints de mascotas (`pm-040` a `pm-044`).
+- **Denegación por defecto.** Todo endpoint exige un usuario autenticado con rol `User` salvo que se marque `[AllowAnonymous]` de forma explícita. Una prueba (`PublicSurfaceTests`) fija la lista cerrada de endpoints públicos.
+- **Roles.** Solo existe `User` (pm-086; los tokens anteriores con `Owner` se aceptan como `User` hasta que expiran); no hay rol de administración. El rol sale únicamente del claim `role` de un JWT con firma, vigencia y lista negra ya validadas; un token con rol ausente, desconocido o con distinto uso de mayúsculas se rechaza con 401.
+- **Políticas.** `RequireUser` (convención `Require<Capacidad>`), aplicada a mascotas, carnet y perfil; cada recurso se limita además a su propietario.
 - **Códigos.** 401 si no hay autenticación válida; 403 si hay autenticación válida pero el rol no tiene permiso; ambos con el wrapper estándar (`data: null`). Las rutas inexistentes siguen devolviendo 404 a cualquier llamador.
 
 | Método | Endpoint | Motivo |
@@ -120,7 +152,7 @@ Requiere `Authorization: Bearer <access token vigente>`. Si el access token expi
 ### Contratos de perfil
 
 - La identidad sale solo del claim `sub` del Access Token validado: nunca de la ruta, el cuerpo ni la query. No hay forma de leer ni editar el perfil de otra cuenta.
-- `UserProfileResponse` (en `data`): `id`, `email`, `role` (`Owner`/`Business`), `displayName` (`null` hasta que se define), `createdAt`. Nunca incluye el hash ni tokens.
+- `UserProfileResponse` (en `data`): `id`, `email`, `role` (`User`), `displayName`, `phone` (`null` si no se agregó, pm-091), `createdAt`. Nunca incluye el hash ni tokens.
 
 #### GET `/api/v1/users/me/get`
 
@@ -132,7 +164,7 @@ Requiere `Authorization: Bearer <access token vigente>`. Si el access token expi
 
 #### PUT `/api/v1/users/me/update`
 
-Cuerpo: `{ "displayName": "Ana Pérez" }`. Se recorta; de 1 a 80 caracteres, sin caracteres de control. Correo y rol no son editables: enviar `email`, `role` u otro miembro desconocido devuelve 400.
+Cuerpo: `{ "displayName": "Ana Pérez", "phone": "55 1234 5678" }`. `phone` es opcional (pm-091): 10 dígitos, se admiten espacios, guiones, paréntesis y el prefijo +52, y se guarda como 10 dígitos; ausente, nulo o vacío lo quita (la actualización reemplaza el perfil completo); sin verificación por SMS. El nombre se recorta; de 1 a 80 caracteres, sin caracteres de control. Correo y rol no son editables: enviar `email`, `role` u otro miembro desconocido devuelve 400.
 
 | Código | Cuándo | `data` |
 |---|---|---|
@@ -145,20 +177,33 @@ Cuerpo: `{ "displayName": "Ana Pérez" }`. Se recorta; de 1 a 80 caracteres, sin
 
 | Método | Endpoint | Acceso | Spec | Estado |
 |---|---|---|---|---|
-| POST | `/api/v1/pets/create` | Owner | `pm-040` | Implementado (cerrado) |
-| GET | `/api/v1/pets/get-all` | Owner | `pm-041` / `pm-047` | Implementado (cerrado) |
-| GET | `/api/v1/pets/get-by-id/{id}` | Owner + propietario | `pm-042` | Implementado (cerrado) |
-| PUT | `/api/v1/pets/update/{id}` | Owner + propietario | `pm-043` | Implementado (cerrado) |
-| DELETE | `/api/v1/pets/delete/{id}` | Owner + propietario | `pm-044` | Implementado (cerrado) |
+| POST | `/api/v1/pets/create` | User | `pm-040` | Implementado (cerrado) |
+| GET | `/api/v1/pets/get-all` | User | `pm-041` / `pm-047` | Implementado (cerrado) |
+| GET | `/api/v1/pets/get-by-id/{id}` | User + propietario | `pm-042` | Implementado (cerrado) |
+| PUT | `/api/v1/pets/update/{id}` | User + propietario | `pm-043` | Implementado (cerrado) |
+| DELETE | `/api/v1/pets/delete/{id}` | User + propietario | `pm-044` | Implementado (cerrado) |
+| GET | `/api/v1/pets/get-qr/{id}` | User + propietario | `pm-094` | Implementado (cerrado) |
+| POST | `/api/v1/pets/regenerate-qr/{id}` | User + propietario | `pm-095` | Implementado (cerrado) |
+| POST | `/api/v1/vaccines/create` | User + propietario | `pm-097` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/vaccines/get-all` | User + propietario | `pm-097` | Implementado (pendiente de cierre) |
+| DELETE | `/api/v1/vaccines/delete/{id}` | User + propietario | `pm-098` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/dewormings/create` | User + propietario | `pm-099` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/dewormings/get-all` | User + propietario | `pm-099` | Implementado (pendiente de cierre) |
+| DELETE | `/api/v1/dewormings/delete/{id}` | User + propietario | `pm-100` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/weights/create` | User + propietario | `pm-101` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/weights/get-all` | User + propietario | `pm-101` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/allergies/create` | User + propietario | `pm-102` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/allergies/get-all` | User + propietario | `pm-102` | Implementado (pendiente de cierre) |
+| PUT | `/api/v1/allergies/update/{id}` | User + propietario | `pm-103` | Implementado (pendiente de cierre) |
 
 ### Contrato de mascotas
 
-- Acceso: solo rol `Owner` (política `RequireOwner`). Sin token → 401; rol Business → 403. El propietario sale del token, nunca del cuerpo.
+- Acceso: cualquier `User` autenticado (política `RequireUser`). Sin token → 401. El propietario sale del token, nunca del cuerpo.
 - Cuerpo de `create` y `update` (se rechazan miembros desconocidos como `ownerId`, `id` o `createdAt` con 400):
   `{ "name": "Firulais", "species": "Perro", "breed": "Mestizo", "birthDate": "2020-05-01", "sex": "Male", "photoUrl": "https://..." }`
-  - `name` 1–50 y `species` 1–40, obligatorios; `breed` hasta 60, opcional.
+  - `name` 1–50 obligatorio; `species` obligatoria y solo `Perro` o `Gato` (lista cerrada); `sex` opcional (`Male`, `Female` o `Unknown`; si falta se guarda `Unknown`); `breed` hasta 60, opcional.
   - `birthDate` opcional, `yyyy-MM-dd`, no futura ni de hace más de 50 años.
-  - `sex` obligatorio: `Male`, `Female` o `Unknown`. `photoUrl` opcional: URL HTTPS sin credenciales (la carga de archivos llega con pm-079/pm-080).
+  - `photoUrl` opcional: URL HTTPS sin credenciales (la carga de archivos llega con pm-079/pm-080).
 - Respuesta (`data`): `id`, los campos anteriores, `createdAt` y `updatedAt`. Nunca incluye el propietario.
 - Listado `GET /api/v1/pets/get-all?page=1&pageSize=20` (convención de paginación de pm-047, aplicable a todos los listados): solo las mascotas del propietario del token, de la más reciente a la más antigua; cualquier `ownerId` en la consulta se ignora.
   - `page` desde 1 (por defecto 1); `pageSize` por defecto 20 y máximo 50. Un valor menor que 1, mayor que 50 o no numérico devuelve **400** con el nombre del parámetro; no se recorta en silencio.
@@ -167,6 +212,19 @@ Cuerpo: `{ "displayName": "Ana Pérez" }`. Se recorta; de 1 a 80 caracteres, sin
 - La URL de la foto (`photoUrl`) solo se guarda y se devuelve: el servidor nunca la resuelve ni la descarga. Los textos (`name`, `species`, `breed`) no se sanean ni se codifican (se rechazan solo los caracteres de control): el cliente debe tratarlos como texto al mostrarlos. Cuando exista la carga de imágenes (pm-079/pm-080) se restringirá el origen permitido.
 - Límites contra el abuso (pm-045 CA-04): máximo **100 mascotas por propietario** (crear una más devuelve **409** con el wrapper); **60 peticiones por minuto por usuario** en `/api/v1/pets/*` (`PETS_RATE_LIMIT_PER_MINUTE`; al excederlo, **429** con `Retry-After`); y **16 KB** como tamaño máximo del cuerpo de cualquier petición de la API (**413** con el wrapper, también si el cuerpo llega fragmentado). El tope de 100 se comprueba al crear y no es atómico: peticiones simultáneas pueden superarlo por muy poco.
 - Eliminar es **físico** (decisión del usuario, 2026-11-08): la mascota deja de existir.
+
+### Carnet de salud (`pm-096` a `pm-103`)
+
+- Acceso: cualquier `User` autenticado; el dueño sale del token. Mascota o registro ajenos o inexistentes → **404** idéntico. Los listados exigen `petId` (400 si falta) y usan la convención de paginación de `pm-047` (`page`, `pageSize` 20 por defecto y 50 máximo), con la forma `PagedResponse`.
+- Cada registro devuelve `origin` (`type`: `Owner` o `Business`; `businessId` y `businessName` solo si lo creó un negocio). Lo creado por un negocio es de solo lectura: borrar o editar responde **403** «No se puede modificar ni borrar: lo registró el negocio.».
+- Tope de **200** registros por mascota y tipo (crear uno más → **409**). Fechas `yyyy-MM-dd`; ninguna fecha de aplicación o medición puede ser futura. Se rechazan miembros desconocidos (`ownerId`, `origin`, …).
+- Vacunas: `POST vaccines/create` `{petId, appliedOn, name, batch?, appliedBy?, nextDoseOn?}` (`nextDoseOn` posterior a `appliedOn`); `GET vaccines/get-all?petId=` (más reciente primero); `DELETE vaccines/delete/{id}`.
+- Desparasitaciones: `POST dewormings/create` `{petId, appliedOn, product, type?, appliedBy?, nextOn?}` (`type` `Internal`/`External`; `nextOn` futura); `GET dewormings/get-all?petId=`; `DELETE dewormings/delete/{id}`.
+- Pesos: `POST weights/create` `{petId, measuredOn, kilograms}` (mayor que 0, hasta 200, un decimal); `GET weights/get-all?petId=` (más reciente primero).
+- Alergias y condiciones: `POST allergies/create` `{petId, name, kind, notes?}` (`kind` `Allergy`/`Condition`; nace `Active`); `GET allergies/get-all?petId=` (activas primero); `PUT allergies/update/{id}` `{name, kind, notes?, status}` (`status` `Active`/`Resolved`, obligatorio).
+- Límites: **60 peticiones por minuto por usuario** en estas rutas (`CARNET_RATE_LIMIT_PER_MINUTE`) y 16 KB de cuerpo.
+- `PUT pets/update/{id}` sin `sex` deja el sexo en `Unknown` (reemplazo completo). Una mascota guardada antes con otra especie se sigue leyendo (no rompe el listado) pero no se puede guardar de nuevo sin cambiarla a Perro o Gato.
+- QR permanente (`pm-093` a `pm-095`): cada mascota recibe al crearse un `qrToken` (256 bits aleatorios, base64url de 43 caracteres) y un `qrCode` corto de 8 caracteres sin símbolos ambiguos; ambos son únicos y no aparecen en `PetResponse`. `GET /api/v1/pets/get-qr/{id}` los devuelve (`data`: `petId`, `qrToken`, `qrCode`) y `POST /api/v1/pets/regenerate-qr/{id}` genera otros y deja inválidos los anteriores. Ambos responden con `Cache-Control: no-store`, **404** si la mascota es ajena o inexistente, y el token nunca se escribe en los logs. Las mascotas anteriores al QR reciben uno al leerse por primera vez.
 
 ## Matriz de límites de tasa
 
@@ -181,7 +239,7 @@ Todas las respuestas de límite son **429** con el Response Wrapper y la cabecer
 | `POST auth/register`, `auth/login` | instancia (hashing Argon2id) | núcleos de CPU simultáneos y el doble en cola (429 con `Retry-After: 1`); una segunda compuerta interna del hasher responde 503 si la espera supera 5 s | Fijo |
 | `POST auth/logout` | usuario | 60 por minuto (política `users`) | `USERS_RATE_LIMIT_PER_MINUTE` |
 | `GET users/me/get`, `PUT users/me/update` | usuario | 60 por minuto | `USERS_RATE_LIMIT_PER_MINUTE` |
-| `POST pets/create`, `GET pets/get-all`, `GET pets/get-by-id/{id}`, `PUT pets/update/{id}`, `DELETE pets/delete/{id}` | usuario | 60 por minuto; máximo 100 mascotas por propietario | `PETS_RATE_LIMIT_PER_MINUTE` |
+| `POST pets/create`, `GET pets/get-all`, `GET pets/get-by-id/{id}`, `PUT pets/update/{id}`, `DELETE pets/delete/{id}`, `GET pets/get-qr/{id}`, `POST pets/regenerate-qr/{id}` | usuario | 60 por minuto; máximo 100 mascotas por propietario | `PETS_RATE_LIMIT_PER_MINUTE` |
 | `GET health/live`, `GET health/ready` | — | sin límite: sondas del balanceador (`ready` consulta dependencias; riesgo aceptado y revisable) | — |
 | `GET technical/mediator-probe` | — | sin límite: endpoint técnico público temporal (pm-033, P-04) | — |
 | OpenAPI y Scalar | — | solo existen en Development | — |

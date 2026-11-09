@@ -63,8 +63,69 @@ public sealed class InMemoryPetRepository : IPetRepository
         return Task.FromResult(pets.TryGetValue(pet.Id, out var stored) && stored.OwnerId == pet.OwnerId);
     }
 
+    public Task<bool> ReplaceQrOwned(Pet pet, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(pet);
+        return Task.FromResult(pets.TryGetValue(pet.Id, out var stored) && stored.OwnerId == pet.OwnerId);
+    }
+
     public Task<bool> DeleteOwned(Guid petId, Guid ownerId, CancellationToken cancellationToken)
         => Task.FromResult(pets.TryGetValue(petId, out var pet) && pet.OwnerId == ownerId && pets.TryRemove(petId, out _));
+}
+
+/// <summary>Repositorio en memoria de registros del carnet (equivale al filtro por dueño de Atlas).</summary>
+public class InMemoryHealthRecordRepository<TRecord>(Func<IEnumerable<TRecord>, IEnumerable<TRecord>> order)
+    where TRecord : PetMate.Domain.Carnet.HealthRecord
+{
+    private readonly ConcurrentDictionary<Guid, TRecord> records = new();
+
+    public IReadOnlyCollection<TRecord> All => records.Values.ToArray();
+
+    public Task Add(TRecord record, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+        records[record.Id] = record;
+        return Task.CompletedTask;
+    }
+
+    public Task<TRecord?> FindOwned(Guid recordId, Guid ownerId, CancellationToken cancellationToken)
+        => Task.FromResult(records.TryGetValue(recordId, out var record) && record.OwnerId == ownerId ? record : null);
+
+    public Task<IReadOnlyList<TRecord>> ListByPet(Guid petId, Guid ownerId, int skip, int take, CancellationToken cancellationToken)
+        => Task.FromResult<IReadOnlyList<TRecord>>(order(records.Values.Where(r => r.PetId == petId && r.OwnerId == ownerId)).Skip(skip).Take(take).ToArray());
+
+    public Task<long> CountByPet(Guid petId, Guid ownerId, CancellationToken cancellationToken)
+        => Task.FromResult((long)records.Values.Count(r => r.PetId == petId && r.OwnerId == ownerId));
+
+    public Task<bool> DeleteOwned(Guid recordId, Guid ownerId, CancellationToken cancellationToken)
+        => Task.FromResult(records.TryGetValue(recordId, out var record) && record.OwnerId == ownerId && records.TryRemove(recordId, out _));
+
+    public Task<long> DeleteByPet(Guid petId, Guid ownerId, CancellationToken cancellationToken)
+    {
+        var ids = records.Values.Where(r => r.PetId == petId && r.OwnerId == ownerId).Select(r => r.Id).ToArray();
+        return Task.FromResult((long)ids.Count(id => records.TryRemove(id, out _)));
+    }
+
+    public Task<bool> ReplaceOwned(TRecord record, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+        return Task.FromResult(record.CanOwnerModify && records.TryGetValue(record.Id, out var stored) && stored.OwnerId == record.OwnerId);
+    }
+}
+
+public sealed class InMemoryVaccineRepository()
+    : InMemoryHealthRecordRepository<PetMate.Domain.Carnet.Vaccine>(items => items.OrderByDescending(v => v.AppliedOn).ThenByDescending(v => v.Id)), PetMate.Application.Carnet.IVaccineRepository;
+
+public sealed class InMemoryDewormingRepository()
+    : InMemoryHealthRecordRepository<PetMate.Domain.Carnet.Deworming>(items => items.OrderByDescending(d => d.AppliedOn).ThenByDescending(d => d.Id)), PetMate.Application.Carnet.IDewormingRepository;
+
+public sealed class InMemoryWeightRepository()
+    : InMemoryHealthRecordRepository<PetMate.Domain.Carnet.WeightEntry>(items => items.OrderByDescending(w => w.MeasuredOn).ThenByDescending(w => w.Id)), PetMate.Application.Carnet.IWeightRepository;
+
+public sealed class InMemoryAllergyRepository()
+    : InMemoryHealthRecordRepository<PetMate.Domain.Carnet.Allergy>(items => items.OrderBy(a => a.Status).ThenByDescending(a => a.CreatedAtUtc).ThenByDescending(a => a.Id)), PetMate.Application.Carnet.IAllergyRepository
+{
+    public Task<bool> UpdateOwned(PetMate.Domain.Carnet.Allergy allergy, CancellationToken cancellationToken) => ReplaceOwned(allergy, cancellationToken);
 }
 
 /// <summary>Repositorio de usuarios en memoria con unicidad atómica de correo (equivale al índice único de Atlas).</summary>
@@ -99,6 +160,112 @@ public sealed class InMemoryUserRepository : IUserRepository
 }
 
 /// <summary>Repositorio de sesiones en memoria; <c>TryConsumeToken</c> es atómico (lock), como el update condicional de Atlas.</summary>
+/// <summary>Correo falso: guarda los envíos para comprobarlos y puede simular un fallo del proveedor.</summary>
+public sealed class FakeEmailSender : PetMate.Application.Authentication.IEmailSender
+{
+    private readonly List<(string To, string Token)> sent = [];
+
+    public bool Succeeds { get; set; } = true;
+
+    public bool Throws { get; set; }
+
+    public IReadOnlyList<(string To, string Token)> Sent
+    {
+        get
+        {
+            lock (sent)
+            {
+                return [.. sent];
+            }
+        }
+    }
+
+    public Task<bool> SendPasswordReset(string toEmail, string resetToken, CancellationToken cancellationToken)
+    {
+        if (Throws)
+        {
+            throw new InvalidOperationException("proveedor caído");
+        }
+
+        lock (sent)
+        {
+            sent.Add((toEmail, resetToken));
+        }
+
+        return Task.FromResult(Succeeds);
+    }
+}
+
+/// <summary>Tokens de restablecimiento en memoria con consumo atómico.</summary>
+public sealed class InMemoryPasswordResetRepository : PetMate.Application.Authentication.IPasswordResetRepository
+{
+    private readonly object gate = new();
+    private readonly Dictionary<string, (PetMate.Domain.Users.PasswordResetToken Token, bool Used)> byHash = [];
+
+    public int Count
+    {
+        get
+        {
+            lock (gate)
+            {
+                return byHash.Count;
+            }
+        }
+    }
+
+    public string? StoredHashOf(Guid userId)
+    {
+        lock (gate)
+        {
+            return byHash.Values.Where(v => v.Token.UserId == userId).Select(v => v.Token.TokenHash.Value).FirstOrDefault();
+        }
+    }
+
+    public Task Add(PetMate.Domain.Users.PasswordResetToken token, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            byHash[token.TokenHash.Value] = (token, false);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public bool Throws { get; set; }
+
+    public Task InvalidateAllForUser(Guid userId, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        if (Throws)
+        {
+            throw new PetMate.Application.Persistence.PersistenceUnavailableException(new InvalidOperationException("atlas caído"));
+        }
+
+        lock (gate)
+        {
+            foreach (var key in byHash.Where(e => e.Value.Token.UserId == userId && !e.Value.Used).Select(e => e.Key).ToArray())
+            {
+                byHash[key] = (byHash[key].Token, true);
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task<Guid?> TryConsume(RefreshTokenHash tokenHash, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            if (!byHash.TryGetValue(tokenHash.Value, out var entry) || entry.Used || entry.Token.ExpiresAtUtc <= nowUtc)
+            {
+                return Task.FromResult<Guid?>(null);
+            }
+
+            byHash[tokenHash.Value] = (entry.Token, true);
+            return Task.FromResult<Guid?>(entry.Token.UserId);
+        }
+    }
+}
+
 public sealed class InMemorySessionRepository : ISessionRepository
 {
     private readonly object gate = new();
@@ -114,6 +281,21 @@ public sealed class InMemorySessionRepository : ISessionRepository
             {
                 return tokensById.Count;
             }
+        }
+    }
+
+    public Task<IReadOnlyList<Guid>> RevokeAllForUser(Guid userId, DateTime nowUtc, SessionRevocationReason reason, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            var ids = new List<Guid>();
+            foreach (var session in sessions.Values.Where(s => s.UserId == userId && !s.IsRevoked))
+            {
+                session.Revoke(nowUtc, reason);
+                ids.Add(session.Id);
+            }
+
+            return Task.FromResult<IReadOnlyList<Guid>>(ids);
         }
     }
 

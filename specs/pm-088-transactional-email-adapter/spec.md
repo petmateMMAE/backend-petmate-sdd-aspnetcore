@@ -1,6 +1,6 @@
 # Spec — pm-088 transactional-email-adapter
 
-> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.3.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Creado el 2026-11-09
+> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.3.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Creado el 2026-11-09
 
 ## 1. Objetivo
 
@@ -32,7 +32,7 @@ Cada criterio se cita como `pm-088#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T106 | Nueva | Propuesto | Implementar el puerto y el adaptador de envío de correo |
+| T106 | Nueva | Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Implementar el puerto y el adaptador de envío de correo |
 
 Detalle en [task.md](task.md).
 
@@ -42,7 +42,7 @@ Detalle en [task.md](task.md).
 
 ## 7. Aprobación
 
-- [ ] Requisitos y criterios revisados por el usuario.
-- [ ] Constitución cumplida.
-- Revisor/usuario: pendiente.
+- [x] Requisitos y criterios revisados por el usuario.
+- [x] Constitución cumplida.
+- Revisor/usuario: Miguel (usuario), 2026-11-09, aprobación en el chat de la sesión (specs completos del primer hito).
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec.

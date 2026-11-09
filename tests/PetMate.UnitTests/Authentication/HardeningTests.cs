@@ -12,7 +12,7 @@ public sealed class HardeningTests
     private static async Task<AuthTestHarness> WithAccount()
     {
         var stack = new AuthTestHarness();
-        var registered = await stack.Register.Handle(new RegisterCommand("ana@example.com", Password), CancellationToken.None);
+        var registered = await stack.Register.Handle(new RegisterCommand("ana@example.com", Password, "Ana"), CancellationToken.None);
         Assert.True(registered.IsSuccess);
         return stack;
     }
@@ -107,8 +107,8 @@ public sealed class HardeningTests
         var stack = await WithAccount();
         var before = stack.Hasher.HashCalls;
 
-        var duplicate = await stack.Register.Handle(new RegisterCommand("ana@example.com", Password), CancellationToken.None);
-        var fresh = await stack.Register.Handle(new RegisterCommand("nueva@example.com", Password), CancellationToken.None);
+        var duplicate = await stack.Register.Handle(new RegisterCommand("ana@example.com", Password, "Ana"), CancellationToken.None);
+        var fresh = await stack.Register.Handle(new RegisterCommand("nueva@example.com", Password, "Ana"), CancellationToken.None);
 
         Assert.Equal(AuthError.EmailAlreadyRegistered, duplicate.Error);
         Assert.True(fresh.IsSuccess);

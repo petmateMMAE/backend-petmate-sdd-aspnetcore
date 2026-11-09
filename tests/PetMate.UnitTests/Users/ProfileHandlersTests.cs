@@ -13,7 +13,7 @@ public sealed class ProfileHandlersTests
 
     private async Task<User> AddUser(string email)
     {
-        var user = User.RegisterOwner(Email.Create(email), PasswordHash.Create(ValidHash), clock.GetUtcNow().UtcDateTime);
+        var user = User.Register(Email.Create(email), PasswordHash.Create(ValidHash), "Ana", clock.GetUtcNow().UtcDateTime);
         Assert.True(await users.TryAdd(user, CancellationToken.None));
         return user;
     }
@@ -28,8 +28,8 @@ public sealed class ProfileHandlersTests
         Assert.NotNull(profile);
         Assert.Equal(user.Id, profile.Id);
         Assert.Equal("ana@example.com", profile.Email);
-        Assert.Equal(UserRole.Owner, profile.Role);
-        Assert.Null(profile.DisplayName);
+        Assert.Equal(UserRole.User, profile.Role);
+        Assert.Equal("Ana", profile.DisplayName);
         Assert.DoesNotContain(nameof(PasswordHash), typeof(UserProfileResult).GetProperties().Select(p => p.Name));
         Assert.DoesNotContain("ana@example.com", profile.ToString(), StringComparison.Ordinal);
     }
@@ -50,7 +50,7 @@ public sealed class ProfileHandlersTests
         Assert.NotNull(updated);
         Assert.Equal("Ana Pérez", updated.DisplayName);
         Assert.Equal("ana@example.com", updated.Email);
-        Assert.Equal(UserRole.Owner, updated.Role);
+        Assert.Equal(UserRole.User, updated.Role);
         Assert.Equal(created, updated.CreatedAtUtc);
         Assert.Equal(clock.GetUtcNow().UtcDateTime, user.UpdatedAtUtc);
     }
@@ -64,7 +64,7 @@ public sealed class ProfileHandlersTests
         await new UpdateMyProfileHandler(users, clock).Handle(new UpdateMyProfileCommand(ana.Id, "Ana"), CancellationToken.None);
 
         Assert.Equal("Ana", ana.DisplayName);
-        Assert.Null(luis.DisplayName);
+        Assert.Equal("Ana", luis.DisplayName);
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public sealed class ProfileHandlersTests
     {
         var members = typeof(UpdateMyProfileCommand).GetProperties().Select(p => p.Name).ToArray();
 
-        Assert.Equal(["DisplayName", "UserId"], members.OrderBy(name => name, StringComparer.Ordinal));
+        Assert.Equal(["DisplayName", "Phone", "UserId"], members.OrderBy(name => name, StringComparer.Ordinal));
         Assert.Equal("UpdateMyProfileCommand", new UpdateMyProfileCommand(Guid.NewGuid(), "Secreto").ToString());
     }
 }

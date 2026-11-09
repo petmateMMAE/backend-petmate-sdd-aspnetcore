@@ -11,7 +11,7 @@
 
 ### T105 — Informar el negocio asociado en la respuesta de sesión
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-087
 - **Criterios propios:** pm-087#CA-01, pm-087#CA-02, pm-087#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

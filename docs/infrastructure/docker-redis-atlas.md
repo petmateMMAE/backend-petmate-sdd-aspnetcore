@@ -29,6 +29,7 @@
 | `JWT_ACCESS_TOKEN_MINUTES` | API | No | Vida del access token; 1–60, por defecto 15. |
 | `AUTH_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por IP y minuto en register/login/refresh; 1–10000, por defecto 10. |
 | `PETS_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por usuario y minuto en `/api/v1/pets/*`; 1–10000, por defecto 60. |
+| `CARNET_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por usuario y minuto en el carnet (`/api/v1/vaccines`, `dewormings`, `weights`, `allergies`); 1–10000, por defecto 60. |
 | `USERS_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por usuario y minuto en `/api/v1/users/*`; 1–10000, por defecto 60. |
 | `REQUIRE_TRUSTED_PROXIES` | API | No | `true` hace que Production no arranque sin `TRUSTED_PROXIES`; por defecto solo se advierte en el log (el primer despliegue la deja vacía hasta medir las IPs del ingress). |
 | `TRUSTED_PROXIES` | API | No | IPs de proxies confiables separadas por coma. Sin ella, tras un proxy la IP observada es la del proxy y el rate limit agrupa a todos los clientes. |

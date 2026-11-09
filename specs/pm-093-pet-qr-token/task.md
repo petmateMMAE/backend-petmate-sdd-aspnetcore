@@ -11,7 +11,7 @@
 
 ### T111 — Generar el token y el código corto del QR al crear la mascota
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-093
 - **Criterios propios:** pm-093#CA-01, pm-093#CA-02, pm-093#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

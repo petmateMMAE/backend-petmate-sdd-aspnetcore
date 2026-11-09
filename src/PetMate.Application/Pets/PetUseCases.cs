@@ -1,3 +1,4 @@
+using PetMate.Application.Carnet;
 using PetMate.Application.Mediator;
 using PetMate.Application.Pagination;
 using PetMate.Application.Persistence;
@@ -115,13 +116,32 @@ public sealed class UpdateMyPetHandler(IPetRepository pets, TimeProvider timePro
     }
 }
 
-/// <summary>Devuelve <c>false</c> si la mascota no existe o es de otro propietario; en ese caso no se borra nada.</summary>
-public sealed class DeleteMyPetHandler(IPetRepository pets) : IRequestHandler<DeleteMyPetCommand, bool>
+/// <summary>
+/// Devuelve <c>false</c> si la mascota no existe o es de otro propietario; en ese caso no se borra nada. Si existe, borra en
+/// cascada su carnet (pm-104): primero los registros hijos y al final la mascota, que lleva el QR. Cada paso es idempotente: si
+/// uno falla, la mascota sigue existiendo y repetir la eliminación termina el trabajo, de modo que nunca quedan registros
+/// huérfanos de una mascota que ya no existe (pm-104#CA-03).
+/// </summary>
+public sealed class DeleteMyPetHandler(
+    IPetRepository pets,
+    IVaccineRepository vaccines,
+    IDewormingRepository dewormings,
+    IWeightRepository weights,
+    IAllergyRepository allergies) : IRequestHandler<DeleteMyPetCommand, bool>
 {
-    public Task<bool> Handle(DeleteMyPetCommand request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(DeleteMyPetCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        return pets.DeleteOwned(request.PetId, request.OwnerId, cancellationToken);
+        if (await pets.FindOwned(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false) is null)
+        {
+            return false;
+        }
+
+        await vaccines.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
+        await dewormings.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
+        await weights.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
+        await allergies.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
+        return await pets.DeleteOwned(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
     }
 }
 

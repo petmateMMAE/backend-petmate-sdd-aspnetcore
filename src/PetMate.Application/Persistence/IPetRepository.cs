@@ -23,5 +23,8 @@ public interface IPetRepository
     Task<bool> UpdateOwned(Pet pet, CancellationToken cancellationToken);
 
     /// <summary>Elimina físicamente la mascota. Devuelve <c>false</c> si no existe o pertenece a otro propietario.</summary>
+    /// <summary>Guarda el QR nuevo de la mascota; <c>false</c> si no existe o es de otro propietario.</summary>
+    Task<bool> ReplaceQrOwned(Pet pet, CancellationToken cancellationToken);
+
     Task<bool> DeleteOwned(Guid petId, Guid ownerId, CancellationToken cancellationToken);
 }

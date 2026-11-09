@@ -27,4 +27,7 @@ public interface ISessionRepository
 
     /// <summary>Persiste la revocación si la sesión aún no estaba revocada (la primera revocación prevalece).</summary>
     Task Revoke(RefreshSession session, CancellationToken cancellationToken);
+
+    /// <summary>Revoca todas las sesiones activas del usuario (pm-090) y devuelve sus identificadores.</summary>
+    Task<IReadOnlyList<Guid>> RevokeAllForUser(Guid userId, DateTime nowUtc, SessionRevocationReason reason, CancellationToken cancellationToken);
 }

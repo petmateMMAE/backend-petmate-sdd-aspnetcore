@@ -105,7 +105,7 @@ public sealed class RequestLoggingTests
         using var factory = new LoggingFactory();
         using var client = factory.CreateClient();
 
-        using var register = await Post(client, "/api/v1/auth/register", new { email = Email, password = Password }, null);
+        using var register = await Post(client, "/api/v1/auth/register", new { displayName = "Ana", email = Email, password = Password }, null);
         Assert.Equal(HttpStatusCode.Created, register.StatusCode);
         using var wrong = await Post(client, "/api/v1/auth/login", new { email = Email, password = "otra-contraseña-123" }, null);
         using var login = await Post(client, "/api/v1/auth/login", new { email = Email, password = Password }, null);
@@ -153,7 +153,7 @@ public sealed class RequestLoggingTests
     {
         using var factory = new LoggingFactory();
         using var client = factory.CreateClient();
-        using var register = await Post(client, "/api/v1/auth/register", new { email = "evento@example.com", password = Password }, null);
+        using var register = await Post(client, "/api/v1/auth/register", new { displayName = "Ana", email = "evento@example.com", password = Password }, null);
         Assert.Equal(HttpStatusCode.Created, register.StatusCode);
 
         for (var i = 0; i < 6; i++)

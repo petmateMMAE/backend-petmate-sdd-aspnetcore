@@ -38,6 +38,57 @@ public sealed class PetPersistenceIntegrationTests
     }
 
     [RequiresEnvironmentFact(Uri, Database)]
+    public async Task Qr_is_persisted_replaced_only_by_the_owner_and_both_values_are_unique()
+    {
+        await using var context = await MongoTestContext.Create();
+        var owner = Guid.NewGuid();
+        var pet = NewPet(owner);
+        await context.Pets.Add(pet, CancellationToken.None);
+
+        var stored = await context.Pets.FindOwned(pet.Id, owner, CancellationToken.None);
+        Assert.Equal(pet.Qr, stored!.Qr);
+
+        stored.RegenerateQr(DateTime.UtcNow);
+        var forged = (Pet)typeof(Pet).GetMethod("Restore", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
+            .Invoke(null, [pet.Id, Guid.NewGuid(), new PetDetails("X", "Perro", null, null, PetSex.Unknown, null), pet.CreatedAtUtc, DateTime.UtcNow, PetQr.Generate()])!;
+        Assert.False(await context.Pets.ReplaceQrOwned(forged, CancellationToken.None));
+        Assert.True(await context.Pets.ReplaceQrOwned(stored, CancellationToken.None));
+        Assert.Equal(stored.Qr, (await context.Pets.FindOwned(pet.Id, owner, CancellationToken.None))!.Qr);
+        Assert.NotEqual(pet.Qr, stored.Qr);
+
+        // Índices únicos: dos mascotas con el mismo token o el mismo código no pueden coexistir.
+        var other = NewPet(owner, "Otra");
+        await context.Pets.Add(other, CancellationToken.None);
+        var collection = context.Database.GetCollection<BsonDocument>(context.Names.Pets);
+        await Assert.ThrowsAsync<MongoWriteException>(() => collection.UpdateOneAsync(
+            Builders<BsonDocument>.Filter.Eq("_id", new BsonBinaryData(other.Id, GuidRepresentation.Standard)),
+            Builders<BsonDocument>.Update.Set("qrToken", stored.Qr.Token)));
+        await Assert.ThrowsAsync<MongoWriteException>(() => collection.UpdateOneAsync(
+            Builders<BsonDocument>.Filter.Eq("_id", new BsonBinaryData(other.Id, GuidRepresentation.Standard)),
+            Builders<BsonDocument>.Update.Set("qrCode", stored.Qr.Code)));
+    }
+
+    [RequiresEnvironmentFact(Uri, Database)]
+    public async Task A_pet_created_before_the_qr_receives_one_the_first_time_it_is_read_and_keeps_it()
+    {
+        await using var context = await MongoTestContext.Create();
+        var owner = Guid.NewGuid();
+        var pet = NewPet(owner);
+        await context.Pets.Add(pet, CancellationToken.None);
+        var collection = context.Database.GetCollection<BsonDocument>(context.Names.Pets);
+        await collection.UpdateOneAsync(
+            Builders<BsonDocument>.Filter.Eq("_id", new BsonBinaryData(pet.Id, GuidRepresentation.Standard)),
+            Builders<BsonDocument>.Update.Unset("qrToken").Unset("qrCode"));
+
+        var first = await context.Pets.FindOwned(pet.Id, owner, CancellationToken.None);
+        var second = await context.Pets.FindOwned(pet.Id, owner, CancellationToken.None);
+
+        Assert.True(PetQr.IsWellFormed(first!.Qr.Token, first.Qr.Code));
+        Assert.NotEqual(pet.Qr, first.Qr);
+        Assert.Equal(first.Qr, second!.Qr);
+    }
+
+    [RequiresEnvironmentFact(Uri, Database)]
     public async Task Another_owner_cannot_read_update_or_delete_the_pet()
     {
         await using var context = await MongoTestContext.Create();
@@ -50,7 +101,7 @@ public sealed class PetPersistenceIntegrationTests
         Assert.False(await context.Pets.DeleteOwned(pet.Id, intruder, CancellationToken.None));
         // Mascota con el mismo Id pero otro propietario (Restore es interno del dominio; se invoca por reflexión solo en la prueba).
         var restore = typeof(Pet).GetMethod("Restore", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
-        var forged = (Pet)restore.Invoke(null, [pet.Id, intruder, new PetDetails("Robado", "Perro", null, null, PetSex.Unknown, null), pet.CreatedAtUtc, DateTime.UtcNow])!;
+        var forged = (Pet)restore.Invoke(null, [pet.Id, intruder, new PetDetails("Robado", "Perro", null, null, PetSex.Unknown, null), pet.CreatedAtUtc, DateTime.UtcNow, null])!;
         Assert.False(await context.Pets.UpdateOwned(forged, CancellationToken.None));
 
         var stillThere = await context.Pets.FindOwned(pet.Id, owner, CancellationToken.None);

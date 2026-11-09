@@ -12,7 +12,7 @@ public sealed class ThrottlingTests
     private const string Wrong = "otra-contraseña-123";
 
     private static async Task Register(AuthTestHarness stack, string email = "ana@example.com")
-        => Assert.True((await stack.Register.Handle(new RegisterCommand(email, Password), CancellationToken.None)).IsSuccess);
+        => Assert.True((await stack.Register.Handle(new RegisterCommand(email, Password, "Ana"), CancellationToken.None)).IsSuccess);
 
     private static Task<AuthResult<AuthTokensResult>> Login(AuthTestHarness stack, string email, string password)
         => stack.Login.Handle(new LoginCommand(email, password), CancellationToken.None);
@@ -139,8 +139,8 @@ public sealed class ThrottlingTests
     public async Task Refresh_is_limited_per_user_to_30_attempts_per_window()
     {
         var stack = new AuthTestHarness();
-        var current = (await stack.Register.Handle(new RegisterCommand("ana@example.com", Password), CancellationToken.None)).Value!;
-        var other = (await stack.Register.Handle(new RegisterCommand("luis@example.com", Password), CancellationToken.None)).Value!;
+        var current = (await stack.Register.Handle(new RegisterCommand("ana@example.com", Password, "Ana"), CancellationToken.None)).Value!;
+        var other = (await stack.Register.Handle(new RegisterCommand("luis@example.com", Password, "Ana"), CancellationToken.None)).Value!;
 
         for (var i = 0; i < 30; i++)
         {
@@ -275,7 +275,7 @@ public sealed class ThrottlingTests
         var register = new RegisterHandler(stack.Users, stack.Hasher, issuer, stack.Clock, rejecting);
 
         var loginResult = await login.Handle(new LoginCommand("ana@example.com", Password), CancellationToken.None);
-        var registerResult = await register.Handle(new RegisterCommand("nuevo@example.com", Password), CancellationToken.None);
+        var registerResult = await register.Handle(new RegisterCommand("nuevo@example.com", Password, "Ana"), CancellationToken.None);
 
         Assert.Equal(AuthError.TooManyRequests, loginResult.Error);
         Assert.Equal(TimeSpan.FromSeconds(1), loginResult.RetryAfter);

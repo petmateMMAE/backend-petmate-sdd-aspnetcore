@@ -25,7 +25,7 @@ public static class PetValidation
 
         if (!Pet.IsValidSpecies(details.Species))
         {
-            failures.Add(new ValidationFailure("species", $"La especie es obligatoria y debe tener de 1 a {Pet.MaxSpeciesLength} caracteres."));
+            failures.Add(new ValidationFailure("species", "La especie debe ser Perro o Gato."));
         }
 
         if (!Pet.IsValidBreed(details.Breed))

@@ -35,7 +35,7 @@ check "GET /api/v1/technical/mediator-probe" 200 "$(req GET /api/v1/technical/me
 
 EMAIL="smoke-$(date +%s)-$RANDOM@example.com"
 PASSWORD="Smk-$(openssl rand -hex 12)"
-BODY=$(jq -nc --arg e "$EMAIL" --arg p "$PASSWORD" '{email:$e, password:$p}')
+BODY=$(jq -nc --arg e "$EMAIL" --arg p "$PASSWORD" '{displayName:"Smoke", email:$e, password:$p}')
 
 check "POST /api/v1/auth/register" 201 "$(req POST /api/v1/auth/register "$BODY")"
 check "POST /api/v1/auth/login" 200 "$(req POST /api/v1/auth/login "$BODY")"

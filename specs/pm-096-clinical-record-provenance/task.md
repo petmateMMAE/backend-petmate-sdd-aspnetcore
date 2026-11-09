@@ -11,7 +11,7 @@
 
 ### T114 — Modelar el origen de los registros clínicos
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-096
 - **Criterios propios:** pm-096#CA-01, pm-096#CA-02, pm-096#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

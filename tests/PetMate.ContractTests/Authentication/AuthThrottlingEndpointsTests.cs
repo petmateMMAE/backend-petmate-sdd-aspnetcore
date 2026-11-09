@@ -24,7 +24,7 @@ public sealed class AuthThrottlingEndpointsTests
     {
         using var factory = new AuthFlowFactory();
         using var client = factory.CreateClient();
-        using var registered = await Post(client, "register", new { email = "ana@example.com", password = Password });
+        using var registered = await Post(client, "register", new { displayName = "Ana", email = "ana@example.com", password = Password });
         Assert.Equal(HttpStatusCode.Created, registered.StatusCode);
 
         for (var i = 0; i < 5; i++)
@@ -51,7 +51,7 @@ public sealed class AuthThrottlingEndpointsTests
     {
         using var factory = new AuthFlowFactory();
         using var client = factory.CreateClient();
-        using var registered = await Post(client, "register", new { email = "ana@example.com", password = Password });
+        using var registered = await Post(client, "register", new { displayName = "Ana", email = "ana@example.com", password = Password });
 
         var known = new List<HttpStatusCode>();
         var unknown = new List<HttpStatusCode>();
@@ -73,8 +73,8 @@ public sealed class AuthThrottlingEndpointsTests
     {
         using var factory = new AuthFlowFactory();
         using var client = factory.CreateClient();
-        using var ana = await Post(client, "register", new { email = "ana@example.com", password = Password });
-        using var luis = await Post(client, "register", new { email = "luis@example.com", password = Password });
+        using var ana = await Post(client, "register", new { displayName = "Ana", email = "ana@example.com", password = Password });
+        using var luis = await Post(client, "register", new { displayName = "Ana", email = "luis@example.com", password = Password });
         for (var i = 0; i < 6; i++)
         {
             using var failure = await Post(client, "login", new { email = "ana@example.com", password = "otra-contraseña-123" });
@@ -91,7 +91,7 @@ public sealed class AuthThrottlingEndpointsTests
     {
         using var factory = new AuthFlowFactory();
         using var client = factory.CreateClient();
-        using var registered = await Post(client, "register", new { email = "ana@example.com", password = Password });
+        using var registered = await Post(client, "register", new { displayName = "Ana", email = "ana@example.com", password = Password });
         factory.Throttle.Fail = true;
 
         using var response = await Post(client, "login", new { email = "ana@example.com", password = Password });
@@ -125,7 +125,7 @@ public sealed class AuthThrottlingEndpointsTests
 
     private static HttpClient Client(AuthFlowFactory factory, Guid userId)
     {
-        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(userId, UserRole.Owner);
+        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(userId, UserRole.User);
         var client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
         return client;

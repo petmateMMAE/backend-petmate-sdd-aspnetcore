@@ -40,6 +40,11 @@ internal sealed class MongoTestContext : IAsyncDisposable
         Users = new MongoUserRepository(database, names);
         Sessions = new MongoSessionRepository(database, names);
         Pets = new MongoPetRepository(database, names);
+        Vaccines = new MongoVaccineRepository(database, names);
+        Dewormings = new MongoDewormingRepository(database, names);
+        Weights = new MongoWeightRepository(database, names);
+        Allergies = new MongoAllergyRepository(database, names);
+        PasswordResets = new MongoPasswordResetRepository(database, names);
         Indexes = new MongoIndexInitializer(database, names);
     }
 
@@ -50,6 +55,16 @@ internal sealed class MongoTestContext : IAsyncDisposable
     public MongoSessionRepository Sessions { get; }
 
     public MongoPetRepository Pets { get; }
+
+    public MongoVaccineRepository Vaccines { get; }
+
+    public MongoDewormingRepository Dewormings { get; }
+
+    public MongoWeightRepository Weights { get; }
+
+    public MongoAllergyRepository Allergies { get; }
+
+    public MongoPasswordResetRepository PasswordResets { get; }
 
     public MongoIndexInitializer Indexes { get; }
 
@@ -79,7 +94,7 @@ internal sealed class MongoTestContext : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        foreach (var name in new[] { Names.Users, Names.Sessions, Names.Tokens, Names.Pets })
+        foreach (var name in new[] { Names.Users, Names.Sessions, Names.Tokens, Names.Pets, Names.Vaccines, Names.Dewormings, Names.Weights, Names.Allergies, Names.PasswordResets })
         {
             await database.DropCollectionAsync(name);
         }

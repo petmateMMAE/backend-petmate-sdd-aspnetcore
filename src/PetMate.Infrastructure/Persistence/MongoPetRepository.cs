@@ -31,7 +31,7 @@ public sealed class MongoPetRepository : IPetRepository
         try
         {
             var document = await pets.Find(Owned(petId, ownerId)).FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
-            return document is null ? null : MongoMapping.ToDomain(document);
+            return document is null ? null : MongoMapping.ToDomain(await CompleteQr(document, cancellationToken).ConfigureAwait(false));
         }
         catch (Exception exception) when (exception is MongoException or TimeoutException or DomainException or FormatException)
         {
@@ -51,7 +51,13 @@ public sealed class MongoPetRepository : IPetRepository
                 .Skip(skip)
                 .Limit(take)
                 .ToListAsync(cancellationToken).ConfigureAwait(false);
-            return documents.Select(MongoMapping.ToDomain).ToArray();
+            var result = new List<Pet>(documents.Count);
+            foreach (var document in documents)
+            {
+                result.Add(MongoMapping.ToDomain(await CompleteQr(document, cancellationToken).ConfigureAwait(false)));
+            }
+
+            return result;
         }
         catch (Exception exception) when (exception is MongoException or TimeoutException or DomainException or FormatException)
         {
@@ -81,10 +87,47 @@ public sealed class MongoPetRepository : IPetRepository
         return result.MatchedCount == 1;
     }
 
+    public async Task<bool> ReplaceQrOwned(Pet pet, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(pet);
+        var update = Builders<PetDocument>.Update
+            .Set(item => item.QrToken, pet.Qr.Token)
+            .Set(item => item.QrCode, pet.Qr.Code)
+            .Set(item => item.UpdatedAtUtc, pet.UpdatedAtUtc);
+        var result = await Execute(() => pets.UpdateOneAsync(Owned(pet.Id, pet.OwnerId), update, cancellationToken: cancellationToken))
+            .ConfigureAwait(false);
+        return result.MatchedCount == 1;
+    }
+
     public async Task<bool> DeleteOwned(Guid petId, Guid ownerId, CancellationToken cancellationToken)
     {
         var result = await Execute(() => pets.DeleteOneAsync(Owned(petId, ownerId), cancellationToken)).ConfigureAwait(false);
         return result.DeletedCount == 1;
+    }
+
+    // Mascotas creadas antes del QR (pm-093): se les asigna uno al leerlas. El filtro por qrToken nulo evita que dos lecturas
+    // simultáneas pisen el valor; si otra lectura ganó, se usa el que ya quedó guardado.
+    private async Task<PetDocument> CompleteQr(PetDocument document, CancellationToken cancellationToken)
+    {
+        if (PetQr.IsWellFormed(document.QrToken, document.QrCode))
+        {
+            return document;
+        }
+
+        var qr = PetQr.Generate();
+        var filter = Builders<PetDocument>.Filter.And(
+            Builders<PetDocument>.Filter.Eq(item => item.Id, document.Id),
+            Builders<PetDocument>.Filter.Eq(item => item.QrToken, null));
+        var update = Builders<PetDocument>.Update.Set(item => item.QrToken, qr.Token).Set(item => item.QrCode, qr.Code);
+        var result = await pets.UpdateOneAsync(filter, update, cancellationToken: cancellationToken).ConfigureAwait(false);
+        if (result.ModifiedCount == 1)
+        {
+            document.QrToken = qr.Token;
+            document.QrCode = qr.Code;
+            return document;
+        }
+
+        return await pets.Find(Builders<PetDocument>.Filter.Eq(item => item.Id, document.Id)).FirstAsync(cancellationToken).ConfigureAwait(false);
     }
 
     private static FilterDefinition<PetDocument> Owned(Guid petId, Guid ownerId)

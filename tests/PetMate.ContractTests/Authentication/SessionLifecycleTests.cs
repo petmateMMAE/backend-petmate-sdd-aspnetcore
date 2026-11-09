@@ -24,7 +24,7 @@ public sealed class SessionLifecycleTests
         using var client = factory.CreateClient();
 
         // Dos sesiones del mismo usuario: la del registro (A) y un segundo inicio de sesión (B).
-        var a = Tokens(await Post(client, "register", new { email = "ana@example.com", password = Password }, HttpStatusCode.Created));
+        var a = Tokens(await Post(client, "register", new { displayName = "Ana", email = "ana@example.com", password = Password }, HttpStatusCode.Created));
         var b = Tokens(await Post(client, "login", new { email = "ana@example.com", password = Password }, HttpStatusCode.OK));
         Assert.NotEqual(a.Refresh, b.Refresh);
         Assert.Equal(HttpStatusCode.OK, await GetProfile(client, a.Access));
@@ -65,8 +65,8 @@ public sealed class SessionLifecycleTests
     {
         using var factory = new AuthFlowFactory();
         using var client = factory.CreateClient();
-        var ana = Tokens(await Post(client, "register", new { email = "ana@example.com", password = Password }, HttpStatusCode.Created));
-        var luis = Tokens(await Post(client, "register", new { email = "luis@example.com", password = Password }, HttpStatusCode.Created));
+        var ana = Tokens(await Post(client, "register", new { displayName = "Ana", email = "ana@example.com", password = Password }, HttpStatusCode.Created));
+        var luis = Tokens(await Post(client, "register", new { displayName = "Ana", email = "luis@example.com", password = Password }, HttpStatusCode.Created));
 
         // Ana no puede cerrar la sesión de Luis con su propio token ni con el refresh token de Luis.
         await Post(client, "logout", new { refreshToken = luis.Refresh }, HttpStatusCode.Forbidden, ana.Access);

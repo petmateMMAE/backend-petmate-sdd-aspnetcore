@@ -25,8 +25,8 @@ public sealed class PetLimitsTests
     public async Task Create_at_the_maximum_per_owner_returns_409_wrapper_and_creates_nothing_more()
     {
         using var factory = new AuthFlowFactory();
-        using var ana = Client(factory, Guid.NewGuid(), UserRole.Owner);
-        using var luis = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var ana = Client(factory, Guid.NewGuid(), UserRole.User);
+        using var luis = Client(factory, Guid.NewGuid(), UserRole.User);
         for (var i = 0; i < PetLimits.MaxPetsPerOwner; i++)
         {
             using var created = await Post(ana, ValidBody);
@@ -52,8 +52,8 @@ public sealed class PetLimitsTests
     public async Task Pets_endpoints_are_throttled_per_user_with_429_wrapper_and_retry_after()
     {
         using var factory = new AuthFlowFactory(petsRateLimitPerMinute: 3);
-        using var ana = Client(factory, Guid.NewGuid(), UserRole.Owner);
-        using var luis = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var ana = Client(factory, Guid.NewGuid(), UserRole.User);
+        using var luis = Client(factory, Guid.NewGuid(), UserRole.User);
 
         for (var i = 0; i < 3; i++)
         {
@@ -78,7 +78,7 @@ public sealed class PetLimitsTests
     public async Task A_body_over_16_KB_is_rejected_with_413_wrapper_before_it_is_read(int size)
     {
         using var factory = new AuthFlowFactory();
-        using var client = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
         var body = "{\"name\":\"" + new string('a', size) + "\",\"species\":\"Perro\",\"sex\":\"Male\"}";
 
         using var response = await Post(client, body);
@@ -94,7 +94,7 @@ public sealed class PetLimitsTests
     public async Task An_oversized_update_body_is_rejected_with_413_and_changes_nothing()
     {
         using var factory = new AuthFlowFactory();
-        using var client = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
         using var created = await Post(client, ValidBody);
         using var createdDoc = JsonDocument.Parse(await created.Content.ReadAsStringAsync());
         var id = createdDoc.RootElement.GetProperty("data").GetProperty("id").GetString();
@@ -112,7 +112,7 @@ public sealed class PetLimitsTests
     public async Task A_body_just_under_16_KB_still_reaches_validation()
     {
         using var factory = new AuthFlowFactory();
-        using var client = Client(factory, Guid.NewGuid(), UserRole.Owner);
+        using var client = Client(factory, Guid.NewGuid(), UserRole.User);
         var body = "{\"name\":\"" + new string('a', 16 * 1024 - 100) + "\",\"species\":\"Perro\",\"sex\":\"Male\"}";
 
         using var response = await Post(client, body);

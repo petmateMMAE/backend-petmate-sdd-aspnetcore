@@ -11,7 +11,7 @@
 
 ### T108 — Restablecer la contraseña con el enlace
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-090
 - **Criterios propios:** pm-090#CA-01, pm-090#CA-02, pm-090#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.
