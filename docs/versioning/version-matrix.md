@@ -15,12 +15,13 @@
 
 | Elemento | Formato | Ejemplo |
 |---|---|---|
-| Etiqueta Git (la crea el CD al terminar bien) | `api-vX.Y.Z` | `api-v0.1.0` |
+| Etiqueta Git (solo si una persona lo pide al lanzar el pipeline a mano con `create_tag`) | `api-vX.Y.Z` | `api-v0.1.0` |
 | Imagen en ACR (inmutable) | `petmate-api:X.Y.Z-<sha7>` | `petmate-api:0.1.0-4f9bb02` |
 | Revisión de Container Apps | `petmate-api--vX-Y-Z-<run>` | `petmate-api--v0-1-0-12` |
 | Variable en el contenedor | `PETMATE_VERSION=X.Y.Z` | `0.1.0` |
 
-- La etiqueta solo se crea sobre un commit de `main` que pasó el pipeline (`.github/workflows/pipeline.yml`: puerta de calidad, imagen, despliegue y prueba de humo). La autorización expresa (pm-059 CA-02) es la acción humana que lleva el commit a `main` (merge o push) o que lanza `workflow_dispatch`; un pull request nunca crea etiquetas ni despliega.
+- La etiqueta solo se crea sobre un commit de `main` que pasó el pipeline (`.github/workflows/pipeline.yml`: puerta de calidad, imagen, despliegue y prueba de humo). **La autorización expresa (pm-059 CA-02, decisión del usuario del 2026-11-08) es exclusivamente lanzar el pipeline a mano (`workflow_dispatch`) con la casilla `create_tag` marcada**: el merge o push a `main` despliega pero no etiqueta, y un pull request nunca etiqueta ni despliega. Con `create_tag` la versión debe coincidir con el archivo `VERSION` (se comprueba antes de desplegar). Si la etiqueta ya existe no se modifica; cualquier otro fallo al crearla o subirla hace fallar el paso.
+- `PETMATE_VERSION` la fija el CD en cada despliegue; Terraform la define con `var.api_version` y su `ignore_changes` solo protege la imagen, así que un `terraform apply` posterior puede devolverla al valor de `api_version`: mantener `api_version` alineada con `VERSION` antes de aplicar infraestructura.
 - La imagen se bloquea contra escritura y borrado al publicarse (`az acr repository update --write-enabled false`).
 - El CD (job `deploy` de `.github/workflows/pipeline.yml`) escribe en el resumen del job la URL, la imagen y las réplicas.
 

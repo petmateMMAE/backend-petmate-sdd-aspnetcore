@@ -343,7 +343,7 @@
 
 - **Estado:** verificadas y en `En progreso`; falta revisión independiente y aprobación humana. T012 y T067 sin cambios.
 - **Cambios:** `check-sdd.ps1` valida CA duplicados, Tasks con más de un Spec principal y trazabilidad completa por criterio; nuevo `check-sdd.tests.ps1` (8 casos) y su paso en el job `sdd-integrity`; resumen de la puerta de calidad sin el conteo fijo de endpoints; `version-matrix.md` corregida (la etiqueta la crea el CD).
-- **Decisiones pendientes del usuario:** (1) aceptar el merge/push a `main` como autorización expresa de la etiqueta (T071). El umbral NuGet quedó igualado a High en local y CI (T066). La de Trivy (T069) quedó resuelta el mismo día (ver abajo).
+- **Decisiones pendientes del usuario:** (1) aceptar el merge/push a `main` como autorización expresa de la etiqueta (T071). _[Resuelta el 2026-11-08: el usuario eligió la opción 2, la etiqueta solo con lanzamiento manual y `create_tag`.]_ El umbral NuGet quedó igualado a High en local y CI (T066). La de Trivy (T069) quedó resuelta el mismo día (ver abajo).
 - **Limitación:** los cambios de `pipeline.yml` no se han ejecutado en GitHub porque no se ha hecho push.
 
 ## Cierres y endurecimiento de la imagen (2026-11-08)
@@ -365,7 +365,7 @@
 ## Cierres de T022 y T066 (2026-11-08)
 
 - **T022** (pm-033) y **T066** (pm-055) cerradas con aprobación humana, sin revisión independiente; pm-033 `Cerrado`. pm-055 sigue `En progreso` por T067 (ramas protegidas, requiere autorización expresa).
-- **Pendiente:** T071 (interpretación de la autorización de etiquetas) y la primera ejecución en GitHub de los cambios de `pipeline.yml` (imagen chiseled, pruebas negativas del gate SDD).
+- **Pendiente:** T071 (interpretación de la autorización de etiquetas; resuelta el 2026-11-08, ver la sección de T071) y la primera ejecución en GitHub de los cambios de `pipeline.yml` (imagen chiseled, pruebas negativas del gate SDD).
 
 ## Specs aprobados: pm-047, pm-041, pm-045 (2026-11-08)
 
@@ -501,3 +501,13 @@ Aprobados por el usuario (H7, H3, H8 opción A; H4 opción B; H6 A+B+C) y regist
 ## Aprobación de T098 a T102 (2026-11-08)
 
 - El usuario aprobó las cinco Tasks (H7, H8, H6, H3, H4). **No hubo revisión independiente** de estos cambios; es la brecha a recordar. Specs pm-028, pm-029, pm-031, pm-034 y pm-036 «Verificado».
+
+## T071 — autorización de la etiqueta de versión (2026-11-08)
+
+- El usuario eligió la **opción 2**: el merge a `main` despliega pero no etiqueta; la etiqueta `api-vX.Y.Z` solo se crea al lanzar el pipeline a mano con la casilla `create_tag`. Cambio en `.github/workflows/pipeline.yml` (entrada `create_tag`, condición del paso) y `ReleaseTagAuthorizationTests`.
+- **Límite:** no se ha ejecutado en GitHub; la primera ejecución real del paso queda pendiente. Falta revisión independiente y aprobación humana de T071.
+- **Revisión independiente de T071 (2026-11-08): apto con observaciones.** Corregido: documentos que decían que el merge etiqueta, entrada `version` por `env`, paso de etiqueta sin ocultar errores, versión = `VERSION` con `create_tag` y pruebas más estrictas (Security 185). Pendiente: aprobación humana de T071; el riesgo de `terraform apply` sobre `PETMATE_VERSION` queda documentado.
+
+## T071 cerrada (2026-11-08)
+
+- Aprobada y cerrada por el usuario tras la revisión independiente (apto con observaciones, corregidas). Spec pm-059 «Verificado». **Límite:** el pipeline no ha corrido en GitHub con estos cambios; la primera ejecución real del paso de etiqueta (y de la entrada `create_tag`) está pendiente. Riesgo documentado: `terraform apply` puede revertir `PETMATE_VERSION`.

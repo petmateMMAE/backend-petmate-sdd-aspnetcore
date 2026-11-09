@@ -253,9 +253,9 @@
 | pm-057#CA-02 | T069 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-057-container-image-scan/checklists/gates.md) |
 | pm-058#CA-01 | T070 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-058-sbom-generation/checklists/gates.md) |
 | pm-058#CA-02 | T070 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-058-sbom-generation/checklists/gates.md) |
-| pm-059#CA-01 | T071 | Nueva | En progreso | [gates](pm-059-release-versioning/checklists/gates.md) |
-| pm-059#CA-02 | T071 | Nueva | En progreso | [gates](pm-059-release-versioning/checklists/gates.md) |
-| pm-059#CA-03 | T071 | Nueva | En progreso | [gates](pm-059-release-versioning/checklists/gates.md) |
+| pm-059#CA-01 | T071 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; primera ejecución real en GitHub pendiente) | [gates](pm-059-release-versioning/checklists/gates.md) |
+| pm-059#CA-02 | T071 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; primera ejecución real en GitHub pendiente) | [gates](pm-059-release-versioning/checklists/gates.md) |
+| pm-059#CA-03 | T071 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; primera ejecución real en GitHub pendiente) | [gates](pm-059-release-versioning/checklists/gates.md) |
 | pm-060#CA-01 | T072 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
 | pm-060#CA-02 | T072 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
 | pm-060#CA-03 | T072 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |

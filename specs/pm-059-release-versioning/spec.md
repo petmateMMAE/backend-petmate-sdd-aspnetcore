@@ -1,6 +1,6 @@
 # Spec — pm-059 release-versioning
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L5 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Verificado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L5 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -31,7 +31,7 @@ Cada criterio se cita como `pm-059#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T071 | Nueva | En progreso | Definir el versionado de releases |
+| T071 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; primera ejecución real en GitHub pendiente) | Definir el versionado de releases |
 
 Detalle en [task.md](task.md).
 
