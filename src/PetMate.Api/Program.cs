@@ -25,6 +25,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
 
+if (app.Environment.IsProduction() && string.IsNullOrWhiteSpace(app.Configuration["TRUSTED_PROXIES"]))
+{
+    PetMate.Api.Configuration.StartupDiagnostics.MissingTrustedProxies(app.Logger);
+}
+
 if (app.Environment.IsDevelopment() && app.Services.GetRequiredService<PetMate.Infrastructure.Security.JwtOptions>().UsesPlaceholderKey)
 {
     PetMate.Api.Configuration.StartupDiagnostics.PlaceholderSigningKey(app.Logger);

@@ -1,6 +1,6 @@
 # Spec — pm-061 api-docs-contract-sync
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L5 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Verificado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L5 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -33,9 +33,9 @@ Cada criterio se cita como `pm-061#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T024 | Histórica | En progreso (verificada con evidencia; pendiente de aprobación humana) | Contratos y documentación de auth |
-| T039 | Histórica | En progreso (verificada con evidencia; pendiente de aprobación humana) | Pruebas de contrato y documentación |
-| T073 | Nueva | En progreso (implementada y verificada; pendiente de aprobación humana) | Sincronizar contratos, catálogo y OpenAPI |
+| T024 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Contratos y documentación de auth |
+| T039 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas de contrato y documentación |
+| T073 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | Sincronizar contratos, catálogo y OpenAPI |
 
 Detalle en [task.md](task.md).
 

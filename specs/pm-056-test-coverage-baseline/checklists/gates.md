@@ -14,5 +14,5 @@
 | Suites | Unit 188/188, Security 177/177, Contract 188/188, Integration 56 (34 pasan y 22 se omiten sin contraseñas reales de Redis; las 56 pasaron con los Redis desechables en la corrida previa) | Mismo contenedor, repositorio en solo lectura, sin `.env` salvo la corrida de Atlas |
 | Cobertura medida | 93.7 % total de líneas | `python scripts/coverage-merge.py <dir>` sobre los informes de las suites |
 - Limitaciones: Solo cobertura de líneas (coverlet no usa ramas aquí); las pruebas de Redis se omiten sin contraseñas reales (RedisAuthAttemptThrottle 2.4 % en esta corrida, cubierto con Redis desechable el 2026-11-08); el 100 % no es objetivo; el umbral no está en el gate de CI.
-- [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de las Tasks de este Spec.
+- [x] Revisión independiente (2026-11-08): subagentes de solo lectura, seguridad (apto con observaciones) y trazabilidad (consistente con observaciones); ver `Memoria.md`. Hallazgos corregidos o registrados.
+- [x] Aprobación humana de las Tasks de este Spec (2026-11-08).

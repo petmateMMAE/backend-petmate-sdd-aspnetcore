@@ -139,6 +139,46 @@ public sealed class RequestLoggingTests
         }
     }
 
+    [Trait("Endpoint", "transversal")]
+    [Theory]
+    [InlineData("abcdefgh\n")]
+    [InlineData("abcdefgh\r\nSet-Cookie: x=1")]
+    [InlineData("abcdefgh,otro-valor-1")]
+    public void A_correlation_id_with_line_breaks_or_extra_values_is_never_accepted(string supplied)
+        => Assert.NotEqual(supplied, PetMate.Api.Middleware.RequestLoggingMiddleware.ResolveCorrelationId(supplied));
+
+    [Trait("Endpoint", "auth-login")]
+    [Fact]
+    public async Task Failed_logins_lockouts_and_rejected_refreshes_are_logged_as_security_events_without_pii()
+    {
+        using var factory = new LoggingFactory();
+        using var client = factory.CreateClient();
+        using var register = await Post(client, "/api/v1/auth/register", new { email = "evento@example.com", password = Password }, null);
+        Assert.Equal(HttpStatusCode.Created, register.StatusCode);
+
+        for (var i = 0; i < 6; i++)
+        {
+            using var failure = await Post(client, "/api/v1/auth/login", new { email = "evento@example.com", password = "otra-contraseña-123" }, null);
+        }
+
+        using var refresh = await Post(client, "/api/v1/auth/refresh", new { refreshToken = string.Concat("token-que-no", "-existe-0123456789") }, null);
+
+        var events = factory.Entries.Where(e => e.Category.EndsWith("AuthController", StringComparison.Ordinal)).ToList();
+        Assert.Equal(5, events.Count(e => e.Message.Contains("inicio de sesión fallido", StringComparison.Ordinal)));
+        Assert.Single(events, e => e.Message.Contains("limitado por exceso de intentos", StringComparison.Ordinal));
+        Assert.Single(events, e => e.Message.Contains("refresh rechazado", StringComparison.Ordinal));
+        Assert.All(events, e => Assert.Equal(LogLevel.Warning, e.Level));
+        var accounts = events.Where(e => e.State.ContainsKey("Account")).Select(e => e.State["Account"]).Distinct().ToList();
+        Assert.Single(accounts);
+        Assert.Matches("^[0-9a-f]{12}$", accounts[0]);
+        foreach (var entry in events)
+        {
+            Assert.DoesNotContain("evento@example.com", entry.AllText, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("token-que-no-existe", entry.AllText, StringComparison.Ordinal);
+            Assert.DoesNotContain(Password, entry.AllText, StringComparison.Ordinal);
+        }
+    }
+
     private static (string Access, string Refresh) ReadTokens(string json)
     {
         using var document = JsonDocument.Parse(json);

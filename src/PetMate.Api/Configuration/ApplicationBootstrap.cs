@@ -49,7 +49,7 @@ public static class ApplicationBootstrap
             .AddInfrastructure(builder.Configuration, builder.Environment.IsDevelopment());
         ConfigureAuthentication(builder.Services);
         ConfigureRateLimiting(builder.Services, builder.Configuration);
-        ConfigureForwardedHeaders(builder.Services, builder.Configuration);
+        ConfigureForwardedHeaders(builder.Services, builder.Configuration, builder.Environment.IsProduction());
         // Logs estructurados (JSON) con ámbitos para la correlación (pm-054). Sin paquetes adicionales.
         builder.Logging.AddJsonConsole(options =>
         {
@@ -106,11 +106,18 @@ public static class ApplicationBootstrap
     // Solo se confía en X-Forwarded-* de los proxies listados en TRUSTED_PROXIES (IPs separadas por coma). Sin la variable,
     // las cabeceras se ignoran y la IP es la de la conexión directa (no falsificable por el cliente). Con ForwardLimit = 1 solo debe
     // listarse el último salto (el proxy que conecta con la API).
-    private static void ConfigureForwardedHeaders(IServiceCollection services, ConfigurationManager configuration)
+    private static void ConfigureForwardedHeaders(IServiceCollection services, ConfigurationManager configuration, bool isProduction)
     {
         var raw = configuration["TRUSTED_PROXIES"];
         if (string.IsNullOrWhiteSpace(raw))
         {
+            // H6: en Production sin TRUSTED_PROXIES la IP observada es la del proxy y el límite por IP se agrupa. Por defecto solo se
+            // advierte al arrancar (el primer despliegue la deja vacía hasta medir las IPs del ingress); con REQUIRE_TRUSTED_PROXIES=true es fatal.
+            if (isProduction && string.Equals(configuration["REQUIRE_TRUSTED_PROXIES"], "true", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("Configuración inválida: REQUIRE_TRUSTED_PROXIES=true exige definir TRUSTED_PROXIES en Production.");
+            }
+
             return;
         }
 
@@ -145,6 +152,8 @@ public static class ApplicationBootstrap
         var petsPermitLimit = ReadPerMinuteLimit(configuration, "PETS_RATE_LIMIT_PER_MINUTE", 60);
         var usersPermitLimit = ReadPerMinuteLimit(configuration, "USERS_RATE_LIMIT_PER_MINUTE", 60);
 
+        services.AddSingleton(new PetMate.Api.Authentication.AuthIpThrottleOptions(permitLimit));
+        services.AddScoped<PetMate.Api.Authentication.AuthIpThrottleFilter>();
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;

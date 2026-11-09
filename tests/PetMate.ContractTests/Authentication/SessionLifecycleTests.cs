@@ -33,8 +33,18 @@ public sealed class SessionLifecycleTests
         // A rota su refresh token; reutilizar el anterior (replay) revoca la sesión A pero no la B.
         var a2 = Tokens(await Post(client, "refresh", new { refreshToken = a.Refresh }, HttpStatusCode.OK));
         Assert.NotEqual(a.Refresh, a2.Refresh);
+        Assert.Equal(HttpStatusCode.OK, await GetProfile(client, a.Access));
+
+        // H8: reintentar el token ya consumido dentro de la ventana de gracia se rechaza SIN revocar la sesión.
+        await Post(client, "refresh", new { refreshToken = a.Refresh }, HttpStatusCode.Unauthorized);
+        Assert.Equal(HttpStatusCode.OK, await GetProfile(client, a2.Access));
+
+        // Pasada la ventana, el mismo token es un replay: revoca la sesión A y, de inmediato (H7), todos sus access tokens.
+        factory.Clock.Advance(PetMate.Application.Authentication.RefreshHandler.ReplayGrace + TimeSpan.FromSeconds(1));
         await Post(client, "refresh", new { refreshToken = a.Refresh }, HttpStatusCode.Unauthorized);
         await Post(client, "refresh", new { refreshToken = a2.Refresh }, HttpStatusCode.Unauthorized);
+        Assert.Equal(HttpStatusCode.Unauthorized, await GetProfile(client, a.Access));
+        Assert.Equal(HttpStatusCode.Unauthorized, await GetProfile(client, a2.Access));
         Assert.Equal(HttpStatusCode.OK, await GetProfile(client, b.Access));
 
         // B sigue renovándose con normalidad y cierra su sesión: su access token y su refresh token dejan de servir.

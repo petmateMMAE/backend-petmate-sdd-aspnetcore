@@ -9,7 +9,17 @@ public static class AuthThrottleRules
     public const string LoginScope = "login";
     public const string RefreshScope = "refresh";
 
+    /// <summary>Techo por correo, independiente de la IP (H3): impone una espera corta, no el bloqueo duro, ante ataques distribuidos.</summary>
+    public const string LoginEmailCeilingScope = "login-email";
+
+    /// <summary>Límite por IP de las rutas de autenticación, compartido entre réplicas (H6).</summary>
+    public const string IpScope = "auth-ip";
+
     public static readonly AuthThrottleRule Login = new(5, TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(15));
+
+    // H3: el bloqueo duro (5 fallos en 15 minutos, 15 de bloqueo) se cuenta por par (correo, IP). El techo por correo (50 intentos
+    // en 15 minutos, 1 minuto de espera) frena ataques desde muchas IPs sin dejar fuera durante 15 minutos a la víctima.
+    public static readonly AuthThrottleRule LoginEmailCeiling = new(50, TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(1));
 
     public static readonly AuthThrottleRule Refresh = new(30, TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(15));
 }

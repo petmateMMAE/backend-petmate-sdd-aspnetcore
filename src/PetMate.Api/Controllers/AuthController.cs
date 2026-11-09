@@ -16,12 +16,13 @@ namespace PetMate.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/auth")]
-public sealed class AuthController(ISender sender) : ControllerBase
+public sealed partial class AuthController(ISender sender, ILogger<AuthController> logger) : ControllerBase
 {
     public const string RateLimitPolicy = "auth";
 
     [AllowAnonymous]
     [EnableRateLimiting(RateLimitPolicy)]
+    [ServiceFilter(typeof(PetMate.Api.Authentication.AuthIpThrottleFilter))]
     [HttpPost("register")]
     [ProducesResponseType(typeof(ApiResponse<AuthResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<ValidationErrorsData>), StatusCodes.Status400BadRequest)]
@@ -36,13 +37,28 @@ public sealed class AuthController(ISender sender) : ControllerBase
 
     [AllowAnonymous]
     [EnableRateLimiting(RateLimitPolicy)]
+    [ServiceFilter(typeof(PetMate.Api.Authentication.AuthIpThrottleFilter))]
     [HttpPost("login")]
     [ProducesResponseType(typeof(ApiResponse<AuthResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
     public async Task<ObjectResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new LoginCommand(request.Email ?? string.Empty, request.Password ?? string.Empty), cancellationToken);
+        var result = await sender.Send(new LoginCommand(request.Email ?? string.Empty, request.Password ?? string.Empty, PetMate.Api.Configuration.RateLimitKey.For(HttpContext.Connection.RemoteIpAddress)), cancellationToken);
+        if (!result.IsSuccess && result.Error is AuthError.InvalidCredentials or AuthError.TooManyRequests)
+        {
+            // Evento de seguridad (I2): solo un seudónimo de la cuenta, nunca el correo, la contraseña ni la IP.
+            var account = SecurityEventPseudonym.From(request.Email);
+            if (result.Error == AuthError.InvalidCredentials)
+            {
+                LogLoginFailed(logger, account);
+            }
+            else
+            {
+                LogAuthThrottled(logger, "login", account);
+            }
+        }
+
         return result.IsSuccess
             ? ApiResponseFactory.Ok("Inicio de sesión correcto.", ToResponse(result.Value!))
             : Failure(result.Error, result.RetryAfter);
@@ -50,6 +66,7 @@ public sealed class AuthController(ISender sender) : ControllerBase
 
     [AllowAnonymous]
     [EnableRateLimiting(RateLimitPolicy)]
+    [ServiceFilter(typeof(PetMate.Api.Authentication.AuthIpThrottleFilter))]
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(ApiResponse<AuthResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
@@ -57,6 +74,15 @@ public sealed class AuthController(ISender sender) : ControllerBase
     public async Task<ObjectResult> Refresh([FromBody] RefreshRequest request, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new RefreshCommand(request.RefreshToken ?? string.Empty), cancellationToken);
+        if (!result.IsSuccess && result.Error == AuthError.InvalidRefreshToken)
+        {
+            LogRefreshRejected(logger);
+        }
+        else if (!result.IsSuccess && result.Error == AuthError.TooManyRequests)
+        {
+            LogAuthThrottled(logger, "refresh", "n/a");
+        }
+
         return result.IsSuccess
             ? ApiResponseFactory.Ok("Sesión renovada correctamente.", ToResponse(result.Value!))
             : Failure(result.Error, result.RetryAfter);
@@ -86,6 +112,15 @@ public sealed class AuthController(ISender sender) : ControllerBase
             ? ApiResponseFactory.Ok<object?>("Sesión cerrada correctamente.", null)
             : Failure(result.Error);
     }
+
+    [LoggerMessage(EventId = 2001, Level = LogLevel.Warning, Message = "Evento de seguridad: inicio de sesión fallido (cuenta {Account}).")]
+    private static partial void LogLoginFailed(ILogger logger, string account);
+
+    [LoggerMessage(EventId = 2002, Level = LogLevel.Warning, Message = "Evento de seguridad: {Operation} limitado por exceso de intentos (cuenta {Account}).")]
+    private static partial void LogAuthThrottled(ILogger logger, string operation, string account);
+
+    [LoggerMessage(EventId = 2003, Level = LogLevel.Warning, Message = "Evento de seguridad: refresh rechazado (token inválido, vencido o reutilizado).")]
+    private static partial void LogRefreshRejected(ILogger logger);
 
     private static AuthResponse ToResponse(AuthTokensResult tokens) => new(
         tokens.AccessToken.Value,

@@ -144,7 +144,7 @@ public sealed class AuthFlowIntegrationTests
         var tokens = Ok(await stack.Register.Handle(new RegisterCommand("ana@example.com", Password), default));
         await using var unreachable = new RedisAuthConnection("127.0.0.1:1,password=x,connectTimeout=300,abortConnect=false");
         var logout = new LogoutHandler(
-            stack.Sessions, new RedisTokenRevocationStore(unreachable, stack.Clock), stack.RefreshTokens, stack.Clock);
+            stack.Sessions, new RedisTokenRevocationStore(unreachable, stack.Clock), stack.RefreshTokens, stack.Jwt, stack.Clock);
 
         await Assert.ThrowsAsync<AuthDependencyUnavailableException>(() => logout.Handle(
             new LogoutCommand(tokens.UserId, tokens.AccessToken.Jti, tokens.AccessToken.ExpiresAtUtc, tokens.RefreshToken), default));
@@ -265,8 +265,8 @@ public sealed class AuthFlowIntegrationTests
             Throttle = new RedisAuthAttemptThrottle(Redis);
             Limiter = new BoundedPasswordHashingLimiter(2, 4);
             ThrottledLogin = new LoginHandler(Users, Hasher, issuer, Clock, Throttle, Limiter);
-            Refresh = new RefreshHandler(Users, Sessions, RefreshTokens, Jwt, SessionPolicy.Default, Clock);
-            Logout = new LogoutHandler(Sessions, Revocations, RefreshTokens, Clock);
+            Refresh = new RefreshHandler(Users, Sessions, RefreshTokens, Jwt, SessionPolicy.Default, Clock, null, Revocations);
+            Logout = new LogoutHandler(Sessions, Revocations, RefreshTokens, Jwt, Clock);
         }
 
         public MongoTestContext Mongo { get; }

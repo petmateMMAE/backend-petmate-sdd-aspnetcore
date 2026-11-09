@@ -471,3 +471,33 @@
 - **T064:** `PerformanceBaselineTests` en proceso (p95: health 10.1 ms, get-all 19.9/13.2 ms); `docs/quality/performance-baseline.md`. La carga real queda para pm-084.
 - El ámbito de correlación del logging ahora usa `LoggerMessage.DefineScope`.
 - **Pendiente:** revisión independiente y aprobación humana de T059 a T064 (y de las del turno anterior); corregir la prueba de concurrencia de refresh, que falló una vez.
+
+## Revisiones independientes, I2 y flaky (2026-11-08)
+
+- **Prueba de concurrencia de refresh:** la causa era el doble en memoria, que devolvía la misma instancia de `RefreshSession` a todas las solicitudes; un perdedor revocaba el objeto del ganador y `RegisterUse` lanzaba. Ahora `InMemorySessionRepository` devuelve copias (como Atlas); se añadió `InternalsVisibleTo` de Domain a ContractTests e IntegrationTests (el doble se comparte). 3 corridas seguidas verdes.
+- **I2 cerrado:** `AuthController` registra (Warning) login fallido, bloqueo y refresh rechazado con un seudónimo de la cuenta (SHA-256 del correo, 12 hex), sin correo, contraseña, tokens ni IP.
+- **Revisión de seguridad (subagente, solo lectura): apto con observaciones, sin hallazgos altos.** Corregido: regex del correlation id con `\A…\z` y pruebas con CR/LF; método HTTP normalizado en el log; pruebas de exclusión de compresión con mayúsculas; riesgo residual de PII comprimida documentado. Registrado sin cambio: exclusión por ruta (no por metadato), `Hosting.Diagnostics = None` y `JwtBearer = Critical` reducen señal de logs, `ForwardLimit = 1` con más de un salto en Azure, valores de caché sin control de contenido (revisar al añadir el primer consumidor), `xml.etree` con XML local.
+- **Revisión de trazabilidad (subagente): consistente con observaciones.** Corregido: conteos reales en los gates (Unit 206/206, Security 180/180, Contract 198/198, Integration 37 pasan y 23 se omiten de 60 (las omitidas son de Redis sin contraseñas reales y la de caché con Redis real); medido el 2026-11-08 tras las revisiones), cabeceras de los gates de pm-007 y pm-017, T068 «CA-01 verificado, CA-02 pendiente», pm-062 «cumple parcialmente», revisión independiente anotada. Pendiente: casillas de la Definition of Done de los `task.md` cerrados.
+- **Aprobación de T074, T075 y T076** por el usuario: «Cerrado y aprobado»; ADR-005 a ADR-010 siguen «Propuesto».
+- **Pendiente:** commit y push de este lote; umbral de cobertura (enmienda); H3, H4, H6, H7, H8; T067, T071.
+
+## Aprobaciones del 2026-11-08 (T059–T065, T068, T073, T024, T039)
+
+- Aprobadas por el usuario: T059, T060, T061, T062, T063, T064, T065, T073, T024 y T039 («Cerrado y aprobado») y T068 (con **CA-02 pendiente de enmienda**: umbral de cobertura). Specs pm-048 a pm-054 y pm-061 «Verificado»; pm-056 sigue «En progreso».
+- **No aprobada:** T071 (versionado de releases).
+
+## Hallazgos de seguridad H3, H4, H6, H7 y H8 — T098 a T102 (2026-11-08)
+
+Aprobados por el usuario (H7, H3, H8 opción A; H4 opción B; H6 A+B+C) y registrados como T098 a T102 bajo pm-028, pm-031, pm-036, pm-034 y pm-029 (el gate `check-sdd` amplió su rango a T001–T102).
+
+- **H7 (T098):** claim `sid` en el access token; `RevokeSession`/`IsSessionRevoked` en Redis Auth (`jwt:session-revoked:{sid}`, TTL = vida del token); se revoca en logout, replay y usuario inexistente. Tokens sin `sid` valen hasta expirar.
+- **H8 (T099):** `RefreshHandler.ReplayGrace` = 10 s: reutilizar un token consumido dentro de la ventana da 401 sin revocar; después, replay. La prueba de concurrencia ahora exige 1 éxito y sesión viva.
+- **H6 (T100):** `AuthIpThrottleFilter` (Redis Auth, 10/min por IP, espera de 1 min) en register/login/refresh, además de la barrera en proceso; 503 si Redis no responde. `REQUIRE_TRUSTED_PROXIES=true` hace fatal la falta de `TRUSTED_PROXIES` en Production; por defecto solo advierte, porque el primer despliegue la deja vacía. Saltos (1 con el ingress de Container Apps, `ForwardLimit = 1`) documentados. El scope de `RedisAuthAttemptThrottle` ahora admite guion.
+- **H3 (T101):** bloqueo duro por par (correo, IP) y techo por correo (50/15 min, espera de 1 min); `LoginCommand` recibe `ClientKey`.
+- **H4 (T102):** el hash ya se calculaba antes de `TryAdd` (prueba nueva); el 409 queda como riesgo aceptado y documentado.
+- **Entorno:** Docker Desktop estaba apagado al reanudar (el equipo se apagó/reinició); se volvió a iniciar.
+- **Pendiente:** revisión independiente y aprobación humana de T098 a T102; commit y push (el usuario pidió no subir todavía).
+
+## Aprobación de T098 a T102 (2026-11-08)
+
+- El usuario aprobó las cinco Tasks (H7, H8, H6, H3, H4). **No hubo revisión independiente** de estos cambios; es la brecha a recordar. Specs pm-028, pm-029, pm-031, pm-034 y pm-036 «Verificado».

@@ -34,6 +34,16 @@
 - **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente (no realizada para la Task; la del grupo de autenticación se hace con T025) · [x] Documentación · [x] Aprobación humana (2026-11-08)
 - **No hacer:** cerrar la Task sin aprobación humana.
 
+### T100 — Límite por IP distribuido en Redis Auth, validación de proxies al arrancar y documentación de saltos
+- **Tipo:** Nueva
+- **Estado:** Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad)
+- **Spec principal:** pm-036
+- **Criterios propios:** pm-036#CA-05, pm-036#CA-06
+- **Origen:** hallazgo de seguridad H6; Aprobado por el usuario el 2026-11-08 (opciones A de H7, H3 y H8; B de H4; A, B y C de H6).
+- **Verificar:** ver [plan.md](plan.md) y la evidencia en [checklists/gates.md](checklists/gates.md).
+- **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente · [x] Documentación · [x] Aprobación humana
+- **No hacer:** cerrar la Task sin aprobación humana.
+
 ## Definition of Done
 
 - [x] Criterios propios satisfechos con evidencia reproducible.

@@ -74,7 +74,7 @@ public sealed class RedisAuthAttemptThrottle(RedisAuthConnection redis) : IAuthA
 
     private static string KeySuffix(string scope, string subject)
     {
-        if (string.IsNullOrWhiteSpace(scope) || scope.Length > 16 || !scope.All(char.IsAsciiLetterLower))
+        if (string.IsNullOrWhiteSpace(scope) || scope.Length > 16 || !scope.All(c => char.IsAsciiLetterLower(c) || c == '-'))
         {
             throw new ArgumentException("El ámbito no es válido.", nameof(scope));
         }

@@ -1,6 +1,6 @@
 # Spec — pm-053 api-performance-baseline
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L12 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Verificado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L12 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -30,7 +30,7 @@ Cada criterio se cita como `pm-053#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T064 | Nueva | En progreso (implementada y verificada; pendiente de aprobación humana) | Medir la línea base de rendimiento |
+| T064 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | Medir la línea base de rendimiento |
 
 Detalle en [task.md](task.md).
 

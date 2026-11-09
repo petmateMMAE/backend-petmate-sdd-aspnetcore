@@ -4,11 +4,11 @@
 
 ## Identidad y autenticación
 - [x] Argon2id con configuración calibrada, salt único y hash versionable. _(T015: Security 97/97; benchmark 139–143 ms; ver gates slice 01)_
-- [x] Mensajes de login resistentes a enumeración. _(T019: 401 idéntico y hash ficticio para igualar tiempos; excepción documentada: el 409 de Register revela la existencia del correo, mitigado por rate limit)_
+- [x] Mensajes de login resistentes a enumeración. _(T019: 401 idéntico y hash ficticio para igualar tiempos; excepción documentada: el 409 de Register revela la existencia del correo; **riesgo aceptado el 2026-11-08 (H4/T102)**: tiempos iguales porque el hash se calcula siempre y límite por IP; solo la verificación por correo lo elimina)_
 - [x] Rate limiting de autenticación y mitigación de abuso. _(T019–T021 y pm-034/T056, 2026-11-08: límite por IP, cuota y bloqueo por correo (5 fallos por 15 minutos, el sexto bloquea 15 minutos; 30 refrescos por usuario) con contadores en Redis de autenticación, hashing Argon2id acotado (núcleos y cola del doble) y 429 con `Retry-After`. Abierto: el bloqueo permite dejar sin acceso temporal a un correo ajeno (H3); el límite por IP es por instancia (H6))_
 - [x] JWT valida firma/algoritmo/issuer/audience/exp/nbf/jti. _(T016: HS256 fijo, ClockSkew 0; entropía de la clave solo validada por longitud)_
 - [x] Refresh tokens opacos, almacenados como hash, rotatorios y con detección de replay. _(T020)_
-- [x] Logout revoca sesión y blacklist JWT en Redis Auth. _(T021; otros access tokens de la misma sesión viven hasta 15 min: `jti` no ligado a la sesión)_
+- [x] Logout revoca sesión y blacklist JWT en Redis Auth. _(T021; H7/T098, 2026-11-08: el JWT lleva `sid` y se rechaza en cuanto la sesión se revoca por logout o replay; los tokens anteriores sin `sid` valen hasta expirar)_
 - [x] Redis Auth falla cerrada ante indisponibilidad. _(T017: 503; prueba real de caída de Redis)_
 
 ## Autorización y datos
@@ -22,7 +22,7 @@
 - [ ] `.env` ignorado y `.env.example` sin secretos.
 - [ ] Producción no despliega `.env`; secretos inyectados por entorno seguro.
 - [ ] HTTPS/certificado válido y forwarded headers restringidos a proxies confiables.
-- [x] Tokens, passwords, URIs y PII no aparecen en logs. _(pm-054 / T065: logs JSON con correlación, solo método, plantilla de ruta, estado y duración; `RequestLoggingTests` captura todos los registros de un flujo completo y busca secretos; pendiente de revisión independiente y de aprobación. Sin eventos de seguridad aún: hallazgo I2)_
+- [x] Tokens, passwords, URIs y PII no aparecen en logs. _(pm-054 / T065: logs JSON con correlación, solo método, plantilla de ruta, estado y duración; `RequestLoggingTests` captura todos los registros de un flujo completo y busca secretos; pendiente de revisión independiente y de aprobación. Eventos de seguridad (login fallido, bloqueo, refresh rechazado) registrados con seudónimo: hallazgo I2 cerrado el 2026-11-08, ver `AuthController`)_
 
 ## API y operación
 - [ ] Validación de inputs y límites de tamaño/paginación.

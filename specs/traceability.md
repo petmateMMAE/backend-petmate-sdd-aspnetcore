@@ -157,16 +157,19 @@
 | pm-028#CA-01 | T017 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-028#CA-02 | T017 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-028#CA-03 | T017 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
+| pm-028#CA-04 | T098 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad) | [gates](pm-028-token-revocation-redis/checklists/gates.md) |
 | pm-029#CA-01 | T018 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-029#CA-02 | T018 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-029#CA-03 | T018 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-029#CA-04 | T018 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
+| pm-029#CA-05 | T102 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad) | [gates](pm-029-user-registration/checklists/gates.md) |
 | pm-030#CA-01 | T019 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-030#CA-02 | T019 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-030#CA-03 | T019 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-031#CA-01 | T020 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-031#CA-02 | T020 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-031#CA-03 | T020 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
+| pm-031#CA-04 | T099 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad) | [gates](pm-031-refresh-token-rotation/checklists/gates.md) |
 | pm-032#CA-01 | T021 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-032#CA-02 | T021 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
 | pm-032#CA-03 | T021 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
@@ -179,12 +182,16 @@
 | pm-034#CA-02 | T056 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-034-auth-brute-force-protection/checklists/gates.md) |
 | pm-034#CA-03 | T056 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-034-auth-brute-force-protection/checklists/gates.md) |
 | pm-034#CA-04 | T056 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-034-auth-brute-force-protection/checklists/gates.md) |
+| pm-034#CA-05 | T101 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad) | [gates](pm-034-auth-brute-force-protection/checklists/gates.md) |
+| pm-034#CA-06 | T101 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad) | [gates](pm-034-auth-brute-force-protection/checklists/gates.md) |
 | pm-035#CA-01 | T025 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-035-auth-session-lifecycle-acceptance/checklists/gates.md) |
 | pm-035#CA-02 | T025 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-035-auth-session-lifecycle-acceptance/checklists/gates.md) |
 | pm-036#CA-01 | T054 | Retrospectiva | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | [gates](pm-036-rate-limiting/checklists/gates.md) |
 | pm-036#CA-02 | T054 | Retrospectiva | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | [gates](pm-036-rate-limiting/checklists/gates.md) |
 | pm-036#CA-03 | T057 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-036-rate-limiting/checklists/gates.md) |
 | pm-036#CA-04 | T054 | Retrospectiva | Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva) | [gates](pm-036-rate-limiting/checklists/gates.md) |
+| pm-036#CA-05 | T100 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad) | [gates](pm-036-rate-limiting/checklists/gates.md) |
+| pm-036#CA-06 | T100 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad) | [gates](pm-036-rate-limiting/checklists/gates.md) |
 | pm-037#CA-01 | T026 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-037 gates](pm-037-owner-profile-read/checklists/gates.md) |
 | pm-037#CA-02 | T026 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-037 gates](pm-037-owner-profile-read/checklists/gates.md) |
 | pm-038#CA-01 | T027 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [pm-038 gates](pm-038-owner-profile-update/checklists/gates.md) |
@@ -217,31 +224,31 @@
 | pm-047#CA-01 | T058 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-047-pagination-convention/checklists/gates.md) |
 | pm-047#CA-02 | T058 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-047-pagination-convention/checklists/gates.md) |
 | pm-047#CA-03 | T058 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-047-pagination-convention/checklists/gates.md) |
-| pm-048#CA-01 | T059 | Nueva | En progreso | [gates](pm-048-response-compression/checklists/gates.md) |
-| pm-048#CA-02 | T059 | Nueva | En progreso | [gates](pm-048-response-compression/checklists/gates.md) |
-| pm-048#CA-03 | T059 | Nueva | En progreso | [gates](pm-048-response-compression/checklists/gates.md) |
-| pm-049#CA-01 | T060 | Nueva | En progreso | [gates](pm-049-json-serialization-performance/checklists/gates.md) |
-| pm-049#CA-02 | T060 | Nueva | En progreso | [gates](pm-049-json-serialization-performance/checklists/gates.md) |
-| pm-050#CA-01 | T061 | Nueva | En progreso | [gates](pm-050-distributed-cache-infrastructure/checklists/gates.md) |
-| pm-050#CA-02 | T061 | Nueva | En progreso | [gates](pm-050-distributed-cache-infrastructure/checklists/gates.md) |
-| pm-050#CA-03 | T061 | Nueva | En progreso | [gates](pm-050-distributed-cache-infrastructure/checklists/gates.md) |
-| pm-051#CA-01 | T062 | Nueva | En progreso | [gates](pm-051-cache-policy-data-classification/checklists/gates.md) |
-| pm-051#CA-02 | T062 | Nueva | En progreso | [gates](pm-051-cache-policy-data-classification/checklists/gates.md) |
-| pm-051#CA-03 | T062 | Nueva | En progreso | [gates](pm-051-cache-policy-data-classification/checklists/gates.md) |
-| pm-052#CA-01 | T063 | Nueva | En progreso | [gates](pm-052-database-indexing-efficiency/checklists/gates.md) |
-| pm-052#CA-02 | T063 | Nueva | En progreso | [gates](pm-052-database-indexing-efficiency/checklists/gates.md) |
-| pm-053#CA-01 | T064 | Nueva | En progreso | [gates](pm-053-api-performance-baseline/checklists/gates.md) |
-| pm-053#CA-02 | T064 | Nueva | En progreso | [gates](pm-053-api-performance-baseline/checklists/gates.md) |
-| pm-053#CA-03 | T064 | Nueva | En progreso | [gates](pm-053-api-performance-baseline/checklists/gates.md) |
-| pm-054#CA-01 | T065 | Nueva | En progreso | [gates](pm-054-structured-logging-pii-safe/checklists/gates.md) |
-| pm-054#CA-02 | T065 | Nueva | En progreso | [gates](pm-054-structured-logging-pii-safe/checklists/gates.md) |
-| pm-054#CA-03 | T065 | Nueva | En progreso | [gates](pm-054-structured-logging-pii-safe/checklists/gates.md) |
+| pm-048#CA-01 | T059 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-048-response-compression/checklists/gates.md) |
+| pm-048#CA-02 | T059 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-048-response-compression/checklists/gates.md) |
+| pm-048#CA-03 | T059 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-048-response-compression/checklists/gates.md) |
+| pm-049#CA-01 | T060 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-049-json-serialization-performance/checklists/gates.md) |
+| pm-049#CA-02 | T060 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-049-json-serialization-performance/checklists/gates.md) |
+| pm-050#CA-01 | T061 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-050-distributed-cache-infrastructure/checklists/gates.md) |
+| pm-050#CA-02 | T061 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-050-distributed-cache-infrastructure/checklists/gates.md) |
+| pm-050#CA-03 | T061 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-050-distributed-cache-infrastructure/checklists/gates.md) |
+| pm-051#CA-01 | T062 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-051-cache-policy-data-classification/checklists/gates.md) |
+| pm-051#CA-02 | T062 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-051-cache-policy-data-classification/checklists/gates.md) |
+| pm-051#CA-03 | T062 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-051-cache-policy-data-classification/checklists/gates.md) |
+| pm-052#CA-01 | T063 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-052-database-indexing-efficiency/checklists/gates.md) |
+| pm-052#CA-02 | T063 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-052-database-indexing-efficiency/checklists/gates.md) |
+| pm-053#CA-01 | T064 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-053-api-performance-baseline/checklists/gates.md) |
+| pm-053#CA-02 | T064 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-053-api-performance-baseline/checklists/gates.md) |
+| pm-053#CA-03 | T064 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-053-api-performance-baseline/checklists/gates.md) |
+| pm-054#CA-01 | T065 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-054-structured-logging-pii-safe/checklists/gates.md) |
+| pm-054#CA-02 | T065 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-054-structured-logging-pii-safe/checklists/gates.md) |
+| pm-054#CA-03 | T065 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-054-structured-logging-pii-safe/checklists/gates.md) |
 | pm-055#CA-01 | T066 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-055-ci-pull-request-pipeline/checklists/gates.md) |
 | pm-055#CA-02 | T066 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-055-ci-pull-request-pipeline/checklists/gates.md) |
 | pm-055#CA-03 | T067 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-055#CA-04 | T067 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-056#CA-01 | T068 | Nueva | En progreso | [gates](pm-056-test-coverage-baseline/checklists/gates.md) |
-| pm-056#CA-02 | T068 | Nueva | En progreso | [gates](pm-056-test-coverage-baseline/checklists/gates.md) |
+| pm-056#CA-01 | T068 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; CA-02 pendiente de enmienda) | [gates](pm-056-test-coverage-baseline/checklists/gates.md) |
+| pm-056#CA-02 | T068 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; CA-02 pendiente de enmienda) | [gates](pm-056-test-coverage-baseline/checklists/gates.md) |
 | pm-057#CA-01 | T069 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-057-container-image-scan/checklists/gates.md) |
 | pm-057#CA-02 | T069 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-057-container-image-scan/checklists/gates.md) |
 | pm-058#CA-01 | T070 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-058-sbom-generation/checklists/gates.md) |
@@ -252,22 +259,22 @@
 | pm-060#CA-01 | T072 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
 | pm-060#CA-02 | T072 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
 | pm-060#CA-03 | T072 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-060-sdd-integrity-gate/checklists/gates.md) |
-| pm-061#CA-01 | T024 | Histórica | En progreso | [gates](pm-061-api-docs-contract-sync/checklists/gates.md) y `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
-| pm-061#CA-02 | T039 | Histórica | En progreso | [gates](pm-061-api-docs-contract-sync/checklists/gates.md) y `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
-| pm-061#CA-03 | T073 | Nueva | En progreso | [gates](pm-061-api-docs-contract-sync/checklists/gates.md) |
-| pm-061#CA-04 | T073 | Nueva | En progreso | [gates](pm-061-api-docs-contract-sync/checklists/gates.md) |
-| pm-062#CA-01 | T074 | Nueva | En progreso | [gates](pm-062-cloud-cost-feasibility-study/checklists/gates.md) |
-| pm-062#CA-02 | T074 | Nueva | En progreso | [gates](pm-062-cloud-cost-feasibility-study/checklists/gates.md) |
-| pm-062#CA-03 | T074 | Nueva | En progreso | [gates](pm-062-cloud-cost-feasibility-study/checklists/gates.md) |
-| pm-062#CA-04 | T074 | Nueva | En progreso | [gates](pm-062-cloud-cost-feasibility-study/checklists/gates.md) |
-| pm-062#CA-05 | T074 | Nueva | En progreso | [gates](pm-062-cloud-cost-feasibility-study/checklists/gates.md) |
-| pm-063#CA-01 | T075 | Nueva | En progreso | [gates](pm-063-cloud-provider-selection/checklists/gates.md) |
-| pm-063#CA-02 | T075 | Nueva | En progreso | [gates](pm-063-cloud-provider-selection/checklists/gates.md) |
-| pm-063#CA-03 | T075 | Nueva | En progreso | [gates](pm-063-cloud-provider-selection/checklists/gates.md) |
-| pm-063#CA-04 | T075 | Nueva | En progreso | [gates](pm-063-cloud-provider-selection/checklists/gates.md) |
-| pm-064#CA-01 | T076 | Nueva | En progreso | [gates](pm-064-environment-strategy/checklists/gates.md) |
-| pm-064#CA-02 | T076 | Nueva | En progreso | [gates](pm-064-environment-strategy/checklists/gates.md) |
-| pm-064#CA-03 | T076 | Nueva | En progreso | [gates](pm-064-environment-strategy/checklists/gates.md) |
+| pm-061#CA-01 | T024 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-061-api-docs-contract-sync/checklists/gates.md) y `_historico/01-initial-authentication/task.md` y su `checklists/gates.md` |
+| pm-061#CA-02 | T039 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-061-api-docs-contract-sync/checklists/gates.md) y `_historico/03-pet-management/task.md` y su `checklists/gates.md` |
+| pm-061#CA-03 | T073 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-061-api-docs-contract-sync/checklists/gates.md) |
+| pm-061#CA-04 | T073 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-061-api-docs-contract-sync/checklists/gates.md) |
+| pm-062#CA-01 | T074 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-062-cloud-cost-feasibility-study/checklists/gates.md) |
+| pm-062#CA-02 | T074 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-062-cloud-cost-feasibility-study/checklists/gates.md) |
+| pm-062#CA-03 | T074 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-062-cloud-cost-feasibility-study/checklists/gates.md) |
+| pm-062#CA-04 | T074 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-062-cloud-cost-feasibility-study/checklists/gates.md) |
+| pm-062#CA-05 | T074 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-062-cloud-cost-feasibility-study/checklists/gates.md) |
+| pm-063#CA-01 | T075 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-063-cloud-provider-selection/checklists/gates.md) |
+| pm-063#CA-02 | T075 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-063-cloud-provider-selection/checklists/gates.md) |
+| pm-063#CA-03 | T075 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-063-cloud-provider-selection/checklists/gates.md) |
+| pm-063#CA-04 | T075 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-063-cloud-provider-selection/checklists/gates.md) |
+| pm-064#CA-01 | T076 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-064-environment-strategy/checklists/gates.md) |
+| pm-064#CA-02 | T076 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-064-environment-strategy/checklists/gates.md) |
+| pm-064#CA-03 | T076 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-064-environment-strategy/checklists/gates.md) |
 | pm-065#CA-01 | T077 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-065#CA-02 | T077 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-065#CA-03 | T077 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |

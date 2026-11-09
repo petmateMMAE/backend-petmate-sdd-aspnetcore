@@ -71,9 +71,9 @@ foreach ($d in $dirs) {
     if ($tm.Success -and $tm.Groups[1].Value -eq 'Retrospectiva' -and $stm.Value -match 'Cerrado') { Fail "$t retrospectiva marcada como cerrada" }
   }
 }
-$expectedT = 1..97 | ForEach-Object { 'T{0:D3}' -f $_ }
+$expectedT = 1..102 | ForEach-Object { 'T{0:D3}' -f $_ }
 foreach ($t in $expectedT) { if (-not $taskIds.ContainsKey($t)) { Fail "$t no existe" } }
-foreach ($t in $taskIds.Keys) { if ($expectedT -notcontains $t) { Fail "$t fuera del rango T001-T097" } }
+foreach ($t in $taskIds.Keys) { if ($expectedT -notcontains $t) { Fail "$t fuera del rango T001-T102" } }
 foreach ($k in $caCount.Keys) { for ($n = 1; $n -le $caCount[$k]; $n++) { $key = "$k#$('{0:D2}' -f $n)"; if (-not $caOwner.ContainsKey($key)) { Fail "pm-$k#CA-$('{0:D2}' -f $n) sin Task propietaria" } elseif ($caOwner[$key].Count -gt 1) { Fail "pm-$k#CA-$('{0:D2}' -f $n) con mas de una Task propietaria: $($caOwner[$key] -join ',')" } } }
 foreach ($d in $dirs) { $id = $d.Name.Substring(3, 3); if (-not ($principal.Values | Where-Object { $_ -eq $id })) { Fail "pm-$id sin Tasks" } }
 

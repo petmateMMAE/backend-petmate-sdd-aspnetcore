@@ -19,3 +19,22 @@
 - Limitaciones de T054: cubre solo el límite por IP de autenticación; la revisión independiente de T018 a T020 consta solo en documentos históricos.
 - [ ] Revisión independiente (no realizada para estas Tasks; el usuario aprobó el cierre sin ella).
 - [x] Aprobación humana del cierre de T054 y T057 (2026-11-08).
+
+## Enmienda 2026-11-08 — T100 (H6)
+
+> Estado: implementada y verificada; pendiente de revisión independiente y de aprobación humana. Aprobada por el usuario (2026-11-08).
+
+| CA | Task | Criterio | Evidencia | Resultado |
+|---|---|---|---|---|
+| `pm-036#CA-05` | T100 | Límite por IP compartido entre réplicas (Redis Auth) y falla cerrada | `AuthIpThrottleFilter` (+ `AuthIpThrottleOptions`) aplicado a register, login y refresh; `AuthHardeningTests.The_ip_limit_is_shared_across_replicas_through_redis_auth` y `Authentication_routes_fail_closed_with_503...`; `AuthAttemptThrottleTests.The_hyphenated_scopes...` (Redis real) | Cumple |
+| `pm-036#CA-06` | T100 | Advertencia/fallo al arrancar sin `TRUSTED_PROXIES` y saltos documentados | `StartupDiagnostics.MissingTrustedProxies`, `REQUIRE_TRUSTED_PROXIES` en `ApplicationBootstrap`; `AuthHardeningTests.Production_can_require_trusted_proxies...`; documentación en `docs/api/endpoints.md`, `docs/infrastructure/docker-redis-atlas.md` y `.env.example` | Cumple |
+
+| Gate | Resultado | Cómo |
+|---|---|---|
+| Build Release con analizadores como error | 0 advertencias, 0 errores | Contenedor `mcr.microsoft.com/dotnet/sdk:10.0` (`-warnaserror`) |
+| Suites | Unit 215, Security 180, Contract 202 (medidos al terminar esta Task; ver Memoria.md), Integration con los Redis desechables: 24 pasan y 4 se omiten del filtro Redis | Mismo contenedor; Redis con dos contenedores desechables de contraseñas aleatorias |
+| Integridad SDD | OK | `scripts/check-sdd.ps1` (rango ampliado a T001–T102) |
+
+- Limitaciones: El límite fijo en Redis es «10 por minuto y espera de 1 minuto al excederlo», algo más estricto que la ventana fija en proceso. Con muchas IPs detrás de un mismo proxy sin `TRUSTED_PROXIES` el límite sigue agrupándose (por eso la advertencia). El primer despliegue deja `TRUSTED_PROXIES` vacío a propósito, por eso no es fatal por defecto.
+- [ ] Revisión independiente.
+- [x] Aprobación humana de T100 (2026-11-08).

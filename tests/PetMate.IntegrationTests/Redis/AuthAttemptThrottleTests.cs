@@ -46,6 +46,29 @@ public sealed class AuthAttemptThrottleTests
     }
 
     [RequiresEnvironmentFact(AuthVariable)]
+    public async Task The_hyphenated_scopes_of_the_ip_limit_and_the_email_ceiling_are_accepted_and_independent()
+    {
+        await using var auth = new RedisAuthConnection(Environment.GetEnvironmentVariable(AuthVariable)!);
+        var throttle = new RedisAuthAttemptThrottle(auth);
+        var subject = NewSubject();
+        var rule = new AuthThrottleRule(2, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+        var database = await auth.GetDatabase();
+        try
+        {
+            Assert.Null(await throttle.RecordAttempt(AuthThrottleRules.IpScope, subject, rule, CancellationToken.None));
+            Assert.Null(await throttle.RecordAttempt(AuthThrottleRules.IpScope, subject, rule, CancellationToken.None));
+            Assert.NotNull(await throttle.RecordAttempt(AuthThrottleRules.IpScope, subject, rule, CancellationToken.None));
+
+            Assert.NotNull(await throttle.GetRemainingLock(AuthThrottleRules.IpScope, subject, CancellationToken.None));
+            Assert.Null(await throttle.GetRemainingLock(AuthThrottleRules.LoginEmailCeilingScope, subject, CancellationToken.None));
+        }
+        finally
+        {
+            await Cleanup(database, subject);
+        }
+    }
+
+    [RequiresEnvironmentFact(AuthVariable)]
     public async Task Clear_resets_the_counter_without_lifting_an_active_lock_and_subjects_are_independent()
     {
         await using var auth = new RedisAuthConnection(Environment.GetEnvironmentVariable(AuthVariable)!);

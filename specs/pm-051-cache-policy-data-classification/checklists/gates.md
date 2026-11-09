@@ -12,9 +12,9 @@
 | Gate | Resultado | Cómo |
 |---|---|---|
 | Build Release con analizadores como error | 0 advertencias, 0 errores | Contenedor `mcr.microsoft.com/dotnet/sdk:10.0` (`-warnaserror`) |
-| Suites | Unit, Security, Contract e Integration en verde (ver Memoria.md para los conteos de esta fecha) | Mismo contenedor, repositorio en solo lectura; Integration con Atlas de pruebas vía `--env-file` (no impreso) |
+| Suites | Unit 206/206, Security 180/180, Contract 198/198, Integration 37 pasan y 23 se omiten de 60 (las omitidas son de Redis sin contraseñas reales y la de caché con Redis real); medido el 2026-11-08 tras las revisiones | Mismo contenedor, repositorio en solo lectura; Integration con Atlas de pruebas vía `--env-file` (no impreso) |
 | Integridad SDD | OK | `scripts/check-sdd.ps1` |
 
 - Limitaciones: Hoy ningún endpoint es cacheable; un candidato futuro exige actualizar la política y la prueba.
-- [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T062.
+- [x] Revisión independiente (2026-11-08): subagentes de solo lectura, seguridad (apto con observaciones) y trazabilidad (consistente con observaciones); ver `Memoria.md`. Hallazgos corregidos o registrados.
+- [x] Aprobación humana de T062 (2026-11-08).

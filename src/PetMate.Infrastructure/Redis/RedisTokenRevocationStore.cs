@@ -43,6 +43,35 @@ public sealed class RedisTokenRevocationStore(RedisAuthConnection redis, TimePro
         return revoked;
     }
 
+    /// <summary>Clave <c>jwt:session-revoked:{sid}</c>: sesiones cuyos access tokens ya no valen (pm-028 CA-04).</summary>
+    public const string SessionKeyPrefix = "jwt:session-revoked:";
+
+    public async Task RevokeSession(Guid sessionId, DateTime untilUtc, CancellationToken cancellationToken)
+    {
+        var remaining = untilUtc - timeProvider.GetUtcNow().UtcDateTime;
+        if (sessionId == Guid.Empty || remaining <= TimeSpan.Zero)
+        {
+            return;
+        }
+
+        await Execute(async () =>
+        {
+            var database = await redis.GetDatabase().ConfigureAwait(false);
+            await database.StringSetAsync(SessionKeyPrefix + sessionId.ToString("N"), "1", remaining).ConfigureAwait(false);
+        }, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<bool> IsSessionRevoked(Guid sessionId, CancellationToken cancellationToken)
+    {
+        var revoked = false;
+        await Execute(async () =>
+        {
+            var database = await redis.GetDatabase().ConfigureAwait(false);
+            revoked = await database.KeyExistsAsync(SessionKeyPrefix + sessionId.ToString("N")).ConfigureAwait(false);
+        }, cancellationToken).ConfigureAwait(false);
+        return revoked;
+    }
+
     private static void EnsureValid(string jti)
     {
         if (string.IsNullOrWhiteSpace(jti) || jti.Length > MaxJtiLength || !jti.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_'))

@@ -45,7 +45,8 @@ public sealed partial class RequestLoggingMiddleware(RequestDelegate next, ILogg
         {
             var route = RouteOf(context);
             var elapsedMs = Math.Round(Stopwatch.GetElapsedTime(started).TotalMilliseconds, 1);
-            LogRequestCompleted(logger, context.Request.Method, route, context.Response.StatusCode, elapsedMs);
+            var method = KnownMethod(context.Request.Method);
+            LogRequestCompleted(logger, method, route, context.Response.StatusCode, elapsedMs);
         }
     }
 
@@ -62,7 +63,15 @@ public sealed partial class RequestLoggingMiddleware(RequestDelegate next, ILogg
     private static string RouteOf(HttpContext context)
         => (context.GetEndpoint() as RouteEndpoint)?.RoutePattern.RawText ?? UnknownRoute;
 
-    [GeneratedRegex("^[A-Za-z0-9-]{8,64}$")]
+    // Un método arbitrario del cliente no debe inflar ni contaminar los logs: solo los métodos HTTP estándar.
+    private static string KnownMethod(string method)
+        => method switch
+        {
+            "GET" or "POST" or "PUT" or "DELETE" or "PATCH" or "HEAD" or "OPTIONS" => method,
+            _ => "OTRO",
+        };
+
+    [GeneratedRegex(@"\A[A-Za-z0-9-]{8,64}\z")]
     private static partial Regex ValidCorrelationId();
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Solicitud completada {Method} {Route} {StatusCode} en {ElapsedMs} ms.")]

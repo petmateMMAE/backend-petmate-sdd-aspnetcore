@@ -16,5 +16,5 @@
 | Hallazgo durante la implementación | Corregido | La primera versión filtraba el id real y el texto de la consulta mediante el ámbito `RequestPath` de Hosting; la prueba lo detectó y se desactivó ese ámbito |
 | Escáner de secretos del repositorio | Pasa | Un JWT literal de la prueba fue detectado por `SecretScanTests`; se construye en tiempo de ejecución |
 - Limitaciones: No se registran eventos de seguridad (I2); el correlativo no se propaga a otros servicios; se probó con el logger de captura y la configuración del formateador, no se capturó la salida real de consola en Azure.
-- [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de las Tasks de este Spec.
+- [x] Revisión independiente (2026-11-08): subagentes de solo lectura, seguridad (apto con observaciones) y trazabilidad (consistente con observaciones); ver `Memoria.md`. Hallazgos corregidos o registrados.
+- [x] Aprobación humana de las Tasks de este Spec (2026-11-08).

@@ -11,11 +11,11 @@
 
 ### T076 — Definir la estrategia de entornos
 - **Tipo:** Nueva
-- **Estado:** En progreso (documentada y verificada; pendiente de aprobación humana)
+- **Estado:** Cerrado y aprobado (2026-11-08, aprobación humana)
 - **Spec principal:** pm-064
 - **Criterios propios:** pm-064#CA-01, pm-064#CA-02, pm-064#CA-03
 - **Verificar:** ver [plan.md](plan.md) y la evidencia en [checklists/gates.md](checklists/gates.md).
-- **Fases:** [x] Implementación (documentación) · [x] Pruebas · [ ] Revisión independiente · [x] Documentación · [ ] Aprobación humana
+- **Fases:** [x] Implementación (documentación) · [x] Pruebas · [ ] Revisión independiente · [x] Documentación · [x] Aprobación humana
 - **No hacer:** crear recursos Azure reales o que generen cargos sin autorización expresa; cerrar la Task sin aprobación humana.
 
 ## Definition of Done

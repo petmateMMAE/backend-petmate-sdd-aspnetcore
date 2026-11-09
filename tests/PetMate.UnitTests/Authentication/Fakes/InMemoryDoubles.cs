@@ -121,7 +121,7 @@ public sealed class InMemorySessionRepository : ISessionRepository
     {
         lock (gate)
         {
-            sessions[session.Id] = session;
+            sessions[session.Id] = Copy(session);
             Store(firstToken);
         }
 
@@ -164,7 +164,7 @@ public sealed class InMemorySessionRepository : ISessionRepository
     {
         lock (gate)
         {
-            return Task.FromResult(sessions.TryGetValue(sessionId, out var session) ? session : null);
+            return Task.FromResult(sessions.TryGetValue(sessionId, out var session) ? Copy(session) : null);
         }
     }
 
@@ -174,7 +174,7 @@ public sealed class InMemorySessionRepository : ISessionRepository
         {
             if (sessions.TryGetValue(session.Id, out var stored) && !stored.IsRevoked)
             {
-                sessions[session.Id] = session;
+                sessions[session.Id] = Copy(session);
                 return Task.FromResult(true);
             }
         }
@@ -188,12 +188,25 @@ public sealed class InMemorySessionRepository : ISessionRepository
         {
             if (sessions.TryGetValue(session.Id, out var stored) && !stored.IsRevoked)
             {
-                sessions[session.Id] = session;
+                sessions[session.Id] = Copy(session);
             }
         }
 
         return Task.CompletedTask;
     }
+
+    // Como Atlas, cada lectura devuelve una copia independiente: dos solicitudes concurrentes nunca comparten la misma instancia
+    // (compartirla hacía que un perdedor revocara el objeto del ganador y la prueba de concurrencia fallara de forma intermitente).
+    private static RefreshSession Copy(RefreshSession session)
+        => RefreshSession.Restore(
+            session.Id,
+            session.UserId,
+            session.CreatedAtUtc,
+            session.LastUsedAtUtc,
+            session.IdleExpiresAtUtc,
+            session.AbsoluteExpiresAtUtc,
+            session.RevokedAtUtc,
+            session.RevocationReason);
 
     public bool IsSessionRevoked(Guid sessionId)
     {
@@ -243,6 +256,27 @@ public sealed class InMemoryRevocationStore(TimeProvider clock) : ITokenRevocati
         return Task.FromResult(revoked.TryGetValue(jti, out var expires) && expires > clock.GetUtcNow().UtcDateTime);
     }
 
+    private readonly ConcurrentDictionary<Guid, DateTime> revokedSessions = new();
+
+    public Task RevokeSession(Guid sessionId, DateTime untilUtc, CancellationToken cancellationToken)
+    {
+        ThrowIfFailing();
+        if (untilUtc > clock.GetUtcNow().UtcDateTime)
+        {
+            revokedSessions[sessionId] = untilUtc;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task<bool> IsSessionRevoked(Guid sessionId, CancellationToken cancellationToken)
+    {
+        ThrowIfFailing();
+        return Task.FromResult(revokedSessions.TryGetValue(sessionId, out var until) && until > clock.GetUtcNow().UtcDateTime);
+    }
+
+    public bool ContainsSession(Guid sessionId) => revokedSessions.ContainsKey(sessionId);
+
     public bool Contains(string jti) => revoked.ContainsKey(jti);
 
     private void ThrowIfFailing()
@@ -288,7 +322,9 @@ public sealed class FakeHasher : IPasswordHasher
 /// <summary>Emisor de access tokens falso: el "token" es el jti; suficiente para probar handlers.</summary>
 public sealed class FakeAccessTokenService(TimeProvider clock) : IAccessTokenService
 {
-    public AccessToken Issue(Guid userId, UserRole role)
+    public TimeSpan Lifetime => TimeSpan.FromMinutes(15);
+
+    public AccessToken Issue(Guid userId, UserRole role, Guid? sessionId = null)
     {
         var jti = Guid.NewGuid().ToString("N");
         return new AccessToken($"fake.{userId:N}.{role}.{jti}", jti, clock.GetUtcNow().UtcDateTime.AddMinutes(15));
@@ -407,8 +443,8 @@ public sealed class AuthTestHarness
         var issuer = new AuthTokenIssuer(Sessions, Tokens, Access, SessionPolicy.Default);
         Register = new RegisterHandler(Users, Hasher, issuer, Clock);
         Login = new LoginHandler(Users, Hasher, issuer, Clock, Throttle);
-        Refresh = new RefreshHandler(Users, Sessions, Tokens, Access, SessionPolicy.Default, Clock, Throttle);
-        Logout = new LogoutHandler(Sessions, Revocations, Tokens, Clock);
+        Refresh = new RefreshHandler(Users, Sessions, Tokens, Access, SessionPolicy.Default, Clock, Throttle, Revocations);
+        Logout = new LogoutHandler(Sessions, Revocations, Tokens, Access, Clock);
     }
 
     public ManualClock Clock { get; }

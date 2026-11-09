@@ -52,3 +52,22 @@ Suites actuales: Unit 188/188, Security 170/170, Contract 170/170, Integration 5
 - [ ] Decisión del usuario sobre H3, H4, H6, H7, H8 e I2 (corregir, planificar o aceptar con constancia en `Memoria.md`). Pendiente: el cierre de T023 y T056 no la sustituye.
 - [x] Aprobación humana del cierre de T023 (2026-11-08); pm-034 `Cerrado`.
 - [x] Aprobación humana del cierre de T056 (2026-11-08).
+
+## Enmienda 2026-11-08 — T101 (H3)
+
+> Estado: implementada y verificada; pendiente de revisión independiente y de aprobación humana. Aprobada por el usuario (2026-11-08).
+
+| CA | Task | Criterio | Evidencia | Resultado |
+|---|---|---|---|---|
+| `pm-034#CA-05` | T101 | Bloqueo duro por par (correo, IP) | `LoginHandler`, `AuthThrottleRules.Login`; `HardeningTests.Failures_from_one_ip_lock_only_that_pair...`, `The_pair_lock_expires_after_fifteen_minutes`, `A_successful_login_clears_only_the_pair_counter`, `Without_a_client_key_the_lock_counts_by_email_alone` | Cumple |
+| `pm-034#CA-06` | T101 | Techo por correo con espera corta | `AuthThrottleRules.LoginEmailCeiling` (50 / 15 min / 1 min); `HardeningTests.A_distributed_attack_hits_the_email_ceiling...` | Cumple |
+
+| Gate | Resultado | Cómo |
+|---|---|---|
+| Build Release con analizadores como error | 0 advertencias, 0 errores | Contenedor `mcr.microsoft.com/dotnet/sdk:10.0` (`-warnaserror`) |
+| Suites | Unit 215, Security 180, Contract 202 (medidos al terminar esta Task; ver Memoria.md), Integration con los Redis desechables: 24 pasan y 4 se omiten del filtro Redis | Mismo contenedor; Redis con dos contenedores desechables de contraseñas aleatorias |
+| Integridad SDD | OK | `scripts/check-sdd.ps1` (rango ampliado a T001–T102) |
+
+- Limitaciones: Un atacante con muchas IPs puede imponer esperas de 1 minuto al propietario tras cada 50 intentos (≈ 3 intentos por minuto en total), no el bloqueo de 15 minutos. La IP se toma del cliente real solo con `TRUSTED_PROXIES` bien configurado (H6).
+- [ ] Revisión independiente.
+- [x] Aprobación humana de T101 (2026-11-08).

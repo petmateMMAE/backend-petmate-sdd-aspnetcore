@@ -190,6 +190,7 @@ public sealed class AuthHandlersTests
         var stack = new AuthTestHarness();
         var first = await RegisterOwner(stack);
         var rotated = (await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), CancellationToken.None)).Value!;
+        stack.Clock.Advance(RefreshHandler.ReplayGrace + TimeSpan.FromSeconds(1)); // fuera de la ventana de gracia (H8)
 
         var replay = await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), CancellationToken.None);
         var newestAfterReplay = await stack.Refresh.Handle(new RefreshCommand(rotated.RefreshToken), CancellationToken.None);
@@ -210,9 +211,56 @@ public sealed class AuthHandlersTests
         var results = await Task.WhenAll(Enumerable.Range(0, 20)
             .Select(_ => Task.Run(() => stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), CancellationToken.None))));
 
-        Assert.InRange(results.Count(result => result.IsSuccess), 0, 1); // un perdedor puede revocar la sesión antes de que el ganador la actualice
+        // H8: los perdedores caen dentro de la ventana de gracia, así que se rechazan sin revocar la sesión.
+        Assert.Equal(1, results.Count(result => result.IsSuccess));
         Assert.All(results.Where(result => !result.IsSuccess), result => Assert.Equal(AuthError.InvalidRefreshToken, result.Error));
-        Assert.True(Assert.Single(stack.Sessions.Sessions()).IsRevoked);
+        Assert.False(Assert.Single(stack.Sessions.Sessions()).IsRevoked);
+        Assert.False(stack.Revocations.ContainsSession(Assert.Single(stack.Sessions.Sessions()).Id));
+    }
+
+    [Fact]
+    public async Task Presenting_a_consumed_token_inside_the_grace_window_is_rejected_without_revoking_the_session()
+    {
+        var stack = new AuthTestHarness();
+        var first = await RegisterOwner(stack);
+        var rotated = (await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), CancellationToken.None)).Value!;
+        stack.Clock.Advance(RefreshHandler.ReplayGrace); // justo en el límite: aún dentro de la ventana
+
+        var retry = await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), CancellationToken.None);
+        var next = await stack.Refresh.Handle(new RefreshCommand(rotated.RefreshToken), CancellationToken.None);
+
+        Assert.Equal(AuthError.InvalidRefreshToken, retry.Error);
+        Assert.True(next.IsSuccess);
+        Assert.False(Assert.Single(stack.Sessions.Sessions()).IsRevoked);
+    }
+
+    [Fact]
+    public async Task Replay_after_the_grace_window_revokes_the_session_and_its_access_tokens_immediately()
+    {
+        var stack = new AuthTestHarness();
+        var first = await RegisterOwner(stack);
+        await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), CancellationToken.None);
+        stack.Clock.Advance(RefreshHandler.ReplayGrace + TimeSpan.FromSeconds(1));
+
+        var replay = await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), CancellationToken.None);
+
+        Assert.Equal(AuthError.InvalidRefreshToken, replay.Error);
+        var session = Assert.Single(stack.Sessions.Sessions());
+        Assert.True(session.IsRevoked);
+        Assert.True(await stack.Revocations.IsSessionRevoked(session.Id, CancellationToken.None)); // H7
+    }
+
+    [Fact]
+    public async Task Logout_revokes_the_session_for_all_its_access_tokens()
+    {
+        var stack = new AuthTestHarness();
+        var tokens = await RegisterOwner(stack);
+
+        var result = await stack.Logout.Handle(
+            new LogoutCommand(tokens.UserId, tokens.AccessToken.Jti, tokens.AccessToken.ExpiresAtUtc, tokens.RefreshToken), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.True(await stack.Revocations.IsSessionRevoked(Assert.Single(stack.Sessions.Sessions()).Id, CancellationToken.None)); // H7
     }
 
     [Fact]

@@ -9,6 +9,8 @@
   <ItemGroup>
     <InternalsVisibleTo Include="PetMate.Infrastructure" />
     <InternalsVisibleTo Include="PetMate.UnitTests" />
+    <InternalsVisibleTo Include="PetMate.ContractTests" />
+    <InternalsVisibleTo Include="PetMate.IntegrationTests" />
   </ItemGroup>
 
 </Project>

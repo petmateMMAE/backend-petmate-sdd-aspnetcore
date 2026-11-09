@@ -1,6 +1,6 @@
 # Gates — pm-017 trusted-proxy-forwarded-headers (T047, T097)
 
-> Estado (2026-11-08): T047, T097 documentadas/verificadas; pendientes de revisión y aprobación humana. Una retrospectiva nunca se cierra automáticamente.
+> Estado (2026-11-08): retrospectiva y Task nueva aprobadas por el usuario (2026-11-08); sin revisión independiente de seguridad de la Task nueva (dispensa del usuario registrada en `specs/README.md`).
 
 | CA | Task | Criterio | Evidencia | Resultado |
 |---|---|---|---|---|
@@ -19,4 +19,4 @@
 
 - Limitaciones: En el servidor de pruebas sin IP de origen la comprobación no es fiel, por eso las pruebas fijan una; Kestrel siempre trae la IP de la conexión. Detrás del balanceador de Azure `TRUSTED_PROXIES` debe listar el último salto (requisito de despliegue, H6).
 - [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T047, T097.
+- [x] Aprobación humana (2026-11-08) del cierre de T047, T097.

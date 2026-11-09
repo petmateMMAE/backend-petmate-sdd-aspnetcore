@@ -17,5 +17,5 @@
 | Recursos de Azure creados | Ninguno | No se ejecutó `terraform` ni `az` |
 
 - Limitaciones: Los valores de `.env.example` son marcadores (`…_ficticio`); el entorno Azure se llama «prod» en recursos y etiquetas pero funciona como demo; no existe un cuarto entorno.
-- [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T076.
+- [x] Revisión independiente (2026-11-08): subagentes de solo lectura, seguridad (apto con observaciones) y trazabilidad (consistente con observaciones); ver `Memoria.md`. Hallazgos corregidos o registrados.
+- [x] Aprobación humana de T076 (2026-11-08).

@@ -4,7 +4,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using PetMate.Application.Security;
 using PetMate.ContractTests.Support;
+using PetMate.TestDoubles;
 
 namespace PetMate.ContractTests.Authentication;
 
@@ -113,7 +116,13 @@ public sealed class ForwardedHeadersSpoofingTests
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             base.ConfigureWebHost(builder);
-            builder.ConfigureServices(services => services.AddTransient<IStartupFilter>(_ => new SetRemoteIpFilter(IPAddress.Parse(remoteIp))));
+            builder.ConfigureServices(services =>
+            {
+                services.AddTransient<IStartupFilter>(_ => new SetRemoteIpFilter(IPAddress.Parse(remoteIp)));
+                // El límite por IP ahora cuenta en Redis Auth (H6): se sustituye por el doble en memoria con la misma semántica.
+                services.RemoveAll<IAuthAttemptThrottle>();
+                services.AddSingleton<IAuthAttemptThrottle>(new InMemoryAuthAttemptThrottle(new ManualClock(DateTimeOffset.UtcNow)));
+            });
         }
     }
 

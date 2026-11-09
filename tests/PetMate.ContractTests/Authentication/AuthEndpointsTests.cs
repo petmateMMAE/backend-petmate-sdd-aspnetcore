@@ -187,6 +187,7 @@ public sealed class AuthEndpointsTests
         Assert.Equal(HttpStatusCode.OK, refreshed.StatusCode);
         var second = ReadTokens(await refreshed.Content.ReadAsStringAsync());
         Assert.NotEqual(first.Refresh, second.Refresh);
+        factory.Clock.Advance(PetMate.Application.Authentication.RefreshHandler.ReplayGrace + TimeSpan.FromSeconds(1)); // fuera de la ventana de gracia (H8)
 
         using var replay = await Post(client, "refresh", new { refreshToken = first.Refresh });
         using var newestAfterReplay = await Post(client, "refresh", new { refreshToken = second.Refresh });

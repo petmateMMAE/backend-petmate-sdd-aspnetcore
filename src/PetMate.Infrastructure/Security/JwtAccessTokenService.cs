@@ -57,7 +57,9 @@ public sealed class JwtAccessTokenService : IAccessTokenService
         };
     }
 
-    public AccessToken Issue(Guid userId, UserRole role)
+    public TimeSpan Lifetime => options.AccessTokenLifetime;
+
+    public AccessToken Issue(Guid userId, UserRole role, Guid? sessionId = null)
     {
         if (userId == Guid.Empty || !Enum.IsDefined(role))
         {
@@ -67,6 +69,17 @@ public sealed class JwtAccessTokenService : IAccessTokenService
         var now = timeProvider.GetUtcNow().UtcDateTime;
         var expires = now + options.AccessTokenLifetime;
         var jti = Guid.NewGuid().ToString("N");
+        var tokenClaims = new Dictionary<string, object>
+        {
+            [JwtRegisteredClaimNames.Sub] = userId.ToString("D"),
+            [JwtRegisteredClaimNames.Jti] = jti,
+            ["role"] = role.ToString(),
+        };
+        if (sessionId is { } sid && sid != Guid.Empty)
+        {
+            tokenClaims["sid"] = sid.ToString("D");
+        }
+
         var descriptor = new SecurityTokenDescriptor
         {
             Issuer = options.Issuer,
@@ -75,12 +88,7 @@ public sealed class JwtAccessTokenService : IAccessTokenService
             NotBefore = now,
             Expires = expires,
             SigningCredentials = new SigningCredentials(options.CreateKey(), JwtOptions.Algorithm),
-            Claims = new Dictionary<string, object>
-            {
-                [JwtRegisteredClaimNames.Sub] = userId.ToString("D"),
-                [JwtRegisteredClaimNames.Jti] = jti,
-                ["role"] = role.ToString(),
-            },
+            Claims = tokenClaims,
         };
 
         return new AccessToken(handler.CreateToken(descriptor), jti, expires);
@@ -117,7 +125,19 @@ public sealed class JwtAccessTokenService : IAccessTokenService
             return false;
         }
 
-        claims = new AccessTokenClaims(userId, role, jti, DateTime.SpecifyKind(jwt.ValidTo, DateTimeKind.Utc));
+        // `sid` es opcional (tokens anteriores a H7 siguen vigentes hasta expirar); si existe debe ser un GUID válido.
+        Guid? sessionId = null;
+        if (jwt.TryGetPayloadValue<string>("sid", out var sidText))
+        {
+            if (!Guid.TryParseExact(sidText, "D", out var sid) || sid == Guid.Empty)
+            {
+                return false;
+            }
+
+            sessionId = sid;
+        }
+
+        claims = new AccessTokenClaims(userId, role, jti, DateTime.SpecifyKind(jwt.ValidTo, DateTimeKind.Utc), sessionId);
         return true;
     }
 }

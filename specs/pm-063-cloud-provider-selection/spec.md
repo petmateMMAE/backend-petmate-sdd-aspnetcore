@@ -1,6 +1,6 @@
 # Spec — pm-063 cloud-provider-selection
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L1 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Verificado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L1 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -32,7 +32,7 @@ Cada criterio se cita como `pm-063#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T075 | Nueva | En progreso (documentada y verificada; pendiente de aprobación humana) | Registrar la decisión de proveedor y los ADR de servicios Azure |
+| T075 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | Registrar la decisión de proveedor y los ADR de servicios Azure |
 
 Detalle en [task.md](task.md).
 
@@ -46,3 +46,4 @@ Detalle en [task.md](task.md).
 - [x] Constitución cumplida.
 - Revisor/usuario: Adrián Adonai García Jiménez (responsable de nube y despliegue), 2026-11-05, alcance: primer despliegue del backend actual (7 endpoints). Pendiente de ratificación de Miguel Ángel Núñez en la revisión del PR.
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec. La evidencia histórica de esta funcionalidad permanece en `specs/_historico/`.
+- Ratificación de Miguel (usuario), 2026-11-08: aprobación del spec y de la Task en el chat de la sesión (cierre de spec pendiente).

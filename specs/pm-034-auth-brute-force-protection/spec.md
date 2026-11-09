@@ -1,6 +1,6 @@
 # Spec — pm-034 auth-brute-force-protection
 
-> Estado: Cerrado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L9 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Verificado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L9 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -28,6 +28,8 @@ Cada criterio se cita como `pm-034#CA-NN`. La columna final indica la Task que l
 | `CA-02` | Un bloqueo temporal frena el credential stuffing sin revelar si el correo existe. | T056 |
 | `CA-03` | Un limitador asíncrono de hashing evita agotar la CPU bajo abuso. | T056 |
 | `CA-04` | Las respuestas 429 usan el wrapper y `Retry-After`. | T056 |
+| `CA-05` | El bloqueo duro de login se cuenta por par (correo, IP) para que un tercero no pueda bloquear la cuenta de otra persona desde su propia IP. | T101 |
+| `CA-06` | Un techo por correo, mucho más alto e independiente de la IP, impone una espera corta (no el bloqueo duro) ante ataques distribuidos. | T101 |
 
 ## 5. Tasks
 
@@ -35,6 +37,7 @@ Cada criterio se cita como `pm-034#CA-NN`. La columna final indica la Task que l
 |---|---|---|---|
 | T023 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Pruebas unitarias, integración y seguridad de auth |
 | T056 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar cuota por correo, bloqueo y limitador asíncrono de hashing |
+| T101 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad) | Bloqueo de login por par (correo, IP) y techo por correo con espera corta (H3) |
 
 Detalle en [task.md](task.md).
 
@@ -55,3 +58,4 @@ Detalle en [task.md](task.md).
 - [x] Constitución cumplida.
 - Revisor/usuario: usuario del proyecto, aprobado el 2026-11-08.
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec. La evidencia histórica de esta funcionalidad permanece en `specs/_historico/`.
+- Enmienda 2026-11-08 (T101, hallazgo H3): Aprobado por el usuario el 2026-11-08 (opciones A de H7, H3 y H8; B de H4; A, B y C de H6).

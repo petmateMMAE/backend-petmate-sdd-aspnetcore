@@ -47,14 +47,23 @@ public sealed class LoginHandler : IRequestHandler<LoginCommand, AuthResult<Auth
         // correos existentes e inexistentes, así que no revela cuál es cuál. El intento se cuenta ANTES de verificar la
         // contraseña (el conteo es atómico en Redis): una ráfaga concurrente no puede evaluar más contraseñas que el máximo.
         // Un login correcto borra el contador, así que en la práctica solo cuentan los fallos.
+        // H3: bloqueo duro por par (correo, IP) y techo por correo con espera corta. Quien falla desde su IP solo se bloquea a sí
+        // mismo; un tercero no puede dejar fuera a la víctima. Ambos conteos son atómicos y anteriores a verificar la contraseña.
+        var pairSubject = request.ClientKey is null ? email.Value : email.Value + "|" + request.ClientKey;
         if (throttle is not null)
         {
-            if (await throttle.GetRemainingLock(AuthThrottleRules.LoginScope, email.Value, cancellationToken).ConfigureAwait(false) is { } remaining)
+            var locked = Longest(
+                await throttle.GetRemainingLock(AuthThrottleRules.LoginScope, pairSubject, cancellationToken).ConfigureAwait(false),
+                await throttle.GetRemainingLock(AuthThrottleRules.LoginEmailCeilingScope, email.Value, cancellationToken).ConfigureAwait(false));
+            if (locked is { } remaining)
             {
                 return AuthResult.Throttled<AuthTokensResult>(remaining);
             }
 
-            if (await throttle.RecordAttempt(AuthThrottleRules.LoginScope, email.Value, AuthThrottleRules.Login, cancellationToken).ConfigureAwait(false) is { } lockedFor)
+            var newLock = Longest(
+                await throttle.RecordAttempt(AuthThrottleRules.LoginScope, pairSubject, AuthThrottleRules.Login, cancellationToken).ConfigureAwait(false),
+                await throttle.RecordAttempt(AuthThrottleRules.LoginEmailCeilingScope, email.Value, AuthThrottleRules.LoginEmailCeiling, cancellationToken).ConfigureAwait(false));
+            if (newLock is { } lockedFor)
             {
                 return AuthResult.Throttled<AuthTokensResult>(lockedFor);
             }
@@ -88,11 +97,14 @@ public sealed class LoginHandler : IRequestHandler<LoginCommand, AuthResult<Auth
 
         if (throttle is not null)
         {
-            await throttle.Clear(AuthThrottleRules.LoginScope, email.Value, cancellationToken).ConfigureAwait(false);
+            await throttle.Clear(AuthThrottleRules.LoginScope, pairSubject, cancellationToken).ConfigureAwait(false);
         }
 
         return AuthResult.Success(await issuer.StartSession(user, now, cancellationToken).ConfigureAwait(false));
     }
+
+    private static TimeSpan? Longest(TimeSpan? first, TimeSpan? second)
+        => first is null ? second : second is null ? first : first > second ? first : second;
 
     private async Task<HashingOutcome<T>> Limited<T>(Func<T> work, CancellationToken cancellationToken)
         => limiter is null ? new HashingOutcome<T>(true, work()) : await limiter.Run(work, cancellationToken).ConfigureAwait(false);

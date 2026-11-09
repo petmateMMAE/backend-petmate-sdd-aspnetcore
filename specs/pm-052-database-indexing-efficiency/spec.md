@@ -1,6 +1,6 @@
 # Spec — pm-052 database-indexing-efficiency
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Verificado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -31,7 +31,7 @@ Cada criterio se cita como `pm-052#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T063 | Nueva | En progreso (implementada y verificada; pendiente de aprobación humana) | Inventariar índices y evidenciar consultas críticas |
+| T063 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | Inventariar índices y evidenciar consultas críticas |
 
 Detalle en [task.md](task.md).
 

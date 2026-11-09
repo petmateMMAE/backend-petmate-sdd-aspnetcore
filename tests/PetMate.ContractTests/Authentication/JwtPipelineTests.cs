@@ -162,6 +162,21 @@ public sealed class FakeRevocationStore : ITokenRevocationStore
         return Task.FromResult(revoked.Contains(jti));
     }
 
+    private readonly HashSet<Guid> revokedSessions = [];
+
+    public Task RevokeSession(Guid sessionId, DateTime untilUtc, CancellationToken cancellationToken)
+    {
+        ThrowIfFailing();
+        revokedSessions.Add(sessionId);
+        return Task.CompletedTask;
+    }
+
+    public Task<bool> IsSessionRevoked(Guid sessionId, CancellationToken cancellationToken)
+    {
+        ThrowIfFailing();
+        return Task.FromResult(revokedSessions.Contains(sessionId));
+    }
+
     private void ThrowIfFailing()
     {
         if (Fail)

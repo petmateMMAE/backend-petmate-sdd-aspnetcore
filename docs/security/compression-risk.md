@@ -14,5 +14,8 @@
 | Costo de CPU / DoS | Comprimir cuesta CPU | Nivel `Fastest`; cuerpo de petición limitado a 16 KB; paginación máxima de 50 elementos |
 | Caché intermedia | Respuestas distintas por codificación | El middleware añade `Vary: Accept-Encoding` |
 
+## Riesgo residual aceptado (revisión independiente, 2026-11-08)
+Las respuestas de `users/me` y `pets/*` se comprimen y contienen datos personales (correo, mascotas); no son secretos de sesión. Los errores de validación pueden reflejar texto del cliente. Un ataque BREACH exigiría que el atacante inyecte texto en una solicitud autenticada de la víctima y mida tamaños, pero el token viaja en la cabecera `Authorization` (no en cookie), lo que lo impide en la práctica. **Se acepta como riesgo residual bajo**; si se quiere eliminarlo, excluir también `users/me`. La exclusión es por ruta (no por metadato del endpoint): `UsePathBase`, reescrituras o rutas alias exigirían revisarla; hay pruebas con mayúsculas.
+
 ## Pruebas y límites
 `CompressionAndJsonTests` verifica la compresión solicitada, el contenido idéntico al descomprimir, `Vary` y que registro, login y login fallido no se comprimen. Limitaciones: la medición es sobre datos sintéticos; si en el futuro una ruta fuera de `/auth/*` devuelve un secreto, debe añadirse a la exclusión.

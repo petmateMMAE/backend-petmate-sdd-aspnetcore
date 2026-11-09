@@ -1,6 +1,6 @@
 # Spec — pm-048 response-compression
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L4 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Verificado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L4 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -30,7 +30,7 @@ Cada criterio se cita como `pm-048#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T059 | Nueva | En progreso (implementada y verificada; pendiente de aprobación humana) | Implementar y evaluar la compresión HTTP |
+| T059 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar y evaluar la compresión HTTP |
 
 Detalle en [task.md](task.md).
 

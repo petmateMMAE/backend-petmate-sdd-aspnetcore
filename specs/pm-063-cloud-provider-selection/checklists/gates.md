@@ -18,5 +18,5 @@
 | Recursos de Azure creados | Ninguno | No se ejecutó `terraform` ni `az` |
 
 - Limitaciones: Los ADR quedan «Propuesto» hasta tu aprobación; Blob y CDN están diferidos y se reevaluarán con precio vigente antes de crearlos.
-- [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T075.
+- [x] Revisión independiente (2026-11-08): subagentes de solo lectura, seguridad (apto con observaciones) y trazabilidad (consistente con observaciones); ver `Memoria.md`. Hallazgos corregidos o registrados.
+- [x] Aprobación humana de T075 (2026-11-08).

@@ -11,11 +11,11 @@
 
 ### T061 — Implementar el adaptador de caché distribuida sobre Redis Cache
 - **Tipo:** Nueva
-- **Estado:** En progreso (implementada y verificada; pendiente de aprobación humana)
+- **Estado:** Cerrado y aprobado (2026-11-08, aprobación humana)
 - **Spec principal:** pm-050
 - **Criterios propios:** pm-050#CA-01, pm-050#CA-02, pm-050#CA-03
 - **Verificar:** ver [plan.md](plan.md) y la evidencia en [checklists/gates.md](checklists/gates.md).
-- **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente · [x] Documentación · [ ] Aprobación humana
+- **Fases:** [x] Implementación · [x] Pruebas · [x] Revisión independiente · [x] Documentación · [x] Aprobación humana
 - **No hacer:** cerrar la Task sin aprobación humana.
 
 ## Definition of Done

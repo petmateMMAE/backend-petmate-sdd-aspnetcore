@@ -70,6 +70,25 @@ public sealed class CompressionAndJsonTests(ITestOutputHelper output)
         Assert.Contains("accessToken", Encoding.UTF8.GetString(login.Bytes), StringComparison.Ordinal);
     }
 
+    [Trait("Endpoint", "auth-login")]
+    [Theory]
+    [InlineData("/API/V1/AUTH/login")]
+    [InlineData("/api/v1/Auth/Login")]
+    public async Task The_compression_exclusion_ignores_the_case_of_the_route(string url)
+    {
+        using var factory = new AuthFlowFactory();
+        using var client = factory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Post, url)
+        {
+            Content = new StringContent("{\"email\":\"mayus@example.com\",\"password\":\"otra-contraseña-123\"}", Encoding.UTF8, "application/json"),
+        };
+        request.Headers.TryAddWithoutValidation("Accept-Encoding", "gzip, br");
+
+        using var response = await client.SendAsync(request);
+
+        Assert.Empty(response.Content.Headers.ContentEncoding);
+    }
+
     [Trait("Endpoint", "transversal")]
     [Fact]
     public void Source_generated_json_is_identical_to_reflection_json_and_is_not_slower()

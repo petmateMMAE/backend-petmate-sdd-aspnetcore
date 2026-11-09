@@ -1,6 +1,6 @@
 # Spec — pm-050 distributed-cache-infrastructure
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Verificado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -31,7 +31,7 @@ Cada criterio se cita como `pm-050#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T061 | Nueva | En progreso (implementada y verificada; pendiente de aprobación humana) | Implementar el adaptador de caché distribuida sobre Redis Cache |
+| T061 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar el adaptador de caché distribuida sobre Redis Cache |
 
 Detalle en [task.md](task.md).
 

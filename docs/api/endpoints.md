@@ -16,7 +16,7 @@
 - Todas las respuestas usan `statusCode`, `message`, `data`; `data` es nullable.
 - `statusCode` dentro del wrapper debe coincidir con HTTP.
 - Mensajes en español.
-- Toda respuesta incluye la cabecera **`X-Correlation-Id`** (pm-054): se conserva la que envíe el cliente si cumple `[A-Za-z0-9-]{8,64}`; en otro caso el servidor genera un valor de 32 caracteres hexadecimales. Se registra como ámbito de todos los logs de la solicitud. Los logs son JSON y por solicitud contienen solo método, plantilla de ruta (nunca valores), código HTTP y duración: sin cuerpos, cabeceras, consulta, IP, correos, nombres ni tokens.
+- Toda respuesta incluye la cabecera **`X-Correlation-Id`** (pm-054): se conserva la que envíe el cliente si cumple `[A-Za-z0-9-]{8,64}`; en otro caso el servidor genera un valor de 32 caracteres hexadecimales. Se registra como ámbito de todos los logs de la solicitud. Los intentos de inicio de sesión fallidos, los bloqueos por exceso de intentos y los refresh rechazados se registran como eventos de seguridad (nivel Warning) con un seudónimo de la cuenta (12 caracteres hexadecimales del SHA-256 del correo), nunca el correo, la contraseña ni los tokens. Los logs son JSON y por solicitud contienen solo método, plantilla de ruta (nunca valores), código HTTP y duración: sin cuerpos, cabeceras, consulta, IP, correos, nombres ni tokens.
 
 ## Ruta técnica Foundation
 
@@ -40,8 +40,11 @@ La ruta existe solo para comprobar MVC, Mediator, versionado y OpenAPI. La alter
 ### Contratos de autenticación
 
 - Los cuerpos de entrada rechazan miembros desconocidos: enviar p. ej. `role` devuelve 400. El rol siempre es `Owner` en el registro público.
-- Login y Refresh tienen además cuota por cuenta (pm-034): 5 intentos fallidos de login por correo en 15 minutos y el sexto bloquea 15 minutos (también con la contraseña correcta, sin revelar si el correo existe); 30 refrescos por usuario en 15 minutos. Las respuestas son 429 con el wrapper y `Retry-After`. El hashing de contraseñas está acotado (tantos a la vez como núcleos y el doble en cola): lo que no cabe se rechaza con 429 y `Retry-After: 1`.
-- Register, Login y Refresh están limitados por IP (`AUTH_RATE_LIMIT_PER_MINUTE`, por defecto 10 por minuto): al exceder el límite devuelven 429. Detrás de un proxy debe configurarse `TRUSTED_PROXIES`.
+- Login y Refresh tienen además cuota por cuenta (pm-034, T101/H3): 5 intentos fallidos de login por **par (correo, IP)** en 15 minutos y el sexto bloquea ese par 15 minutos (también con la contraseña correcta, sin revelar si el correo existe), de modo que quien falla desde su IP no deja fuera al propietario que entra desde otra. Un **techo por correo**, independiente de la IP, de 50 intentos en 15 minutos impone una espera de 1 minuto a todas las IPs ante ataques distribuidos. 30 refrescos por usuario en 15 minutos. Las respuestas son 429 con el wrapper y `Retry-After`. El hashing de contraseñas está acotado (tantos a la vez como núcleos y el doble en cola): lo que no cabe se rechaza con 429 y `Retry-After: 1`.
+- Register, Login y Refresh están limitados por IP (`AUTH_RATE_LIMIT_PER_MINUTE`, por defecto 10 por minuto): al exceder el límite devuelven 429. El límite se cuenta **en Redis de autenticación**, compartido entre todas las réplicas (T100/H6), además de la barrera en proceso; si Redis no responde las rutas devuelven 503 (falla cerrada). Detrás de un proxy debe configurarse `TRUSTED_PROXIES` (con `REQUIRE_TRUSTED_PROXIES=true` Production no arranca sin ella; sin esa variable solo se advierte al arrancar). Con el ingress de Azure Container Apps hay **un salto** de proxy, por lo que `ForwardLimit = 1` es correcto; si se añade otro (por ejemplo un balanceador delante), hay que revisar la lista y el límite de saltos.
+- **Access tokens ligados a la sesión (T098/H7):** el JWT incluye el claim `sid` y deja de valer en cuanto su sesión se revoca (logout o replay), no al expirar. Los tokens emitidos antes del cambio, sin `sid`, valen hasta expirar.
+- **Ventana de gracia del refresh (T099/H8):** presentar un refresh token ya consumido dentro de los 10 segundos siguientes devuelve 401 **sin revocar la sesión** (dos pestañas o un reintento); pasada la ventana es un replay: se revoca la sesión y todos sus access tokens.
+- **Registro (T102/H4):** el 409 de un correo duplicado sigue revelando que el correo existe. Riesgo **aceptado**: el hash se calcula siempre antes de comprobar la unicidad (tiempos iguales) y el límite por IP acota la enumeración; solo se elimina con verificación por correo, fuera de alcance por ahora.
 - `AuthResponse` (en `data` de Register, Login y Refresh): `accessToken`, `tokenType` (`Bearer`), `accessTokenExpiresAt`, `refreshToken`, `refreshTokenExpiresAt`, `user { id, email, role }`. El refresh token se entrega solo ahí.
 - Los ejemplos usan valores ficticios; nunca documentar tokens reales.
 
@@ -171,8 +174,9 @@ Todas las respuestas de límite son **429** con el Response Wrapper y la cabecer
 
 | Endpoints | Clave | Límite | Configuración |
 |---|---|---|---|
-| `POST auth/register`, `auth/login`, `auth/refresh` | IP (IPv6 agrupada por /64) | 10 por minuto | `AUTH_RATE_LIMIT_PER_MINUTE` |
-| `POST auth/login` | correo (solo su hash) | 5 fallos por 15 minutos; el sexto bloquea 15 minutos | Fijo (`AuthThrottleRules`) |
+| `POST auth/register`, `auth/login`, `auth/refresh` | IP (IPv6 agrupada por /64), compartido entre réplicas en Redis Auth; espera de 1 minuto al excederlo | 10 por minuto | `AUTH_RATE_LIMIT_PER_MINUTE` |
+| `POST auth/login` | par (correo, IP), solo su hash | 5 fallos por 15 minutos; el sexto bloquea 15 minutos | Fijo (`AuthThrottleRules`) |
+| `POST auth/login` | correo (solo su hash), todas las IPs | techo de 50 intentos por 15 minutos; al superarlo espera de 1 minuto | Fijo (`AuthThrottleRules`) |
 | `POST auth/refresh` | usuario | 30 por 15 minutos; el 31.º bloquea 15 minutos | Fijo (`AuthThrottleRules`) |
 | `POST auth/register`, `auth/login` | instancia (hashing Argon2id) | núcleos de CPU simultáneos y el doble en cola (429 con `Retry-After: 1`); una segunda compuerta interna del hasher responde 503 si la espera supera 5 s | Fijo |
 | `POST auth/logout` | usuario | 60 por minuto (política `users`) | `USERS_RATE_LIMIT_PER_MINUTE` |

@@ -9,3 +9,7 @@
 
 ## Verificación
 Pruebas unitarias (`ThrottlingTests`), de contrato (`AuthThrottlingEndpointsTests`), de integración con Redis real (`AuthAttemptThrottleTests`) y comprobación con Kestrel y Redis reales.
+
+## Enmienda 2026-11-08 — T101 (H3)
+- Bloqueo de login por par (correo, IP) y techo por correo con espera corta.
+- Aprobado por el usuario el 2026-11-08 (opciones A de H7, H3 y H8; B de H4; A, B y C de H6).

@@ -1,6 +1,6 @@
 # Gates — pm-007 api-route-conventions (T042, T055)
 
-> Estado (2026-11-08): T042, T055 documentadas/verificadas; pendientes de revisión y aprobación humana. Una retrospectiva nunca se cierra automáticamente.
+> Estado (2026-11-08): retrospectiva y Task nueva aprobadas por el usuario (2026-11-08); sin revisión independiente de seguridad de la Task nueva (dispensa del usuario registrada en `specs/README.md`).
 
 | CA | Task | Criterio | Evidencia | Resultado |
 |---|---|---|---|---|
@@ -20,4 +20,4 @@
 
 - Limitaciones: La comprobación del catálogo toma solo las filas de una ruta por línea con el patrón `| MÉTODO | \`/api/v1/...\` |`; las filas con varias rutas y las de OpenAPI/Scalar (solo Development) no entran. Un subrecurso nuevo distinto de `me` exige cambiar la regla y la prueba.
 - [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de T042, T055.
+- [x] Aprobación humana (2026-11-08) del cierre de T042, T055.

@@ -16,5 +16,5 @@
 | Suites | Unit 188/188, Security 177/177, Contract 188/188, Integration 56 (34 pasan y 22 se omiten sin contraseñas reales de Redis; las 56 pasaron con los Redis desechables en la corrida previa) | Mismo contenedor, repositorio en solo lectura, sin `.env` salvo la corrida de Atlas |
 | Documento OpenAPI | Se genera en Development | `/openapi/v1.json`; en Production sigue oculto (`OpenApiEndpointsTests`) |
 - Limitaciones: La evidencia de T024 y T039 se reutiliza de pruebas existentes (no se reescribe el histórico); OpenAPI describe los códigos declarados con `ProducesResponseType`, no los 429 que puedan surgir del middleware global de límites.
-- [ ] Revisión independiente.
-- [ ] Aprobación humana del cierre de las Tasks de este Spec.
+- [x] Revisión independiente (2026-11-08): subagentes de solo lectura, seguridad (apto con observaciones) y trazabilidad (consistente con observaciones); ver `Memoria.md`. Hallazgos corregidos o registrados.
+- [x] Aprobación humana de las Tasks de este Spec (2026-11-08).

@@ -30,7 +30,7 @@ Cada criterio se cita como `pm-056#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T068 | Nueva | En progreso (implementada y verificada; pendiente de aprobación humana) | Medir la línea base de cobertura |
+| T068 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; CA-02 pendiente de enmienda) | Medir la línea base de cobertura |
 
 Detalle en [task.md](task.md).
 
