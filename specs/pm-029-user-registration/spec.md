@@ -1,6 +1,6 @@
 # Spec — pm-029 user-registration
 
-> Estado: En revisión | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Verificado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -30,18 +30,21 @@ Cada criterio se cita como `pm-029#CA-NN`. La columna final indica la Task que l
 | `CA-02` | Un cuerpo con miembros desconocidos (p. ej. `role`) devuelve 400. | T018 |
 | `CA-03` | La contraseña debe tener entre 12 y 128 caracteres. | T018 |
 | `CA-04` | La respuesta 201 devuelve `AuthResponse` con access y refresh token. | T018 |
+| `CA-05` | El registro de un correo duplicado no se distingue por tiempo (el hash se calcula siempre antes de comprobar unicidad) y el riesgo de enumeración por el 409 queda aceptado, documentado y acotado por el límite por IP. | T102 |
 
 ## 5. Tasks
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
 | T018 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | Endpoint Register |
+| T102 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad) | Igualar tiempos del registro y documentar el riesgo aceptado de enumeración (H4) (H4) |
 
 Detalle en [task.md](task.md).
 
 ## 7. Aprobación
 
-- [ ] Requisitos y criterios revisados por el usuario.
-- [ ] Constitución cumplida.
-- Revisor/usuario: pendiente.
+- [x] Requisitos y criterios revisados por el usuario.
+- [x] Constitución cumplida.
+- Revisor/usuario: usuario del proyecto, aprobado el 2026-11-08.
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec. La evidencia histórica de esta funcionalidad permanece en `specs/_historico/`.
+- Enmienda 2026-11-08 (T102, hallazgo H4): Aprobado por el usuario el 2026-11-08 (opciones A de H7, H3 y H8; B de H4; A, B y C de H6).

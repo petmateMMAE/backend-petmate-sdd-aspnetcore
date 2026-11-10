@@ -11,17 +11,17 @@ public sealed class RestoreAndHardeningTests
     private static readonly string Sha256Hex = new('b', 64);
 
     [Fact]
-    public void User_restore_accepts_a_business_role_from_persistence()
+    public void User_restore_accepts_the_user_role_from_persistence()
     {
-        var user = User.Restore(Guid.NewGuid(), Email.Create("neg@example.com"), PasswordHash.Create(ValidHash), UserRole.Business, Now, Now);
+        var user = User.Restore(Guid.NewGuid(), Email.Create("neg@example.com"), PasswordHash.Create(ValidHash), UserRole.User, Now, Now);
 
-        Assert.Equal(UserRole.Business, user.Role);
+        Assert.Equal(UserRole.User, user.Role);
     }
 
     [Fact]
     public void User_restore_rejects_updated_before_created()
         => Assert.Throws<DomainException>(() => User.Restore(
-            Guid.NewGuid(), Email.Create("a@b.co"), PasswordHash.Create(ValidHash), UserRole.Owner, Now, Now.AddSeconds(-1)));
+            Guid.NewGuid(), Email.Create("a@b.co"), PasswordHash.Create(ValidHash), UserRole.User, Now, Now.AddSeconds(-1)));
 
     [Fact]
     public void Session_restore_round_trips_valid_state()

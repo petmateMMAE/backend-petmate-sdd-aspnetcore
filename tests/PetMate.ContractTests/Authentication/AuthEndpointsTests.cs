@@ -30,7 +30,7 @@ public sealed class AuthEndpointsTests
         using var factory = new AuthFlowFactory();
         using var client = factory.CreateClient();
 
-        using var response = await Post(client, "register", new { email = "Ana@Example.com", password = Password });
+        using var response = await Post(client, "register", new { displayName = "Ana", email = "Ana@Example.com", password = Password });
         var raw = await response.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
@@ -38,7 +38,7 @@ public sealed class AuthEndpointsTests
         AssertWrapper(document, 201);
         var data = document.RootElement.GetProperty("data");
         Assert.Equal("Bearer", data.GetProperty("tokenType").GetString());
-        Assert.Equal("Owner", data.GetProperty("user").GetProperty("role").GetString());
+        Assert.Equal("User", data.GetProperty("user").GetProperty("role").GetString());
         Assert.Equal("ana@example.com", data.GetProperty("user").GetProperty("email").GetString());
         Assert.Equal(43, data.GetProperty("refreshToken").GetString()!.Length);
         Assert.DoesNotContain(Password, raw, StringComparison.Ordinal);
@@ -71,7 +71,7 @@ public sealed class AuthEndpointsTests
         using var factory = new AuthFlowFactory();
         using var client = factory.CreateClient();
 
-        using var response = await Post(client, "register", new { email = "malo", password = "corta" });
+        using var response = await Post(client, "register", new { displayName = "Ana", email = "malo", password = "corta" });
         using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -105,9 +105,9 @@ public sealed class AuthEndpointsTests
     {
         using var factory = new AuthFlowFactory();
         using var client = factory.CreateClient();
-        await Post(client, "register", new { email = "ana@example.com", password = Password });
+        await Post(client, "register", new { displayName = "Ana", email = "ana@example.com", password = Password });
 
-        using var response = await Post(client, "register", new { email = "ANA@example.com", password = Password });
+        using var response = await Post(client, "register", new { displayName = "Ana", email = "ANA@example.com", password = Password });
         using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
@@ -124,13 +124,13 @@ public sealed class AuthEndpointsTests
     {
         using var factory = new AuthFlowFactory();
         using var client = factory.CreateClient();
-        await Post(client, "register", new { email = "ana@example.com", password = Password });
+        await Post(client, "register", new { displayName = "Ana", email = "ana@example.com", password = Password });
 
         var tokens = await LoginAndRead(client, "ana@example.com", Password);
 
         var claims = await factory.Services.GetRequiredService<IAccessTokenService>().Validate(tokens.Access, CancellationToken.None);
         Assert.NotNull(claims);
-        Assert.Equal(PetMate.Domain.Users.UserRole.Owner, claims.Role);
+        Assert.Equal(PetMate.Domain.Users.UserRole.User, claims.Role);
     }
 
     [Trait("Endpoint", "auth-login")]
@@ -139,7 +139,7 @@ public sealed class AuthEndpointsTests
     {
         using var factory = new AuthFlowFactory();
         using var client = factory.CreateClient();
-        await Post(client, "register", new { email = "ana@example.com", password = Password });
+        await Post(client, "register", new { displayName = "Ana", email = "ana@example.com", password = Password });
 
         using var wrongPassword = await Post(client, "login", new { email = "ana@example.com", password = "otra-contraseña-123" });
         using var unknown = await Post(client, "login", new { email = "nadie@example.com", password = Password });
@@ -187,6 +187,7 @@ public sealed class AuthEndpointsTests
         Assert.Equal(HttpStatusCode.OK, refreshed.StatusCode);
         var second = ReadTokens(await refreshed.Content.ReadAsStringAsync());
         Assert.NotEqual(first.Refresh, second.Refresh);
+        factory.Clock.Advance(PetMate.Application.Authentication.RefreshHandler.ReplayGrace + TimeSpan.FromSeconds(1)); // fuera de la ventana de gracia (H8)
 
         using var replay = await Post(client, "refresh", new { refreshToken = first.Refresh });
         using var newestAfterReplay = await Post(client, "refresh", new { refreshToken = second.Refresh });
@@ -324,7 +325,7 @@ public sealed class AuthEndpointsTests
 
     private static async Task<(string Access, string Refresh)> RegisterAndRead(HttpClient client, string email)
     {
-        using var response = await Post(client, "register", new { email, password = Password });
+        using var response = await Post(client, "register", new { displayName = "Ana", email, password = Password });
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         return ReadTokens(await response.Content.ReadAsStringAsync());
     }
@@ -344,15 +345,49 @@ public sealed class AuthEndpointsTests
     }
 }
 
-public sealed class AuthFlowFactory : IsolatedApiFactory
+public class AuthFlowFactory : IsolatedApiFactory
 {
-    public AuthFlowFactory(int? rateLimitPerMinute = null)
-        : base("Development", rateLimitPerMinute is null ? null : new Dictionary<string, string> { ["AUTH_RATE_LIMIT_PER_MINUTE"] = rateLimitPerMinute.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) })
+    public AuthFlowFactory(int? rateLimitPerMinute = null, int? petsRateLimitPerMinute = null, int? usersRateLimitPerMinute = null, int? carnetRateLimitPerMinute = null)
+        : base("Development", Overrides(rateLimitPerMinute, petsRateLimitPerMinute, usersRateLimitPerMinute, carnetRateLimitPerMinute))
     {
         Clock = new ManualClock(DateTimeOffset.UtcNow);
         Users = new InMemoryUserRepository();
         Sessions = new InMemorySessionRepository();
         Revocations = new InMemoryRevocationStore(Clock);
+        Pets = new InMemoryPetRepository();
+        Vaccines = new InMemoryVaccineRepository();
+        Dewormings = new InMemoryDewormingRepository();
+        Weights = new InMemoryWeightRepository();
+        Allergies = new InMemoryAllergyRepository();
+        PasswordResets = new InMemoryPasswordResetRepository();
+        Email = new FakeEmailSender();
+        Throttle = new InMemoryAuthAttemptThrottle(Clock);
+    }
+
+    private static Dictionary<string, string>? Overrides(int? auth, int? pets, int? users, int? carnet = null)
+    {
+        var overrides = new Dictionary<string, string>();
+        if (carnet is not null)
+        {
+            overrides["CARNET_RATE_LIMIT_PER_MINUTE"] = carnet.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        if (auth is not null)
+        {
+            overrides["AUTH_RATE_LIMIT_PER_MINUTE"] = auth.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        if (pets is not null)
+        {
+            overrides["PETS_RATE_LIMIT_PER_MINUTE"] = pets.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        if (users is not null)
+        {
+            overrides["USERS_RATE_LIMIT_PER_MINUTE"] = users.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        return overrides.Count == 0 ? null : overrides;
     }
 
     public ManualClock Clock { get; }
@@ -362,6 +397,22 @@ public sealed class AuthFlowFactory : IsolatedApiFactory
     public InMemorySessionRepository Sessions { get; }
 
     public InMemoryRevocationStore Revocations { get; }
+
+    public InMemoryPetRepository Pets { get; }
+
+    public InMemoryVaccineRepository Vaccines { get; }
+
+    public InMemoryDewormingRepository Dewormings { get; }
+
+    public InMemoryWeightRepository Weights { get; }
+
+    public InMemoryAllergyRepository Allergies { get; }
+
+    public InMemoryPasswordResetRepository PasswordResets { get; }
+
+    public FakeEmailSender Email { get; }
+
+    public InMemoryAuthAttemptThrottle Throttle { get; }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -376,6 +427,22 @@ public sealed class AuthFlowFactory : IsolatedApiFactory
             services.AddSingleton<ISessionRepository>(Sessions);
             services.RemoveAll<ITokenRevocationStore>();
             services.AddSingleton<ITokenRevocationStore>(Revocations);
+            services.RemoveAll<IPetRepository>();
+            services.AddSingleton<IPetRepository>(Pets);
+            services.RemoveAll<PetMate.Application.Authentication.IPasswordResetRepository>();
+            services.AddSingleton<PetMate.Application.Authentication.IPasswordResetRepository>(PasswordResets);
+            services.RemoveAll<PetMate.Application.Authentication.IEmailSender>();
+            services.AddSingleton<PetMate.Application.Authentication.IEmailSender>(Email);
+            services.RemoveAll<PetMate.Application.Carnet.IVaccineRepository>();
+            services.AddSingleton<PetMate.Application.Carnet.IVaccineRepository>(Vaccines);
+            services.RemoveAll<PetMate.Application.Carnet.IDewormingRepository>();
+            services.AddSingleton<PetMate.Application.Carnet.IDewormingRepository>(Dewormings);
+            services.RemoveAll<PetMate.Application.Carnet.IWeightRepository>();
+            services.AddSingleton<PetMate.Application.Carnet.IWeightRepository>(Weights);
+            services.RemoveAll<PetMate.Application.Carnet.IAllergyRepository>();
+            services.AddSingleton<PetMate.Application.Carnet.IAllergyRepository>(Allergies);
+            services.RemoveAll<IAuthAttemptThrottle>();
+            services.AddSingleton<IAuthAttemptThrottle>(Throttle);
         });
     }
 }

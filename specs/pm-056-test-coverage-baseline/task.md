@@ -11,12 +11,13 @@
 
 ### T068 — Medir la línea base de cobertura
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Cerrado y aprobado (2026-11-08, aprobación humana; CA-02 pendiente de enmienda)
 - **Spec principal:** pm-056
 - **Criterios propios:** pm-056#CA-01, pm-056#CA-02
-- **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.
-- **Fases (sin completar):** [ ] Implementación · [ ] Pruebas · [ ] Revisión independiente · [ ] Documentación · [ ] Aprobación humana
+- **Verificar:** ver [plan.md](plan.md) y la evidencia en [checklists/gates.md](checklists/gates.md).
+- **Fases:** [x] Implementación · [x] Pruebas · [x] Revisión independiente · [x] Documentación · [x] Aprobación humana
 - **No hacer:** cerrar la Task sin aprobación humana.
+- **Nota:** CA-01 verificado; **CA-02 pendiente de enmienda** (umbral propuesto en `docs/quality/coverage-baseline.md`, sin aplicar hasta la aprobación de Miguel).
 
 ## Definition of Done
 

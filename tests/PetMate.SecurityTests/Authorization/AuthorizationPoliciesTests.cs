@@ -11,11 +11,11 @@ namespace PetMate.SecurityTests.Authorization;
 /// <summary>pm-033 / T022: definición y evaluación de las políticas con principales sintéticos (sin servidor HTTP).</summary>
 public sealed class AuthorizationPoliciesTests
 {
-    private static readonly string[] NamedPolicies = [AuthorizationPolicies.RequireOwner, AuthorizationPolicies.RequireBusiness];
-    private static readonly string[] RoleConstants = [AuthorizationPolicies.OwnerRole, AuthorizationPolicies.BusinessRole];
+    private static readonly string[] NamedPolicies = [AuthorizationPolicies.RequireUser];
+    private static readonly string[] RoleConstants = [AuthorizationPolicies.UserRoleName];
 
     [Fact]
-    public async Task Default_and_fallback_policies_exist_and_require_an_authenticated_owner_or_business()
+    public async Task Default_and_fallback_policies_exist_and_require_an_authenticated_user()
     {
         await using var provider = Build();
         var policies = provider.GetRequiredService<IAuthorizationPolicyProvider>();
@@ -26,12 +26,12 @@ public sealed class AuthorizationPoliciesTests
             Assert.Contains(policy.Requirements, r => r is DenyAnonymousAuthorizationRequirement);
             var claim = Assert.Single(policy.Requirements.OfType<ClaimsAuthorizationRequirement>());
             Assert.Equal(AuthorizationPolicies.RoleClaim, claim.ClaimType);
-            Assert.Equal(["Owner", "Business"], claim.AllowedValues!.Order(StringComparer.Ordinal).Reverse());
+            Assert.Equal(["Owner", "User"], claim.AllowedValues!.Order(StringComparer.Ordinal));
         }
     }
 
     [Fact]
-    public async Task Policy_names_are_exactly_RequireOwner_and_RequireBusiness_and_there_is_no_admin_policy()
+    public async Task Policy_name_is_exactly_RequireUser_and_there_is_no_admin_policy()
     {
         await using var provider = Build();
         var policies = provider.GetRequiredService<IAuthorizationPolicyProvider>();
@@ -42,7 +42,7 @@ public sealed class AuthorizationPoliciesTests
             .Order(StringComparer.Ordinal)
             .ToArray();
 
-        Assert.Equal(["RequireBusiness", "RequireOwner"], declared);
+        Assert.Equal(["RequireUser"], declared);
         foreach (var name in declared)
         {
             Assert.NotNull(await policies.GetPolicyAsync(name));
@@ -58,21 +58,19 @@ public sealed class AuthorizationPoliciesTests
         Assert.Equal(
             Enum.GetNames<UserRole>().Order(StringComparer.Ordinal),
             RoleConstants.Order(StringComparer.Ordinal));
+        Assert.Equal("Owner", AuthorizationPolicies.LegacyOwnerRoleName);
         Assert.Equal("role", AuthorizationPolicies.RoleClaim);
         Assert.DoesNotContain(Enum.GetNames<UserRole>(), n => n.Contains("Admin", StringComparison.OrdinalIgnoreCase));
     }
 
     [Theory]
-    [InlineData(AuthorizationPolicies.RequireOwner, "Owner", true)]
-    [InlineData(AuthorizationPolicies.RequireOwner, "Business", false)]
-    [InlineData(AuthorizationPolicies.RequireOwner, "Admin", false)]
-    [InlineData(AuthorizationPolicies.RequireOwner, "owner", false)]
-    [InlineData(AuthorizationPolicies.RequireOwner, "Owner ", false)]
-    [InlineData(AuthorizationPolicies.RequireOwner, null, false)]
-    [InlineData(AuthorizationPolicies.RequireBusiness, "Business", true)]
-    [InlineData(AuthorizationPolicies.RequireBusiness, "Owner", false)]
-    [InlineData(AuthorizationPolicies.RequireBusiness, "business", false)]
-    [InlineData(AuthorizationPolicies.RequireBusiness, null, false)]
+    [InlineData(AuthorizationPolicies.RequireUser, "User", true)]
+    [InlineData(AuthorizationPolicies.RequireUser, "Owner", true)]
+    [InlineData(AuthorizationPolicies.RequireUser, "Business", false)]
+    [InlineData(AuthorizationPolicies.RequireUser, "Admin", false)]
+    [InlineData(AuthorizationPolicies.RequireUser, "owner", false)]
+    [InlineData(AuthorizationPolicies.RequireUser, "Owner ", false)]
+    [InlineData(AuthorizationPolicies.RequireUser, null, false)]
     public async Task Named_policies_decide_only_by_the_exact_role_claim(string policy, string? role, bool expected)
     {
         await using var provider = Build();
@@ -84,8 +82,9 @@ public sealed class AuthorizationPoliciesTests
     }
 
     [Theory]
+    [InlineData("User", true)]
     [InlineData("Owner", true)]
-    [InlineData("Business", true)]
+    [InlineData("Business", false)]
     [InlineData("Admin", false)]
     [InlineData("owner", false)]
     [InlineData(null, false)]
@@ -125,7 +124,7 @@ public sealed class AuthorizationPoliciesTests
         var authorization = provider.GetRequiredService<IAuthorizationService>();
         var identity = new ClaimsIdentity([new Claim(ClaimTypes.Role, "Owner")], authenticationType: "test");
 
-        var result = await authorization.AuthorizeAsync(new ClaimsPrincipal(identity), resource: null, AuthorizationPolicies.RequireOwner);
+        var result = await authorization.AuthorizeAsync(new ClaimsPrincipal(identity), resource: null, AuthorizationPolicies.RequireUser);
 
         Assert.False(result.Succeeded);
     }

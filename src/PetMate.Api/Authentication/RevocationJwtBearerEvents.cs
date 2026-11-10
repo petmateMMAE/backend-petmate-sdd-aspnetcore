@@ -27,6 +27,14 @@ public sealed class RevocationJwtBearerEvents(ITokenRevocationStore revocationSt
             if (await revocationStore.IsRevoked(claims.Jti, context.HttpContext.RequestAborted).ConfigureAwait(false))
             {
                 context.Fail("Token revocado.");
+                return;
+            }
+
+            // H7: un token ligado a una sesión (sid) deja de valer en cuanto la sesión se revoca (logout o replay).
+            if (claims.SessionId is { } sessionId
+                && await revocationStore.IsSessionRevoked(sessionId, context.HttpContext.RequestAborted).ConfigureAwait(false))
+            {
+                context.Fail("Sesión revocada.");
             }
         }
         catch (ArgumentException)

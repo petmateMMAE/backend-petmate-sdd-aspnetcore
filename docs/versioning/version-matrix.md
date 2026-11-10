@@ -15,12 +15,13 @@
 
 | Elemento | Formato | Ejemplo |
 |---|---|---|
-| Etiqueta Git (dispara el CD) | `api-vX.Y.Z` | `api-v0.1.0` |
+| Etiqueta Git (solo si una persona lo pide al lanzar el pipeline a mano con `create_tag`) | `api-vX.Y.Z` | `api-v0.1.0` |
 | Imagen en ACR (inmutable) | `petmate-api:X.Y.Z-<sha7>` | `petmate-api:0.1.0-4f9bb02` |
 | Revisión de Container Apps | `petmate-api--vX-Y-Z-<run>` | `petmate-api--v0-1-0-12` |
 | Variable en el contenedor | `PETMATE_VERSION=X.Y.Z` | `0.1.0` |
 
-- La etiqueta solo se crea sobre un commit de `main` que pasó el pipeline (`.github/workflows/pipeline.yml`: puerta de calidad, imagen y despliegue).
+- La etiqueta solo se crea sobre un commit de `main` que pasó el pipeline (`.github/workflows/pipeline.yml`: puerta de calidad, imagen, despliegue y prueba de humo). **La autorización expresa (pm-059 CA-02, decisión del usuario del 2026-11-08) es exclusivamente lanzar el pipeline a mano (`workflow_dispatch`) con la casilla `create_tag` marcada**: el merge o push a `main` despliega pero no etiqueta, y un pull request nunca etiqueta ni despliega. Con `create_tag` la versión debe coincidir con el archivo `VERSION` (se comprueba antes de desplegar). Si la etiqueta ya existe no se modifica; cualquier otro fallo al crearla o subirla hace fallar el paso.
+- `PETMATE_VERSION` la fija el CD en cada despliegue; Terraform la define con `var.api_version` y su `ignore_changes` solo protege la imagen, así que un `terraform apply` posterior puede devolverla al valor de `api_version`: mantener `api_version` alineada con `VERSION` antes de aplicar infraestructura.
 - La imagen se bloquea contra escritura y borrado al publicarse (`az acr repository update --write-enabled false`).
 - El CD (job `deploy` de `.github/workflows/pipeline.yml`) escribe en el resumen del job la URL, la imagen y las réplicas.
 
@@ -31,7 +32,7 @@
 | `0.1.0` | Primer despliegue en Azure: 7 endpoints actuales (`auth/register`, `auth/login`, `auth/refresh`, `auth/logout`, `health/live`, `health/ready`, `technical/mediator-probe`), 2 instancias, balanceo, HTTPS, Atlas, Redis Auth y Redis Cache, logs | pm-001…pm-032, pm-055…pm-078, pm-083, pm-084 | **Desplegada** 2026-11-06 (Chile Central) |
 | `0.1.x` | Correcciones del primer despliegue (configuración, TLS de Redis, proxies) sin cambiar contrato | — | Reservada |
 | `0.2.0` | Autorización por rol (denegación por defecto) y perfil propio: `GET users/me/get`, `PUT users/me/update` (nombre visible). 9 endpoints | pm-033, pm-037, pm-038 | **Desplegada** 2026-11-06 (Chile Central) |
-| `0.3.0` | Mascotas: modelo, alta, lista, detalle, edición y borrado lógico (cierre del primer hito, 14 endpoints) | pm-039…pm-047 | Planeada |
+| `0.3.0` | Primer hito: cuenta con nombre obligatorio, rol único `User`, recuperación de contraseña (envío real pendiente del dominio de correo), celular en el perfil; mascotas (alta, lista paginada, detalle, edición y borrado físico en cascada), QR permanente con regeneración y carnet de salud (vacunas, desparasitaciones, pesos y alergias). 29 endpoints | pm-039.pm-047, pm-085.pm-104 | **Desplegada** 2026-11-10 (Chile Central) |
 | `0.4.0` | Rendimiento de API: caché en backend, paginación, compresión, serialización | pm-047…pm-053 | Planeada |
 | `0.5.0` | Imágenes en Blob Storage + CDN, moderación de contenido | pm-079…pm-082 | Planeada |
 | `0.6.0` | Funciones restantes del producto (negocios, consultas, seguimiento, notificaciones, eliminar cuenta) | specs por crear | Planeada |

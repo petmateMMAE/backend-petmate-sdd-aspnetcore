@@ -44,4 +44,4 @@ La preparación horizontal es obligatoria. Sin embargo, si Azure no ofrece varia
 | Secret injection | Secretos de Container Apps (desde secretos de GitHub vía Terraform) | Incluido | — | Es $0 | **Seleccionado** (sin Key Vault) |
 
 Total estimado ~USD 26–28/mes con ACR Basic y logs; desembolso directo $0 MXN (crédito de Azure for Students, sin tarjeta). Detalle y fuentes en `azure-deployment.md` §4; confirmar en la calculadora antes del primer `apply`.
-La tabla debe completarse con fuentes oficiales vigentes al momento de planificar el despliegue. No se debe inventar precio ni disponibilidad.
+La tabla debe completarse con fuentes oficiales vigentes al momento de planificar el despliegue. No se debe inventar precio ni disponibilidad. El estudio completo y vigente (2026-11-08) está en [azure-cost-study.md](azure-cost-study.md); las convenciones de entornos, nombres y etiquetas, en [environments.md](environments.md); y el índice de decisiones, en [../decisions/README.md](../decisions/README.md).

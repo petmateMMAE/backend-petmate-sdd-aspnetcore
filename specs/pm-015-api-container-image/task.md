@@ -11,7 +11,7 @@
 
 ### T046 — Documentar la evidencia retrospectiva de la imagen del contenedor
 - **Tipo:** Retrospectiva
-- **Estado:** Propuesto (retrospectiva por documentar)
+- **Estado:** Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva)
 - **Spec principal:** pm-015
 - **Criterios propios:** pm-015#CA-01, pm-015#CA-02, pm-015#CA-03
 - **Origen:** trabajo implementado bajo T011.
@@ -22,7 +22,7 @@
   - Revisión independiente existente: Cierre humano de T011 registrado en `task.md` (H)
 - **Demostrable con la evidencia existente:** CA-01 a CA-03 por evidencia manual e histórica.
 - **Limitaciones:** No hay escaneo de la imagen (lo cubre pm-057).
-- **Fases (sin completar):** [ ] Documentación de la evidencia revisada · [ ] Revisión independiente · [ ] Aprobación humana
+- **Fases:** [x] Documentación de la evidencia revisada · [ ] Revisión independiente · [x] Aprobación humana
 - **No hacer:** cerrar la Task sin aprobación humana; añadir evidencia que no exista.
 
 ## Definition of Done

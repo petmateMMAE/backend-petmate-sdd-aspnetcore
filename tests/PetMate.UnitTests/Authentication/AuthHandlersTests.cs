@@ -12,7 +12,7 @@ public sealed class AuthHandlersTests
 
     private static async Task<AuthTokensResult> RegisterOwner(AuthTestHarness stack, string email = "ana@example.com")
     {
-        var result = await stack.Register.Handle(new RegisterCommand(email, Password), CancellationToken.None);
+        var result = await stack.Register.Handle(new RegisterCommand(email, Password, "Ana"), CancellationToken.None);
         Assert.True(result.IsSuccess);
         return result.Value!;
     }
@@ -27,12 +27,12 @@ public sealed class AuthHandlersTests
         var tokens = await RegisterOwner(stack, "  Ana@Example.COM ");
 
         var user = Assert.Single(stack.Users.All);
-        Assert.Equal(UserRole.Owner, user.Role);
+        Assert.Equal(UserRole.User, user.Role);
         Assert.Equal("ana@example.com", user.Email.Value);
         Assert.DoesNotContain(Password, user.PasswordHash.Value, StringComparison.Ordinal);
         Assert.StartsWith("$argon2id$", user.PasswordHash.Value, StringComparison.Ordinal);
         Assert.Equal(user.Id, tokens.UserId);
-        Assert.Equal(UserRole.Owner, tokens.Role);
+        Assert.Equal(UserRole.User, tokens.Role);
         Assert.Equal(43, tokens.RefreshToken.Length);
         Assert.Equal(1, stack.Sessions.TokenCount);
     }
@@ -43,7 +43,7 @@ public sealed class AuthHandlersTests
         var stack = new AuthTestHarness();
         await RegisterOwner(stack);
 
-        var duplicate = await stack.Register.Handle(new RegisterCommand("ANA@example.com", Password), CancellationToken.None);
+        var duplicate = await stack.Register.Handle(new RegisterCommand("ANA@example.com", Password, "Ana"), CancellationToken.None);
 
         Assert.False(duplicate.IsSuccess);
         Assert.Equal(AuthError.EmailAlreadyRegistered, duplicate.Error);
@@ -57,7 +57,7 @@ public sealed class AuthHandlersTests
         var stack = new AuthTestHarness();
 
         var results = await Task.WhenAll(Enumerable.Range(0, 20)
-            .Select(_ => Task.Run(() => stack.Register.Handle(new RegisterCommand("race@example.com", Password), CancellationToken.None))));
+            .Select(_ => Task.Run(() => stack.Register.Handle(new RegisterCommand("race@example.com", Password, "Ana"), CancellationToken.None))));
 
         Assert.Equal(1, results.Count(result => result.IsSuccess));
         Assert.Single(stack.Users.All);
@@ -76,7 +76,7 @@ public sealed class AuthHandlersTests
     {
         var validator = new RegisterCommandValidator();
 
-        var failures = await validator.Validate(new RegisterCommand("no-es-correo", "corta"), CancellationToken.None);
+        var failures = await validator.Validate(new RegisterCommand("no-es-correo", "corta", "Ana"), CancellationToken.None);
 
         Assert.Equal(2, failures.Count);
         Assert.Contains(failures, f => f.Field == "email" && f.Message == "El correo electrónico no es válido.");
@@ -90,17 +90,17 @@ public sealed class AuthHandlersTests
     [InlineData("ana@example.com", "", 1)]
     [InlineData("", "123456789012", 1)]
     public async Task Register_validator_enforces_the_password_policy_and_email_format(string email, string password, int expectedFailures)
-        => Assert.Equal(expectedFailures, (await new RegisterCommandValidator().Validate(new RegisterCommand(email, password), CancellationToken.None)).Count);
+        => Assert.Equal(expectedFailures, (await new RegisterCommandValidator().Validate(new RegisterCommand(email, password, "Ana"), CancellationToken.None)).Count);
 
     [Fact]
     public async Task Register_validator_rejects_passwords_above_128_characters()
         => Assert.Single(await new RegisterCommandValidator().Validate(
-            new RegisterCommand("ana@example.com", new string('a', 129)), CancellationToken.None));
+            new RegisterCommand("ana@example.com", new string('a', 129), "Ana"), CancellationToken.None));
 
     [Fact]
     public void Commands_and_results_never_print_secrets()
     {
-        Assert.DoesNotContain(Password, new RegisterCommand("a@b.co", Password).ToString(), StringComparison.Ordinal);
+        Assert.DoesNotContain(Password, new RegisterCommand("a@b.co", Password, "Ana").ToString(), StringComparison.Ordinal);
         Assert.DoesNotContain(Password, new LoginCommand("a@b.co", Password).ToString(), StringComparison.Ordinal);
         Assert.DoesNotContain("secreto", new RefreshCommand("secreto").ToString(), StringComparison.Ordinal);
         Assert.DoesNotContain("secreto", new LogoutCommand(Guid.NewGuid(), "jti", DateTime.UtcNow, "secreto").ToString(), StringComparison.Ordinal);
@@ -190,6 +190,7 @@ public sealed class AuthHandlersTests
         var stack = new AuthTestHarness();
         var first = await RegisterOwner(stack);
         var rotated = (await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), CancellationToken.None)).Value!;
+        stack.Clock.Advance(RefreshHandler.ReplayGrace + TimeSpan.FromSeconds(1)); // fuera de la ventana de gracia (H8)
 
         var replay = await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), CancellationToken.None);
         var newestAfterReplay = await stack.Refresh.Handle(new RefreshCommand(rotated.RefreshToken), CancellationToken.None);
@@ -210,9 +211,56 @@ public sealed class AuthHandlersTests
         var results = await Task.WhenAll(Enumerable.Range(0, 20)
             .Select(_ => Task.Run(() => stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), CancellationToken.None))));
 
-        Assert.InRange(results.Count(result => result.IsSuccess), 0, 1); // un perdedor puede revocar la sesión antes de que el ganador la actualice
+        // H8: los perdedores caen dentro de la ventana de gracia, así que se rechazan sin revocar la sesión.
+        Assert.Equal(1, results.Count(result => result.IsSuccess));
         Assert.All(results.Where(result => !result.IsSuccess), result => Assert.Equal(AuthError.InvalidRefreshToken, result.Error));
-        Assert.True(Assert.Single(stack.Sessions.Sessions()).IsRevoked);
+        Assert.False(Assert.Single(stack.Sessions.Sessions()).IsRevoked);
+        Assert.False(stack.Revocations.ContainsSession(Assert.Single(stack.Sessions.Sessions()).Id));
+    }
+
+    [Fact]
+    public async Task Presenting_a_consumed_token_inside_the_grace_window_is_rejected_without_revoking_the_session()
+    {
+        var stack = new AuthTestHarness();
+        var first = await RegisterOwner(stack);
+        var rotated = (await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), CancellationToken.None)).Value!;
+        stack.Clock.Advance(RefreshHandler.ReplayGrace); // justo en el límite: aún dentro de la ventana
+
+        var retry = await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), CancellationToken.None);
+        var next = await stack.Refresh.Handle(new RefreshCommand(rotated.RefreshToken), CancellationToken.None);
+
+        Assert.Equal(AuthError.InvalidRefreshToken, retry.Error);
+        Assert.True(next.IsSuccess);
+        Assert.False(Assert.Single(stack.Sessions.Sessions()).IsRevoked);
+    }
+
+    [Fact]
+    public async Task Replay_after_the_grace_window_revokes_the_session_and_its_access_tokens_immediately()
+    {
+        var stack = new AuthTestHarness();
+        var first = await RegisterOwner(stack);
+        await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), CancellationToken.None);
+        stack.Clock.Advance(RefreshHandler.ReplayGrace + TimeSpan.FromSeconds(1));
+
+        var replay = await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), CancellationToken.None);
+
+        Assert.Equal(AuthError.InvalidRefreshToken, replay.Error);
+        var session = Assert.Single(stack.Sessions.Sessions());
+        Assert.True(session.IsRevoked);
+        Assert.True(await stack.Revocations.IsSessionRevoked(session.Id, CancellationToken.None)); // H7
+    }
+
+    [Fact]
+    public async Task Logout_revokes_the_session_for_all_its_access_tokens()
+    {
+        var stack = new AuthTestHarness();
+        var tokens = await RegisterOwner(stack);
+
+        var result = await stack.Logout.Handle(
+            new LogoutCommand(tokens.UserId, tokens.AccessToken.Jti, tokens.AccessToken.ExpiresAtUtc, tokens.RefreshToken), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.True(await stack.Revocations.IsSessionRevoked(Assert.Single(stack.Sessions.Sessions()).Id, CancellationToken.None)); // H7
     }
 
     [Fact]

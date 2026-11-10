@@ -11,7 +11,7 @@
 
 ### T045 — Documentar la evidencia retrospectiva de health probes
 - **Tipo:** Retrospectiva
-- **Estado:** Propuesto (retrospectiva por documentar)
+- **Estado:** Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva)
 - **Spec principal:** pm-014
 - **Criterios propios:** pm-014#CA-01, pm-014#CA-02, pm-014#CA-03
 - **Origen:** trabajo implementado bajo T010, T011.
@@ -22,7 +22,7 @@
   - Revisión independiente existente: Cierre humano de T010 y T011 registrado en `task.md` (H)
 - **Demostrable con la evidencia existente:** CA-01 a CA-03.
 - **Limitaciones:** La readiness con Atlas real requiere credenciales y se verificó manualmente el 2026-11-03 (M).
-- **Fases (sin completar):** [ ] Documentación de la evidencia revisada · [ ] Revisión independiente · [ ] Aprobación humana
+- **Fases:** [x] Documentación de la evidencia revisada · [ ] Revisión independiente · [x] Aprobación humana
 - **No hacer:** cerrar la Task sin aprobación humana; añadir evidencia que no exista.
 
 ## Definition of Done

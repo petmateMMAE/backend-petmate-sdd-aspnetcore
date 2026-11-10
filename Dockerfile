@@ -16,21 +16,22 @@ RUN dotnet restore src/PetMate.Api/PetMate.Api.csproj
 COPY src/ src/
 RUN dotnet publish src/PetMate.Api/PetMate.Api.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
-# Parches de seguridad del sistema base (Trivy bloquea vulnerabilidades HIGH/CRITICAL con corrección disponible).
-RUN apt-get update \
-    && apt-get upgrade -y --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
-WORKDIR /app
-COPY --from=build /app/publish .
-
-# CA propia de los Redis de Azure (certificado público, no es secreto). Solo la pasa el CD
-# (.github/workflows/deploy.yml); en local queda vacía y la imagen no cambia.
+# Almacén de CAs: el de Ubuntu 24.04 más, solo en el CD, la CA propia de los Redis de Azure (certificado público, no es
+# secreto; la pasa el job deploy de .github/workflows/pipeline.yml). Se arma aquí porque la imagen final no tiene shell.
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS certs
 ARG REDIS_CA_CERT_B64=""
 RUN if [ -n "$REDIS_CA_CERT_B64" ]; then \
       echo "$REDIS_CA_CERT_B64" | base64 -d > /usr/local/share/ca-certificates/petmate-redis-ca.crt \
       && update-ca-certificates; \
     fi
+
+# Runtime "chiseled" (distroless de Ubuntu 24.04): sin shell, sin gestor de paquetes y sin root. Reduce la superficie
+# de ataque y los paquetes que Trivy puede marcar; el escaneo bloquea cualquier HIGH/CRITICAL, tenga o no parche (pm-057).
+# Globalización invariante (sin ICU ni tzdata): la API no usa culturas ni zonas horarias.
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled AS final
+COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+WORKDIR /app
+COPY --from=build /app/publish .
 
 # Usuario no root integrado en la imagen oficial (UID 1654).
 USER $APP_UID

@@ -1,10 +1,10 @@
 # Spec — pm-044 pet-soft-delete
 
-> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Cerrado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
-`DELETE /api/v1/pets/delete/{id}` con eliminación lógica y `data:null`.
+`DELETE /api/v1/pets/delete/{id}` con borrado físico y `data:null`.
 
 ## 2. Dependencias
 
@@ -23,21 +23,27 @@ Cada criterio se cita como `pm-044#CA-NN`. La columna final indica la Task que l
 
 | CA | Criterio | Task propietaria |
 |---|---|---|
-| `CA-01` | Un Owner elimina lógicamente una mascota propia y la respuesta lleva `data: null`. [origen: 03-pet-management CA-005] | T034 |
-| `CA-02` | La mascota eliminada deja de aparecer en listados normales. | T034 |
-| `CA-03` | No se borra físicamente sin política de retención aprobada. | T034 |
+| `CA-01` | Un Owner elimina físicamente una mascota propia y la respuesta lleva `data: null`. [origen: 03-pet-management CA-005; borrado físico por decisión del usuario del 2026-11-08] | T034 |
+| `CA-02` | La mascota eliminada deja de existir: no aparece en el listado y su detalle responde 404. | T034 |
+| `CA-03` | Solo el propietario puede eliminarla; una mascota ajena o inexistente responde 404 y no se borra nada. | T034 |
 
 ## 5. Tasks
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T034 | Histórica | Propuesto | Eliminar mascota |
+| T034 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | Eliminar mascota |
 
 Detalle en [task.md](task.md).
 
+## 6. Notas, limitaciones y decisiones pendientes
+
+- **Borrado físico (decisión del usuario del 2026-11-08):** sustituye a la eliminación lógica del slice histórico. El identificador y el slug `pet-soft-delete` se conservan porque son inmutables (Constitución §12.3). Los criterios se reescribieron con su mismo identificador y propietario (T034).
+
+- **Implementación (aprobado por el usuario el 2026-11-08 (opción A)):** endpoint con política `RequireOwner`; el propietario sale del token; mascota ajena o inexistente responde 404. Contrato en [`docs/api/endpoints.md`](../../docs/api/endpoints.md) (sección Mascotas). Pruebas con `[Trait("Endpoint", "pets-delete")]` en `PetEndpointsTests` y evidencia en [checklists/gates.md](checklists/gates.md).
+
 ## 7. Aprobación
 
-- [ ] Requisitos y criterios revisados por el usuario.
-- [ ] Constitución cumplida.
-- Revisor/usuario: pendiente.
+- [x] Requisitos y criterios revisados por el usuario.
+- [x] Constitución cumplida.
+- Revisor/usuario: usuario del proyecto; aprobó el alcance el 2026-11-08 al autorizar su implementación y cerró la Task el mismo día.
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec. La evidencia histórica de esta funcionalidad permanece en `specs/_historico/`.

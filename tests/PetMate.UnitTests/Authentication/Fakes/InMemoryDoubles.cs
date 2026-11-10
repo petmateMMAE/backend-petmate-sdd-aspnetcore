@@ -4,6 +4,7 @@ using System.Text;
 using PetMate.Application.Authentication;
 using PetMate.Application.Persistence;
 using PetMate.Application.Security;
+using PetMate.Domain.Pets;
 using PetMate.Domain.Sessions;
 using PetMate.Domain.Users;
 
@@ -30,6 +31,101 @@ public sealed class ManualClock(DateTimeOffset start) : TimeProvider
             now += delta;
         }
     }
+}
+
+/// <summary>Repositorio de mascotas en memoria; como Atlas, cada operación filtra por propietario y el borrado es físico.</summary>
+public sealed class InMemoryPetRepository : IPetRepository
+{
+    private readonly ConcurrentDictionary<Guid, Pet> pets = new();
+
+    public IReadOnlyCollection<Pet> All => pets.Values.ToArray();
+
+    public Task Add(Pet pet, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(pet);
+        pets[pet.Id] = pet;
+        return Task.CompletedTask;
+    }
+
+    public Task<Pet?> FindOwned(Guid petId, Guid ownerId, CancellationToken cancellationToken)
+        => Task.FromResult(pets.TryGetValue(petId, out var pet) && pet.OwnerId == ownerId ? pet : null);
+
+    public Task<IReadOnlyList<Pet>> ListByOwner(Guid ownerId, int skip, int take, CancellationToken cancellationToken)
+        => Task.FromResult<IReadOnlyList<Pet>>(pets.Values.Where(p => p.OwnerId == ownerId)
+            .OrderByDescending(p => p.CreatedAtUtc).ThenByDescending(p => p.Id).Skip(skip).Take(take).ToArray());
+
+    public Task<long> CountByOwner(Guid ownerId, CancellationToken cancellationToken)
+        => Task.FromResult((long)pets.Values.Count(p => p.OwnerId == ownerId));
+
+    public Task<bool> UpdateOwned(Pet pet, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(pet);
+        return Task.FromResult(pets.TryGetValue(pet.Id, out var stored) && stored.OwnerId == pet.OwnerId);
+    }
+
+    public Task<bool> ReplaceQrOwned(Pet pet, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(pet);
+        return Task.FromResult(pets.TryGetValue(pet.Id, out var stored) && stored.OwnerId == pet.OwnerId);
+    }
+
+    public Task<bool> DeleteOwned(Guid petId, Guid ownerId, CancellationToken cancellationToken)
+        => Task.FromResult(pets.TryGetValue(petId, out var pet) && pet.OwnerId == ownerId && pets.TryRemove(petId, out _));
+}
+
+/// <summary>Repositorio en memoria de registros del carnet (equivale al filtro por dueño de Atlas).</summary>
+public class InMemoryHealthRecordRepository<TRecord>(Func<IEnumerable<TRecord>, IEnumerable<TRecord>> order)
+    where TRecord : PetMate.Domain.Carnet.HealthRecord
+{
+    private readonly ConcurrentDictionary<Guid, TRecord> records = new();
+
+    public IReadOnlyCollection<TRecord> All => records.Values.ToArray();
+
+    public Task Add(TRecord record, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+        records[record.Id] = record;
+        return Task.CompletedTask;
+    }
+
+    public Task<TRecord?> FindOwned(Guid recordId, Guid ownerId, CancellationToken cancellationToken)
+        => Task.FromResult(records.TryGetValue(recordId, out var record) && record.OwnerId == ownerId ? record : null);
+
+    public Task<IReadOnlyList<TRecord>> ListByPet(Guid petId, Guid ownerId, int skip, int take, CancellationToken cancellationToken)
+        => Task.FromResult<IReadOnlyList<TRecord>>(order(records.Values.Where(r => r.PetId == petId && r.OwnerId == ownerId)).Skip(skip).Take(take).ToArray());
+
+    public Task<long> CountByPet(Guid petId, Guid ownerId, CancellationToken cancellationToken)
+        => Task.FromResult((long)records.Values.Count(r => r.PetId == petId && r.OwnerId == ownerId));
+
+    public Task<bool> DeleteOwned(Guid recordId, Guid ownerId, CancellationToken cancellationToken)
+        => Task.FromResult(records.TryGetValue(recordId, out var record) && record.OwnerId == ownerId && records.TryRemove(recordId, out _));
+
+    public Task<long> DeleteByPet(Guid petId, Guid ownerId, CancellationToken cancellationToken)
+    {
+        var ids = records.Values.Where(r => r.PetId == petId && r.OwnerId == ownerId).Select(r => r.Id).ToArray();
+        return Task.FromResult((long)ids.Count(id => records.TryRemove(id, out _)));
+    }
+
+    public Task<bool> ReplaceOwned(TRecord record, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+        return Task.FromResult(record.CanOwnerModify && records.TryGetValue(record.Id, out var stored) && stored.OwnerId == record.OwnerId);
+    }
+}
+
+public sealed class InMemoryVaccineRepository()
+    : InMemoryHealthRecordRepository<PetMate.Domain.Carnet.Vaccine>(items => items.OrderByDescending(v => v.AppliedOn).ThenByDescending(v => v.Id)), PetMate.Application.Carnet.IVaccineRepository;
+
+public sealed class InMemoryDewormingRepository()
+    : InMemoryHealthRecordRepository<PetMate.Domain.Carnet.Deworming>(items => items.OrderByDescending(d => d.AppliedOn).ThenByDescending(d => d.Id)), PetMate.Application.Carnet.IDewormingRepository;
+
+public sealed class InMemoryWeightRepository()
+    : InMemoryHealthRecordRepository<PetMate.Domain.Carnet.WeightEntry>(items => items.OrderByDescending(w => w.MeasuredOn).ThenByDescending(w => w.Id)), PetMate.Application.Carnet.IWeightRepository;
+
+public sealed class InMemoryAllergyRepository()
+    : InMemoryHealthRecordRepository<PetMate.Domain.Carnet.Allergy>(items => items.OrderBy(a => a.Status).ThenByDescending(a => a.CreatedAtUtc).ThenByDescending(a => a.Id)), PetMate.Application.Carnet.IAllergyRepository
+{
+    public Task<bool> UpdateOwned(PetMate.Domain.Carnet.Allergy allergy, CancellationToken cancellationToken) => ReplaceOwned(allergy, cancellationToken);
 }
 
 /// <summary>Repositorio de usuarios en memoria con unicidad atómica de correo (equivale al índice único de Atlas).</summary>
@@ -64,6 +160,112 @@ public sealed class InMemoryUserRepository : IUserRepository
 }
 
 /// <summary>Repositorio de sesiones en memoria; <c>TryConsumeToken</c> es atómico (lock), como el update condicional de Atlas.</summary>
+/// <summary>Correo falso: guarda los envíos para comprobarlos y puede simular un fallo del proveedor.</summary>
+public sealed class FakeEmailSender : PetMate.Application.Authentication.IEmailSender
+{
+    private readonly List<(string To, string Token)> sent = [];
+
+    public bool Succeeds { get; set; } = true;
+
+    public bool Throws { get; set; }
+
+    public IReadOnlyList<(string To, string Token)> Sent
+    {
+        get
+        {
+            lock (sent)
+            {
+                return [.. sent];
+            }
+        }
+    }
+
+    public Task<bool> SendPasswordReset(string toEmail, string resetToken, CancellationToken cancellationToken)
+    {
+        if (Throws)
+        {
+            throw new InvalidOperationException("proveedor caído");
+        }
+
+        lock (sent)
+        {
+            sent.Add((toEmail, resetToken));
+        }
+
+        return Task.FromResult(Succeeds);
+    }
+}
+
+/// <summary>Tokens de restablecimiento en memoria con consumo atómico.</summary>
+public sealed class InMemoryPasswordResetRepository : PetMate.Application.Authentication.IPasswordResetRepository
+{
+    private readonly object gate = new();
+    private readonly Dictionary<string, (PetMate.Domain.Users.PasswordResetToken Token, bool Used)> byHash = [];
+
+    public int Count
+    {
+        get
+        {
+            lock (gate)
+            {
+                return byHash.Count;
+            }
+        }
+    }
+
+    public string? StoredHashOf(Guid userId)
+    {
+        lock (gate)
+        {
+            return byHash.Values.Where(v => v.Token.UserId == userId).Select(v => v.Token.TokenHash.Value).FirstOrDefault();
+        }
+    }
+
+    public Task Add(PetMate.Domain.Users.PasswordResetToken token, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            byHash[token.TokenHash.Value] = (token, false);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public bool Throws { get; set; }
+
+    public Task InvalidateAllForUser(Guid userId, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        if (Throws)
+        {
+            throw new PetMate.Application.Persistence.PersistenceUnavailableException(new InvalidOperationException("atlas caído"));
+        }
+
+        lock (gate)
+        {
+            foreach (var key in byHash.Where(e => e.Value.Token.UserId == userId && !e.Value.Used).Select(e => e.Key).ToArray())
+            {
+                byHash[key] = (byHash[key].Token, true);
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task<Guid?> TryConsume(RefreshTokenHash tokenHash, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            if (!byHash.TryGetValue(tokenHash.Value, out var entry) || entry.Used || entry.Token.ExpiresAtUtc <= nowUtc)
+            {
+                return Task.FromResult<Guid?>(null);
+            }
+
+            byHash[tokenHash.Value] = (entry.Token, true);
+            return Task.FromResult<Guid?>(entry.Token.UserId);
+        }
+    }
+}
+
 public sealed class InMemorySessionRepository : ISessionRepository
 {
     private readonly object gate = new();
@@ -82,11 +284,26 @@ public sealed class InMemorySessionRepository : ISessionRepository
         }
     }
 
+    public Task<IReadOnlyList<Guid>> RevokeAllForUser(Guid userId, DateTime nowUtc, SessionRevocationReason reason, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            var ids = new List<Guid>();
+            foreach (var session in sessions.Values.Where(s => s.UserId == userId && !s.IsRevoked))
+            {
+                session.Revoke(nowUtc, reason);
+                ids.Add(session.Id);
+            }
+
+            return Task.FromResult<IReadOnlyList<Guid>>(ids);
+        }
+    }
+
     public Task AddSession(RefreshSession session, RefreshToken firstToken, CancellationToken cancellationToken)
     {
         lock (gate)
         {
-            sessions[session.Id] = session;
+            sessions[session.Id] = Copy(session);
             Store(firstToken);
         }
 
@@ -129,7 +346,7 @@ public sealed class InMemorySessionRepository : ISessionRepository
     {
         lock (gate)
         {
-            return Task.FromResult(sessions.TryGetValue(sessionId, out var session) ? session : null);
+            return Task.FromResult(sessions.TryGetValue(sessionId, out var session) ? Copy(session) : null);
         }
     }
 
@@ -139,7 +356,7 @@ public sealed class InMemorySessionRepository : ISessionRepository
         {
             if (sessions.TryGetValue(session.Id, out var stored) && !stored.IsRevoked)
             {
-                sessions[session.Id] = session;
+                sessions[session.Id] = Copy(session);
                 return Task.FromResult(true);
             }
         }
@@ -153,12 +370,25 @@ public sealed class InMemorySessionRepository : ISessionRepository
         {
             if (sessions.TryGetValue(session.Id, out var stored) && !stored.IsRevoked)
             {
-                sessions[session.Id] = session;
+                sessions[session.Id] = Copy(session);
             }
         }
 
         return Task.CompletedTask;
     }
+
+    // Como Atlas, cada lectura devuelve una copia independiente: dos solicitudes concurrentes nunca comparten la misma instancia
+    // (compartirla hacía que un perdedor revocara el objeto del ganador y la prueba de concurrencia fallara de forma intermitente).
+    private static RefreshSession Copy(RefreshSession session)
+        => RefreshSession.Restore(
+            session.Id,
+            session.UserId,
+            session.CreatedAtUtc,
+            session.LastUsedAtUtc,
+            session.IdleExpiresAtUtc,
+            session.AbsoluteExpiresAtUtc,
+            session.RevokedAtUtc,
+            session.RevocationReason);
 
     public bool IsSessionRevoked(Guid sessionId)
     {
@@ -208,6 +438,27 @@ public sealed class InMemoryRevocationStore(TimeProvider clock) : ITokenRevocati
         return Task.FromResult(revoked.TryGetValue(jti, out var expires) && expires > clock.GetUtcNow().UtcDateTime);
     }
 
+    private readonly ConcurrentDictionary<Guid, DateTime> revokedSessions = new();
+
+    public Task RevokeSession(Guid sessionId, DateTime untilUtc, CancellationToken cancellationToken)
+    {
+        ThrowIfFailing();
+        if (untilUtc > clock.GetUtcNow().UtcDateTime)
+        {
+            revokedSessions[sessionId] = untilUtc;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task<bool> IsSessionRevoked(Guid sessionId, CancellationToken cancellationToken)
+    {
+        ThrowIfFailing();
+        return Task.FromResult(revokedSessions.TryGetValue(sessionId, out var until) && until > clock.GetUtcNow().UtcDateTime);
+    }
+
+    public bool ContainsSession(Guid sessionId) => revokedSessions.ContainsKey(sessionId);
+
     public bool Contains(string jti) => revoked.ContainsKey(jti);
 
     private void ThrowIfFailing()
@@ -253,7 +504,9 @@ public sealed class FakeHasher : IPasswordHasher
 /// <summary>Emisor de access tokens falso: el "token" es el jti; suficiente para probar handlers.</summary>
 public sealed class FakeAccessTokenService(TimeProvider clock) : IAccessTokenService
 {
-    public AccessToken Issue(Guid userId, UserRole role)
+    public TimeSpan Lifetime => TimeSpan.FromMinutes(15);
+
+    public AccessToken Issue(Guid userId, UserRole role, Guid? sessionId = null)
     {
         var jti = Guid.NewGuid().ToString("N");
         return new AccessToken($"fake.{userId:N}.{role}.{jti}", jti, clock.GetUtcNow().UtcDateTime.AddMinutes(15));
@@ -290,6 +543,72 @@ public sealed class FakeRefreshTokenFactory : IRefreshTokenFactory
         => RefreshTokenHash.Create(Convert.ToHexString(SHA256.HashData(Encoding.ASCII.GetBytes(raw))));
 }
 
+/// <summary>Cuota y bloqueo por sujeto en memoria, con el reloj controlado (equivalente a la implementación Redis).</summary>
+public sealed class InMemoryAuthAttemptThrottle(TimeProvider clock) : IAuthAttemptThrottle
+{
+    private readonly object gate = new();
+    private readonly Dictionary<string, (int Count, DateTime ExpiresAt)> counters = [];
+    private readonly Dictionary<string, DateTime> locks = [];
+
+    public bool Fail { get; set; }
+
+    public Task<TimeSpan?> GetRemainingLock(string scope, string subject, CancellationToken cancellationToken)
+    {
+        ThrowIfFailing();
+        lock (gate)
+        {
+            var now = clock.GetUtcNow().UtcDateTime;
+            return Task.FromResult<TimeSpan?>(locks.TryGetValue(scope + ":" + subject, out var until) && until > now ? until - now : null);
+        }
+    }
+
+    public Task<TimeSpan?> RecordAttempt(string scope, string subject, AuthThrottleRule rule, CancellationToken cancellationToken)
+    {
+        ThrowIfFailing();
+        lock (gate)
+        {
+            var now = clock.GetUtcNow().UtcDateTime;
+            var key = scope + ":" + subject;
+            if (locks.TryGetValue(key, out var lockedUntil) && lockedUntil > now)
+            {
+                // Con un bloqueo activo no se cuenta: igual que el script de Redis.
+                return Task.FromResult<TimeSpan?>(lockedUntil - now);
+            }
+
+            var current = counters.TryGetValue(key, out var entry) && entry.ExpiresAt > now ? entry : (0, now + rule.Window);
+            var count = current.Item1 + 1;
+            if (count > rule.MaxAttempts)
+            {
+                counters.Remove(key);
+                locks[key] = now + rule.LockDuration;
+                return Task.FromResult<TimeSpan?>(rule.LockDuration);
+            }
+
+            counters[key] = (count, current.Item2);
+            return Task.FromResult<TimeSpan?>(null);
+        }
+    }
+
+    public Task Clear(string scope, string subject, CancellationToken cancellationToken)
+    {
+        ThrowIfFailing();
+        lock (gate)
+        {
+            counters.Remove(scope + ":" + subject);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void ThrowIfFailing()
+    {
+        if (Fail)
+        {
+            throw new AuthDependencyUnavailableException(new InvalidOperationException("Redis simulado no disponible."));
+        }
+    }
+}
+
 /// <summary>Apilado de handlers sobre dobles en memoria.</summary>
 public sealed class AuthTestHarness
 {
@@ -299,17 +618,20 @@ public sealed class AuthTestHarness
         Users = new InMemoryUserRepository();
         Sessions = new InMemorySessionRepository();
         Revocations = new InMemoryRevocationStore(Clock);
+        Throttle = new InMemoryAuthAttemptThrottle(Clock);
         Hasher = new FakeHasher();
         Tokens = new FakeRefreshTokenFactory();
         Access = new FakeAccessTokenService(Clock);
         var issuer = new AuthTokenIssuer(Sessions, Tokens, Access, SessionPolicy.Default);
         Register = new RegisterHandler(Users, Hasher, issuer, Clock);
-        Login = new LoginHandler(Users, Hasher, issuer, Clock);
-        Refresh = new RefreshHandler(Users, Sessions, Tokens, Access, SessionPolicy.Default, Clock);
-        Logout = new LogoutHandler(Sessions, Revocations, Tokens, Clock);
+        Login = new LoginHandler(Users, Hasher, issuer, Clock, Throttle);
+        Refresh = new RefreshHandler(Users, Sessions, Tokens, Access, SessionPolicy.Default, Clock, Throttle, Revocations);
+        Logout = new LogoutHandler(Sessions, Revocations, Tokens, Access, Clock);
     }
 
     public ManualClock Clock { get; }
+
+    public InMemoryAuthAttemptThrottle Throttle { get; }
 
     public InMemoryUserRepository Users { get; }
 

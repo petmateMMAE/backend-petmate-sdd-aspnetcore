@@ -11,6 +11,18 @@ public sealed record MongoCollectionNames(string Prefix = "")
     public string Sessions => Prefix + "refresh_sessions";
 
     public string Tokens => Prefix + "refresh_tokens";
+
+    public string Pets => Prefix + "pets";
+
+    public string Vaccines => Prefix + "vaccines";
+
+    public string Dewormings => Prefix + "dewormings";
+
+    public string Weights => Prefix + "weights";
+
+    public string Allergies => Prefix + "allergies";
+
+    public string PasswordResets => Prefix + "password_resets";
 }
 
 // Documentos de persistencia: viven en Infrastructure y mantienen Domain libre de atributos Bson.
@@ -34,6 +46,11 @@ internal sealed class UserDocument
     [BsonElement("displayName")]
     [BsonIgnoreIfNull]
     public string? DisplayName { get; set; }
+
+    /// <summary>Celular opcional (pm-091), 10 dígitos.</summary>
+    [BsonElement("phone")]
+    [BsonIgnoreIfNull]
+    public string? Phone { get; set; }
 
     [BsonElement("createdAtUtc")]
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
@@ -103,4 +120,55 @@ internal sealed class RefreshTokenDocument
     [BsonElement("absoluteExpiresAtUtc")]
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime AbsoluteExpiresAtUtc { get; set; }
+}
+
+/// <summary>Mascota (pm-039). El borrado es físico: no hay campo de estado.</summary>
+internal sealed class PetDocument
+{
+    [BsonId]
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
+    public Guid Id { get; set; }
+
+    [BsonElement("ownerId")]
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
+    public Guid OwnerId { get; set; }
+
+    [BsonElement("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [BsonElement("species")]
+    public string Species { get; set; } = string.Empty;
+
+    [BsonElement("breed")]
+    [BsonIgnoreIfNull]
+    public string? Breed { get; set; }
+
+    /// <summary>Fecha de nacimiento como fecha de calendario (sin hora ni zona), formato ISO yyyy-MM-dd.</summary>
+    [BsonElement("birthDate")]
+    [BsonIgnoreIfNull]
+    public string? BirthDate { get; set; }
+
+    [BsonElement("sex")]
+    public int Sex { get; set; }
+
+    [BsonElement("photoUrl")]
+    [BsonIgnoreIfNull]
+    public string? PhotoUrl { get; set; }
+
+    [BsonElement("createdAtUtc")]
+    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
+    public DateTime CreatedAtUtc { get; set; }
+
+    [BsonElement("updatedAtUtc")]
+    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
+    public DateTime UpdatedAtUtc { get; set; }
+
+    /// <summary>Token del QR (pm-093). Es nulo solo en mascotas anteriores al QR, que se completan al leerlas.</summary>
+    [BsonElement("qrToken")]
+    [BsonIgnoreIfNull]
+    public string? QrToken { get; set; }
+
+    [BsonElement("qrCode")]
+    [BsonIgnoreIfNull]
+    public string? QrCode { get; set; }
 }

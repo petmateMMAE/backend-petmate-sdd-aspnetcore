@@ -56,9 +56,9 @@ public sealed class UserTests
     [Fact]
     public void RegisterOwner_creates_an_owner_and_never_business()
     {
-        var user = User.RegisterOwner(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), Now);
+        var user = User.Register(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), "Ana", Now);
 
-        Assert.Equal(UserRole.Owner, user.Role);
+        Assert.Equal(UserRole.User, user.Role);
         Assert.NotEqual(Guid.Empty, user.Id);
         Assert.Equal(Now, user.CreatedAtUtc);
         Assert.Equal(Now, user.UpdatedAtUtc);
@@ -66,12 +66,12 @@ public sealed class UserTests
 
     [Fact]
     public void RegisterOwner_requires_utc_dates()
-        => Assert.Throws<DomainException>(() => User.RegisterOwner(
-            Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), DateTime.SpecifyKind(Now, DateTimeKind.Unspecified)));
+        => Assert.Throws<DomainException>(() => User.Register(
+            Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), "Ana", DateTime.SpecifyKind(Now, DateTimeKind.Unspecified)));
 
     [Fact]
-    public void Roles_are_exactly_owner_and_business()
-        => Assert.Equal(["Business", "Owner"], Enum.GetNames<UserRole>().Order(StringComparer.Ordinal));
+    public void There_is_exactly_one_role_user_and_no_admin()
+        => Assert.Equal(["User"], Enum.GetNames<UserRole>());
 
     [Fact]
     public void User_exposes_no_public_role_setter()
@@ -88,13 +88,13 @@ public sealed class UserTests
         var hash = PasswordHash.Create(ValidHash);
 
         Assert.Throws<DomainException>(() => User.Restore(Guid.NewGuid(), email, hash, (UserRole)99, Now, Now));
-        Assert.Throws<DomainException>(() => User.Restore(Guid.Empty, email, hash, UserRole.Owner, Now, Now));
+        Assert.Throws<DomainException>(() => User.Restore(Guid.Empty, email, hash, UserRole.User, Now, Now));
     }
 
     [Fact]
     public void ChangePasswordHash_replaces_hash_and_updates_timestamp()
     {
-        var user = User.RegisterOwner(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), Now);
+        var user = User.Register(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), "Ana", Now);
         var newHash = PasswordHash.Create(ValidHash.Replace("t=3", "t=4", StringComparison.Ordinal));
         var later = Now.AddMinutes(5);
 
@@ -108,13 +108,13 @@ public sealed class UserTests
     // ---------- pm-038: nombre visible ----------
 
     [Fact]
-    public void New_owner_has_no_display_name()
-        => Assert.Null(User.RegisterOwner(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), Now).DisplayName);
+    public void New_owner_stores_the_trimmed_display_name()
+        => Assert.Equal("Ana", User.Register(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), "  Ana ", Now).DisplayName);
 
     [Fact]
     public void ChangeDisplayName_trims_and_updates_timestamp()
     {
-        var user = User.RegisterOwner(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), Now);
+        var user = User.Register(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), "Ana", Now);
         var later = Now.AddMinutes(1);
 
         user.ChangeDisplayName("  Ana Pérez  ", later);
@@ -130,10 +130,10 @@ public sealed class UserTests
     [InlineData("Ana\u0000")]
     public void ChangeDisplayName_rejects_blank_or_control_characters(string value)
     {
-        var user = User.RegisterOwner(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), Now);
+        var user = User.Register(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), "Ana", Now);
 
         Assert.Throws<DomainException>(() => user.ChangeDisplayName(value, Now));
-        Assert.Null(user.DisplayName);
+        Assert.Equal("Ana", user.DisplayName);
     }
 
     [Fact]
@@ -149,7 +149,49 @@ public sealed class UserTests
         var email = Email.Create("ana@example.com");
         var hash = PasswordHash.Create(ValidHash);
 
-        Assert.Equal("Ana", User.Restore(Guid.NewGuid(), email, hash, UserRole.Owner, Now, Now, "Ana").DisplayName);
-        Assert.Null(User.Restore(Guid.NewGuid(), email, hash, UserRole.Owner, Now, Now).DisplayName);
+        Assert.Equal("Ana", User.Restore(Guid.NewGuid(), email, hash, UserRole.User, Now, Now, "Ana").DisplayName);
+        Assert.Null(User.Restore(Guid.NewGuid(), email, hash, UserRole.User, Now, Now).DisplayName);
     }
+
+    // ---------- pm-091: celular opcional ----------
+
+    [Theory]
+    [InlineData("5512345678", "5512345678")]
+    [InlineData("55 1234 5678", "5512345678")]
+    [InlineData("(55) 1234-5678", "5512345678")]
+    [InlineData("+52 55 1234 5678", "5512345678")]
+    [InlineData("525512345678", "5512345678")]
+    [InlineData("", null)]
+    [InlineData("   ", null)]
+    [InlineData(null, null)]
+    public void Phone_is_normalized_to_ten_digits_or_removed(string? input, string? expected)
+    {
+        var user = User.Register(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), "Ana", Now);
+        user.ChangePhone("5500000000", Now);
+
+        user.ChangePhone(input, Now.AddMinutes(1));
+
+        Assert.Equal(expected, user.Phone);
+        Assert.Equal(Now.AddMinutes(1), user.UpdatedAtUtc);
+    }
+
+    [Theory]
+    [InlineData("12345")]
+    [InlineData("55123456789")]
+    [InlineData("55123456ab")]
+    [InlineData("+34 612345678")]
+    [InlineData("++525512345678")]
+    [InlineData("5512345678; DROP")]
+    public void Invalid_phone_is_rejected(string input)
+    {
+        var user = User.Register(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), "Ana", Now);
+
+        Assert.False(User.TryNormalizePhone(input, out _));
+        Assert.Throws<DomainException>(() => user.ChangePhone(input, Now));
+        Assert.Null(user.Phone);
+    }
+
+    [Fact]
+    public void New_account_has_no_phone()
+        => Assert.Null(User.Register(Email.Create("ana@example.com"), PasswordHash.Create(ValidHash), "Ana", Now).Phone);
 }

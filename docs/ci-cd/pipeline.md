@@ -8,7 +8,7 @@
 |---|---|
 | `pull_request` a `developer`, `release` o `main` | Corre todo hasta la imagen. **No despliega**: `deploy`, `smoke-test` y `dast` aparecen como *skipped* para que el diagrama del run muestre el flujo completo. |
 | `push` a `main` (cada merge, sin filtro de rutas: el pipeline corre solo) | Corre todo y, si la puerta de calidad y la imagen pasan, despliega a Azure, ejecuta la prueba de humo y el DAST. |
-| `workflow_dispatch` | Igual que el push; solo despliega si se lanza desde `main`. Acepta una versión SemVer opcional. |
+| `workflow_dispatch` | Igual que el push; solo despliega si se lanza desde `main`. Acepta una versión SemVer opcional y la casilla `create_tag`: **la etiqueta `api-vX.Y.Z` solo se crea desde aquí, con esa casilla marcada** (autorización expresa, pm-059 CA-02); el merge no etiqueta. |
 
 Flujo de ramas: `feature/*` → `developer` → `release` → `main`. Los PR corren las mismas etapas de validación que `main`.
 
@@ -56,7 +56,7 @@ Los nueve jobs `Endpoint · …` están en la misma columna (todos dependen solo
 | 3 | `sast` | CodeQL para C#; el SARIF queda como artefacto. | DevSecOps | No (informativo, ver límites) |
 | 3 | `dependencies` | `scripts/quality-gate.ps1 -AuditOnly -MinSeverity High`: vulnerabilidades NuGet (High y Critical bloquean; las menores se muestran como advertencia), paquetes en desuso sin excepción aprobada y licencias fuera de la lista permitida. | DevSecOps | Sí |
 | 3 | `iac-scan` | Trivy config (motor de reglas de tfsec) sobre `infra/`; HIGH y CRITICAL bloquean. Hoy: 0 hallazgos. | DevSecOps | Sí |
-| 3 | `sdd-integrity` | `scripts/check-sdd.ps1`: Specs, Tasks, dependencias, trazabilidad y hashes de los documentos históricos. | Gobernanza SDD | Sí |
+| 3 | `sdd-integrity` | `scripts/check-sdd.ps1`: Specs, Tasks, dependencias, trazabilidad completa por criterio y hashes de los documentos históricos; `scripts/check-sdd.tests.ps1` prueba que falla ante cada inconsistencia. | Gobernanza SDD | Sí |
 | 4 | `unit-tests` | Pruebas unitarias. | Pruebas | Sí |
 | 4 | `security-tests` | JWT, autorización, rate limiting, configuración, detección de secretos en el código, manejo de errores. | DevSecOps | Sí |
 | 4 | `endpoint-tests` (matriz de 9) | Un job por endpoint: `--filter "Endpoint=<valor>"` de ContractTests. | Pruebas | Sí |
@@ -64,7 +64,7 @@ Los nueve jobs `Endpoint · …` están en la misma columna (todos dependen solo
 | 4 | `integration-tests` | MongoDB Atlas de pruebas y dos Redis efímeros. Sin secretos de Atlas, esas pruebas quedan *Skipped* con aviso. | Pruebas | Sí (si una prueba falla) |
 | 5 | `quality-gate` | Depende de todas las anteriores; escribe en el resumen una tabla etapa → resultado y falla si una etapa bloqueante no terminó bien. | Puerta | Sí |
 | 6 | `docker-build` | Construye la imagen, Trivy de imagen (HIGH y CRITICAL bloquean) y SBOM SPDX con Syft. Nunca publica. | DevSecOps | Sí |
-| 7 | `deploy` | OIDC a Azure, versión desde `VERSION`, imagen inmutable `X.Y.Z-<sha7>` (se reutiliza si ya existe), Trivy, publicación en ACR, nueva revisión de Container Apps, despertar la API, prueba de humo con reversa automática y etiqueta `api-vX.Y.Z`. | CD | Sí |
+| 7 | `deploy` | OIDC a Azure, versión desde `VERSION`, imagen inmutable `X.Y.Z-<sha7>` (se reutiliza si ya existe), Trivy, publicación en ACR, nueva revisión de Container Apps, despertar la API, prueba de humo con reversa automática y, solo con `create_tag` en un lanzamiento manual, etiqueta `api-vX.Y.Z`. | CD | Sí |
 | 8 | `smoke-test` | `scripts/smoke-test.sh` contra la URL desplegada. | Verificación | Sí |
 | 9 | `dast` | OWASP ZAP baseline (escaneo pasivo) contra la API desplegada. | DevSecOps | No (solo reporte) |
 

@@ -12,6 +12,34 @@ public sealed class TokenRevocationStoreTests
     private static string NewJti() => "it-" + Guid.NewGuid().ToString("N");
 
     [RequiresEnvironmentFact(AuthVariable, CacheVariable)]
+    public async Task A_revoked_session_is_reported_revoked_with_a_ttl_and_never_reaches_the_cache_redis()
+    {
+        await using var auth = new RedisAuthConnection(Environment.GetEnvironmentVariable(AuthVariable)!);
+        await using var cache = new RedisCacheConnection(Environment.GetEnvironmentVariable(CacheVariable)!);
+        var store = new RedisTokenRevocationStore(auth, TimeProvider.System);
+        var sessionId = Guid.NewGuid();
+        var key = RedisTokenRevocationStore.SessionKeyPrefix + sessionId.ToString("N");
+        var database = await auth.GetDatabase();
+        try
+        {
+            Assert.False(await store.IsSessionRevoked(sessionId, CancellationToken.None));
+
+            await store.RevokeSession(sessionId, DateTime.UtcNow.AddMinutes(10), CancellationToken.None);
+
+            Assert.True(await store.IsSessionRevoked(sessionId, CancellationToken.None));
+            Assert.False(await store.IsSessionRevoked(Guid.NewGuid(), CancellationToken.None));
+            var ttl = await database.KeyTimeToLiveAsync(key);
+            Assert.NotNull(ttl);
+            Assert.InRange(ttl.Value.TotalSeconds, 590, 600);
+            Assert.False(await (await cache.GetDatabase()).KeyExistsAsync(key));
+        }
+        finally
+        {
+            await database.KeyDeleteAsync(key);
+        }
+    }
+
+    [RequiresEnvironmentFact(AuthVariable, CacheVariable)]
     public async Task Revoked_jti_is_reported_revoked_with_ttl_equal_to_the_remaining_lifetime_and_never_reaches_the_cache_redis()
     {
         await using var auth = new RedisAuthConnection(Environment.GetEnvironmentVariable(AuthVariable)!);

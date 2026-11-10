@@ -41,7 +41,7 @@
 - Guardar hash del refresh token y metadatos mínimos de sesión en MongoDB Atlas.
 - Logout revoca sesión/refresh token en MongoDB y bloquea el `jti` del access token vigente en Redis de autenticación hasta su expiración.
 - Registro público inicial crea Owner; el onboarding y verificación Business se especifican después. El cliente nunca puede autoasignarse Business.
-- Eliminación de mascotas propuesta como borrado lógico para preservar futuras referencias médicas; se confirma en `03-pet-management` antes de implementar.
+- Eliminación de mascotas propuesta como borrado lógico para preservar futuras referencias médicas; se confirma en `03-pet-management` antes de implementar. **(Superado el 2026-11-08: borrado físico por decisión del usuario.)**
 - El primer hito incluye `/auth/refresh` además de Login/Register/Logout porque es necesario para renovar sesiones.
 - Framework de pruebas base: xUnit 2.9.3 con `Microsoft.NET.Test.Sdk` 17.14.1, `xunit.runner.visualstudio` 3.1.4 y `coverlet.collector` 6.0.4; licencias permisivas y costo $0. Pendiente de ratificación formal en T003/T012.
 - La Api se creó con la plantilla `webapi --use-controllers --no-openapi` para no incorporar el paquete OpenAPI antes de su auditoría; OpenAPI/Scalar pertenece a T007.
@@ -315,3 +315,241 @@
 - **Scripts:** `quality-gate.ps1` acepta `-AuditOnly` y `-MinSeverity` (el pipeline bloquea High y Critical; localmente sigue bloqueando cualquier vulnerabilidad); `ci-test-summary.ps1` resume los TRX en el resumen del job; `.gitleaks.toml` con 5 falsos positivos revisados.
 - **Primer run en GitHub (2026-11-06):** todas las etapas en verde salvo integración: 21 pruebas contra Atlas fallaron porque Atlas no admite las IP de los runners (las 18 de Redis y de configuración pasaron). Se añadió un *ping* previo: si Atlas no responde, esas pruebas quedan Skipped con aviso. Acciones actualizadas a Node 24 (checkout, setup-dotnet y upload-artifact v5, CodeQL v4) y runner fijado a `ubuntu-24.04`.
 - **Riesgos abiertos:** CodeQL en repositorio privado requiere GitHub Advanced Security (decisión de Miguel; interruptor `CODEQL_DISABLED`); el pipeline nuevo no se ha podido ejecutar en GitHub desde este equipo, se validó con actionlint, gitleaks, Trivy y las suites en contenedor; la etiqueta de `deploy` y el DAST solo se ven en un run real de `main`.
+
+## pm-039 / T029 — modelo de mascota y persistencia (2026-11-08)
+
+- **Estado:** implementado y probado en la rama `feature/pm-039-pet-model`; T029 y pm-039 en `En progreso` (falta revisión independiente y aprobación humana). Sin endpoints todavía (llegan con pm-040 a pm-044).
+- **Decisiones del usuario:** campos de la maqueta móvil (nombre, especie, raza, fecha de nacimiento, sexo y fotografía) y **borrado físico** en la base de datos. Se reescribieron con sus mismos identificadores pm-039 CA-01/CA-03, pm-044 CA-01 a CA-03 y pm-041 CA-01.
+- **Diseño:** `Pet` en Domain con validaciones; `PetValidation` en Application (errores por campo en español); `IPetRepository` con el propietario en cada filtro (una mascota ajena se comporta como inexistente); `MongoPetRepository` e índice `ix_pets_ownerId_createdAtUtc`. La fotografía es una URL HTTPS hasta que existan pm-079/pm-080.
+- **Evidencia:** 19 pruebas unitarias nuevas y 6 de integración contra Atlas de pruebas, todas en verde (ver `specs/pm-039-pet-domain-persistence/checklists/gates.md`).
+- **Cierre:** el usuario aprobó el cierre de T029 el 2026-11-08 (sin revisión independiente). pm-039 sigue en progreso por T036 y T037.
+
+## pm-040, pm-042, pm-043, pm-044 — endpoints de mascotas (2026-11-08)
+
+- **Estado:** implementados y probados en `feature/pm-039-pet-model` (sin subir). T030, T032, T033 y T034 en `En progreso`; T031 (listar) espera la paginación de pm-047.
+- **Contrato:** solo rol Owner; propietario del token; 201 al crear, 200 en detalle, actualizar y eliminar (borrado físico); 400 con el campo; 404 para mascota ajena o inexistente. Detalle en `docs/api/endpoints.md`.
+- **Pipeline:** cuatro jobs nuevos en la matriz de endpoints (`pets-create`, `pets-get-by-id`, `pets-update`, `pets-delete`) y la prueba de humo cubre crear, ver, actualizar y eliminar.
+- **Evidencia:** Unit 142, Security 155, Contract 142 (26 nuevas), Integration sin cambios; `gates.md` de cada Spec.
+- **Cierre:** el usuario aprobó el cierre de T030, T032, T033 y T034 el 2026-11-08 (sin revisión independiente).
+
+## pm-039 / T036 y T037 — pruebas de mascotas (2026-11-08)
+
+- **Estado:** cerradas con aprobación humana el 2026-11-08 (sin revisión independiente); pm-039 queda `Cerrado`.
+- **Cambio:** dos pruebas nuevas de integración en `PetPersistenceIntegrationTests`: la consulta de listado usa el índice `ix_pets_ownerId_createdAtUtc` (`explain`, IXSCAN, sin COLLSCAN) y el borrado concurrente de la misma mascota tiene un solo ganador.
+- **Evidencia:** Unit 142/142; Integration 32 aprobadas + 15 omitidas por Redis, con las 8 de mascotas en verde contra Atlas; build Release 0/0. Detalle en `specs/pm-039-pet-domain-persistence/checklists/gates.md`.
+- **Riesgo menor:** el desempate por `_id` en `ListByOwner` no está en el índice (orden en memoria); revisar en pm-052.
+
+## Grupo de CI — T066, T069, T070, T071, T072 (2026-11-08)
+
+- **Estado:** verificadas y en `En progreso`; falta revisión independiente y aprobación humana. T012 y T067 sin cambios.
+- **Cambios:** `check-sdd.ps1` valida CA duplicados, Tasks con más de un Spec principal y trazabilidad completa por criterio; nuevo `check-sdd.tests.ps1` (8 casos) y su paso en el job `sdd-integrity`; resumen de la puerta de calidad sin el conteo fijo de endpoints; `version-matrix.md` corregida (la etiqueta la crea el CD).
+- **Decisiones pendientes del usuario:** (1) aceptar el merge/push a `main` como autorización expresa de la etiqueta (T071). _[Resuelta el 2026-11-08: el usuario eligió la opción 2, la etiqueta solo con lanzamiento manual y `create_tag`.]_ El umbral NuGet quedó igualado a High en local y CI (T066). La de Trivy (T069) quedó resuelta el mismo día (ver abajo).
+- **Limitación:** los cambios de `pipeline.yml` no se han ejecutado en GitHub porque no se ha hecho push.
+
+## Cierres y endurecimiento de la imagen (2026-11-08)
+
+- **T001, T070, T072:** cerradas con aprobación humana (sin revisión independiente); pm-058 y pm-060 `Cerrado`; pm-001 sigue `En revisión` (Spec sin aprobar).
+- **T069 (pm-057):** Trivy ya no ignora vulnerabilidades sin parche. La imagen final es `mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled` (sin shell, sin gestor de paquetes, no root): 0 HIGH/CRITICAL y 2 MEDIUM de `libc6` frente a 19 hallazgos de la imagen anterior; 225 MB frente a 392 MB. La CA de Redis del CD se arma en una etapa `certs`. Se quitó el healthcheck `bash` de la API en Compose. Verificado en local con Atlas real (flujo completo) y Security 155/155. T069 cerrada con aprobación humana el 2026-11-08 (sin revisión independiente); pm-057 `Cerrado`. Pendiente: primera ejecución en GitHub/Azure tras el próximo push.
+
+## pm-033 / T022 — alcance completo (2026-11-08)
+
+- **Estado:** `RequireOwner` ya está aplicado a los endpoints de mascotas (pm-040 a pm-044); NuGet audit en verde; Unit 152, Security 155, Contract 142 e Integration 48/48 con Atlas real y Redis temporales. T022 sigue `En progreso`: faltan la revisión independiente y la aprobación humana.
+- **Nota técnica:** las pruebas de Redis se omiten si la contraseña contiene «ficticio» (las de `.env` lo hacen); para ejecutarlas se usaron dos Redis temporales con contraseñas aleatorias.
+
+## Cierres del 2026-11-08: T012, T026, T027, T028; T066 igualada
+
+- **T012** cerrada con aprobación humana (sin revisión independiente). **T066**: `quality-gate.ps1` bloquea desde High por defecto, igual que CI; sigue pendiente de aprobación.
+- **T026, T027, T028** cerradas con aprobación humana (sin revisión independiente); pm-037 y pm-038 `Cerrado`. Al escribir la evidencia se detectó que faltaban pruebas unitarias de los casos de uso del perfil y una prueba de Atlas para `UpdateProfile`: se añadieron `ProfileHandlersTests` (10) y `Profile_update_persists_only_the_name_and_the_update_date_of_that_user`.
+- **Totales actuales:** Unit 152, Security 155, Contract 142, Integration 48 (Atlas real y Redis temporales).
+
+## Cierres de T022 y T066 (2026-11-08)
+
+- **T022** (pm-033) y **T066** (pm-055) cerradas con aprobación humana, sin revisión independiente; pm-033 `Cerrado`. pm-055 sigue `En progreso` por T067 (ramas protegidas, requiere autorización expresa).
+- **Pendiente:** T071 (interpretación de la autorización de etiquetas; resuelta el 2026-11-08, ver la sección de T071) y la primera ejecución en GitHub de los cambios de `pipeline.yml` (imagen chiseled, pruebas negativas del gate SDD).
+
+## Specs aprobados: pm-047, pm-041, pm-045 (2026-11-08)
+
+- **Aprobados por el usuario** (estado `Aprobado`). Paginación: `page` desde 1, `pageSize` 20 por defecto y 50 máximo, 400 si es inválido, respuesta `items`/`page`/`pageSize`/`totalCount`/`totalPages` (pm-047 §6).
+- **Orden de trabajo:** T058, T031, T035, T038, T040. T041 (pm-046) sigue bloqueada por pm-035, pm-034 y pm-036. No se ha implementado nada todavía.
+
+## Paginación y listado de mascotas — T058, T031, T035, T038, T040 (2026-11-08)
+
+- **Implementado:** `PaginationConvention`/`PagedResult<T>` (pm-047), `GET /api/v1/pets/get-all` con `ListMyPetsQuery`/`CountByOwner` (pm-041) y pruebas de propiedad (pm-045): `PetOwnershipSecurityTests` (7), `PetListTests` (20), `PetListEndpointsTests` (15) y una prueba de Atlas de `CountByOwner`. Endpoint nuevo `pets-get-all` en la matriz del pipeline, en `EndpointTraitTests`, en `docs/` y en la prueba de humo (14 endpoints).
+- **Totales:** Unit 172, Security 162, Contract 157, Integration 49 (Atlas real y Redis temporales); extremo a extremo con la imagen chiseled y Atlas.
+- **Estado:** T058, T031, T035 y T038 verificadas, pendientes de aprobación humana. **T040 no está lista:** falta la revisión independiente de seguridad y trazabilidad del módulo de mascotas (CA-03).
+
+## Revisión independiente del módulo de mascotas (2026-11-08)
+
+- **Seguridad:** apto con observaciones, sin críticos ni altos. **Dos riesgos medios abiertos que necesitan decisión del usuario:** S1 (sin tope de mascotas por Owner ni rate limiting en `/pets/*`) y S2 (sin límite explícito del tamaño del cuerpo). Documentados en `specs/pm-045-pet-ownership-bola/checklists/gates.md`.
+- **Trazabilidad:** consistente con observaciones; se corrigieron todas (gates reescritos de pm-040/042/043/044, trazabilidad, casillas, planes retrospectivos y documentación). Los planes de pm-040/042/043/044 son retrospectivos: desviación del flujo registrada.
+
+## Límites contra el abuso en mascotas (2026-11-08)
+
+- **Implementado por decisión del usuario** (riesgos S1 y S2 de la revisión de seguridad; pm-045 CA-04): máximo 100 mascotas por propietario (409), política `pets` de 60 peticiones por minuto por usuario (`PETS_RATE_LIMIT_PER_MINUTE`, 429 con `Retry-After`) y 16 KB de cuerpo para toda la API (`RequestBodyLimitMiddleware`, 413, incluso fragmentado).
+- **Verificación:** Unit 174/174, Security 166/166, Contract 163/163, Integration 49/49; en Kestrel real con la imagen chiseled (413 con y sin `Content-Length`, 429 tras 60).
+- **Estado:** T035, T038 y T040 siguen pendientes de aprobación humana; T031 y T058 también.
+
+## Cierre del módulo de mascotas (2026-11-08)
+
+- **T031, T035, T038, T040 y T058** cerradas con aprobación humana; pm-041, pm-045 y pm-047 `Cerrado`. Con ellas, pm-039 a pm-045 y pm-047 están cerrados: solo queda abierta T041 (pm-046), bloqueada por pm-035, pm-034 y pm-036.
+- **Observación abierta menor:** el desempate por `_id` del orden de `ListByOwner` no está en el índice (revisar en pm-052).
+
+## Protección contra fuerza bruta y matriz de límites — T056, T057, T054 (2026-11-08)
+
+- **Aprobados por el usuario:** pm-034, pm-035 y pm-036. Valores de T056: login 5 fallos por correo/15 min (el sexto bloquea 15 min, también con la contraseña correcta), refresh 30 por usuario/15 min, hashing acotado a los núcleos con cola del doble; contadores en Redis de autenticación (solo hashes) y falla cerrada (503).
+- **T057:** matriz en `docs/api/endpoints.md`; nueva política `users` (60 por minuto, `USERS_RATE_LIMIT_PER_MINUTE`). **T054:** retrospectiva documentada con la evidencia existente.
+- **Totales:** Unit 186/186, Security 169/169, Contract 168/168, Integration 53/53; verificado con Kestrel y Redis reales (401×5, 429 con `Retry-After: 900`).
+- **Pendiente:** aprobación de T056, T057 y T054; T023, T025 (con revisión independiente del grupo de autenticación) y T041 siguen abiertas. pm-028 a pm-032 siguen «En revisión» y son dependencias formales de pm-035.
+- **Riesgo conocido:** el bloqueo por correo permite bloquear temporalmente la cuenta de otra persona; lo acota el límite por IP.
+
+## Cierre de T054, T056 y T057 (2026-11-08)
+
+- T056 y T057 cerradas con aprobación humana; T054 (retrospectiva) aprobada y documentada, sin estado «Cerrado» porque `check-sdd.ps1` lo prohíbe para retrospectivas; pm-036 `Verificado`; pm-034 `En progreso` (falta T023). Pendientes del camino a T041: T023, T025 (con la revisión independiente del grupo de autenticación) y T041.
+
+## T023 y T025 — grupo de autenticación (2026-11-08)
+
+- **Revisión independiente** (dos agentes de solo lectura): seguridad apto con observaciones, trazabilidad consistente con observaciones. **Corregido:** conteo del intento antes de verificar (H1), cupo del limitador liberado al terminar el hash (H2), límite por usuario en logout (H5) y el script de Redis ya no reinicia el contador durante un bloqueo (hallado con Redis real). Documentación al día (ASVS, endpoints, registro).
+- **Totales:** Unit 188/188, Security 170/170, Contract 170/170, Integration 56/56.
+- **Abiertos para decisión del usuario:** H3 (bloqueo dirigido), H4 (registro enumerable), H6 (`TRUSTED_PROXIES` y límite por instancia), H7 (access tokens vivos hasta 15 minutos tras replay), H8 (sin ventana de gracia del refresh) e I2 (sin log de eventos de seguridad ni `no-store`).
+- **Bloqueo de T025 y T041:** pm-028 a pm-032 siguen «En revisión» y son dependencias formales de pm-035; T023 y T025 esperan aprobación humana.
+
+## Cierre del grupo de autenticación (2026-11-08)
+
+- **Aprobados:** specs pm-028 a pm-032; **cerradas:** T023 y T025; **pm-034 y pm-035 `Cerrado`**. Las dependencias de pm-046 (pm-035, pm-038 y pm-045) están cerradas.
+- **Abiertos para decisión:** H3, H4, H6, H7, H8 e I2 de la revisión de seguridad (ver `specs/pm-034-auth-brute-force-protection/checklists/gates.md`). Siguen «En revisión» otros specs base de los que dependen los anteriores (por ejemplo pm-011, pm-013 y pm-024 a pm-027).
+- **Siguiente:** T041 (pm-046): requiere aprobar el spec pm-046 (hoy `Propuesto`) y después la aceptación de extremo a extremo de los 11 endpoints con tu aprobación explícita del hito.
+
+## Aceptación del primer hito — T041 (2026-11-08)
+
+- **pm-046 aprobado.** Validación de extremo a extremo con `scripts/acceptance-milestone.ps1` (nuevo): **39/39** comprobaciones sobre los 11 endpoints (más sondas), imagen `petmate-api:local` chiseled, Atlas y Redis reales. Suites Unit 188/188, Security 170/170, Contract 170/170, Integration 56/56; NuGet y Trivy (0 HIGH/CRITICAL) en verde.
+- **Pendiente:** aprobación humana explícita del hito (pm-046 CA-02). Abiertos: H3, H4, H6, H7, H8 e I2; primera ejecución del pipeline en GitHub y despliegue con esta versión; specs base «En revisión».
+
+## Primer hito aceptado (2026-11-08)
+
+- **El usuario aprobó explícitamente el primer hito** (11 endpoints: 4 de autenticación y 7 funcionales); T041 y pm-046 `Cerrado`. Evidencia: `specs/pm-046-first-milestone-acceptance/checklists/gates.md` y `scripts/acceptance-milestone.ps1` (39/39).
+- **Estado del código:** local en `feature/pm-039-pet-model`; lo último subido a `origin/developer` es `b6efa1e`. Quedan cambios sin confirmar (límites de autenticación, cuota por correo, tests, documentación SDD y el script de aceptación).
+- **Pendiente:** hallazgos H3, H4, H6, H7, H8 e I2 (decisión), primera ejecución del pipeline en GitHub (imagen chiseled, límites, gate SDD) y despliegue a Azure con esta versión, specs base «En revisión» (pm-011, pm-013, pm-024 a pm-027, etc.) y la observación de pm-052.
+
+## Specs base aprobados (2026-11-08)
+
+- **Aprobados los 27 specs de pm-001 a pm-027** que seguían «En revisión»: 15 `Cerrado` (Task histórica cerrada) y 12 `Aprobado` (pm-007, pm-010, pm-013, pm-014, pm-015, pm-017 a pm-021, pm-023 y pm-025). Ya no queda ningún spec «En revisión».
+- **Pendiente:** Tasks retrospectivas T042 a T053 (documentar la evidencia existente), T055 (verificación automática de rutas y reglas de nombrado, pm-007) y T097 (evidencia contra la falsificación de `X-Forwarded-For`, pm-017). Aprobar un spec no las cierra.
+
+## Retrospectivas T042–T053 y tareas nuevas T055 y T097 (2026-11-08)
+
+- **Documentadas** las 12 retrospectivas (T042 a T053) con tabla criterio → prueba y sus limitaciones; **construidas** T055 (comprobación automática catálogo ↔ rutas y reglas de nombrado, `RouteCatalogTests`) y T097 (`ForwardedHeadersSpoofingTests`: un cliente no confiable no evade el límite por IP con `X-Forwarded-For`; control positivo con proxy listado).
+- **Totales:** Unit 188/188, Security 170/170, Contract 179/179, Integration 56/56. Evidencia directa de la imagen: usuario 1654, sin shell, Trivy de secretos y de vulnerabilidades sin hallazgos.
+- **Pendiente de aprobación humana:** T042 a T053, T055 y T097 (una retrospectiva no puede marcarse «Cerrado» por regla del gate SDD). Cobertura parcial: pm-010 CA-03 (cancelación del cliente) sin prueba directa.
+
+## Cadena documental de Azure — T074, T075, T076 (2026-11-08)
+
+- **T074 (pm-062):** `docs/infrastructure/azure-cost-study.md` con 15 componentes, fuentes oficiales consultadas el 2026-11-08 (varias páginas de precios son dinámicas y no cargaron: marcadas), tipo de cambio 18.652374 MXN/USD, consumo del crédito (completo ~3.7 meses, modo ahorro ~7 meses) y conflicto académico documentado (12 meses completos exceden el crédito; no se reducen requisitos).
+- **T075 (pm-063):** ADR-005 a ADR-010 (balanceo, almacenamiento, CDN, observabilidad, registro, secretos) con alternativas dentro de Azure, e índice `docs/decisions/README.md`; ADR-003 sigue cubriendo cómputo y Redis. Siguen «Propuesto».
+- **T076 (pm-064):** `docs/infrastructure/environments.md` (desarrollo, pruebas, demo; bases `petmate_dev`, `petmate_test`, `petmate_prod`; nombres y etiquetas) con `EnvironmentStrategyTests` y `DecisionRecordsTests` (Security 177). No se creó ni se consultó ningún recurso de Azure.
+- **Pendiente:** aprobación humana de T074, T075 y T076; confirmar en la calculadora los precios que no cargaron y leer el consumo real en Cost Management.
+
+## Aprobaciones del 2026-11-08 (T042–T053, T055, T097)
+
+- Aprobadas por el usuario: retrospectivas T042–T053 («Aprobada y documentada») y T055 y T097 («Cerrado y aprobado»). Sin revisión independiente de T055/T097.
+- **No aprobadas (decisión del usuario):** T071, T074, T075 y T076 siguen «En progreso».
+
+## Logging, cobertura y contratos — T065, T068, T073 (2026-11-08)
+
+- **T065 (pm-054):** `RequestLoggingMiddleware` + consola JSON con ámbitos. Hallazgo propio: el ámbito `RequestPath` de `Hosting.Diagnostics` filtraba ids y texto del cliente; se desactivó (filtro a `None`). `X-Correlation-Id` se escribe con `OnStarting` porque el Response Wrapper limpia las cabeceras. `AuthFlowFactory` dejó de ser `sealed` para poder capturar logs en pruebas.
+- **T068 (pm-056):** cobertura de líneas 93.7 % con las cuatro suites (78.6 % sin Atlas/Redis). `docs/quality/coverage-baseline.md` y `scripts/coverage-merge.py`. El umbral propuesto (90 % / 75 % en PR) **no está aplicado**: requiere enmienda aprobada por Miguel.
+- **T073 / T024 / T039 (pm-061):** `OpenApiWrapperTests` comprueba que el OpenAPI usa el wrapper; T024 y T039 se verificaron con pruebas existentes.
+- Suites: Unit 188, Security 177, Contract 188, Integration 56 (34 con Atlas; 22 de Redis se omiten sin contraseñas reales).
+- **Pendiente:** revisión independiente y aprobación humana de T065, T068, T073, T024 y T039; decidir la enmienda del umbral; eventos de seguridad en logs (I2).
+
+## Rendimiento, caché e índices — T059 a T064 (2026-11-08)
+
+- **T059:** compresión gzip/Brotli del JSON (también HTTPS) excepto `/api/v1/auth/*` (BREACH, tokens): 12 777 B → 1 909 B. `docs/security/compression-risk.md`.
+- **T060:** `ApiJsonContext` (generación en compilación), JSON idéntico al de reflexión; 321.6 → 196.1 ms por 2000 serializaciones de 50 mascotas.
+- **T061:** `ICacheStore` (`Read`/`Write`/`Remove`; `Get`/`Set` los prohíbe CA1716), `CacheKey` `petmate:cache:v1:{área}:{id}`, TTL 1 s a 1 h, `RedisCacheStore` solo con `RedisCacheConnection`, 250 ms y fallo seguro. Sin consumidores.
+- **T062:** `docs/security/cache-policy.md` + `CachePolicyTests`: ningún endpoint es cacheable; nada consume `ICacheStore` sin decisión documentada.
+- **T063:** `docs/quality/database-indexes.md` + `QueryPlanIntegrationTests` (8 consultas con IXSCAN en Atlas de pruebas). Abierto: desempate por `_id` fuera del índice de mascotas.
+- **T064:** `PerformanceBaselineTests` en proceso (p95: health 10.1 ms, get-all 19.9/13.2 ms); `docs/quality/performance-baseline.md`. La carga real queda para pm-084.
+- El ámbito de correlación del logging ahora usa `LoggerMessage.DefineScope`.
+- **Pendiente:** revisión independiente y aprobación humana de T059 a T064 (y de las del turno anterior); corregir la prueba de concurrencia de refresh, que falló una vez.
+
+## Revisiones independientes, I2 y flaky (2026-11-08)
+
+- **Prueba de concurrencia de refresh:** la causa era el doble en memoria, que devolvía la misma instancia de `RefreshSession` a todas las solicitudes; un perdedor revocaba el objeto del ganador y `RegisterUse` lanzaba. Ahora `InMemorySessionRepository` devuelve copias (como Atlas); se añadió `InternalsVisibleTo` de Domain a ContractTests e IntegrationTests (el doble se comparte). 3 corridas seguidas verdes.
+- **I2 cerrado:** `AuthController` registra (Warning) login fallido, bloqueo y refresh rechazado con un seudónimo de la cuenta (SHA-256 del correo, 12 hex), sin correo, contraseña, tokens ni IP.
+- **Revisión de seguridad (subagente, solo lectura): apto con observaciones, sin hallazgos altos.** Corregido: regex del correlation id con `\A…\z` y pruebas con CR/LF; método HTTP normalizado en el log; pruebas de exclusión de compresión con mayúsculas; riesgo residual de PII comprimida documentado. Registrado sin cambio: exclusión por ruta (no por metadato), `Hosting.Diagnostics = None` y `JwtBearer = Critical` reducen señal de logs, `ForwardLimit = 1` con más de un salto en Azure, valores de caché sin control de contenido (revisar al añadir el primer consumidor), `xml.etree` con XML local.
+- **Revisión de trazabilidad (subagente): consistente con observaciones.** Corregido: conteos reales en los gates (Unit 206/206, Security 180/180, Contract 198/198, Integration 37 pasan y 23 se omiten de 60 (las omitidas son de Redis sin contraseñas reales y la de caché con Redis real); medido el 2026-11-08 tras las revisiones), cabeceras de los gates de pm-007 y pm-017, T068 «CA-01 verificado, CA-02 pendiente», pm-062 «cumple parcialmente», revisión independiente anotada. Pendiente: casillas de la Definition of Done de los `task.md` cerrados.
+- **Aprobación de T074, T075 y T076** por el usuario: «Cerrado y aprobado»; ADR-005 a ADR-010 siguen «Propuesto».
+- **Pendiente:** commit y push de este lote; umbral de cobertura (enmienda); H3, H4, H6, H7, H8; T067, T071.
+
+## Aprobaciones del 2026-11-08 (T059–T065, T068, T073, T024, T039)
+
+- Aprobadas por el usuario: T059, T060, T061, T062, T063, T064, T065, T073, T024 y T039 («Cerrado y aprobado») y T068 (con **CA-02 pendiente de enmienda**: umbral de cobertura). Specs pm-048 a pm-054 y pm-061 «Verificado»; pm-056 sigue «En progreso».
+- **No aprobada:** T071 (versionado de releases).
+
+## Hallazgos de seguridad H3, H4, H6, H7 y H8 — T098 a T102 (2026-11-08)
+
+Aprobados por el usuario (H7, H3, H8 opción A; H4 opción B; H6 A+B+C) y registrados como T098 a T102 bajo pm-028, pm-031, pm-036, pm-034 y pm-029 (el gate `check-sdd` amplió su rango a T001–T102).
+
+- **H7 (T098):** claim `sid` en el access token; `RevokeSession`/`IsSessionRevoked` en Redis Auth (`jwt:session-revoked:{sid}`, TTL = vida del token); se revoca en logout, replay y usuario inexistente. Tokens sin `sid` valen hasta expirar.
+- **H8 (T099):** `RefreshHandler.ReplayGrace` = 10 s: reutilizar un token consumido dentro de la ventana da 401 sin revocar; después, replay. La prueba de concurrencia ahora exige 1 éxito y sesión viva.
+- **H6 (T100):** `AuthIpThrottleFilter` (Redis Auth, 10/min por IP, espera de 1 min) en register/login/refresh, además de la barrera en proceso; 503 si Redis no responde. `REQUIRE_TRUSTED_PROXIES=true` hace fatal la falta de `TRUSTED_PROXIES` en Production; por defecto solo advierte, porque el primer despliegue la deja vacía. Saltos (1 con el ingress de Container Apps, `ForwardLimit = 1`) documentados. El scope de `RedisAuthAttemptThrottle` ahora admite guion.
+- **H3 (T101):** bloqueo duro por par (correo, IP) y techo por correo (50/15 min, espera de 1 min); `LoginCommand` recibe `ClientKey`.
+- **H4 (T102):** el hash ya se calculaba antes de `TryAdd` (prueba nueva); el 409 queda como riesgo aceptado y documentado.
+- **Entorno:** Docker Desktop estaba apagado al reanudar (el equipo se apagó/reinició); se volvió a iniciar.
+- **Pendiente:** revisión independiente y aprobación humana de T098 a T102; commit y push (el usuario pidió no subir todavía).
+
+## Aprobación de T098 a T102 (2026-11-08)
+
+- El usuario aprobó las cinco Tasks (H7, H8, H6, H3, H4). **No hubo revisión independiente** de estos cambios; es la brecha a recordar. Specs pm-028, pm-029, pm-031, pm-034 y pm-036 «Verificado».
+
+## T071 — autorización de la etiqueta de versión (2026-11-08)
+
+- El usuario eligió la **opción 2**: el merge a `main` despliega pero no etiqueta; la etiqueta `api-vX.Y.Z` solo se crea al lanzar el pipeline a mano con la casilla `create_tag`. Cambio en `.github/workflows/pipeline.yml` (entrada `create_tag`, condición del paso) y `ReleaseTagAuthorizationTests`.
+- **Límite:** no se ha ejecutado en GitHub; la primera ejecución real del paso queda pendiente. Falta revisión independiente y aprobación humana de T071.
+- **Revisión independiente de T071 (2026-11-08): apto con observaciones.** Corregido: documentos que decían que el merge etiqueta, entrada `version` por `env`, paso de etiqueta sin ocultar errores, versión = `VERSION` con `create_tag` y pruebas más estrictas (Security 185). Pendiente: aprobación humana de T071; el riesgo de `terraform apply` sobre `PETMATE_VERSION` queda documentado.
+
+## T071 cerrada (2026-11-08)
+
+- Aprobada y cerrada por el usuario tras la revisión independiente (apto con observaciones, corregidas). Spec pm-059 «Verificado». **Límite:** el pipeline no ha corrido en GitHub con estos cambios; la primera ejecución real del paso de etiqueta (y de la entrada `create_tag`) está pendiente. Riesgo documentado: `terraform apply` puede revertir `PETMATE_VERSION`.
+
+## Fuentes de producto, enmienda v1.3.0 y Specs del primer hito (2026-11-09)
+
+- **Fuentes de producto vigentes:** documento v3 (RF/RNF/HU) y maqueta HTML; sustituyen al PDF del 26 de octubre. Resumen y decisiones del usuario en `docs/product-scope.md`; huellas SHA-256 de las dos fuentes allí.
+- **Constitución v1.3.0** (aprobada por el usuario en el chat): §6.1 cuenta única `User` con un negocio asociado opcional, afiliación de autoservicio; §6.5 y §7 ajustados; §11 con módulos y alcance excluido; historial §13.
+- **Decisiones registradas:** sin verificación de correo ni SMS; celular opcional después del registro; **contraseña 12–128 se mantiene** (el documento propone 8); especies Perro y Gato; QR permanente con autorizaciones de acceso (negocio, datos y duración elegidos, sin revocación ni vista de accesos para el dueño); push con FCM; seguimiento y chat dentro; cobro e IA/ML fuera; un tipo por negocio; fotos de negocios públicas en Blob; integración con la app antes que la nube.
+- **Specs creados** (`pm-085` a `pm-104`, Tasks `T103` a `T122`), uno por Task y en estado «Propuesto», sin plan ni implementación: cuenta y sesión (085 a 091), mascotas y QR (092 a 095), carnet (096 a 103) y cascada de borrado (104). Pm-079 a pm-081 (Blob) siguen «Propuesto» y cubren las fotos de mascotas.
+- **Gate SDD:** `scripts/check-sdd.ps1` amplía sus rangos a `pm-001`…`pm-104` y `T001`…`T122`; pasa con 104 Specs y 122 Tasks.
+- **Pendiente:** Specs de los hitos siguientes (mapa y afiliación, escaneo y atención, avisos, seguimiento y chat, eliminación de cuenta); el dominio de envío de correo (sin dominio solo funcionan las pruebas); verificar el estado del despliegue de Azure; aprobar cada Spec antes de planificar.
+
+## Specs de los hitos siguientes (2026-11-09)
+
+- **63 Specs atómicos** (`pm-105` a `pm-167`, Tasks `T123` a `T185`), uno por Task y en estado «Propuesto», sin plan ni implementación: negocios y mapa (105 a 121), autorizaciones y escaneo (122 a 130), atención clínica por negocios (131 a 137), seguimiento y chat (138 a 150), avisos push y recordatorios (151 a 160), eliminación de cuenta (161 a 165) y contrato OpenAPI y entorno de integración (166 y 167).
+- **Cobertura:** todas las funcionalidades de las fuentes de producto tienen ya un Spec, salvo lo excluido por el usuario (cobro, verificación de correo, SMS, IA/ML). Total del repositorio: 167 Specs y 185 Tasks; el gate `check-sdd` pasa.
+- **Supuestos que el usuario debe confirmar** (están como nota en el Spec correspondiente): eliminación de cuenta inmediata, con el plazo de 30 días del aviso de privacidad solo para copias de seguridad (pm-161); verificación de identidad de la eliminación web por enlace al correo (pm-164); si el peso de una consulta se suma al historial de peso (pm-131); tiempo real del chat solo si es viable (pm-150); aviso de promociones de la maqueta sin funcionalidad definida (pm-157).
+- **Pendiente:** aprobar cada Spec antes de planificarlo (`AGENTS.md`); el dominio de envío de correo; verificar el estado del despliegue de Azure; y decidir el orden de trabajo del primer Spec a planificar.
+
+## Aprobación de los Specs del primer hito (2026-11-09)
+
+- El usuario aprobó `pm-085` a `pm-104` (20 Specs). Estado «Aprobado»; las Tasks `T103` a `T122` siguen «Propuesto» y se aprobarán con su plan.
+- **Siguiente paso:** redactar el `plan.md` de cada Spec antes de implementar (orden por dependencias). Antes de implementar `pm-088` se elige el proveedor de correo de costo $0 y se verifica en fuentes oficiales; sin dominio de envío solo funcionan las pruebas.
+- **Fuera de este hito:** `pm-079` a `pm-081` (fotos de mascotas en Blob) siguen «Propuesto» y hay que aprobarlos para cubrir `pm-092#CA` de foto y RF-09 completo.
+- **2026-11-09:** el usuario aprobó las Tasks `T114` a `T122` (carnet y cascada). Estado «Aprobada para iniciar»; siguen pendientes los `plan.md`. `T103` a `T113` continúan «Propuesto».
+- **2026-11-09:** el usuario aprobó las Tasks `T110` a `T113` (especie, sexo y QR; incluye el visto bueno a la cascada de T122). Estado «Aprobada para iniciar»; siguen pendientes los `plan.md`. `T103` a `T109` continúan «Propuesto».
+
+## Implementación de T110 a T122 (2026-11-09)
+
+- **Hecho:** especie Perro/Gato y sexo opcional (T110); QR permanente con token de 256 bits y código corto, lectura y regeneración (T111-T113); carnet con origen del registro, vacunas, desparasitaciones, pesos y alergias (T114-T121); cascada de borrado de mascota (T122). 11 endpoints nuevos del carnet más `pets/get-qr` y `pets/regenerate-qr`.
+- **Evidencia:** build Release `-warnaserror` limpio; unitarias 233, seguridad 188, contrato 242 (contenedor Docker, SAC bloquea Argon2 en el host); integración Atlas 30 (base de pruebas).
+- **Decisiones aplicadas:** fecha no futura; tope 200 registros por mascota y tipo (409); listados con la convención de `pm-047`; 403 «lo registró el negocio» al borrar/editar registros de negocio; 60 solicitudes/min por usuario (`CARNET_RATE_LIMIT_PER_MINUTE`) y 16 KB de cuerpo; cascada por pasos (hijos primero, mascota al final), idempotente y sin transacción.
+- **Pendiente:** revisión independiente (seguridad y trazabilidad) y aprobación humana de cierre; confirmar el tope de 200 kg del peso (guarda de cordura, no estaba en el Spec); la cancelación de autorizaciones al regenerar el QR espera al módulo de compartir; mascotas guardadas con otra especie fallarían al leerse (la base de pruebas se limpia sola; revisar datos reales antes de desplegar). Sin commit ni push.
+- **2026-11-09:** T110 a T113 verificadas tras revisión independiente (sin hallazgos bloqueantes) y aprobación del usuario; T114 a T122 siguen pendientes de revisión y cierre. Corregido: las mascotas con especie heredada se siguen leyendo.
+- **2026-11-09:** T114 a T122 verificadas tras revisión independiente (sin hallazgos bloqueantes) y aprobación del usuario. Pruebas: unitarias 233, seguridad 188, contrato 249.
+- **2026-11-09:** el usuario aprobó las Tasks `T103` a `T109` (cuenta y sesión). Estado «Aprobada para iniciar»; siguen pendientes los `plan.md`. ya no quedan Tasks del primer hito en «Propuesto».
+
+## Implementación de T103 a T109 (2026-11-09)
+
+- **Hecho:** nombre obligatorio en el registro (T103); rol único `User` con aceptación del `Owner` anterior hasta que expire el token (T104); `business` en la sesión, siempre `null` por ahora (T105); puerto y adaptador de correo con Resend y adaptador deshabilitado sin configuración (T106); `forgot-password` y `reset-password` con token de un solo uso, límites y revocación de todas las sesiones (T107, T108); celular opcional en el perfil (T109).
+- **Evidencia:** build Release `-warnaserror` limpio; unitarias 259, seguridad 186, contrato 269 (Docker), integración Atlas 33.
+- **Pendiente:** revisión independiente y aprobación de cierre de T103 a T109; el envío real de correo necesita un dominio verificado y `EMAIL_API_KEY`, `EMAIL_FROM`, `PASSWORD_RESET_URL_BASE`; `scripts/smoke-test.sh` y `acceptance-milestone.ps1` ya envían el nombre pero no se ejecutaron. Sin commit ni push.
+- **2026-11-09:** revisión independiente de T103 a T109 sin hallazgos bloqueantes; se corrigieron 503 que delataba la cuenta, enlaces antiguos vigentes y el orden de revocación. Unitarias 261. Pendiente solo la aprobación de cierre.
+- **2026-11-09:** T103 a T109 verificadas con aprobación del usuario. Primer hito (T103 a T122) cerrado; pendiente el envío real de correo (dominio y llave).

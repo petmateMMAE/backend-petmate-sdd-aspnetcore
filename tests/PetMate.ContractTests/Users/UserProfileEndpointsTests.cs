@@ -35,7 +35,7 @@ public sealed class UserProfileEndpointsTests
 
     [Trait("Endpoint", "users-me-get")]
     [Fact]
-    public async Task Get_returns_own_profile_without_secrets_and_without_name_until_it_is_set()
+    public async Task Get_returns_own_profile_without_secrets_and_with_the_registration_name()
     {
         using var factory = new AuthFlowFactory();
         using var client = factory.CreateClient();
@@ -48,8 +48,8 @@ public sealed class UserProfileEndpointsTests
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("ana@example.com", data.GetProperty("email").GetString());
-        Assert.Equal("Owner", data.GetProperty("role").GetString());
-        Assert.Equal(JsonValueKind.Null, data.GetProperty("displayName").ValueKind);
+        Assert.Equal("User", data.GetProperty("role").GetString());
+        Assert.Equal("Ana", data.GetProperty("displayName").GetString());
         Assert.DoesNotContain("passwordHash", raw, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain(Password, raw, StringComparison.Ordinal);
     }
@@ -70,6 +70,49 @@ public sealed class UserProfileEndpointsTests
         Assert.Equal(HttpStatusCode.OK, update.StatusCode);
         Assert.Equal("Ana Pérez", updated.RootElement.GetProperty("data").GetProperty("displayName").GetString());
         Assert.Equal("Ana Pérez", current.RootElement.GetProperty("data").GetProperty("displayName").GetString());
+    }
+
+    [Trait("Endpoint", "users-me-update")]
+    [Fact]
+    public async Task Phone_is_optional_added_changed_removed_and_only_visible_to_its_owner()
+    {
+        using var factory = new AuthFlowFactory();
+        using var client = factory.CreateClient();
+        var ana = await RegisterAndGetAccess(client, "ana@example.com");
+        var luis = await RegisterAndGetAccess(client, "luis@example.com");
+
+        using var initial = await Send(client, "GET", "me/get", null, ana);
+        using var added = await Send(client, "PUT", "me/update", "{\"displayName\":\"Ana\",\"phone\":\"+52 55 1234 5678\"}", ana);
+        using var addedDoc = JsonDocument.Parse(await added.Content.ReadAsStringAsync());
+        using var luisRead = await Send(client, "GET", "me/get", null, luis);
+        using var removed = await Send(client, "PUT", "me/update", "{\"displayName\":\"Ana\"}", ana);
+        using var removedDoc = JsonDocument.Parse(await removed.Content.ReadAsStringAsync());
+        using var initialDoc = JsonDocument.Parse(await initial.Content.ReadAsStringAsync());
+        using var luisDoc = JsonDocument.Parse(await luisRead.Content.ReadAsStringAsync());
+
+        Assert.Equal(JsonValueKind.Null, initialDoc.RootElement.GetProperty("data").GetProperty("phone").ValueKind);
+        Assert.Equal("5512345678", addedDoc.RootElement.GetProperty("data").GetProperty("phone").GetString());
+        Assert.Equal(JsonValueKind.Null, luisDoc.RootElement.GetProperty("data").GetProperty("phone").ValueKind);
+        Assert.Equal(JsonValueKind.Null, removedDoc.RootElement.GetProperty("data").GetProperty("phone").ValueKind);
+    }
+
+    [Trait("Endpoint", "users-me-update")]
+    [Theory]
+    [InlineData("12345")]
+    [InlineData("55123456ab")]
+    [InlineData("+34 612345678")]
+    public async Task Update_with_an_invalid_phone_returns_400_naming_phone(string phone)
+    {
+        using var factory = new AuthFlowFactory();
+        using var client = factory.CreateClient();
+        var access = await RegisterAndGetAccess(client, "ana@example.com");
+
+        using var response = await Send(client, "PUT", "me/update", $"{{\"displayName\":\"Ana\",\"phone\":\"{phone}\"}}", access);
+        var raw = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains("\"field\":\"phone\"", raw, StringComparison.Ordinal);
+        Assert.DoesNotContain(phone, raw.Replace("\u002B", "+", StringComparison.Ordinal), StringComparison.Ordinal);
     }
 
     [Trait("Endpoint", "users-me-update")]
@@ -119,7 +162,7 @@ public sealed class UserProfileEndpointsTests
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("ana@example.com", user.Email.Value);
-        Assert.Null(user.DisplayName);
+        Assert.Equal("Ana", user.DisplayName);
     }
 
     [Trait("Endpoint", "users-me-get")]
@@ -137,14 +180,14 @@ public sealed class UserProfileEndpointsTests
         var data = document.RootElement.GetProperty("data");
 
         Assert.Equal("luis@example.com", data.GetProperty("email").GetString());
-        Assert.Equal(JsonValueKind.Null, data.GetProperty("displayName").ValueKind);
+        Assert.Equal("Ana", data.GetProperty("displayName").GetString());
     }
 
     private static async Task<string> RegisterAndGetAccess(HttpClient client, string email)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/auth/register")
         {
-            Content = new StringContent(JsonSerializer.Serialize(new { email, password = Password }), System.Text.Encoding.UTF8, "application/json"),
+            Content = new StringContent(JsonSerializer.Serialize(new { displayName = "Ana", email, password = Password }), System.Text.Encoding.UTF8, "application/json"),
         };
         using var response = await client.SendAsync(request);
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);

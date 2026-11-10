@@ -11,7 +11,7 @@
 
 ### T043 — Documentar la evidencia retrospectiva del manejo global de excepciones
 - **Tipo:** Retrospectiva
-- **Estado:** Propuesto (retrospectiva por documentar)
+- **Estado:** Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva)
 - **Spec principal:** pm-010
 - **Criterios propios:** pm-010#CA-01, pm-010#CA-02, pm-010#CA-03, pm-010#CA-04
 - **Origen:** trabajo implementado bajo T008.
@@ -22,7 +22,7 @@
   - Revisión independiente existente: Cierre humano de T008 registrado en `task.md` (H)
 - **Demostrable con la evidencia existente:** CA-01, CA-02 y CA-04; CA-03 solo parcial.
 - **Limitaciones:** La cancelación del cliente solo está cubierta de forma parcial.
-- **Fases (sin completar):** [ ] Documentación de la evidencia revisada · [ ] Revisión independiente · [ ] Aprobación humana
+- **Fases:** [x] Documentación de la evidencia revisada · [ ] Revisión independiente · [x] Aprobación humana
 - **No hacer:** cerrar la Task sin aprobación humana; añadir evidencia que no exista.
 
 ## Definition of Done

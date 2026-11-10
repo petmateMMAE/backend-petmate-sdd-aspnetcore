@@ -11,7 +11,7 @@
 
 ### T052 — Documentar la evidencia retrospectiva del dominio de sesiones
 - **Tipo:** Retrospectiva
-- **Estado:** Propuesto (retrospectiva por documentar)
+- **Estado:** Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva)
 - **Spec principal:** pm-023
 - **Criterios propios:** pm-023#CA-01, pm-023#CA-02, pm-023#CA-03
 - **Origen:** trabajo implementado bajo T013.
@@ -22,7 +22,7 @@
   - Revisión independiente existente: Cierre humano de T013 registrado en `task.md` (H)
 - **Demostrable con la evidencia existente:** CA-01 a CA-03.
 - **Limitaciones:** Ninguna limitación relevante identificada.
-- **Fases (sin completar):** [ ] Documentación de la evidencia revisada · [ ] Revisión independiente · [ ] Aprobación humana
+- **Fases:** [x] Documentación de la evidencia revisada · [ ] Revisión independiente · [x] Aprobación humana
 - **No hacer:** cerrar la Task sin aprobación humana; añadir evidencia que no exista.
 
 ## Definition of Done

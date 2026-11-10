@@ -13,7 +13,7 @@ public sealed class RefreshResilienceTests
     public async Task Refresh_does_not_issue_tokens_if_the_session_is_revoked_between_validation_and_activity_update()
     {
         var stack = new AuthTestHarness();
-        var first = (await stack.Register.Handle(new RegisterCommand("ana@example.com", Password), CancellationToken.None)).Value!;
+        var first = (await stack.Register.Handle(new RegisterCommand("ana@example.com", Password, "Ana"), CancellationToken.None)).Value!;
         var racing = new RevokeBeforeActivityRepository(stack.Sessions);
         var handler = new RefreshHandler(stack.Users, racing, stack.Tokens, stack.Access, SessionPolicy.Default, stack.Clock);
 
@@ -27,7 +27,7 @@ public sealed class RefreshResilienceTests
     public async Task Refresh_tolerates_a_clock_slightly_behind_the_last_use_instead_of_failing_with_a_domain_error()
     {
         var stack = new AuthTestHarness();
-        var first = (await stack.Register.Handle(new RegisterCommand("ana@example.com", Password), CancellationToken.None)).Value!;
+        var first = (await stack.Register.Handle(new RegisterCommand("ana@example.com", Password, "Ana"), CancellationToken.None)).Value!;
         stack.Clock.Advance(TimeSpan.FromDays(5));
         var second = (await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), CancellationToken.None)).Value!;
 
@@ -65,5 +65,8 @@ public sealed class RefreshResilienceTests
 
         public Task Revoke(RefreshSession session, CancellationToken cancellationToken)
             => inner.Revoke(session, cancellationToken);
+
+        public Task<IReadOnlyList<Guid>> RevokeAllForUser(Guid userId, DateTime nowUtc, SessionRevocationReason reason, CancellationToken cancellationToken)
+            => inner.RevokeAllForUser(userId, nowUtc, reason, cancellationToken);
     }
 }

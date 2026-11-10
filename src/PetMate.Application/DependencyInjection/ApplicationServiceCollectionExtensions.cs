@@ -1,7 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PetMate.Application.Authentication;
+using PetMate.Application.Carnet;
 using PetMate.Application.Mediator;
+using PetMate.Application.Pagination;
+using PetMate.Application.Pets;
+using PetMate.Application.Security;
 using PetMate.Application.Users;
 using PetMate.Application.Validation;
 using PetMate.Domain.Sessions;
@@ -17,6 +21,8 @@ public static class ApplicationServiceCollectionExtensions
         services.AddRequestHandler<TechnicalProbeQuery, string, TechnicalProbeHandler>();
         services.AddAuthentication();
         services.AddUserProfile();
+        services.AddPets();
+        services.AddCarnet();
         services.TryAddSingleton<MediatorRegistry>();
         services.AddScoped<IMediator, MediatorDispatcher>();
         services.AddScoped<ISender, MediatorDispatcher>();
@@ -29,6 +35,8 @@ public static class ApplicationServiceCollectionExtensions
         services.TryAddSingleton(TimeProvider.System);
         services.TryAddSingleton(SessionPolicy.Default);
         services.AddSingleton<AuthTokenIssuer>();
+        // Hashing Argon2id acotado: tantos a la vez como núcleos y el doble en cola; lo demás se rechaza con 429 (pm-034).
+        services.TryAddSingleton<IPasswordHashingLimiter>(new BoundedPasswordHashingLimiter(Environment.ProcessorCount, Environment.ProcessorCount * 2));
 
         services.AddRequestHandler<RegisterCommand, AuthResult<AuthTokensResult>, RegisterHandler>();
         services.AddRequestHandler<LoginCommand, AuthResult<AuthTokensResult>, LoginHandler>();
@@ -38,6 +46,10 @@ public static class ApplicationServiceCollectionExtensions
         services.AddRequestValidator<LoginCommand, LoginCommandValidator>();
         services.AddRequestValidator<RefreshCommand, RefreshCommandValidator>();
         services.AddRequestValidator<LogoutCommand, LogoutCommandValidator>();
+        services.AddRequestHandler<ForgotPasswordCommand, AuthResult<Unit>, ForgotPasswordHandler>();
+        services.AddRequestHandler<ResetPasswordCommand, AuthResult<Unit>, ResetPasswordHandler>();
+        services.AddRequestValidator<ForgotPasswordCommand, ForgotPasswordCommandValidator>();
+        services.AddRequestValidator<ResetPasswordCommand, ResetPasswordCommandValidator>();
         return services;
     }
 
@@ -48,6 +60,51 @@ public static class ApplicationServiceCollectionExtensions
         services.AddRequestHandler<GetMyProfileQuery, UserProfileResult?, GetMyProfileHandler>();
         services.AddRequestHandler<UpdateMyProfileCommand, UserProfileResult?, UpdateMyProfileHandler>();
         services.AddRequestValidator<UpdateMyProfileCommand, UpdateMyProfileCommandValidator>();
+        return services;
+    }
+
+    /// <summary>Mascotas del Owner (pm-040, pm-042, pm-043, pm-044): crear, detalle, actualizar y eliminar.</summary>
+    private static IServiceCollection AddCarnet(this IServiceCollection services)
+    {
+        services.AddRequestHandler<CreateVaccineCommand, CarnetResult<VaccineResult>, CreateVaccineHandler>();
+        services.AddRequestHandler<ListVaccinesQuery, CarnetResult<PagedResult<VaccineResult>>, ListVaccinesHandler>();
+        services.AddRequestHandler<DeleteVaccineCommand, CarnetStatus, DeleteVaccineHandler>();
+        services.AddRequestValidator<CreateVaccineCommand, CreateVaccineCommandValidator>();
+        services.AddRequestValidator<ListVaccinesQuery, ListVaccinesQueryValidator>();
+
+        services.AddRequestHandler<CreateDewormingCommand, CarnetResult<DewormingResult>, CreateDewormingHandler>();
+        services.AddRequestHandler<ListDewormingsQuery, CarnetResult<PagedResult<DewormingResult>>, ListDewormingsHandler>();
+        services.AddRequestHandler<DeleteDewormingCommand, CarnetStatus, DeleteDewormingHandler>();
+        services.AddRequestValidator<CreateDewormingCommand, CreateDewormingCommandValidator>();
+        services.AddRequestValidator<ListDewormingsQuery, ListDewormingsQueryValidator>();
+
+        services.AddRequestHandler<CreateWeightCommand, CarnetResult<WeightResult>, CreateWeightHandler>();
+        services.AddRequestHandler<ListWeightsQuery, CarnetResult<PagedResult<WeightResult>>, ListWeightsHandler>();
+        services.AddRequestValidator<CreateWeightCommand, CreateWeightCommandValidator>();
+        services.AddRequestValidator<ListWeightsQuery, ListWeightsQueryValidator>();
+
+        services.AddRequestHandler<CreateAllergyCommand, CarnetResult<AllergyResult>, CreateAllergyHandler>();
+        services.AddRequestHandler<ListAllergiesQuery, CarnetResult<PagedResult<AllergyResult>>, ListAllergiesHandler>();
+        services.AddRequestHandler<UpdateAllergyCommand, CarnetResult<AllergyResult>, UpdateAllergyHandler>();
+        services.AddRequestValidator<CreateAllergyCommand, CreateAllergyCommandValidator>();
+        services.AddRequestValidator<UpdateAllergyCommand, UpdateAllergyCommandValidator>();
+        services.AddRequestValidator<ListAllergiesQuery, ListAllergiesQueryValidator>();
+        return services;
+    }
+
+    private static IServiceCollection AddPets(this IServiceCollection services)
+    {
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddRequestHandler<CreatePetCommand, CreatePetOutcome, CreatePetHandler>();
+        services.AddRequestHandler<GetMyPetQuery, PetResult?, GetMyPetHandler>();
+        services.AddRequestHandler<ListMyPetsQuery, PagedResult<PetResult>, ListMyPetsHandler>();
+        services.AddRequestValidator<ListMyPetsQuery, ListMyPetsQueryValidator>();
+        services.AddRequestHandler<UpdateMyPetCommand, PetResult?, UpdateMyPetHandler>();
+        services.AddRequestHandler<DeleteMyPetCommand, bool, DeleteMyPetHandler>();
+        services.AddRequestHandler<GetPetQrQuery, PetQrResult?, GetPetQrHandler>();
+        services.AddRequestHandler<RegeneratePetQrCommand, PetQrResult?, RegeneratePetQrHandler>();
+        services.AddRequestValidator<CreatePetCommand, CreatePetCommandValidator>();
+        services.AddRequestValidator<UpdateMyPetCommand, UpdateMyPetCommandValidator>();
         return services;
     }
 

@@ -1,6 +1,6 @@
 # Spec — pm-055 ci-pull-request-pipeline
 
-> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L4 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L4 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -32,15 +32,15 @@ Cada criterio se cita como `pm-055#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T012 | Histórica | Implementada; NO cerrada (2026-11-03) | CI base DevSecOps |
-| T066 | Nueva | Propuesto | Crear el workflow de CI de pull request |
+| T012 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | CI base DevSecOps |
+| T066 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | Crear el workflow de CI de pull request |
 | T067 | Nueva | Propuesto | Configurar ramas protegidas y checks requeridos |
 
 Detalle en [task.md](task.md).
 
 ## 6. Notas, limitaciones y decisiones pendientes
 
-- T012 (histórica) está implementada con controles locales verificados y NO cerrada: el workflow YAML, el escaneo de imagen y el SBOM siguen pendientes. T066 cubre CA-01 y CA-02; T067 cubre CA-03 y CA-04.
+- T012 (histórica) quedó cerrada con aprobación humana el 2026-11-08 (sin revisión independiente): el workflow YAML, el escaneo de imagen y el SBOM ya existen en `pipeline.yml`. T066 cubre CA-01 y CA-02; T067 cubre CA-03 y CA-04.
 
 ## 7. Aprobación
 

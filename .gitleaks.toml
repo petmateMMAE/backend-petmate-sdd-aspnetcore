@@ -18,4 +18,9 @@ paths = [
   '''tests/PetMate\.SecurityTests/Authentication/JwtAccessTokenServiceTests\.cs''',
   '''tests/PetMate\.SecurityTests/Quality/SecretScanTests\.cs''',
   '''src/PetMate\.Infrastructure/Security/Argon2idOptions\.cs''',
+  # Primer hito (T103-T108): contrasenas ficticias de pruebas y del script de aceptacion, nunca credenciales reales.
+  '''tests/PetMate\.ContractTests/Authentication/AuthEndpointValidationTests\.cs''',
+  '''tests/PetMate\.ContractTests/Authentication/PasswordResetEndpointsTests\.cs''',
+  '''tests/PetMate\.UnitTests/Authentication/PasswordResetTests\.cs''',
+  '''scripts/acceptance-milestone\.ps1''',
 ]

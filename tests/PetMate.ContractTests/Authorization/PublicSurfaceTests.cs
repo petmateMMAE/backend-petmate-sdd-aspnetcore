@@ -20,6 +20,8 @@ public sealed class PublicSurfaceTests
         "POST /api/v1/auth/login",
         "POST /api/v1/auth/refresh",
         "POST /api/v1/auth/register",
+        "POST /api/v1/auth/forgot-password",
+        "POST /api/v1/auth/reset-password",
     ];
 
     // Público de forma temporal (decisión P-04): revisar su exposición en producción en un trabajo de seguridad posterior.

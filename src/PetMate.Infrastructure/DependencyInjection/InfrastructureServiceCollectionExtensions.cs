@@ -3,9 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MongoDB.Driver;
 using PetMate.Application.Authentication;
+using PetMate.Application.Carnet;
 using PetMate.Application.Persistence;
 using PetMate.Application.Security;
 using PetMate.Infrastructure.Configuration;
+using PetMate.Infrastructure.Mail;
 using PetMate.Infrastructure.Health;
 using PetMate.Infrastructure.Persistence;
 using PetMate.Infrastructure.Redis;
@@ -44,6 +46,26 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton(new MongoCollectionNames());
         services.AddSingleton<IUserRepository, MongoUserRepository>();
         services.AddSingleton<ISessionRepository, MongoSessionRepository>();
+        services.AddSingleton<IPetRepository, MongoPetRepository>();
+        services.AddSingleton<IVaccineRepository, MongoVaccineRepository>();
+        services.AddSingleton<IDewormingRepository, MongoDewormingRepository>();
+        services.AddSingleton<IWeightRepository, MongoWeightRepository>();
+        services.AddSingleton<IAllergyRepository, MongoAllergyRepository>();
+        services.AddSingleton<IPasswordResetRepository, MongoPasswordResetRepository>();
+
+        // Correo transaccional (pm-088): sin las tres variables no se envía nada (adaptador deshabilitado).
+        if (EmailOptions.TryRead(name => configuration[name]) is { } emailOptions)
+        {
+            services.AddSingleton(emailOptions);
+            services.AddSingleton<IEmailSender>(provider => new ResendEmailSender(
+                new HttpClient(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(5) }) { Timeout = TimeSpan.FromSeconds(10) },
+                emailOptions,
+                provider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<ResendEmailSender>>()));
+        }
+        else
+        {
+            services.AddSingleton<IEmailSender, DisabledEmailSender>();
+        }
         services.AddSingleton<MongoIndexInitializer>();
         services.AddHostedService<MongoIndexHostedService>();
 
@@ -57,6 +79,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton(JwtOptions.Parse(configuration, isDevelopment));
         services.AddSingleton<IAccessTokenService, JwtAccessTokenService>();
         services.AddSingleton<ITokenRevocationStore, RedisTokenRevocationStore>();
+        services.AddSingleton<IAuthAttemptThrottle, RedisAuthAttemptThrottle>();
+        services.AddSingleton<PetMate.Application.Caching.ICacheStore, RedisCacheStore>();
 
         services.AddSingleton(new RedisAuthConnection(settings.RedisAuth.Connection));
         services.AddSingleton(new RedisCacheConnection(settings.RedisCache.Connection));
