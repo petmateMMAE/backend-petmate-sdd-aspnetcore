@@ -7,6 +7,7 @@
 # - En pull request (a developer, release o main) corre todo hasta la imagen y NO despliega: deploy, smoke-test y dast aparecen
 #   como "skipped" para que el diagrama muestre el flujo completo.
 # - En cada push/merge a main (sin filtro de rutas: el flujo siempre se ve completo) o a mano desde main, tras pasar la puerta de calidad y la imagen, se despliega.
+#   La etiqueta Git api-vX.Y.Z NO se crea con el merge: solo a mano (Run workflow) marcando «create_tag» (pm-059 CA-02).
 # - Las pruebas de cada endpoint son jobs separados al mismo nivel (matriz `endpoint-tests`): `dotnet test --filter "Endpoint=<valor>"`.
 #   Cada método de ContractTests lleva [Trait("Endpoint", "...")] y una prueba de arquitectura lo exige.
 # - Sin `environment:` en el despliegue: el plan gratuito de GitHub no los permite en repositorios privados y además cambiaría el
@@ -24,6 +25,10 @@ on:
       version:
         description: 'Versión SemVer a desplegar (sin la v). Vacío = la del archivo VERSION'
         required: false
+      create_tag:
+        description: 'Crear y subir la etiqueta Git api-vX.Y.Z tras un despliegue correcto (autorización expresa, pm-059 CA-02)'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -209,6 +214,10 @@ jobs:
         shell: pwsh
         run: ./scripts/check-sdd.ps1
 
+      - name: Pruebas negativas del gate SDD (check-sdd.tests.ps1)
+        shell: pwsh
+        run: ./scripts/check-sdd.tests.ps1
+
   # ───────────── Etapa 4 · Pruebas ─────────────
   unit-tests:
     name: "4 · Pruebas unitarias"
@@ -282,11 +291,31 @@ jobs:
           - auth-login
           - auth-refresh
           - auth-logout
+          - auth-forgot-password
+          - auth-reset-password
           - users-me-get
           - users-me-update
           - health-live
           - health-ready
           - technical-mediator-probe
+          - pets-create
+          - pets-get-all
+          - pets-get-by-id
+          - pets-update
+          - pets-delete
+          - pets-get-qr
+          - pets-regenerate-qr
+          - vaccines-create
+          - vaccines-get-all
+          - vaccines-delete
+          - dewormings-create
+          - dewormings-get-all
+          - dewormings-delete
+          - weights-create
+          - weights-get-all
+          - allergies-create
+          - allergies-get-all
+          - allergies-update
     steps:
       - uses: actions/checkout@v5
 
@@ -477,7 +506,7 @@ jobs:
           row "3 · Integridad SDD" "$R_SDD" bloqueante
           row "4 · Pruebas unitarias" "$R_UNIT" bloqueante
           row "4 · Pruebas de seguridad" "$R_SECURITY" bloqueante
-          row "4 · Pruebas por endpoint (9 jobs)" "$R_ENDPOINTS" bloqueante
+          row "4 · Pruebas por endpoint (matriz)" "$R_ENDPOINTS" bloqueante
           row "4 · Contrato transversal" "$R_TRANSVERSAL" bloqueante
           row "4 · Pruebas de integración" "$R_INTEGRATION" bloqueante
           if [ "$failed" -ne 0 ]; then
@@ -501,12 +530,13 @@ jobs:
       - name: Construir imagen
         run: docker build -t petmate-api:ci-${{ github.sha }} .
 
+      # pm-057: cualquier HIGH o CRITICAL bloquea, tenga o no parche publicado (sin ignore-unfixed ni .trivyignore).
+      # La imagen final es "chiseled" (sin shell ni gestor de paquetes) para minimizar paquetes vulnerables.
       - name: Escaneo de la imagen (Trivy, HIGH y CRITICAL bloquean)
         uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: petmate-api:ci-${{ github.sha }}
           severity: CRITICAL,HIGH
-          ignore-unfixed: true
           exit-code: '1'
 
       - name: SBOM (Syft, SPDX)
@@ -542,10 +572,19 @@ jobs:
 
       - name: Versión
         id: version
+        env:
+          # La entrada del usuario se pasa por el entorno (no se interpola en el script) antes de validarla.
+          INPUT_VERSION: ${{ inputs.version }}
+          CREATE_TAG: ${{ inputs.create_tag }}
         run: |
-          V="${{ inputs.version }}"
-          if [ -z "$V" ]; then V="$(tr -d ' \r\n' < VERSION)"; fi
-          if ! echo "$V" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then echo "::error::Versión no SemVer: $V"; exit 1; fi
+          FILE_VERSION="$(tr -d ' \r\n' < VERSION)"
+          V="$INPUT_VERSION"
+          if [ -z "$V" ]; then V="$FILE_VERSION"; fi
+          if ! echo "$V" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then echo "::error::Versión no SemVer"; exit 1; fi
+          # Una etiqueta api-vX.Y.Z debe coincidir con el archivo VERSION del commit que marca (se comprueba antes de desplegar).
+          if [ "$CREATE_TAG" = "true" ] && [ "$V" != "$FILE_VERSION" ]; then
+            echo "::error::Con create_tag la versión debe coincidir con el archivo VERSION ($FILE_VERSION)"; exit 1
+          fi
           echo "version=$V" >> "$GITHUB_OUTPUT"
           echo "tag=$V-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
@@ -584,12 +623,11 @@ jobs:
             -t "$IMAGE" .
           echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
 
-      - name: Escaneo de la imagen (Trivy)
+      - name: Escaneo de la imagen (Trivy, HIGH y CRITICAL bloquean)
         uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: ${{ env.IMAGE }}
           severity: CRITICAL,HIGH
-          ignore-unfixed: true
           exit-code: '1'
 
       - name: Publicar imagen inmutable en ACR
@@ -642,11 +680,21 @@ jobs:
             --image "${{ steps.rollout.outputs.previous }}" >/dev/null
           echo "::warning::Despliegue revertido a ${{ steps.rollout.outputs.previous }}"
 
-      - name: Etiqueta de versión
-        if: success()
+      # pm-059 CA-02: la etiqueta es pública y difícil de revertir, así que NUNCA se crea por el solo hecho de hacer merge a main.
+      # Solo se crea cuando una persona lanza el flujo a mano y marca «create_tag» (esa casilla es la autorización expresa).
+      - name: Etiqueta de versión (solo con autorización expresa)
+        if: success() && github.event_name == 'workflow_dispatch' && inputs.create_tag == true
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          git tag "api-v${{ steps.version.outputs.version }}" "$GITHUB_SHA" 2>/dev/null && \
-            git push origin "api-v${{ steps.version.outputs.version }}" || echo "La etiqueta ya existía"
+          TAG="api-v${VERSION}"
+          # Solo «ya existe» es un caso tolerado; cualquier otro fallo (permisos, red, protección de etiquetas) hace fallar el paso.
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+            echo "La etiqueta ${TAG} ya existe; no se modifica."
+            exit 0
+          fi
+          git tag "${TAG}" "$GITHUB_SHA"
+          git push origin "refs/tags/${TAG}"
 
       - name: Resumen
         if: success()

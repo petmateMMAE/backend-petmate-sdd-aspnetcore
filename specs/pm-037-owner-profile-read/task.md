@@ -11,16 +11,17 @@
 
 ### T026 — Implementar GET perfil propio
 - **Tipo:** Histórica
-- **Estado:** En progreso
+- **Estado:** Cerrado y aprobado (2026-11-08, aprobación humana) — sin revisión independiente
 - **Spec principal:** pm-037
 - **Criterios propios:** pm-037#CA-01, pm-037#CA-02
 - **Fuente histórica:** [`_historico/02-owner-profile/task.md`](../_historico/02-owner-profile/task.md) (sección T026)
 - **Evidencia y fases:** conservadas en la fuente histórica y en su `checklists/gates.md`; no se reescriben.
+- **Fases:** [x] Implementación · [x] Pruebas (ver [checklists/gates.md](checklists/gates.md)) · [ ] Revisión independiente (no realizada; el usuario aprobó el cierre sin ella) · [x] Documentación · [x] Aprobación humana (2026-11-08)
 
 ## Definition of Done
 
-- [ ] Criterios propios satisfechos con evidencia reproducible.
-- [ ] Pruebas unitarias, de integración, de seguridad y de contrato aplicables pasan.
-- [ ] Contratos y documentación actualizados.
+- [x] Criterios propios satisfechos con evidencia reproducible.
+- [x] Pruebas unitarias, de integración, de seguridad y de contrato aplicables pasan.
+- [x] Contratos y documentación actualizados.
 - [ ] Revisión independiente completada.
-- [ ] Aprobación humana registrada (los agentes no se auto-firman).
+- [x] Aprobación humana registrada (2026-11-08; los agentes no se auto-firman).

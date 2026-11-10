@@ -157,7 +157,7 @@ public sealed partial class Argon2idPasswordHasherTests(ITestOutputHelper output
         Assert.DoesNotContain(members, name => name.Contains("Password", StringComparison.OrdinalIgnoreCase) && name != nameof(User.PasswordHash)
             && name != nameof(User.ChangePasswordHash));
         var hash = PasswordHash.Create(new Argon2idPasswordHasher(Minimum).Hash(Password));
-        var user = User.RegisterOwner(Email.Create("a@b.co"), hash, DateTime.UtcNow);
+        var user = User.Register(Email.Create("a@b.co"), hash, "Ana", DateTime.UtcNow);
         Assert.DoesNotContain(Password, user.PasswordHash.Value, StringComparison.Ordinal);
     }
 

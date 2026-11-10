@@ -6,10 +6,10 @@ namespace PetMate.Api.Contracts.Users;
 // no se pueden cambiar desde aquí (evita mass assignment).
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
-public sealed record UpdateProfileRequest(string? DisplayName);
+public sealed record UpdateProfileRequest(string? DisplayName, string? Phone = null);
 
 /// <summary>Perfil del usuario autenticado. Nunca incluye el hash de la contraseña ni tokens.</summary>
-public sealed record UserProfileResponse(Guid Id, string Email, string Role, string? DisplayName, DateTime CreatedAt)
+public sealed record UserProfileResponse(Guid Id, string Email, string Role, string? DisplayName, DateTime CreatedAt, string? Phone = null)
 {
     public override string ToString() => nameof(UserProfileResponse);
 }

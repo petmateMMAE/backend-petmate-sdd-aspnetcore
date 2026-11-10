@@ -36,6 +36,15 @@ public sealed class RateLimitAndProxyTests
     [InlineData("AUTH_RATE_LIMIT_PER_MINUTE", "0")]
     [InlineData("AUTH_RATE_LIMIT_PER_MINUTE", "abc")]
     [InlineData("AUTH_RATE_LIMIT_PER_MINUTE", "100000")]
+    [InlineData("PETS_RATE_LIMIT_PER_MINUTE", "0")]
+    [InlineData("PETS_RATE_LIMIT_PER_MINUTE", "abc")]
+    [InlineData("PETS_RATE_LIMIT_PER_MINUTE", "100000")]
+    [InlineData("CARNET_RATE_LIMIT_PER_MINUTE", "0")]
+    [InlineData("CARNET_RATE_LIMIT_PER_MINUTE", "abc")]
+    [InlineData("CARNET_RATE_LIMIT_PER_MINUTE", "100000")]
+    [InlineData("USERS_RATE_LIMIT_PER_MINUTE", "0")]
+    [InlineData("USERS_RATE_LIMIT_PER_MINUTE", "abc")]
+    [InlineData("USERS_RATE_LIMIT_PER_MINUTE", "100000")]
     public void Invalid_proxy_or_rate_limit_settings_fail_fast_without_echoing_the_value(string key, string value)
     {
         var builder = ApplicationBootstrap.CreateBuilder([], new WebApplicationOptions { EnvironmentName = Environments.Development });

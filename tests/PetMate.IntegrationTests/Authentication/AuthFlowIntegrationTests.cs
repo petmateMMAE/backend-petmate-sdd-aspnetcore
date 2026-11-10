@@ -29,20 +29,20 @@ public sealed class AuthFlowIntegrationTests
     {
         await using var stack = await Stack.Create();
 
-        var registered = Ok(await stack.Register.Handle(new RegisterCommand("Ana@Example.com", Password), default));
+        var registered = Ok(await stack.Register.Handle(new RegisterCommand("Ana@Example.com", Password, "Ana"), default));
 
         // Atlas guarda solo el hash de la contraseña y solo el hash del refresh token.
         var userDocument = await stack.Raw<BsonDocument>(stack.Mongo.Names.Users).Find(FilterDefinition<BsonDocument>.Empty).SingleAsync();
         Assert.StartsWith("$argon2id$", userDocument["passwordHash"].AsString, StringComparison.Ordinal);
         Assert.DoesNotContain(Password, userDocument.ToJson(), StringComparison.Ordinal);
-        Assert.Equal((int)UserRole.Owner, userDocument["role"].AsInt32);
+        Assert.Equal((int)UserRole.User, userDocument["role"].AsInt32);
         var tokenDocument = await stack.Raw<BsonDocument>(stack.Mongo.Names.Tokens).Find(FilterDefinition<BsonDocument>.Empty).SingleAsync();
         Assert.DoesNotContain(registered.RefreshToken, tokenDocument.ToJson(), StringComparison.Ordinal);
         Assert.Equal(64, tokenDocument["tokenHash"].AsString.Length);
 
         // El access token emitido es válido criptográficamente y lleva rol Owner.
         var claims = await stack.Jwt.Validate(registered.AccessToken.Value, default);
-        Assert.Equal(UserRole.Owner, claims!.Role);
+        Assert.Equal(UserRole.User, claims!.Role);
 
         var login = Ok(await stack.Login.Handle(new LoginCommand("ana@example.com", Password), default));
         var refreshed = Ok(await stack.Refresh.Handle(new RefreshCommand(login.RefreshToken), default));
@@ -70,7 +70,7 @@ public sealed class AuthFlowIntegrationTests
         await using var stack = await Stack.Create();
 
         var results = await Task.WhenAll(Enumerable.Range(0, 10)
-            .Select(_ => Task.Run(() => stack.Register.Handle(new RegisterCommand("race@example.com", Password), default))));
+            .Select(_ => Task.Run(() => stack.Register.Handle(new RegisterCommand("race@example.com", Password, "Ana"), default))));
 
         Assert.Equal(1, results.Count(result => result.IsSuccess));
         Assert.All(results.Where(result => !result.IsSuccess), result => Assert.Equal(AuthError.EmailAlreadyRegistered, result.Error));
@@ -81,7 +81,7 @@ public sealed class AuthFlowIntegrationTests
     public async Task Concurrent_refresh_with_the_same_token_lets_exactly_one_request_win_and_revokes_the_session()
     {
         await using var stack = await Stack.Create();
-        var first = Ok(await stack.Register.Handle(new RegisterCommand("ana@example.com", Password), default));
+        var first = Ok(await stack.Register.Handle(new RegisterCommand("ana@example.com", Password, "Ana"), default));
 
         var results = await Task.WhenAll(Enumerable.Range(0, 15)
             .Select(_ => Task.Run(() => stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), default))));
@@ -96,7 +96,7 @@ public sealed class AuthFlowIntegrationTests
     public async Task Replay_of_a_rotated_token_revokes_the_whole_family_in_atlas()
     {
         await using var stack = await Stack.Create();
-        var first = Ok(await stack.Register.Handle(new RegisterCommand("ana@example.com", Password), default));
+        var first = Ok(await stack.Register.Handle(new RegisterCommand("ana@example.com", Password, "Ana"), default));
         var second = Ok(await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), default));
 
         var replay = await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), default);
@@ -110,8 +110,8 @@ public sealed class AuthFlowIntegrationTests
     public async Task Sessions_expire_after_the_idle_window_and_users_cannot_log_out_each_other()
     {
         await using var stack = await Stack.Create();
-        var owner = Ok(await stack.Register.Handle(new RegisterCommand("dueno@example.com", Password), default));
-        var attacker = Ok(await stack.Register.Handle(new RegisterCommand("intruso@example.com", Password), default));
+        var owner = Ok(await stack.Register.Handle(new RegisterCommand("dueno@example.com", Password, "Ana"), default));
+        var attacker = Ok(await stack.Register.Handle(new RegisterCommand("intruso@example.com", Password, "Ana"), default));
 
         var forbidden = await stack.Logout.Handle(
             new LogoutCommand(attacker.UserId, attacker.AccessToken.Jti, attacker.AccessToken.ExpiresAtUtc, owner.RefreshToken), default);
@@ -126,7 +126,7 @@ public sealed class AuthFlowIntegrationTests
     public async Task Login_upgrades_an_outdated_password_hash_in_atlas()
     {
         await using var stack = await Stack.Create();
-        Ok(await stack.Register.Handle(new RegisterCommand("ana@example.com", Password), default));
+        Ok(await stack.Register.Handle(new RegisterCommand("ana@example.com", Password, "Ana"), default));
         var before = (await stack.Users.FindByEmail(Email.Create("ana@example.com"), default))!.PasswordHash.Value;
 
         await using var stronger = await Stack.CreateOn(stack.Mongo, new Argon2idOptions(Argon2idOptions.MinMemoryKiB * 2, Argon2idOptions.MinIterations + 1));
@@ -141,15 +141,95 @@ public sealed class AuthFlowIntegrationTests
     public async Task Logout_with_redis_auth_down_fails_closed_after_revoking_the_session_in_atlas()
     {
         await using var stack = await Stack.Create();
-        var tokens = Ok(await stack.Register.Handle(new RegisterCommand("ana@example.com", Password), default));
+        var tokens = Ok(await stack.Register.Handle(new RegisterCommand("ana@example.com", Password, "Ana"), default));
         await using var unreachable = new RedisAuthConnection("127.0.0.1:1,password=x,connectTimeout=300,abortConnect=false");
         var logout = new LogoutHandler(
-            stack.Sessions, new RedisTokenRevocationStore(unreachable, stack.Clock), stack.RefreshTokens, stack.Clock);
+            stack.Sessions, new RedisTokenRevocationStore(unreachable, stack.Clock), stack.RefreshTokens, stack.Jwt, stack.Clock);
 
         await Assert.ThrowsAsync<AuthDependencyUnavailableException>(() => logout.Handle(
             new LogoutCommand(tokens.UserId, tokens.AccessToken.Jti, tokens.AccessToken.ExpiresAtUtc, tokens.RefreshToken), default));
 
         Assert.Equal(AuthError.InvalidRefreshToken, (await stack.Refresh.Handle(new RefreshCommand(tokens.RefreshToken), default)).Error);
+    }
+
+    [RequiresEnvironmentFact(Uri, Database, RedisAuth)]
+    public async Task Login_lockout_works_end_to_end_with_real_atlas_redis_and_argon2id()
+    {
+        await using var stack = await Stack.Create();
+        Ok(await stack.Register.Handle(new RegisterCommand("lock.ana@example.com", Password, "Ana"), default));
+        var database = await stack.Redis.GetDatabase();
+        try
+        {
+            for (var i = 0; i < 5; i++)
+            {
+                Assert.Equal(AuthError.InvalidCredentials, (await stack.ThrottledLogin.Handle(new LoginCommand("lock.ana@example.com", "otra-contraseña-123"), default)).Error);
+            }
+
+            var sixth = await stack.ThrottledLogin.Handle(new LoginCommand("lock.ana@example.com", "otra-contraseña-123"), default);
+            var rightPassword = await stack.ThrottledLogin.Handle(new LoginCommand("lock.ana@example.com", Password), default);
+
+            Assert.Equal(AuthError.TooManyRequests, sixth.Error);
+            Assert.Equal(AuthError.TooManyRequests, rightPassword.Error);
+            Assert.InRange(rightPassword.RetryAfter!.Value.TotalMinutes, 14, 15);
+            // Otra cuenta no se ve afectada y un correo inexistente se comporta igual que uno existente.
+            Ok(await stack.Register.Handle(new RegisterCommand("lock.luis@example.com", Password, "Ana"), default));
+            Ok(await stack.ThrottledLogin.Handle(new LoginCommand("lock.luis@example.com", Password), default));
+            var results = new List<AuthError>();
+            for (var i = 0; i < 7; i++)
+            {
+                results.Add((await stack.ThrottledLogin.Handle(new LoginCommand("lock.nadie@example.com", "otra-contraseña-123"), default)).Error);
+            }
+
+            Assert.Equal([.. Enumerable.Repeat(AuthError.InvalidCredentials, 5), AuthError.TooManyRequests, AuthError.TooManyRequests], results);
+        }
+        finally
+        {
+            foreach (var email in new[] { "lock.ana@example.com", "lock.luis@example.com", "lock.nadie@example.com" })
+            {
+                var suffix = "login:" + Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes(email))).ToLowerInvariant();
+                await database.KeyDeleteAsync(["auth:throttle:" + suffix, "auth:lock:" + suffix]);
+            }
+        }
+    }
+
+    [RequiresEnvironmentFact(Uri, Database, RedisAuth)]
+    public async Task A_concurrent_burst_of_guesses_verifies_at_most_the_allowed_passwords_with_real_redis()
+    {
+        await using var stack = await Stack.Create();
+        Ok(await stack.Register.Handle(new RegisterCommand("burst.ana@example.com", Password, "Ana"), default));
+        var counting = new CountingHasher(stack.Hasher);
+        var issuer = new AuthTokenIssuer(stack.Sessions, stack.RefreshTokens, stack.Jwt, SessionPolicy.Default);
+        var login = new LoginHandler(stack.Users, counting, issuer, stack.Clock, stack.Throttle, stack.Limiter);
+        var database = await stack.Redis.GetDatabase();
+        try
+        {
+            var results = await Task.WhenAll(Enumerable.Range(0, 20)
+                .Select(_ => Task.Run(() => login.Handle(new LoginCommand("burst.ana@example.com", "otra-contraseña-123"), default))));
+
+            Assert.True(counting.Verifications <= AuthThrottleRules.Login.MaxAttempts, $"Se verificaron {counting.Verifications} contraseñas.");
+            Assert.Equal(AuthThrottleRules.Login.MaxAttempts, results.Count(r => r.Error == AuthError.InvalidCredentials));
+            Assert.Equal(20 - AuthThrottleRules.Login.MaxAttempts, results.Count(r => r.Error == AuthError.TooManyRequests));
+        }
+        finally
+        {
+            var suffix = "login:" + Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes("burst.ana@example.com"))).ToLowerInvariant();
+            await database.KeyDeleteAsync(["auth:throttle:" + suffix, "auth:lock:" + suffix]);
+        }
+    }
+
+    private sealed class CountingHasher(IPasswordHasher inner) : IPasswordHasher
+    {
+        private int verifications;
+
+        public int Verifications => Volatile.Read(ref verifications);
+
+        public string Hash(string password) => inner.Hash(password);
+
+        public PasswordVerificationResult Verify(string password, string passwordHash)
+        {
+            Interlocked.Increment(ref verifications);
+            return inner.Verify(password, passwordHash);
+        }
     }
 
     private static AuthTokensResult Ok(AuthResult<AuthTokensResult> result)
@@ -182,8 +262,11 @@ public sealed class AuthFlowIntegrationTests
             var issuer = new AuthTokenIssuer(Sessions, RefreshTokens, Jwt, SessionPolicy.Default);
             Register = new RegisterHandler(Users, Hasher, issuer, Clock);
             Login = new LoginHandler(Users, Hasher, issuer, Clock);
-            Refresh = new RefreshHandler(Users, Sessions, RefreshTokens, Jwt, SessionPolicy.Default, Clock);
-            Logout = new LogoutHandler(Sessions, Revocations, RefreshTokens, Clock);
+            Throttle = new RedisAuthAttemptThrottle(Redis);
+            Limiter = new BoundedPasswordHashingLimiter(2, 4);
+            ThrottledLogin = new LoginHandler(Users, Hasher, issuer, Clock, Throttle, Limiter);
+            Refresh = new RefreshHandler(Users, Sessions, RefreshTokens, Jwt, SessionPolicy.Default, Clock, null, Revocations);
+            Logout = new LogoutHandler(Sessions, Revocations, RefreshTokens, Jwt, Clock);
         }
 
         public MongoTestContext Mongo { get; }
@@ -207,6 +290,12 @@ public sealed class AuthFlowIntegrationTests
         public RegisterHandler Register { get; }
 
         public LoginHandler Login { get; }
+
+        public RedisAuthAttemptThrottle Throttle { get; }
+
+        public BoundedPasswordHashingLimiter Limiter { get; }
+
+        public LoginHandler ThrottledLogin { get; }
 
         public RefreshHandler Refresh { get; }
 

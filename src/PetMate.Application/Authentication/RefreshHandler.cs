@@ -16,8 +16,13 @@ public sealed class RefreshHandler(
     IRefreshTokenFactory refreshTokens,
     IAccessTokenService accessTokens,
     SessionPolicy policy,
-    TimeProvider timeProvider) : IRequestHandler<RefreshCommand, AuthResult<AuthTokensResult>>
+    TimeProvider timeProvider,
+    IAuthAttemptThrottle? throttle = null,
+    ITokenRevocationStore? revocations = null) : IRequestHandler<RefreshCommand, AuthResult<AuthTokensResult>>
 {
+    /// <summary>Ventana tras consumir un refresh token en la que volver a presentarlo no se trata como replay (pm-031 CA-04, hallazgo H8).</summary>
+    public static readonly TimeSpan ReplayGrace = TimeSpan.FromSeconds(10);
+
     private static readonly AuthResult<AuthTokensResult> Invalid = AuthResult.Failure<AuthTokensResult>(AuthError.InvalidRefreshToken);
 
     public async Task<AuthResult<AuthTokensResult>> Handle(RefreshCommand request, CancellationToken cancellationToken)
@@ -43,8 +48,31 @@ public sealed class RefreshHandler(
             return Invalid;
         }
 
+        // Cuota por usuario (pm-034), independiente de la IP: se aplica antes de consumir el token para no gastarlo en vano.
+        if (throttle is not null)
+        {
+            var subject = session.UserId.ToString("N");
+            if (await throttle.GetRemainingLock(AuthThrottleRules.RefreshScope, subject, cancellationToken).ConfigureAwait(false) is { } remaining)
+            {
+                return AuthResult.Throttled<AuthTokensResult>(remaining);
+            }
+
+            if (await throttle.RecordAttempt(AuthThrottleRules.RefreshScope, subject, AuthThrottleRules.Refresh, cancellationToken).ConfigureAwait(false) is { } lockedFor)
+            {
+                return AuthResult.Throttled<AuthTokensResult>(lockedFor);
+            }
+        }
+
         if (token.IsConsumed || !await sessions.TryConsumeToken(token.Id, now, cancellationToken).ConfigureAwait(false))
         {
+            // H8: dos pestañas o un reintento tras perder la respuesta presentan el mismo token casi a la vez. Dentro de la ventana de
+            // gracia se rechaza (401, sin emitir nada) pero NO se revoca la sesión; pasada la ventana es un replay real.
+            var consumed = token.IsConsumed ? token : await sessions.FindTokenByHash(hash, cancellationToken).ConfigureAwait(false) ?? token;
+            if (consumed.ConsumedAtUtc is { } consumedAt && now >= consumedAt && now - consumedAt <= ReplayGrace)
+            {
+                return Invalid;
+            }
+
             await RevokeForReplay(session, now, cancellationToken).ConfigureAwait(false);
             return Invalid;
         }
@@ -54,6 +82,7 @@ public sealed class RefreshHandler(
         {
             session.Revoke(now, SessionRevocationReason.Logout);
             await sessions.Revoke(session, cancellationToken).ConfigureAwait(false);
+            await RevokeAccessTokens(session, now, cancellationToken).ConfigureAwait(false);
             return Invalid;
         }
 
@@ -70,17 +99,29 @@ public sealed class RefreshHandler(
             .ConfigureAwait(false);
 
         return AuthResult.Success(new AuthTokensResult(
-            accessTokens.Issue(user.Id, user.Role),
+            accessTokens.Issue(user.Id, user.Role, session.Id),
             material.RawToken,
             session.IdleExpiresAtUtc,
             user.Id,
             user.Email.Value,
-            user.Role));
+            user.Role,
+            user.DisplayName,
+            BusinessType: null));
     }
 
     private async Task RevokeForReplay(RefreshSession session, DateTime now, CancellationToken cancellationToken)
     {
         session.Revoke(now, SessionRevocationReason.ReplayDetected);
         await sessions.Revoke(session, cancellationToken).ConfigureAwait(false);
+        await RevokeAccessTokens(session, now, cancellationToken).ConfigureAwait(false);
+    }
+
+    // H7: los access tokens ya emitidos para la sesión dejan de valer de inmediato, no al expirar.
+    private async Task RevokeAccessTokens(RefreshSession session, DateTime now, CancellationToken cancellationToken)
+    {
+        if (revocations is not null)
+        {
+            await revocations.RevokeSession(session.Id, now + accessTokens.Lifetime, cancellationToken).ConfigureAwait(false);
+        }
     }
 }

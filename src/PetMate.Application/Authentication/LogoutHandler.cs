@@ -14,6 +14,7 @@ public sealed class LogoutHandler(
     ISessionRepository sessions,
     ITokenRevocationStore revocations,
     IRefreshTokenFactory refreshTokens,
+    IAccessTokenService accessTokens,
     TimeProvider timeProvider) : IRequestHandler<LogoutCommand, AuthResult<Unit>>
 {
     public async Task<AuthResult<Unit>> Handle(LogoutCommand request, CancellationToken cancellationToken)
@@ -42,6 +43,9 @@ public sealed class LogoutHandler(
 
         // Si Redis Auth no responde se lanza AuthDependencyUnavailableException (503); la sesión ya quedó revocada y el reintento es idempotente.
         await revocations.Revoke(request.Jti, request.AccessTokenExpiresAtUtc, cancellationToken).ConfigureAwait(false);
+
+        // H7: el resto de access tokens de la misma sesión (otras pestañas, tokens ya emitidos) también deja de valer.
+        await revocations.RevokeSession(session.Id, timeProvider.GetUtcNow().UtcDateTime + accessTokens.Lifetime, cancellationToken).ConfigureAwait(false);
         return AuthResult.Success(Unit.Value);
     }
 }

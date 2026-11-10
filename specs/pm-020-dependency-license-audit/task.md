@@ -11,7 +11,7 @@
 
 ### T050 — Documentar la evidencia retrospectiva de la auditoría de dependencias y licencias
 - **Tipo:** Retrospectiva
-- **Estado:** Propuesto (retrospectiva por documentar)
+- **Estado:** Aprobada y documentada (2026-11-08, aprobación humana; retrospectiva)
 - **Spec principal:** pm-020
 - **Criterios propios:** pm-020#CA-01, pm-020#CA-02, pm-020#CA-03
 - **Origen:** trabajo implementado bajo T012.
@@ -22,7 +22,7 @@
   - Revisión independiente existente: Ninguna revisión independiente existente
 - **Demostrable con la evidencia existente:** CA-01 a CA-03.
 - **Limitaciones:** Excepción xunit Legacy vigente hasta 2027-02-03; evidencia local.
-- **Fases (sin completar):** [ ] Documentación de la evidencia revisada · [ ] Revisión independiente · [ ] Aprobación humana
+- **Fases:** [x] Documentación de la evidencia revisada · [ ] Revisión independiente · [x] Aprobación humana
 - **No hacer:** cerrar la Task sin aprobación humana; añadir evidencia que no exista.
 
 ## Definition of Done

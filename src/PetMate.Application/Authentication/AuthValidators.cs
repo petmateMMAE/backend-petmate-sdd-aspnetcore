@@ -38,6 +38,11 @@ public sealed class RegisterCommandValidator : IRequestValidator<RegisterCommand
         var failures = new List<ValidationFailure>();
         AuthValidation.CheckEmail(request.Email, failures);
 
+        if (!User.IsValidDisplayName(request.DisplayName))
+        {
+            failures.Add(new ValidationFailure("displayName", $"El nombre es obligatorio y debe tener de 1 a {User.MaxDisplayNameLength} caracteres."));
+        }
+
         if (string.IsNullOrWhiteSpace(request.Password))
         {
             failures.Add(new ValidationFailure("password", "La contraseña es obligatoria."));

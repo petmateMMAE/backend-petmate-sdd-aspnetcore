@@ -11,19 +11,22 @@ public sealed record AuthTokensResult(
     DateTime RefreshTokenExpiresAtUtc,
     Guid UserId,
     string Email,
-    UserRole Role)
+    UserRole Role,
+    string? DisplayName = null,
+    string? BusinessType = null)
 {
     public override string ToString() => "AuthTokensResult";
 }
 
 // Los comandos transportan secretos (contraseña, refresh token): su ToString nunca imprime valores.
-// Register no recibe rol: el alta pública siempre crea un Owner.
-public sealed record RegisterCommand(string Email, string Password) : ICommand<AuthResult<AuthTokensResult>>
+// Register no recibe rol: el alta pública siempre crea un User.
+public sealed record RegisterCommand(string Email, string Password, string DisplayName) : ICommand<AuthResult<AuthTokensResult>>
 {
     public override string ToString() => nameof(RegisterCommand);
 }
 
-public sealed record LoginCommand(string Email, string Password) : ICommand<AuthResult<AuthTokensResult>>
+/// <param name="ClientKey">Clave opaca del cliente (IP normalizada) para el bloqueo por par (correo, IP); <c>null</c> cuenta solo por correo.</param>
+public sealed record LoginCommand(string Email, string Password, string? ClientKey = null) : ICommand<AuthResult<AuthTokensResult>>
 {
     public override string ToString() => nameof(LoginCommand);
 }

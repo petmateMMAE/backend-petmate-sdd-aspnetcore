@@ -25,12 +25,12 @@ public sealed class JwtAccessTokenServiceTests
         var service = CreateService();
         var userId = Guid.NewGuid();
 
-        var token = service.Issue(userId, UserRole.Owner);
+        var token = service.Issue(userId, UserRole.User);
         var claims = await service.Validate(token.Value, CancellationToken.None);
 
         Assert.NotNull(claims);
         Assert.Equal(userId, claims.UserId);
-        Assert.Equal(UserRole.Owner, claims.Role);
+        Assert.Equal(UserRole.User, claims.Role);
         Assert.Equal(token.Jti, claims.Jti);
         Assert.Equal(clock.GetUtcNow().UtcDateTime.AddMinutes(15), claims.ExpiresAtUtc);
 
@@ -47,24 +47,24 @@ public sealed class JwtAccessTokenServiceTests
     public void Every_token_has_a_unique_jti()
     {
         var service = CreateService();
-        var jtis = Enumerable.Range(0, 200).Select(_ => service.Issue(Guid.NewGuid(), UserRole.Owner).Jti).ToArray();
+        var jtis = Enumerable.Range(0, 200).Select(_ => service.Issue(Guid.NewGuid(), UserRole.User).Jti).ToArray();
 
         Assert.Equal(jtis.Length, jtis.Distinct().Count());
     }
 
     [Fact]
-    public async Task Business_role_round_trips()
+    public async Task User_role_round_trips()
     {
         var service = CreateService();
-        var token = service.Issue(Guid.NewGuid(), UserRole.Business);
+        var token = service.Issue(Guid.NewGuid(), UserRole.User);
 
-        Assert.Equal(UserRole.Business, (await service.Validate(token.Value, CancellationToken.None))!.Role);
+        Assert.Equal(UserRole.User, (await service.Validate(token.Value, CancellationToken.None))!.Role);
     }
 
     [Fact]
     public async Task Token_signed_with_another_key_is_rejected()
     {
-        var token = CreateService(key: "otra-clave-completamente-distinta-0123456789").Issue(Guid.NewGuid(), UserRole.Owner);
+        var token = CreateService(key: "otra-clave-completamente-distinta-0123456789").Issue(Guid.NewGuid(), UserRole.User);
 
         Assert.Null(await CreateService().Validate(token.Value, CancellationToken.None));
     }
@@ -73,9 +73,9 @@ public sealed class JwtAccessTokenServiceTests
     public async Task Tampered_payload_is_rejected()
     {
         var service = CreateService();
-        var token = service.Issue(Guid.NewGuid(), UserRole.Owner).Value;
+        var token = service.Issue(Guid.NewGuid(), UserRole.User).Value;
         var parts = token.Split('.');
-        var payload = Encoding.UTF8.GetString(Base64UrlEncoder.DecodeBytes(parts[1])).Replace("\"Owner\"", "\"Business\"", StringComparison.Ordinal);
+        var payload = Encoding.UTF8.GetString(Base64UrlEncoder.DecodeBytes(parts[1])).Replace("\"User\"", "\"Owner\"", StringComparison.Ordinal);
         var forged = $"{parts[0]}.{Base64UrlEncoder.Encode(payload)}.{parts[2]}";
 
         Assert.Null(await service.Validate(forged, CancellationToken.None));
@@ -118,8 +118,8 @@ public sealed class JwtAccessTokenServiceTests
     [Fact]
     public async Task Wrong_issuer_or_audience_is_rejected()
     {
-        var token = CreateService(issuer: "https://otro-emisor.local").Issue(Guid.NewGuid(), UserRole.Owner);
-        var otherAudience = CreateService(audience: "otra-audiencia").Issue(Guid.NewGuid(), UserRole.Owner);
+        var token = CreateService(issuer: "https://otro-emisor.local").Issue(Guid.NewGuid(), UserRole.User);
+        var otherAudience = CreateService(audience: "otra-audiencia").Issue(Guid.NewGuid(), UserRole.User);
 
         Assert.Null(await CreateService().Validate(token.Value, CancellationToken.None));
         Assert.Null(await CreateService().Validate(otherAudience.Value, CancellationToken.None));
@@ -129,7 +129,7 @@ public sealed class JwtAccessTokenServiceTests
     public async Task Token_is_rejected_exactly_at_expiration_with_zero_clock_skew()
     {
         var service = CreateService(minutes: 15);
-        var token = service.Issue(Guid.NewGuid(), UserRole.Owner);
+        var token = service.Issue(Guid.NewGuid(), UserRole.User);
 
         clock.Advance(TimeSpan.FromMinutes(15).Subtract(TimeSpan.FromSeconds(1)));
         Assert.NotNull(await service.Validate(token.Value, CancellationToken.None));
@@ -142,7 +142,7 @@ public sealed class JwtAccessTokenServiceTests
     public async Task Token_before_its_not_before_time_is_rejected()
     {
         var service = CreateService();
-        var token = service.Issue(Guid.NewGuid(), UserRole.Owner);
+        var token = service.Issue(Guid.NewGuid(), UserRole.User);
 
         clock.Advance(TimeSpan.FromMinutes(-1));
 
@@ -191,7 +191,7 @@ public sealed class JwtAccessTokenServiceTests
     [Fact]
     public void Issued_token_never_contains_sensitive_material_and_tostring_hides_it()
     {
-        var token = CreateService().Issue(Guid.NewGuid(), UserRole.Owner);
+        var token = CreateService().Issue(Guid.NewGuid(), UserRole.User);
         var payload = Encoding.UTF8.GetString(Base64UrlEncoder.DecodeBytes(token.Value.Split('.')[1]));
 
         Assert.DoesNotContain("password", payload, StringComparison.OrdinalIgnoreCase);
@@ -204,7 +204,7 @@ public sealed class JwtAccessTokenServiceTests
     {
         var service = CreateService();
 
-        Assert.Throws<ArgumentException>(() => service.Issue(Guid.Empty, UserRole.Owner));
+        Assert.Throws<ArgumentException>(() => service.Issue(Guid.Empty, UserRole.User));
         Assert.Throws<ArgumentException>(() => service.Issue(Guid.NewGuid(), (UserRole)42));
     }
 

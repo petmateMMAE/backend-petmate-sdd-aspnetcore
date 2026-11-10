@@ -61,7 +61,7 @@ public sealed class UserProfileAccountTests
 
     private static HttpClient Authenticated(AuthFlowFactory factory, Guid userId)
     {
-        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(userId, UserRole.Owner);
+        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(userId, UserRole.User);
         var client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
         return client;

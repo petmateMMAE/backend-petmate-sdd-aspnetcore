@@ -16,6 +16,12 @@ public enum AuthError
 
     /// <summary>Intento de operar una sesión que no pertenece al usuario autenticado (Logout).</summary>
     Forbidden,
+
+    /// <summary>Cuota por correo o usuario agotada, bloqueo temporal o demasiado trabajo de hashing en cola (pm-034): 429 con <c>Retry-After</c>.</summary>
+    TooManyRequests,
+
+    /// <summary>Token de restablecimiento inexistente, usado o vencido: indistinguibles a propósito (pm-090).</summary>
+    InvalidResetToken,
 }
 
 /// <summary>Valor vacío para resultados sin datos (<c>data: null</c>).</summary>
@@ -27,11 +33,15 @@ public sealed record Unit
 /// <summary>Resultado explícito de un caso de uso de autenticación (sin excepciones para flujos esperados).</summary>
 public sealed class AuthResult<T>
 {
-    internal AuthResult(T? value, AuthError error)
+    internal AuthResult(T? value, AuthError error, TimeSpan? retryAfter = null)
     {
         Value = value;
         Error = error;
+        RetryAfter = retryAfter;
     }
+
+    /// <summary>Espera sugerida al cliente cuando <see cref="Error"/> es <see cref="AuthError.TooManyRequests"/>.</summary>
+    public TimeSpan? RetryAfter { get; }
 
     public bool IsSuccess => Error == AuthError.None;
 
@@ -44,6 +54,9 @@ public sealed class AuthResult<T>
 public static class AuthResult
 {
     public static AuthResult<T> Success<T>(T value) => new(value, AuthError.None);
+
+    public static AuthResult<T> Throttled<T>(TimeSpan retryAfter)
+        => new(default, AuthError.TooManyRequests, retryAfter < TimeSpan.FromSeconds(1) ? TimeSpan.FromSeconds(1) : retryAfter);
 
     public static AuthResult<T> Failure<T>(AuthError error)
         => error == AuthError.None ? throw new ArgumentException("Un fallo requiere un error.", nameof(error)) : new(default, error);

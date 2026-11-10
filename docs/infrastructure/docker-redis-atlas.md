@@ -7,7 +7,7 @@
 
 | Servicio | Imagen | Rol | Persistencia | Puerto publicado |
 |---|---|---|---|---|
-| `api` | `petmate-api:local` (build del `Dockerfile`, base `dotnet/aspnet:10.0`) | PetMate.Api, usuario no root (UID 1654) | ninguna (stateless) | `127.0.0.1:${API_PORT:-8080}` → 8080 |
+| `api` | `petmate-api:local` (build del `Dockerfile`, base `dotnet/aspnet:10.0-noble-chiseled`: sin shell ni gestor de paquetes; salud por HTTP en `/api/v1/health/live` y `/ready`) | PetMate.Api, usuario no root (UID 1654) | ninguna (stateless) | `127.0.0.1:${API_PORT:-8080}` → 8080 |
 | `redis-auth` | `redis:7.4` | Lista negra de JWT (`jwt:blacklist:{jti}`) | AOF `everysec` en volumen `petmate_redis_auth_data` | ninguno |
 | `redis-cache` | `redis:7.4` | Caché distribuida | ninguna (tmpfs) | ninguno |
 
@@ -28,6 +28,10 @@
 | `JWT_ISSUER`, `JWT_AUDIENCE`, `JWT_SIGNING_KEY` | API | Sí | La clave debe ser aleatoria de al menos 256 bits (≥ 32 bytes); fuera de Development se rechazan plantillas (placeholder, ficticio, no_usar…). |
 | `JWT_ACCESS_TOKEN_MINUTES` | API | No | Vida del access token; 1–60, por defecto 15. |
 | `AUTH_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por IP y minuto en register/login/refresh; 1–10000, por defecto 10. |
+| `PETS_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por usuario y minuto en `/api/v1/pets/*`; 1–10000, por defecto 60. |
+| `CARNET_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por usuario y minuto en el carnet (`/api/v1/vaccines`, `dewormings`, `weights`, `allergies`); 1–10000, por defecto 60. |
+| `USERS_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por usuario y minuto en `/api/v1/users/*`; 1–10000, por defecto 60. |
+| `REQUIRE_TRUSTED_PROXIES` | API | No | `true` hace que Production no arranque sin `TRUSTED_PROXIES`; por defecto solo se advierte en el log (el primer despliegue la deja vacía hasta medir las IPs del ingress). |
 | `TRUSTED_PROXIES` | API | No | IPs de proxies confiables separadas por coma. Sin ella, tras un proxy la IP observada es la del proxy y el rate limit agrupa a todos los clientes. |
 | `ARGON2_MEMORY_KIB`, `ARGON2_ITERATIONS` | API | No | Parámetros de Argon2id; no pueden bajar del mínimo OWASP. |
 | `ARGON2_MAX_CONCURRENCY` | API | No | Hashes simultáneos; por defecto max(2, núcleos). Espera máxima de 5 s, después 503. |

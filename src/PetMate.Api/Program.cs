@@ -9,17 +9,26 @@ ApplicationBootstrap.ConfigureCompositionRoot(builder);
 
 var app = builder.Build();
 
+app.UseMiddleware<RequestLoggingMiddleware>();
+
 if (!string.IsNullOrWhiteSpace(app.Configuration["TRUSTED_PROXIES"]))
 {
     app.UseForwardedHeaders();
 }
 
+app.UseResponseCompression();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseStatusCodePages(ApiBehaviorConfiguration.WriteStatusCodeAsync);
+app.UseMiddleware<RequestBodyLimitMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
+
+if (app.Environment.IsProduction() && string.IsNullOrWhiteSpace(app.Configuration["TRUSTED_PROXIES"]))
+{
+    PetMate.Api.Configuration.StartupDiagnostics.MissingTrustedProxies(app.Logger);
+}
 
 if (app.Environment.IsDevelopment() && app.Services.GetRequiredService<PetMate.Infrastructure.Security.JwtOptions>().UsesPlaceholderKey)
 {

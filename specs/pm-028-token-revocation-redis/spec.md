@@ -1,6 +1,6 @@
 # Spec — pm-028 token-revocation-redis
 
-> Estado: En revisión | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Verificado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -27,18 +27,21 @@ Cada criterio se cita como `pm-028#CA-NN`. La columna final indica la Task que l
 | `CA-01` | El `jti` revocado se registra en `jwt:blacklist:{jti}` de Redis Auth con el TTL restante. [origen: 01-initial-authentication CA-007] | T017 |
 | `CA-02` | Un JWT en la lista negra es rechazado aunque no haya expirado. [origen: CA-008] | T017 |
 | `CA-03` | Si Redis Auth no está disponible no se concede acceso (fail-closed). [origen: CA-009] | T017 |
+| `CA-04` | Los access tokens llevan el identificador de sesión (`sid`) y se rechazan en cuanto su sesión se revoca (logout o replay), sin esperar a su expiración; los tokens sin `sid` siguen vigentes hasta expirar. | T098 |
 
 ## 5. Tasks
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
 | T017 | Histórica | Cerrado y aprobado (2026-11-03, aprobación humana) | Blacklist Redis Auth |
+| T098 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad) | Ligar el access token a la sesión (claim `sid`) y revocar por sesión en Redis Auth (H7) |
 
 Detalle en [task.md](task.md).
 
 ## 7. Aprobación
 
-- [ ] Requisitos y criterios revisados por el usuario.
-- [ ] Constitución cumplida.
-- Revisor/usuario: pendiente.
+- [x] Requisitos y criterios revisados por el usuario.
+- [x] Constitución cumplida.
+- Revisor/usuario: usuario del proyecto, aprobado el 2026-11-08.
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec. La evidencia histórica de esta funcionalidad permanece en `specs/_historico/`.
+- Enmienda 2026-11-08 (T098, hallazgo H7): Aprobado por el usuario el 2026-11-08 (opciones A de H7, H3 y H8; B de H4; A, B y C de H6).

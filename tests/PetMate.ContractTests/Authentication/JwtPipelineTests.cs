@@ -35,14 +35,14 @@ public sealed class JwtPipelineTests
     {
         using var factory = new AuthApiFactory();
         var userId = Guid.NewGuid();
-        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(userId, UserRole.Owner);
+        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(userId, UserRole.User);
         using var client = Bearer(factory, token.Value);
 
         using var response = await client.GetAsync("/api/v1/test-auth/whoami");
         using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal($"{userId:D}|Owner", document.RootElement.GetProperty("data").GetString());
+        Assert.Equal($"{userId:D}|User", document.RootElement.GetProperty("data").GetString());
     }
 
     [Trait("Endpoint", "transversal")]
@@ -50,7 +50,7 @@ public sealed class JwtPipelineTests
     public async Task Revoked_jti_is_rejected_with_wrapped_401_even_though_the_token_has_not_expired()
     {
         using var factory = new AuthApiFactory();
-        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(Guid.NewGuid(), UserRole.Owner);
+        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(Guid.NewGuid(), UserRole.User);
         await factory.Store.Revoke(token.Jti, token.ExpiresAtUtc, CancellationToken.None);
         using var client = Bearer(factory, token.Value);
 
@@ -65,7 +65,7 @@ public sealed class JwtPipelineTests
     {
         using var factory = new AuthApiFactory();
         factory.Store.Fail = true;
-        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(Guid.NewGuid(), UserRole.Owner);
+        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(Guid.NewGuid(), UserRole.User);
         using var client = Bearer(factory, token.Value);
 
         using var response = await client.GetAsync("/api/v1/test-auth/whoami");
@@ -84,9 +84,9 @@ public sealed class JwtPipelineTests
         var key = System.Text.Encoding.UTF8.GetBytes(IsolatedApiFactory.JwtKey);
         var otherKey = System.Text.Encoding.UTF8.GetBytes("otra-clave-distinta-0123456789-abcdefghi");
         var wrongAudience = new JwtAccessTokenService(new JwtOptions(IsolatedApiFactory.JwtIssuer, "otra-audiencia", key, TimeSpan.FromMinutes(5)), TimeProvider.System)
-            .Issue(Guid.NewGuid(), UserRole.Owner);
+            .Issue(Guid.NewGuid(), UserRole.User);
         var wrongKey = new JwtAccessTokenService(new JwtOptions(IsolatedApiFactory.JwtIssuer, IsolatedApiFactory.JwtAudience, otherKey, TimeSpan.FromMinutes(5)), TimeProvider.System)
-            .Issue(Guid.NewGuid(), UserRole.Owner);
+            .Issue(Guid.NewGuid(), UserRole.User);
 
         foreach (var token in new[] { wrongAudience.Value, wrongKey.Value })
         {
@@ -101,7 +101,7 @@ public sealed class JwtPipelineTests
     public async Task Expired_token_is_rejected()
     {
         using var factory = new AuthApiFactory();
-        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(Guid.NewGuid(), UserRole.Owner);
+        var token = factory.Services.GetRequiredService<IAccessTokenService>().Issue(Guid.NewGuid(), UserRole.User);
         factory.Clock.Advance(TimeSpan.FromMinutes(16));
         using var client = Bearer(factory, token.Value);
 
@@ -160,6 +160,21 @@ public sealed class FakeRevocationStore : ITokenRevocationStore
     {
         ThrowIfFailing();
         return Task.FromResult(revoked.Contains(jti));
+    }
+
+    private readonly HashSet<Guid> revokedSessions = [];
+
+    public Task RevokeSession(Guid sessionId, DateTime untilUtc, CancellationToken cancellationToken)
+    {
+        ThrowIfFailing();
+        revokedSessions.Add(sessionId);
+        return Task.CompletedTask;
+    }
+
+    public Task<bool> IsSessionRevoked(Guid sessionId, CancellationToken cancellationToken)
+    {
+        ThrowIfFailing();
+        return Task.FromResult(revokedSessions.Contains(sessionId));
     }
 
     private void ThrowIfFailing()

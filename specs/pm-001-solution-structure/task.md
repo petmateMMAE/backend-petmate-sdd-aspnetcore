@@ -11,7 +11,7 @@
 
 ### T001 — Crear solución y proyectos
 - **Tipo:** Histórica
-- **Estado:** Verificado (2026-11-03) (migrada sin cambio; pendiente de aprobación humana para su cierre)
+- **Estado:** Cerrado y aprobado (2026-11-08, aprobación humana) — verificada el 2026-11-03; sin revisión independiente
 - **Spec principal:** pm-001
 - **Criterios propios:** pm-001#CA-01, pm-001#CA-02, pm-001#CA-03
 - **Fuente histórica:** [`_historico/00-foundation/task.md`](../_historico/00-foundation/task.md) (sección T001)

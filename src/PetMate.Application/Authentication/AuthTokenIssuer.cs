@@ -22,11 +22,13 @@ public sealed class AuthTokenIssuer(
         await sessions.AddSession(session, token, cancellationToken).ConfigureAwait(false);
 
         return new AuthTokensResult(
-            accessTokens.Issue(user.Id, user.Role),
+            accessTokens.Issue(user.Id, user.Role, session.Id),
             material.RawToken,
             session.IdleExpiresAtUtc,
             user.Id,
             user.Email.Value,
-            user.Role);
+            user.Role,
+            user.DisplayName,
+            BusinessType: null);
     }
 }

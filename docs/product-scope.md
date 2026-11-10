@@ -1,62 +1,61 @@
-# PetMate — alcance de producto derivado del documento descriptivo
+# PetMate — alcance de producto
 
-> Fuente: `Descripcion_PetMate_Backend_Movil.pdf`, 17 páginas, documento “PetMate: Descripción del proyecto — Especificación funcional y técnica del Backend y la Aplicación Móvil”, periodo septiembre–diciembre de 2026. Este resumen conserva lo expresado por el documento; las decisiones técnicas nuevas están señaladas como tales.
+> Resumen canónico del producto (Constitución §11), vigente desde 2026-11-09 y **aprobado por el usuario ese día**. Sustituye al resumen anterior, derivado del PDF descriptivo del 26 de octubre de 2026, que deja de ser fuente de alcance.
 
-## 1. Descripción general
+## 1. Fuentes de producto vigentes
 
-PetMate centraliza información médica y de cuidado de mascotas mediante un carnet digital. El sistema contempla propietarios y negocios afiliados (clínicas veterinarias, tiendas y estéticas). La solución completa incluye aplicación Android nativa Kotlin, backend, base NoSQL, servicios cloud y landing page. Este repositorio se limita al backend.
+| Fuente | Contenido | SHA-256 (referencia) |
+|---|---|---|
+| `00_PetMate_v3_Documentacion_Completa.pdf` (135 páginas, 12/10/2026) | 41 requerimientos funcionales (RF-01 a RF-41), 24 no funcionales (RNF-01 a RNF-24), 36 historias de usuario (HU-001 a HU-036), backlog de 114 puntos y 5 sprints del 13/10 al 18/12/2026 | `ad94a9eb63e21ff2080537e85b4d75ef258ca1613230399eddcd699edb667e5b` |
+| `PetMate_App.html` (maqueta) | Aplicación HTML con 55 pantallas y datos de ejemplo; referencia visual y de flujos | `42ee9b85bef8f80a6226c32aa5cc2cd9941e2626cb719cd4a1aa1b3275b6da34` |
 
-## 2. Backend descrito por el documento
+Los archivos no se versionan en este repositorio (la maqueta pesa más de 1 MB); su huella permite comprobar que no cambian. Las historias de usuario siguen en estado «Por refinar» con el VoBo funcional pendiente en el propio documento.
 
-El backend se plantea como API REST con Clean Architecture y casos de uso CQRS. La descripción separa Domain, Application, Infrastructure y Presentation/API. Los controladores reciben peticiones y delegan a casos de uso; la lógica de negocio no debe residir en controllers.
+## 2. Producto
 
-La capa Domain representa usuarios, mascotas, vacunas, desparasitaciones, peso, alergias, consultas, recetas, seguimientos, negocios, servicios y autorizaciones QR. Application coordina Commands/Queries, validaciones y abstracciones. Infrastructure implementa persistencia NoSQL, caché y servicios externos. Presentation expone endpoints HTTP con autenticación/autorización y respuestas JSON consistentes.
+PetMate es una aplicación móvil Android con tres funciones: **carnet de salud de la mascota**, **código QR por mascota** y **mapa de negocios afiliados**. El backend (este repositorio) es la API REST que sirve a la app; la app Android, la maqueta y la página legal no se implementan aquí (Constitución §1).
 
-## 3. Módulos funcionales identificados
+**Actores:** Visitante (sin cuenta: demo y mapa), Usuario (toda cuenta registrada), Afiliado (Usuario con un negocio asociado: Veterinaria, Tienda o Estética) y Sistema (procesos automáticos).
 
-| Módulo | Capacidades descritas |
+## 3. Módulos funcionales
+
+| Módulo | Capacidades (RF) |
 |---|---|
-| Usuarios/autenticación | Registro, login, JWT, vigencia/renovación de sesiones, logout, recuperación de contraseña, permisos y eliminación de cuenta. El documento contempla verificación de correo como posibilidad. |
-| Mascotas | Alta, listado, detalle, actualización y eliminación; datos como nombre, especie, raza, fecha de nacimiento, sexo y fotografía. |
-| Carnet de salud | Vacunas, desparasitaciones, controles de peso, alergias, consultas e historial médico. |
-| QR/autorizaciones | Generar/renovar códigos, revocar anteriores, autorizar acceso temporal y limitar datos según tipo de negocio. |
-| Negocios afiliados | Perfiles de veterinarias, tiendas y estéticas; afiliación, dirección, ubicación, horarios, servicios y permisos. |
-| Búsqueda | Consulta de negocios por ubicación, categoría y filtros; paginación cuando sea necesaria. |
-| Atención veterinaria | Consultas, diagnósticos, observaciones, recetas, tratamientos, vacunas y servicios prestados. |
-| Seguimiento/comunicación | Estado de atención, conversaciones y fotografías entre propietario y negocio cuando esté habilitado. |
-| Servicios/cobros | Catálogo de servicios, conceptos e importes, desglose y total de atención. |
-| Recordatorios/notificaciones | Fechas de vacunación/desparasitación, eventos de seguimiento y notificaciones push; FCM aparece como proveedor posible, no como decisión cerrada. |
+| A Acceso | Crear cuenta con nombre, correo y contraseña (RF-02); iniciar y cerrar sesión (RF-03, RF-05); recuperar contraseña por correo (RF-04); eliminar cuenta (RF-08) |
+| B Mascotas | Registrar, listar, ver, editar y eliminar mascotas (RF-09 a RF-12); QR permanente con token aleatorio y código corto (RF-13); regenerar el QR (RF-41) |
+| C Carnet de salud | Vacunas, desparasitaciones, peso, alergias y condiciones, consultas y recetas (RF-14 a RF-18); los registros creados por una veterinaria son de solo lectura para el dueño; recordatorios (RF-19) |
+| D Mapa | Negocios cercanos, filtro por tipo, tarjeta del marcador y perfil con contacto (RF-20 a RF-23), también para el Visitante |
+| E Afiliación | Formulario, ubicación, alta y baja del negocio; una cuenta tiene como máximo un negocio (RF-24 a RF-28, RF-40) |
+| F Panel del afiliado | Editar negocio y ubicación, servicios, escanear QR, ficha según el tipo de negocio, consulta con receta, vacuna o desparasitación aplicada y mascotas atendidas (RF-29 a RF-37) |
+| G Página legal | Privacidad, términos y solicitud de eliminación de cuenta (RF-38, RF-39); el sitio es externo, el backend solo procesa la solicitud |
+| Maqueta | Compartir historial con negocio, datos y duración elegidos; seguimiento de la atención; chat con fotos; ajustes de notificación y push; búsqueda por nombre; horario estructurado |
 
-## 4. Seguridad, operación y calidad descritas
+## 4. Decisiones del usuario que completan las fuentes (2026-11-09)
 
-El documento exige JWT, autorización por identidad/rol/permisos, validación de entrada, protección ante accesos no autorizados y HTTPS. Para recursos de mascotas no basta con recibir un ID: se debe comprobar propiedad o autorización vigente. QR no debe convertirse en acceso público ilimitado al carnet.
+| Tema | Decisión |
+|---|---|
+| Fuentes | Documento v3 y maqueta reemplazan al PDF del 26 de octubre |
+| Modelo de cuenta | La cuenta es siempre de Usuario; el negocio se le asocia al afiliarse (Constitución §6.1) |
+| Registro | Obligatorios: nombre, correo y contraseña. El celular es opcional y se agrega después en el perfil; no hay verificación de correo ni de celular |
+| Contraseña | Se mantiene la política vigente de **12 a 128 caracteres** (el documento propone 8; la app debe aplicar la misma política) |
+| Mascotas | Especie en lista cerrada: **Perro y Gato**; fecha de nacimiento y sexo opcionales |
+| QR y acceso | El QR es permanente de la mascota. El dueño da acceso a un negocio eligiendo negocio (o «cualquier negocio que escanee»), datos y duración (30 min, 1 día o 7 días). Sin autorización vigente, un escaneo no muestra nada. El dueño no revoca un acceso antes de que venza ni ve quién entró; regenerar el QR cancela las autorizaciones activas. El servidor conserva el registro interno de escaneos del negocio |
+| Avisos | Push desde el servidor (Firebase Cloud Messaging, gratuito) para recordatorios, seguimiento y chat |
+| Seguimiento y chat | Entran en el alcance. El chat parte como API REST con aviso push; el tiempo real se agrega si resulta viable |
+| Negocio | Un solo tipo por negocio; la afiliación es autoservicio, sin aprobación manual; la cédula profesional se captura sin validarse |
+| Datos públicos del negocio | Nombre, descripción, horarios, ubicación geográfica y catálogo de servicios; contacto (teléfono, WhatsApp, dirección), tipo y fotos también son públicos; la cédula profesional es privada. Horario estructurado por día, zona horaria America/Mexico_City |
+| Fotos | Azure Blob Storage aprobado. Las fotos de negocios se sirven con acceso público; las de mascotas son privadas con URLs temporales (Constitución §8.10). El CDN no está aprobado |
+| Correo | Solo para recuperar la contraseña. El proveedor de costo $0 se elige en el plan del Spec; todos exigen un dominio de envío verificado |
+| Alcance | No se recorta ninguna funcionalidad de las fuentes, salvo lo excluido en el punto siguiente |
 
-También contempla Redis como caché distribuida, paginación, consultas eficientes, múltiples instancias, logs de eventos/errores, pruebas unitarias, integración y seguridad, y CI/CD.
+## 5. Fuera de alcance
 
-## 5. Funcionalidad de la aplicación móvil fuera de este repositorio
+Cobro, IVA y ticket de la atención; verificación de correo o de celular; SMS; inteligencia artificial y aprendizaje automático (podrían incorporarse más adelante); inventario, punto de venta, suscripciones y pagos, empleados y roles personalizados, sitio web para negocios, agenda de citas, familia compartida y pedidos.
 
-El documento describe una aplicación Android nativa Kotlin con navegación de Owner y negocios, carnet, QR, mapa, recordatorios, seguimiento, escáner y almacenamiento local. También menciona una función de IA/ML para la app móvil. No se asume que estos componentes se implementen en el backend sin un requerimiento y spec de integración.
+## 6. Requisitos técnicos y de nube
 
-## 6. Decisiones específicas añadidas por el usuario para el backend
+Las fuentes de producto no prescriben la infraestructura. Los requisitos técnicos, de seguridad, despliegue en Azure, costos y calidad provienen de la lista académica `AC-01`…`AC-16` de `specs/traceability.md` y de la Constitución (§3 a §10). Por decisión del usuario, primero va la integración con la aplicación móvil y los Specs de nube (`pm-065` a `pm-084`) quedan en segundo plano, salvo lo mínimo para un entorno compartido de integración.
 
-Estas decisiones no se atribuyen al PDF; fueron definidas para la implementación actual:
+## 7. Trazabilidad
 
-- .NET 10 / ASP.NET Core 10.
-- Clean Architecture, CQRS, Mediator e inyección de dependencias.
-- MongoDB Atlas como proveedor exclusivo.
-- Dos Redis independientes: blacklist JWT y caché.
-- Argon2id, JWT y refresh token rotatorio.
-- Roles únicos Owner y Business; sin Admin.
-- Response Wrapper `statusCode`, `message`, `data` nullable.
-- Rutas versionadas `/api/v1/` con acción literal.
-- Azure, costo $0, CI/CD, contenedores, HTTPS, horizontal readiness y Blob/CDN.
-- DevSecOps con pruebas unitarias, integración, seguridad y OWASP ASVS L2.
-
-## 7. Fuentes del PDF por página
-
-- Descripción general/backend/arquitectura: páginas 2–4.
-- Mascotas, carnet y QR: páginas 5–6.
-- Negocios, búsqueda, atención y seguimiento: páginas 6–7.
-- Seguridad, rendimiento, persistencia, observabilidad, pruebas y despliegue: páginas 7–8.
-- Flujos y requisitos de la aplicación móvil: páginas 9–15.
-- Relación backend-móvil y consideraciones finales: páginas 16–17.
+La matriz de requisitos de las fuentes frente a los Specs está en la sección 5 de [`specs/traceability.md`](../specs/traceability.md). Todas las funcionalidades de las fuentes tienen ya un Spec (`pm-085` a `pm-167`), salvo lo excluido en la sección 5.

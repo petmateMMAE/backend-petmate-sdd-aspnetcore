@@ -107,6 +107,42 @@ public sealed class AuthEndpointValidationTests
 
     [Trait("Endpoint", "auth-register")]
     [Theory]
+    [InlineData("{\"email\":\"ana@example.com\",\"password\":\"contrasena-segura-123\"}")]
+    [InlineData("{\"displayName\":\"\",\"email\":\"ana@example.com\",\"password\":\"contrasena-segura-123\"}")]
+    [InlineData("{\"displayName\":\"   \",\"email\":\"ana@example.com\",\"password\":\"contrasena-segura-123\"}")]
+    public async Task Register_without_a_name_returns_400_naming_displayName(string body)
+    {
+        using var factory = new AuthFlowFactory();
+        using var client = factory.CreateClient();
+
+        using var response = await PostRaw(client, "register", body);
+
+        await AssertValidationError(response, "displayName");
+        Assert.Empty(factory.Users.All);
+    }
+
+    [Trait("Endpoint", "auth-register")]
+    [Fact]
+    public async Task Register_with_a_name_over_80_characters_returns_400_and_a_valid_one_is_returned_in_the_session()
+    {
+        using var factory = new AuthFlowFactory();
+        using var client = factory.CreateClient();
+        var tooLong = JsonSerializer.Serialize(new { displayName = new string('a', 81), email = "ana@example.com", password = "contrasena-segura-123" });
+        var valid = JsonSerializer.Serialize(new { displayName = "  Ana Pérez ", email = "ana@example.com", password = "contrasena-segura-123" });
+
+        using var rejected = await PostRaw(client, "register", tooLong);
+        using var created = await PostRaw(client, "register", valid);
+        using var document = JsonDocument.Parse(await created.Content.ReadAsStringAsync());
+        var user = document.RootElement.GetProperty("data").GetProperty("user");
+
+        await AssertValidationError(rejected, "displayName");
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        Assert.Equal("Ana Pérez", user.GetProperty("displayName").GetString());
+        Assert.Equal(JsonValueKind.Null, user.GetProperty("business").ValueKind);
+    }
+
+    [Trait("Endpoint", "auth-register")]
+    [Theory]
     [InlineData(11, HttpStatusCode.BadRequest)]
     [InlineData(12, HttpStatusCode.Created)]
     [InlineData(128, HttpStatusCode.Created)]
@@ -115,7 +151,7 @@ public sealed class AuthEndpointValidationTests
     {
         using var factory = new AuthFlowFactory();
         using var client = factory.CreateClient();
-        var body = JsonSerializer.Serialize(new { email = "ana@example.com", password = new string('a', length) });
+        var body = JsonSerializer.Serialize(new { displayName = "Ana", email = "ana@example.com", password = new string('a', length) });
 
         using var response = await PostRaw(client, "register", body);
 
@@ -163,7 +199,7 @@ public sealed class AuthEndpointValidationTests
 
     private static async Task<string> RegisterAndGetAccess(HttpClient client, string email)
     {
-        using var response = await PostRaw(client, "register", JsonSerializer.Serialize(new { email, password = StrongPhrase }));
+        using var response = await PostRaw(client, "register", JsonSerializer.Serialize(new { displayName = "Ana", email, password = StrongPhrase }));
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         return document.RootElement.GetProperty("data").GetProperty("accessToken").GetString()!;

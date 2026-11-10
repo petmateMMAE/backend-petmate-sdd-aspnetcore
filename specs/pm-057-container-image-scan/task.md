@@ -11,17 +11,17 @@
 
 ### T069 — Integrar el escaneo de la imagen de contenedor
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Cerrado y aprobado (2026-11-08, aprobación humana) — sin revisión independiente
 - **Spec principal:** pm-057
 - **Criterios propios:** pm-057#CA-01, pm-057#CA-02
-- **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.
-- **Fases (sin completar):** [ ] Implementación · [ ] Pruebas · [ ] Revisión independiente · [ ] Documentación · [ ] Aprobación humana
+- **Verificar:** ver [plan.md](plan.md) y la evidencia en [checklists/gates.md](checklists/gates.md).
+- **Fases:** [x] Implementación · [x] Pruebas · [ ] Revisión independiente (no realizada; el usuario aprobó el cierre sin ella) · [x] Documentación · [x] Aprobación humana (2026-11-08)
 - **No hacer:** cerrar la Task sin aprobación humana.
 
 ## Definition of Done
 
-- [ ] Criterios propios satisfechos con evidencia reproducible.
-- [ ] Pruebas unitarias, de integración, de seguridad y de contrato aplicables pasan.
-- [ ] Contratos y documentación actualizados.
+- [x] Criterios propios satisfechos con evidencia reproducible.
+- [x] Pruebas unitarias, de integración, de seguridad y de contrato aplicables pasan.
+- [x] Contratos y documentación actualizados.
 - [ ] Revisión independiente completada.
-- [ ] Aprobación humana registrada (los agentes no se auto-firman).
+- [x] Aprobación humana registrada (2026-11-08; los agentes no se auto-firman).

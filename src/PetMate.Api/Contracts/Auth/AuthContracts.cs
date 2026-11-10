@@ -6,7 +6,7 @@ namespace PetMate.Api.Contracts.Auth;
 // y garantiza que el cliente nunca elige su rol. Los valores secretos no se imprimen en ToString.
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
-public sealed record RegisterRequest(string? Email, string? Password)
+public sealed record RegisterRequest(string? Email, string? Password, string? DisplayName)
 {
     public override string ToString() => nameof(RegisterRequest);
 }
@@ -15,6 +15,18 @@ public sealed record RegisterRequest(string? Email, string? Password)
 public sealed record LoginRequest(string? Email, string? Password)
 {
     public override string ToString() => nameof(LoginRequest);
+}
+
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record ForgotPasswordRequest(string? Email)
+{
+    public override string ToString() => nameof(ForgotPasswordRequest);
+}
+
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record ResetPasswordRequest(string? Token, string? NewPassword)
+{
+    public override string ToString() => nameof(ResetPasswordRequest);
 }
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
@@ -30,7 +42,10 @@ public sealed record LogoutRequest(string? RefreshToken)
 }
 
 /// <summary>Usuario autenticado devuelto junto a los tokens.</summary>
-public sealed record AuthUserResponse(Guid Id, string Email, string Role);
+public sealed record AuthUserResponse(Guid Id, string Email, string Role, string? DisplayName, BusinessSummaryResponse? Business);
+
+/// <summary>Negocio asociado a la cuenta (pm-087): su tipo. Es <c>null</c> mientras la cuenta no tenga negocio; lo calcula el servidor.</summary>
+public sealed record BusinessSummaryResponse(string Type);
 
 /// <summary>Respuesta de Register, Login y Refresh. El refresh token solo se entrega aquí, nunca se vuelve a mostrar.</summary>
 public sealed record AuthResponse(

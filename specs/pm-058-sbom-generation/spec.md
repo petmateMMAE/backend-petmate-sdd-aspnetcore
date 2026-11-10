@@ -1,6 +1,6 @@
 # Spec — pm-058 sbom-generation
 
-> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L5 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Cerrado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L5 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -30,7 +30,7 @@ Cada criterio se cita como `pm-058#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T070 | Nueva | Propuesto | Generar el SBOM por compilación |
+| T070 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | Generar el SBOM por compilación |
 
 Detalle en [task.md](task.md).
 
