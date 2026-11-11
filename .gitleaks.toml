@@ -23,4 +23,7 @@ paths = [
   '''tests/PetMate\.ContractTests/Authentication/PasswordResetEndpointsTests\.cs''',
   '''tests/PetMate\.UnitTests/Authentication/PasswordResetTests\.cs''',
   '''scripts/acceptance-milestone\.ps1''',
+  # Hito 2 (T123-T167): contrasena ficticia de las pruebas de contrato de negocios y veterinaria.
+  '''tests/PetMate\.ContractTests/Businesses/MapAndAccessEndpointsTests\.cs''',
+  '''tests/PetMate\.ContractTests/Businesses/VeterinaryEndpointsTests\.cs''',
 ]
