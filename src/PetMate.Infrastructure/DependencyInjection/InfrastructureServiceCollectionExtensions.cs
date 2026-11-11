@@ -2,7 +2,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MongoDB.Driver;
+using PetMate.Application.Access;
 using PetMate.Application.Authentication;
+using PetMate.Application.Businesses;
 using PetMate.Application.Carnet;
 using PetMate.Application.Persistence;
 using PetMate.Application.Security;
@@ -52,6 +54,14 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IWeightRepository, MongoWeightRepository>();
         services.AddSingleton<IAllergyRepository, MongoAllergyRepository>();
         services.AddSingleton<IPasswordResetRepository, MongoPasswordResetRepository>();
+        services.AddSingleton<IBusinessRepository, MongoBusinessRepository>();
+        services.AddSingleton<IBusinessServiceRepository, MongoBusinessServiceRepository>();
+        services.AddSingleton<IAccessGrantRepository, MongoAccessGrantRepository>();
+        services.AddSingleton<IScanLogRepository, MongoScanLogRepository>();
+        services.AddSingleton<IConsultationRepository, MongoConsultationRepository>();
+        services.AddSingleton<PetMate.Application.Followups.IFollowupRepository, MongoFollowupRepository>();
+        services.AddSingleton<PetMate.Application.Followups.IConversationRepository, MongoConversationRepository>();
+        services.AddSingleton<PetMate.Application.Followups.IMessageRepository, MongoMessageRepository>();
 
         // Correo transaccional (pm-088): sin las tres variables no se envía nada (adaptador deshabilitado).
         if (EmailOptions.TryRead(name => configuration[name]) is { } emailOptions)

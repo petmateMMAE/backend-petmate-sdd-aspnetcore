@@ -11,7 +11,7 @@
 
 ### T172 — Calcular los recordatorios de vacunas y desparasitaciones
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md)
 - **Spec principal:** pm-154
 - **Criterios propios:** pm-154#CA-01, pm-154#CA-02, pm-154#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

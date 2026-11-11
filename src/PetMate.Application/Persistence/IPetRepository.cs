@@ -26,5 +26,11 @@ public interface IPetRepository
     /// <summary>Guarda el QR nuevo de la mascota; <c>false</c> si no existe o es de otro propietario.</summary>
     Task<bool> ReplaceQrOwned(Pet pet, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Mascota a la que pertenece un token o código corto de QR (pm-125). Es la única lectura sin dueño: solo la usa el escaneo de
+    /// un negocio, que además exige una autorización vigente antes de entregar cualquier dato.
+    /// </summary>
+    Task<Pet?> FindByQr(string tokenOrCode, CancellationToken cancellationToken);
+
     Task<bool> DeleteOwned(Guid petId, Guid ownerId, CancellationToken cancellationToken);
 }

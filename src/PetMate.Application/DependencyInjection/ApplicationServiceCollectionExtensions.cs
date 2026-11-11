@@ -1,7 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using PetMate.Application.Access;
 using PetMate.Application.Authentication;
+using PetMate.Application.Businesses;
 using PetMate.Application.Carnet;
+using PetMate.Application.Followups;
 using PetMate.Application.Mediator;
 using PetMate.Application.Pagination;
 using PetMate.Application.Pets;
@@ -23,6 +26,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddUserProfile();
         services.AddPets();
         services.AddCarnet();
+        services.AddBusinesses();
         services.TryAddSingleton<MediatorRegistry>();
         services.AddScoped<IMediator, MediatorDispatcher>();
         services.AddScoped<ISender, MediatorDispatcher>();
@@ -64,6 +68,68 @@ public static class ApplicationServiceCollectionExtensions
     }
 
     /// <summary>Mascotas del Owner (pm-040, pm-042, pm-043, pm-044): crear, detalle, actualizar y eliminar.</summary>
+    private static IServiceCollection AddBusinesses(this IServiceCollection services)
+    {
+        services.AddSingleton<PublicBusinessCache>();
+        services.AddRequestHandler<CreateConsultationCommand, AccessOutcome<ConsultationResult>, CreateConsultationHandler>();
+        services.AddRequestValidator<CreateConsultationCommand, CreateConsultationCommandValidator>();
+        services.AddRequestHandler<AddMedicationCommand, AccessOutcome<ConsultationResult>, AddMedicationHandler>();
+        services.AddRequestValidator<AddMedicationCommand, AddMedicationCommandValidator>();
+        services.AddRequestHandler<ListConsultationsQuery, CarnetResult<PagedResult<ConsultationSummary>>, ListConsultationsHandler>();
+        services.AddRequestValidator<ListConsultationsQuery, ListConsultationsQueryValidator>();
+        services.AddRequestHandler<GetConsultationQuery, CarnetResult<ConsultationResult>, GetConsultationHandler>();
+        services.AddRequestHandler<CreateVaccineByBusinessCommand, AccessOutcome<VaccineResult>, CreateVaccineByBusinessHandler>();
+        services.AddRequestValidator<CreateVaccineByBusinessCommand, CreateVaccineByBusinessCommandValidator>();
+        services.AddRequestHandler<CreateDewormingByBusinessCommand, AccessOutcome<DewormingResult>, CreateDewormingByBusinessHandler>();
+        services.AddRequestValidator<CreateDewormingByBusinessCommand, CreateDewormingByBusinessCommandValidator>();
+        services.AddRequestHandler<GetAttendedPetsQuery, AccessOutcome<PagedResult<AttendedPet>>, GetAttendedPetsHandler>();
+        services.AddRequestValidator<GetAttendedPetsQuery, GetAttendedPetsQueryValidator>();
+        services.AddRequestHandler<GetHistoryQuery, CarnetResult<PagedResult<HistoryItem>>, GetHistoryHandler>();
+        services.AddRequestValidator<GetHistoryQuery, GetHistoryQueryValidator>();
+        services.AddRequestHandler<CreateFollowupCommand, AccessOutcome<FollowupResult>, CreateFollowupHandler>();
+        services.AddRequestValidator<CreateFollowupCommand, CreateFollowupCommandValidator>();
+        services.AddRequestHandler<UpdateFollowupCommand, AccessOutcome<FollowupResult>, UpdateFollowupHandler>();
+        services.AddRequestValidator<UpdateFollowupCommand, UpdateFollowupCommandValidator>();
+        services.AddRequestHandler<AddFollowupNoteCommand, AccessOutcome<FollowupResult>, AddFollowupNoteHandler>();
+        services.AddRequestValidator<AddFollowupNoteCommand, AddFollowupNoteCommandValidator>();
+        services.AddRequestHandler<GetFollowupByConsultationQuery, AccessOutcome<FollowupResult>, GetFollowupByConsultationHandler>();
+        services.AddRequestHandler<ListFollowupsQuery, AccessOutcome<PagedResult<FollowupResult>>, ListFollowupsHandler>();
+        services.AddRequestValidator<ListFollowupsQuery, ListFollowupsQueryValidator>();
+        services.AddRequestHandler<SendMessageCommand, AccessOutcome<MessageResult>, SendMessageHandler>();
+        services.AddRequestValidator<SendMessageCommand, SendMessageCommandValidator>();
+        services.AddRequestHandler<ListMessagesQuery, AccessOutcome<MessageList>, ListMessagesHandler>();
+        services.AddRequestValidator<ListMessagesQuery, ListMessagesQueryValidator>();
+        services.AddRequestHandler<ListConversationsQuery, PagedResult<ConversationSummary>, ListConversationsHandler>();
+        services.AddRequestValidator<ListConversationsQuery, ListConversationsQueryValidator>();
+        services.AddRequestHandler<MarkReadCommand, AccessOutcome<ConversationSummary>, MarkReadHandler>();
+        services.AddRequestValidator<MarkReadCommand, MarkReadCommandValidator>();
+        services.AddRequestHandler<ReopenConversationCommand, AccessOutcome<FollowupResult>, ReopenConversationHandler>();
+        services.AddRequestValidator<ReopenConversationCommand, ReopenConversationCommandValidator>();
+        services.AddRequestHandler<GetNearbyBusinessesQuery, PagedResult<NearbyBusinessItem>, GetNearbyBusinessesHandler>();
+        services.AddRequestValidator<GetNearbyBusinessesQuery, GetNearbyBusinessesQueryValidator>();
+        services.AddRequestHandler<GetPublicBusinessQuery, PublicBusinessProfile?, GetPublicBusinessHandler>();
+        services.AddRequestHandler<CreateAccessGrantCommand, AccessOutcome<AccessGrantResult>, CreateAccessGrantHandler>();
+        services.AddRequestValidator<CreateAccessGrantCommand, CreateAccessGrantCommandValidator>();
+        services.AddRequestHandler<ResolveScanCommand, AccessOutcome<ScanFicha>, ResolveScanHandler>();
+        services.AddRequestValidator<ResolveScanCommand, ResolveScanCommandValidator>();
+        services.AddRequestHandler<CreateBusinessCommand, BusinessOutcome<BusinessResult>, CreateBusinessHandler>();
+        services.AddRequestHandler<UpdateBusinessLocationCommand, BusinessOutcome<BusinessResult>, UpdateBusinessLocationHandler>();
+        services.AddRequestHandler<UpdateBusinessCommand, BusinessOutcome<BusinessResult>, UpdateBusinessHandler>();
+        services.AddRequestHandler<DeleteBusinessCommand, BusinessStatus, DeleteBusinessHandler>();
+        services.AddRequestValidator<CreateBusinessCommand, CreateBusinessCommandValidator>();
+        services.AddRequestValidator<UpdateBusinessLocationCommand, UpdateBusinessLocationCommandValidator>();
+        services.AddRequestValidator<UpdateBusinessCommand, UpdateBusinessCommandValidator>();
+
+        services.AddRequestHandler<CreateServiceCommand, BusinessOutcome<ServiceResult>, CreateServiceHandler>();
+        services.AddRequestHandler<ListServicesQuery, BusinessOutcome<PagedResult<ServiceResult>>, ListServicesHandler>();
+        services.AddRequestHandler<UpdateServiceCommand, BusinessOutcome<ServiceResult>, UpdateServiceHandler>();
+        services.AddRequestHandler<DeleteServiceCommand, BusinessStatus, DeleteServiceHandler>();
+        services.AddRequestValidator<CreateServiceCommand, CreateServiceCommandValidator>();
+        services.AddRequestValidator<ListServicesQuery, ListServicesQueryValidator>();
+        services.AddRequestValidator<UpdateServiceCommand, UpdateServiceCommandValidator>();
+        return services;
+    }
+
     private static IServiceCollection AddCarnet(this IServiceCollection services)
     {
         services.AddRequestHandler<CreateVaccineCommand, CarnetResult<VaccineResult>, CreateVaccineHandler>();

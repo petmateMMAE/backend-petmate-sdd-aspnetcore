@@ -99,6 +99,31 @@ public sealed class MongoPetRepository : IPetRepository
         return result.MatchedCount == 1;
     }
 
+    public async Task<Pet?> FindByQr(string tokenOrCode, CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(tokenOrCode);
+        var builder = Builders<PetDocument>.Filter;
+        var filter = tokenOrCode.Length == PetQr.TokenLength
+            ? builder.Eq(document => document.QrToken, tokenOrCode)
+            : tokenOrCode.Length == PetQr.CodeLength
+                ? builder.Eq(document => document.QrCode, tokenOrCode.ToUpperInvariant())
+                : null;
+        if (filter is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            var document = await pets.Find(filter).FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+            return document is null ? null : MongoMapping.ToDomain(document);
+        }
+        catch (Exception exception) when (exception is MongoException or TimeoutException or DomainException or FormatException)
+        {
+            throw new PersistenceUnavailableException(exception);
+        }
+    }
+
     public async Task<bool> DeleteOwned(Guid petId, Guid ownerId, CancellationToken cancellationToken)
     {
         var result = await Execute(() => pets.DeleteOneAsync(Owned(petId, ownerId), cancellationToken)).ConfigureAwait(false);

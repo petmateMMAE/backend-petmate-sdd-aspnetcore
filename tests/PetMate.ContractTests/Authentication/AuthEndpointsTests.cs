@@ -347,8 +347,8 @@ public sealed class AuthEndpointsTests
 
 public class AuthFlowFactory : IsolatedApiFactory
 {
-    public AuthFlowFactory(int? rateLimitPerMinute = null, int? petsRateLimitPerMinute = null, int? usersRateLimitPerMinute = null, int? carnetRateLimitPerMinute = null)
-        : base("Development", Overrides(rateLimitPerMinute, petsRateLimitPerMinute, usersRateLimitPerMinute, carnetRateLimitPerMinute))
+    public AuthFlowFactory(int? rateLimitPerMinute = null, int? petsRateLimitPerMinute = null, int? usersRateLimitPerMinute = null, int? carnetRateLimitPerMinute = null, int? businessRateLimitPerMinute = null, int? publicBusinessRateLimitPerMinute = null)
+        : base("Development", Overrides(rateLimitPerMinute, petsRateLimitPerMinute, usersRateLimitPerMinute, carnetRateLimitPerMinute, businessRateLimitPerMinute, publicBusinessRateLimitPerMinute))
     {
         Clock = new ManualClock(DateTimeOffset.UtcNow);
         Users = new InMemoryUserRepository();
@@ -360,13 +360,32 @@ public class AuthFlowFactory : IsolatedApiFactory
         Weights = new InMemoryWeightRepository();
         Allergies = new InMemoryAllergyRepository();
         PasswordResets = new InMemoryPasswordResetRepository();
+        Businesses = new InMemoryBusinessRepository();
+        AccessGrants = new InMemoryAccessGrantRepository();
+        ScanLogs = new InMemoryScanLogRepository();
+        Cache = new InMemoryCacheStore();
+        Consultations = new InMemoryConsultationRepository();
+        Followups = new InMemoryFollowupRepository();
+        Conversations = new InMemoryConversationRepository();
+        Messages = new InMemoryMessageRepository();
+        BusinessServices = new InMemoryBusinessServiceRepository();
         Email = new FakeEmailSender();
         Throttle = new InMemoryAuthAttemptThrottle(Clock);
     }
 
-    private static Dictionary<string, string>? Overrides(int? auth, int? pets, int? users, int? carnet = null)
+    private static Dictionary<string, string>? Overrides(int? auth, int? pets, int? users, int? carnet = null, int? business = null, int? publicBusiness = null)
     {
         var overrides = new Dictionary<string, string>();
+        if (publicBusiness is not null)
+        {
+            overrides["PUBLIC_BUSINESS_RATE_LIMIT_PER_MINUTE"] = publicBusiness.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        if (business is not null)
+        {
+            overrides["BUSINESS_RATE_LIMIT_PER_MINUTE"] = business.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
         if (carnet is not null)
         {
             overrides["CARNET_RATE_LIMIT_PER_MINUTE"] = carnet.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -410,6 +429,24 @@ public class AuthFlowFactory : IsolatedApiFactory
 
     public InMemoryPasswordResetRepository PasswordResets { get; }
 
+    public InMemoryBusinessRepository Businesses { get; }
+
+    public InMemoryAccessGrantRepository AccessGrants { get; }
+
+    public InMemoryScanLogRepository ScanLogs { get; }
+
+    public InMemoryCacheStore Cache { get; }
+
+    public InMemoryConsultationRepository Consultations { get; }
+
+    public InMemoryFollowupRepository Followups { get; }
+
+    public InMemoryConversationRepository Conversations { get; }
+
+    public InMemoryMessageRepository Messages { get; }
+
+    public InMemoryBusinessServiceRepository BusinessServices { get; }
+
     public FakeEmailSender Email { get; }
 
     public InMemoryAuthAttemptThrottle Throttle { get; }
@@ -431,6 +468,24 @@ public class AuthFlowFactory : IsolatedApiFactory
             services.AddSingleton<IPetRepository>(Pets);
             services.RemoveAll<PetMate.Application.Authentication.IPasswordResetRepository>();
             services.AddSingleton<PetMate.Application.Authentication.IPasswordResetRepository>(PasswordResets);
+            services.RemoveAll<PetMate.Application.Access.IAccessGrantRepository>();
+            services.AddSingleton<PetMate.Application.Access.IAccessGrantRepository>(AccessGrants);
+            services.RemoveAll<PetMate.Application.Access.IScanLogRepository>();
+            services.AddSingleton<PetMate.Application.Access.IScanLogRepository>(ScanLogs);
+            services.RemoveAll<PetMate.Application.Access.IConsultationRepository>();
+            services.AddSingleton<PetMate.Application.Access.IConsultationRepository>(Consultations);
+            services.RemoveAll<PetMate.Application.Followups.IFollowupRepository>();
+            services.AddSingleton<PetMate.Application.Followups.IFollowupRepository>(Followups);
+            services.RemoveAll<PetMate.Application.Followups.IConversationRepository>();
+            services.AddSingleton<PetMate.Application.Followups.IConversationRepository>(Conversations);
+            services.RemoveAll<PetMate.Application.Followups.IMessageRepository>();
+            services.AddSingleton<PetMate.Application.Followups.IMessageRepository>(Messages);
+            services.RemoveAll<PetMate.Application.Caching.ICacheStore>();
+            services.AddSingleton<PetMate.Application.Caching.ICacheStore>(Cache);
+            services.RemoveAll<PetMate.Application.Businesses.IBusinessRepository>();
+            services.AddSingleton<PetMate.Application.Businesses.IBusinessRepository>(Businesses);
+            services.RemoveAll<PetMate.Application.Businesses.IBusinessServiceRepository>();
+            services.AddSingleton<PetMate.Application.Businesses.IBusinessServiceRepository>(BusinessServices);
             services.RemoveAll<PetMate.Application.Authentication.IEmailSender>();
             services.AddSingleton<PetMate.Application.Authentication.IEmailSender>(Email);
             services.RemoveAll<PetMate.Application.Carnet.IVaccineRepository>();

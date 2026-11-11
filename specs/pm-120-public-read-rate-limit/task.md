@@ -11,7 +11,7 @@
 
 ### T138 — Limitar por IP las lecturas públicas de negocios
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-120
 - **Criterios propios:** pm-120#CA-01, pm-120#CA-02, pm-120#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

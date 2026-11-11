@@ -152,9 +152,13 @@ public static class ApplicationBootstrap
         var petsPermitLimit = ReadPerMinuteLimit(configuration, "PETS_RATE_LIMIT_PER_MINUTE", 60);
         var usersPermitLimit = ReadPerMinuteLimit(configuration, "USERS_RATE_LIMIT_PER_MINUTE", 60);
         var carnetPermitLimit = ReadPerMinuteLimit(configuration, "CARNET_RATE_LIMIT_PER_MINUTE", 60);
+        var businessPermitLimit = ReadPerMinuteLimit(configuration, "BUSINESS_RATE_LIMIT_PER_MINUTE", 60);
+        var publicBusinessPermitLimit = ReadPerMinuteLimit(configuration, "PUBLIC_BUSINESS_RATE_LIMIT_PER_MINUTE", 120);
 
         services.AddSingleton(new PetMate.Api.Authentication.AuthIpThrottleOptions(permitLimit));
         services.AddScoped<PetMate.Api.Authentication.AuthIpThrottleFilter>();
+        services.AddSingleton(new PetMate.Api.Authentication.PublicBusinessIpThrottleOptions(publicBusinessPermitLimit));
+        services.AddScoped<PetMate.Api.Authentication.PublicBusinessIpThrottleFilter>();
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -172,6 +176,20 @@ public static class ApplicationBootstrap
 
             // Carnet de salud (pm-096): mismo esquema por usuario autenticado, con su propia variable.
             options.AddPolicy(PetMate.Api.Controllers.CarnetControllerBase.RateLimitPolicy, context => PerUserWindow(context, carnetPermitLimit));
+
+            // Lecturas públicas de negocios (pm-120): límite por IP en proceso; el compartido entre réplicas lo aplica el filtro de Redis.
+            options.AddPolicy(PetMate.Api.Controllers.PublicBusinessesController.RateLimitPolicy, context => RateLimitPartition.GetFixedWindowLimiter(
+                RateLimitKey.For(context.Connection.RemoteIpAddress),
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = publicBusinessPermitLimit,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0,
+                    AutoReplenishment = true,
+                }));
+
+            // Negocio afiliado y su catálogo (pm-107 a pm-115): mismo esquema por usuario autenticado.
+            options.AddPolicy(PetMate.Api.Controllers.BusinessControllerBase.RateLimitPolicy, context => PerUserWindow(context, businessPermitLimit));
 
             // Perfil propio (pm-036 CA-03, matriz de límites): mismo esquema por usuario autenticado.
             options.AddPolicy(PetMate.Api.Controllers.UsersController.RateLimitPolicy, context => PerUserWindow(context, usersPermitLimit));

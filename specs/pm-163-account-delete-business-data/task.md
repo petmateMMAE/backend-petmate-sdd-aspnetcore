@@ -11,7 +11,7 @@
 
 ### T181 — Borrar el negocio al eliminar la cuenta
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md)
 - **Spec principal:** pm-163
 - **Criterios propios:** pm-163#CA-01, pm-163#CA-02, pm-163#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

@@ -44,7 +44,7 @@ public sealed class PetHandlersTests
         Assert.NotNull(other.Pet);
 
         var first = pets.All.First(p => p.OwnerId == owner);
-        Assert.True(await new DeleteMyPetHandler(pets, new InMemoryVaccineRepository(), new InMemoryDewormingRepository(), new InMemoryWeightRepository(), new InMemoryAllergyRepository()).Handle(new DeleteMyPetCommand(owner, first.Id), CancellationToken.None));
+        Assert.True(await new DeleteMyPetHandler(pets, new InMemoryVaccineRepository(), new InMemoryDewormingRepository(), new InMemoryWeightRepository(), new InMemoryAllergyRepository(), new InMemoryAccessGrantRepository(), new InMemoryScanLogRepository(), new InMemoryConsultationRepository(), new InMemoryFollowupRepository(), new InMemoryConversationRepository(), new InMemoryMessageRepository()).Handle(new DeleteMyPetCommand(owner, first.Id), CancellationToken.None));
         Assert.NotNull((await handler.Handle(new CreatePetCommand(owner, Details), CancellationToken.None)).Pet);
     }
 
@@ -89,7 +89,7 @@ public sealed class PetHandlersTests
     {
         var owner = Guid.NewGuid();
         var created = (await new CreatePetHandler(pets, clock).Handle(new CreatePetCommand(owner, Details), CancellationToken.None)).Pet!;
-        var handler = new DeleteMyPetHandler(pets, new InMemoryVaccineRepository(), new InMemoryDewormingRepository(), new InMemoryWeightRepository(), new InMemoryAllergyRepository());
+        var handler = new DeleteMyPetHandler(pets, new InMemoryVaccineRepository(), new InMemoryDewormingRepository(), new InMemoryWeightRepository(), new InMemoryAllergyRepository(), new InMemoryAccessGrantRepository(), new InMemoryScanLogRepository(), new InMemoryConsultationRepository(), new InMemoryFollowupRepository(), new InMemoryConversationRepository(), new InMemoryMessageRepository());
 
         Assert.False(await handler.Handle(new DeleteMyPetCommand(Guid.NewGuid(), created.Id), CancellationToken.None));
         Assert.Single(pets.All);

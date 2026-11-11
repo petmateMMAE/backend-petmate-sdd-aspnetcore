@@ -130,7 +130,7 @@ internal static class CarnetMapping
 
     private static DateTime AsUtc(DateTime value) => value.Kind == DateTimeKind.Utc ? value : DateTime.SpecifyKind(value, DateTimeKind.Utc);
 
-    private static T Fill<T>(T document, HealthRecord record)
+    internal static T Fill<T>(T document, HealthRecord record)
         where T : HealthRecordDocument
     {
         document.Id = record.Id;
@@ -143,7 +143,7 @@ internal static class CarnetMapping
         return document;
     }
 
-    private static RecordProvenance Provenance(HealthRecordDocument document)
+    internal static RecordProvenance Provenance(HealthRecordDocument document)
         => Enum.IsDefined((RecordOrigin)document.Origin)
             ? new RecordProvenance((RecordOrigin)document.Origin, document.BusinessId, document.BusinessName)
             : throw new DomainException("El origen del registro guardado no es válido.");

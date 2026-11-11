@@ -11,7 +11,7 @@
 
 ### T184 — Publicar el contrato OpenAPI como artefacto de CI
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md)
 - **Spec principal:** pm-166
 - **Criterios propios:** pm-166#CA-01, pm-166#CA-02, pm-166#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

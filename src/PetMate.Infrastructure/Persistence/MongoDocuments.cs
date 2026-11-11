@@ -23,6 +23,22 @@ public sealed record MongoCollectionNames(string Prefix = "")
     public string Allergies => Prefix + "allergies";
 
     public string PasswordResets => Prefix + "password_resets";
+
+    public string Businesses => Prefix + "businesses";
+
+    public string BusinessServices => Prefix + "business_services";
+
+    public string AccessGrants => Prefix + "access_grants";
+
+    public string ScanLogs => Prefix + "scan_logs";
+
+    public string Consultations => Prefix + "consultations";
+
+    public string Followups => Prefix + "followups";
+
+    public string Conversations => Prefix + "conversations";
+
+    public string Messages => Prefix + "messages";
 }
 
 // Documentos de persistencia: viven en Infrastructure y mantienen Domain libre de atributos Bson.

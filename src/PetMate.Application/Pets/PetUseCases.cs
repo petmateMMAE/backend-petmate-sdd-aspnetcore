@@ -127,7 +127,13 @@ public sealed class DeleteMyPetHandler(
     IVaccineRepository vaccines,
     IDewormingRepository dewormings,
     IWeightRepository weights,
-    IAllergyRepository allergies) : IRequestHandler<DeleteMyPetCommand, bool>
+    IAllergyRepository allergies,
+    Access.IAccessGrantRepository grants,
+    Access.IScanLogRepository scans,
+    Access.IConsultationRepository consultations,
+    Followups.IFollowupRepository followups,
+    Followups.IConversationRepository conversations,
+    Followups.IMessageRepository messages) : IRequestHandler<DeleteMyPetCommand, bool>
 {
     public async Task<bool> Handle(DeleteMyPetCommand request, CancellationToken cancellationToken)
     {
@@ -141,6 +147,13 @@ public sealed class DeleteMyPetHandler(
         await dewormings.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
         await weights.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
         await allergies.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
+        await consultations.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
+        var conversationIds = await conversations.IdsByPet(request.PetId, cancellationToken).ConfigureAwait(false);
+        await messages.DeleteByConversations(conversationIds, cancellationToken).ConfigureAwait(false);
+        await conversations.DeleteByPet(request.PetId, cancellationToken).ConfigureAwait(false);
+        await followups.DeleteByPet(request.PetId, cancellationToken).ConfigureAwait(false);
+        await grants.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
+        await scans.DeleteByPet(request.PetId, cancellationToken).ConfigureAwait(false);
         return await pets.DeleteOwned(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
     }
 }

@@ -11,7 +11,7 @@
 
 ### T142 — Cancelar las autorizaciones al regenerar el QR
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-124
 - **Criterios propios:** pm-124#CA-01, pm-124#CA-02, pm-124#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using PetMate.Api.Contracts.Auth;
+using PetMate.Api.Contracts.Businesses;
 using PetMate.Api.Contracts.Carnet;
 using PetMate.Api.Contracts.Pets;
 using PetMate.Api.Contracts.Users;
@@ -30,5 +31,22 @@ namespace PetMate.Api.Contracts.Responses;
 [JsonSerializable(typeof(ApiResponse<PagedResponse<WeightResponse>>))]
 [JsonSerializable(typeof(ApiResponse<AllergyResponse>))]
 [JsonSerializable(typeof(ApiResponse<PagedResponse<AllergyResponse>>))]
+[JsonSerializable(typeof(ApiResponse<BusinessResponse>))]
+[JsonSerializable(typeof(ApiResponse<ServiceResponse>))]
+[JsonSerializable(typeof(ApiResponse<PagedResponse<ServiceResponse>>))]
+[JsonSerializable(typeof(ApiResponse<PagedResponse<NearbyBusinessResponse>>))]
+[JsonSerializable(typeof(ApiResponse<PublicBusinessResponse>))]
+[JsonSerializable(typeof(ApiResponse<AccessGrantResponse>))]
+[JsonSerializable(typeof(ApiResponse<ScanFichaResponse>))]
+[JsonSerializable(typeof(ApiResponse<ConsultationResponse>))]
+[JsonSerializable(typeof(ApiResponse<PagedResponse<ConsultationSummaryResponse>>))]
+[JsonSerializable(typeof(ApiResponse<PagedResponse<HistoryItemResponse>>))]
+[JsonSerializable(typeof(ApiResponse<FollowupResponse>))]
+[JsonSerializable(typeof(ApiResponse<PagedResponse<FollowupResponse>>))]
+[JsonSerializable(typeof(ApiResponse<MessageResponse>))]
+[JsonSerializable(typeof(ApiResponse<MessageListResponse>))]
+[JsonSerializable(typeof(ApiResponse<PagedResponse<ConversationSummaryResponse>>))]
+[JsonSerializable(typeof(ApiResponse<ConversationSummaryResponse>))]
+[JsonSerializable(typeof(ApiResponse<PagedResponse<AttendedPetResponse>>))]
 [JsonSerializable(typeof(ApiResponse<HealthData>))]
 public sealed partial class ApiJsonContext : JsonSerializerContext;

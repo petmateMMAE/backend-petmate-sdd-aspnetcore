@@ -19,6 +19,12 @@ public sealed class MongoIndexInitializer(IMongoDatabase database, MongoCollecti
     public const string PetQrCodeIndex = "ux_pets_qrCode";
     public const string PasswordResetHashIndex = "ux_password_resets_tokenHash";
     public const string PasswordResetTtlIndex = "ttl_password_resets_expiresAtUtc";
+    public const string BusinessOwnerIndex = "ux_businesses_ownerId";
+    public const string BusinessLocationIndex = "ix_businesses_location_2dsphere";
+    public const string AccessGrantPetIndex = "ix_access_grants_petId_expiresAtUtc";
+    public const string AccessGrantTtlIndex = "ttl_access_grants_expiresAtUtc";
+    public const string ScanLogPetIndex = "ix_scan_logs_petId";
+    public const string BusinessServiceIndex = "ix_business_services_businessId_createdAtUtc";
     public const string VaccinePetIndex = "ix_vaccines_ownerId_petId_appliedOn";
     public const string DewormingPetIndex = "ix_dewormings_ownerId_petId_appliedOn";
     public const string WeightPetIndex = "ix_weights_ownerId_petId_measuredOn";
@@ -95,6 +101,76 @@ public sealed class MongoIndexInitializer(IMongoDatabase database, MongoCollecti
                     new CreateIndexOptions { Name = PasswordResetTtlIndex, ExpireAfter = TimeSpan.FromDays(1) }),
             ],
             cancellationToken).ConfigureAwait(false);
+
+        // pm-105: un solo negocio por cuenta (índice único) y consultas por cercanía (índice geoespacial 2dsphere).
+        var businessCollection = database.GetCollection<BusinessDocument>(names.Businesses);
+        await businessCollection.Indexes.CreateManyAsync(
+            [
+                new CreateIndexModel<BusinessDocument>(
+                    Builders<BusinessDocument>.IndexKeys.Ascending(d => d.OwnerId),
+                    new CreateIndexOptions { Name = BusinessOwnerIndex, Unique = true }),
+                new CreateIndexModel<BusinessDocument>(
+                    Builders<BusinessDocument>.IndexKeys.Geo2DSphere(d => d.Location),
+                    new CreateIndexOptions { Name = BusinessLocationIndex }),
+            ],
+            cancellationToken).ConfigureAwait(false);
+        // pm-122#CA-04: autorizaciones por mascota y por vencimiento (con borrado automático un día después de vencer).
+        await database.GetCollection<AccessGrantDocument>(names.AccessGrants).Indexes.CreateManyAsync(
+            [
+                new CreateIndexModel<AccessGrantDocument>(
+                    Builders<AccessGrantDocument>.IndexKeys.Ascending(d => d.PetId).Descending(d => d.ExpiresAtUtc),
+                    new CreateIndexOptions { Name = AccessGrantPetIndex }),
+                new CreateIndexModel<AccessGrantDocument>(
+                    Builders<AccessGrantDocument>.IndexKeys.Ascending(d => d.ExpiresAtUtc),
+                    new CreateIndexOptions { Name = AccessGrantTtlIndex, ExpireAfter = TimeSpan.FromDays(1) }),
+            ],
+            cancellationToken).ConfigureAwait(false);
+        await database.GetCollection<ScanLogDocument>(names.ScanLogs).Indexes.CreateOneAsync(
+            new CreateIndexModel<ScanLogDocument>(
+                Builders<ScanLogDocument>.IndexKeys.Ascending(d => d.PetId),
+                new CreateIndexOptions { Name = ScanLogPetIndex }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+        // pm-130 a pm-149: consultas, seguimientos (uno por consulta), conversaciones (una por seguimiento) y mensajes (secuencia única).
+        await database.GetCollection<ConsultationDocument>(names.Consultations).Indexes.CreateOneAsync(
+            new CreateIndexModel<ConsultationDocument>(
+                Builders<ConsultationDocument>.IndexKeys.Ascending(d => d.OwnerId).Ascending(d => d.PetId).Descending(d => d.ConsultedOn),
+                new CreateIndexOptions { Name = "ix_consultations_ownerId_petId_consultedOn" }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+        await database.GetCollection<ConsultationDocument>(names.Consultations).Indexes.CreateOneAsync(
+            new CreateIndexModel<ConsultationDocument>(
+                Builders<ConsultationDocument>.IndexKeys.Ascending(d => d.BusinessId).Ascending(d => d.Id),
+                new CreateIndexOptions { Name = "ix_consultations_businessId" }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+        await database.GetCollection<FollowupDocument>(names.Followups).Indexes.CreateManyAsync(
+            [
+                new CreateIndexModel<FollowupDocument>(Builders<FollowupDocument>.IndexKeys.Ascending(d => d.ConsultationId), new CreateIndexOptions { Name = "ux_followups_consultationId", Unique = true }),
+                new CreateIndexModel<FollowupDocument>(Builders<FollowupDocument>.IndexKeys.Ascending(d => d.BusinessId).Descending(d => d.UpdatedAtUtc), new CreateIndexOptions { Name = "ix_followups_businessId_updatedAtUtc" }),
+                new CreateIndexModel<FollowupDocument>(Builders<FollowupDocument>.IndexKeys.Ascending(d => d.PetId), new CreateIndexOptions { Name = "ix_followups_petId" }),
+            ],
+            cancellationToken).ConfigureAwait(false);
+        await database.GetCollection<ConversationDocument>(names.Conversations).Indexes.CreateManyAsync(
+            [
+                new CreateIndexModel<ConversationDocument>(Builders<ConversationDocument>.IndexKeys.Ascending(d => d.FollowupId), new CreateIndexOptions { Name = "ux_conversations_followupId", Unique = true }),
+                new CreateIndexModel<ConversationDocument>(Builders<ConversationDocument>.IndexKeys.Ascending(d => d.OwnerAccountId).Descending(d => d.UpdatedAtUtc), new CreateIndexOptions { Name = "ix_conversations_ownerAccountId" }),
+                new CreateIndexModel<ConversationDocument>(Builders<ConversationDocument>.IndexKeys.Ascending(d => d.BusinessAccountId).Descending(d => d.UpdatedAtUtc), new CreateIndexOptions { Name = "ix_conversations_businessAccountId" }),
+                new CreateIndexModel<ConversationDocument>(Builders<ConversationDocument>.IndexKeys.Ascending(d => d.PetId), new CreateIndexOptions { Name = "ix_conversations_petId" }),
+            ],
+            cancellationToken).ConfigureAwait(false);
+        await database.GetCollection<MessageDocument>(names.Messages).Indexes.CreateOneAsync(
+            new CreateIndexModel<MessageDocument>(
+                Builders<MessageDocument>.IndexKeys.Ascending(d => d.ConversationId).Ascending(d => d.Seq),
+                new CreateIndexOptions { Name = "ux_messages_conversationId_seq", Unique = true }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+        await database.GetCollection<ScanLogDocument>(names.ScanLogs).Indexes.CreateOneAsync(
+            new CreateIndexModel<ScanLogDocument>(
+                Builders<ScanLogDocument>.IndexKeys.Ascending(d => d.BusinessId).Descending(d => d.AtUtc),
+                new CreateIndexOptions { Name = "ix_scan_logs_businessId_atUtc" }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+        await database.GetCollection<BusinessServiceDocument>(names.BusinessServices).Indexes.CreateOneAsync(
+            new CreateIndexModel<BusinessServiceDocument>(
+                Builders<BusinessServiceDocument>.IndexKeys.Ascending(d => d.BusinessId).Ascending(d => d.CreatedAtUtc).Ascending(d => d.Id),
+                new CreateIndexOptions { Name = BusinessServiceIndex }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
 
         // pm-097 a pm-102: los listados del carnet filtran por dueño y mascota y ordenan por fecha (o estado, en alergias).
         await database.GetCollection<VaccineDocument>(names.Vaccines).Indexes.CreateOneAsync(

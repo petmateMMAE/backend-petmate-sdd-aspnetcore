@@ -316,6 +316,36 @@ jobs:
           - allergies-create
           - allergies-get-all
           - allergies-update
+          - businesses-create
+          - businesses-update-location
+          - businesses-update
+          - businesses-delete
+          - services-create
+          - services-get-all
+          - services-update
+          - services-delete
+          - businesses-get-nearby
+          - businesses-get-by-id
+          - access-grants-create
+          - scans-resolve
+          - consultations-create
+          - consultations-add-medication
+          - consultations-get-all
+          - consultations-get-by-id
+          - history-get-all
+          - vaccines-create-by-business
+          - dewormings-create-by-business
+          - scans-get-attended
+          - followups-create
+          - followups-update
+          - followups-add-note
+          - followups-get-by-consultation
+          - followups-get-all
+          - messages-send
+          - messages-get-all
+          - conversations-get-all
+          - conversations-mark-read
+          - conversations-reopen
     steps:
       - uses: actions/checkout@v5
 

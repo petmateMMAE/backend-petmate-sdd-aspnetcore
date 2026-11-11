@@ -19,6 +19,8 @@ public sealed class PublicSurfaceTests
         "GET /api/v1/health/ready",
         "POST /api/v1/auth/login",
         "POST /api/v1/auth/refresh",
+        "GET /api/v1/businesses/get-nearby",
+        "GET /api/v1/businesses/get-by-id/{id:guid}",
         "POST /api/v1/auth/register",
         "POST /api/v1/auth/forgot-password",
         "POST /api/v1/auth/reset-password",
