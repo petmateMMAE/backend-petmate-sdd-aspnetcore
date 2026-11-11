@@ -29,7 +29,7 @@ variable "name_suffix" {
 variable "api_version" {
   description = "Versión SemVer desplegada (docs/versioning/version-matrix.md)."
   type        = string
-  default     = "0.3.0"
+  default     = "0.4.0"
 }
 
 variable "api_image" {
