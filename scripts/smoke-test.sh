@@ -38,7 +38,9 @@ PASSWORD="Smk-$(openssl rand -hex 12)"
 BODY=$(jq -nc --arg e "$EMAIL" --arg p "$PASSWORD" '{displayName:"Smoke", email:$e, password:$p}')
 
 check "POST /api/v1/auth/register" 201 "$(req POST /api/v1/auth/register "$BODY")"
-check "POST /api/v1/auth/login" 200 "$(req POST /api/v1/auth/login "$BODY")"
+# El login solo acepta correo y contrasena: displayName ahi es un miembro desconocido (400).
+LOGIN_BODY=$(jq -nc --arg e "$EMAIL" --arg p "$PASSWORD" '{email:$e, password:$p}')
+check "POST /api/v1/auth/login" 200 "$(req POST /api/v1/auth/login "$LOGIN_BODY")"
 ACCESS=$(jq -r '.data.accessToken' /tmp/smoke-body)
 REFRESH=$(jq -r '.data.refreshToken' /tmp/smoke-body)
 
@@ -64,6 +66,15 @@ check "GET /api/v1/pets/get-by-id/{id}" 200 "$(req GET "/api/v1/pets/get-by-id/$
 check "PUT /api/v1/pets/update/{id}" 200 "$(req PUT "/api/v1/pets/update/$PET_ID" '{"name":"Humo","species":"Gato","sex":"Female"}' "$ACCESS")"
 check "POST /api/v1/pets/create sin token" 401 "$(req POST /api/v1/pets/create "$PET")"
 check "DELETE /api/v1/pets/delete/{id}" 200 "$(req DELETE "/api/v1/pets/delete/$PET_ID" "" "$ACCESS")"
+# Hito 2: mapa publico (sin cuenta), afiliar un negocio, la sesion lo reporta y la baja (pm-107, pm-110, pm-116, pm-087).
+check "GET /api/v1/businesses/get-nearby (sin cuenta)" 200 "$(req GET '/api/v1/businesses/get-nearby?latitude=20.0539&longitude=-99.3417&radiusKm=5')"
+BIZ=$(jq -nc '{type:"Store", name:"Tienda prueba de humo", phone:"7711234567", address:"Centro, Tula de Allende", latitude:20.0539, longitude:-99.3417}')
+check "POST /api/v1/businesses/create" 201 "$(req POST /api/v1/businesses/create "$BIZ" "$ACCESS")"
+check "POST /api/v1/auth/refresh (con negocio)" 200 "$(req POST /api/v1/auth/refresh "$(jq -nc --arg r "$REFRESH" '{refreshToken:$r}')")"
+check "  la sesion reporta el tipo de negocio" Store "$(jq -r '.data.user.business.type' /tmp/smoke-body 2>/dev/null || true)"
+ACCESS=$(jq -r '.data.accessToken' /tmp/smoke-body)
+REFRESH=$(jq -r '.data.refreshToken' /tmp/smoke-body)
+check "DELETE /api/v1/businesses/delete" 200 "$(req DELETE /api/v1/businesses/delete "" "$ACCESS")"
 check "  la mascota eliminada ya no existe" 404 "$(req GET "/api/v1/pets/get-by-id/$PET_ID" "" "$ACCESS")"
 
 check "POST /api/v1/auth/logout" 200 "$(req POST /api/v1/auth/logout "$(jq -nc --arg r "$REFRESH" '{refreshToken:$r}')" "$ACCESS")"
