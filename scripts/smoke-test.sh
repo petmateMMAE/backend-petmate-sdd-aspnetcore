@@ -38,7 +38,9 @@ PASSWORD="Smk-$(openssl rand -hex 12)"
 BODY=$(jq -nc --arg e "$EMAIL" --arg p "$PASSWORD" '{displayName:"Smoke", email:$e, password:$p}')
 
 check "POST /api/v1/auth/register" 201 "$(req POST /api/v1/auth/register "$BODY")"
-check "POST /api/v1/auth/login" 200 "$(req POST /api/v1/auth/login "$BODY")"
+# El login solo acepta correo y contrasena: displayName ahi es un miembro desconocido (400).
+LOGIN_BODY=$(jq -nc --arg e "$EMAIL" --arg p "$PASSWORD" '{email:$e, password:$p}')
+check "POST /api/v1/auth/login" 200 "$(req POST /api/v1/auth/login "$LOGIN_BODY")"
 ACCESS=$(jq -r '.data.accessToken' /tmp/smoke-body)
 REFRESH=$(jq -r '.data.refreshToken' /tmp/smoke-body)
 

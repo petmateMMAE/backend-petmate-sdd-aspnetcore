@@ -8,9 +8,15 @@ locals {
   redis_config = {
     auth = {
       args = "--appendonly yes --appendfsync everysec --dir /data --maxmemory 64mb --maxmemory-policy noeviction"
+      # El AOF vive en Azure Files (SMB) y en modo ahorro Redis se apaga por horario: si se corta a media escritura,
+      # el AOF incremental queda con formato invalido y Redis no arranca ("Bad file format reading the append only
+      # file", incidente del 2026-11-10). Antes de arrancar se repara: redis-check-aof --fix trunca hasta el ultimo
+      # comando valido. Solo se pierden las escrituras a medias; la lista negra de JWT vive 15 minutos.
+      prestart = "(yes | redis-check-aof --fix /data/appendonlydir/appendonly.aof.manifest || true) && "
     }
     cache = {
-      args = "--save '' --appendonly no --maxmemory 128mb --maxmemory-policy allkeys-lru"
+      args     = "--save '' --appendonly no --maxmemory 128mb --maxmemory-policy allkeys-lru"
+      prestart = ""
     }
   }
 
@@ -89,7 +95,7 @@ resource "azurerm_container_app" "redis" {
       # La contraseña se escribe en /tmp para no aparecer en la línea de comandos (mismo patrón que Compose).
       command = ["sh", "-c"]
       args = [
-        "umask 077 && printf 'requirepass %s\\n' \"$REDIS_PASSWORD\" > /tmp/redis.conf && exec redis-server /tmp/redis.conf --port 0 --tls-port 6379 --tls-cert-file /tls/tls-crt --tls-key-file /tls/tls-key --tls-auth-clients no ${local.redis_config[each.key].args}"
+        "umask 077 && printf 'requirepass %s\\n' \"$REDIS_PASSWORD\" > /tmp/redis.conf && ${local.redis_config[each.key].prestart}exec redis-server /tmp/redis.conf --port 0 --tls-port 6379 --tls-cert-file /tls/tls-crt --tls-key-file /tls/tls-key --tls-auth-clients no ${local.redis_config[each.key].args}"
       ]
 
       env {
