@@ -346,6 +346,11 @@ jobs:
           - conversations-get-all
           - conversations-mark-read
           - conversations-reopen
+          - pets-upload-photo
+          - pets-get-photo-url
+          - pets-delete-photo
+          - businesses-upload-photo
+          - businesses-delete-photo
     steps:
       - uses: actions/checkout@v5
 

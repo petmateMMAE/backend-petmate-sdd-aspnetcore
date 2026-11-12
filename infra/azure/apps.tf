@@ -222,6 +222,24 @@ resource "azurerm_container_app" "api" {
         name  = "PETMATE_VERSION"
         value = var.api_version
       }
+      # Imágenes en Blob (pm-079): solo el nombre de la cuenta; la API entra con su identidad administrada.
+      env {
+        name  = "IMAGES_STORAGE_ACCOUNT"
+        value = azurerm_storage_account.images.name
+      }
+      env {
+        name  = "IMAGES_PET_CONTAINER"
+        value = azurerm_storage_container.pet_photos.name
+      }
+      env {
+        name  = "IMAGES_BUSINESS_CONTAINER"
+        value = azurerm_storage_container.business_photos.name
+      }
+      # DefaultAzureCredential necesita saber cuál de las identidades del contenedor debe usar.
+      env {
+        name  = "AZURE_CLIENT_ID"
+        value = azurerm_user_assigned_identity.api.client_id
+      }
       env {
         name        = "MONGODB_URI"
         secret_name = "mongodb-uri"
@@ -272,7 +290,12 @@ resource "azurerm_container_app" "api" {
     }
   }
 
-  depends_on = [azurerm_role_assignment.api_acr_pull, azurerm_container_app.redis]
+  depends_on = [
+    azurerm_role_assignment.api_acr_pull,
+    azurerm_container_app.redis,
+    azurerm_role_assignment.api_images_contributor,
+    azurerm_role_assignment.api_images_delegator,
+  ]
 
   lifecycle {
     # La imagen la cambia el pipeline de CD (pm-077); Terraform no debe revertirla.

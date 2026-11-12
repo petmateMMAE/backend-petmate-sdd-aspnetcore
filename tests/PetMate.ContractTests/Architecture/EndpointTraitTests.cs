@@ -77,6 +77,11 @@ public sealed class EndpointTraitTests
         "conversations-get-all",
         "conversations-mark-read",
         "conversations-reopen",
+        "pets-upload-photo",
+        "pets-get-photo-url",
+        "pets-delete-photo",
+        "businesses-upload-photo",
+        "businesses-delete-photo",
     ];
 
     // Ruta HTTP de cada acción de la API de producción -> endpoint del pipeline.
@@ -141,6 +146,11 @@ public sealed class EndpointTraitTests
         ["GET api/v1/conversations/get-all"] = "conversations-get-all",
         ["POST api/v1/conversations/mark-read"] = "conversations-mark-read",
         ["POST api/v1/conversations/reopen"] = "conversations-reopen",
+        ["POST api/v1/pets/upload-photo/{id:guid}"] = "pets-upload-photo",
+        ["GET api/v1/pets/get-photo-url/{id:guid}"] = "pets-get-photo-url",
+        ["DELETE api/v1/pets/delete-photo/{id:guid}"] = "pets-delete-photo",
+        ["POST api/v1/businesses/upload-photo"] = "businesses-upload-photo",
+        ["DELETE api/v1/businesses/delete-photo"] = "businesses-delete-photo",
     };
 
     [Trait(TraitName, Transversal)]

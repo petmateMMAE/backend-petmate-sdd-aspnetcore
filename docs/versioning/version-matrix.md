@@ -34,8 +34,9 @@
 | `0.2.0` | Autorización por rol (denegación por defecto) y perfil propio: `GET users/me/get`, `PUT users/me/update` (nombre visible). 9 endpoints | pm-033, pm-037, pm-038 | **Desplegada** 2026-11-06 (Chile Central) |
 | `0.3.0` | Primer hito: cuenta con nombre obligatorio, rol único `User`, recuperación de contraseña (envío real pendiente del dominio de correo), celular en el perfil; mascotas (alta, lista paginada, detalle, edición y borrado físico en cascada), QR permanente con regeneración y carnet de salud (vacunas, desparasitaciones, pesos y alergias). 29 endpoints | pm-039.pm-047, pm-085.pm-104 | **Desplegada** 2026-11-10 (Chile Central) |
 | `0.4.0` | Hito 2: negocio afiliado y catálogo de servicios, mapa público por cercanía (tipo y nombre, sin cuenta), autorización de acceso por QR y escaneo, consultas con receta, vacunas y desparasitaciones aplicadas por la veterinaria, historial unificado, seguimiento y chat de texto. 61 endpoints | pm-105.pm-149 (sin T129, T164 ni T168) | **Desplegada** 2026-11-11 (Chile Central) |
-| `0.5.0` | Imágenes en Blob Storage + CDN, moderación de contenido | pm-079…pm-082 | Planeada |
-| `0.6.0` | Funciones restantes del producto (negocios, consultas, seguimiento, notificaciones, eliminar cuenta) | specs por crear | Planeada |
+| `0.5.0` | Fotos de mascotas (privadas, con URL temporal) y de negocios (públicas) en Blob Storage. 66 endpoints | pm-079…pm-081, pm-111 | En desarrollo |
+| `0.6.0` | CDN para las imágenes públicas y moderación de contenido | pm-082 | Planeada (el CDN no está aprobado; ver ADR-007) |
+| `0.7.0` | Funciones restantes del producto (notificaciones, eliminar cuenta) | specs por crear | Planeada |
 | `1.0.0` | Versión de la evaluación final (2 de diciembre de 2026) | pm-084 | Planeada |
 
 ## Reglas

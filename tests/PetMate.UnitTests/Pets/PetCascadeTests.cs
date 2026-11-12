@@ -28,7 +28,7 @@ public sealed class PetCascadeTests
 
         public InMemoryScanLogRepository Scans { get; } = new();
 
-        public DeleteMyPetHandler Handler => new(Pets, Vaccines, Dewormings, Weights, allergiesOverride ?? Allergies, Grants, Scans, new InMemoryConsultationRepository(), new InMemoryFollowupRepository(), new InMemoryConversationRepository(), new InMemoryMessageRepository());
+        public DeleteMyPetHandler Handler => new(Pets, Vaccines, Dewormings, Weights, allergiesOverride ?? Allergies, Grants, Scans, new InMemoryConsultationRepository(), new InMemoryFollowupRepository(), new InMemoryConversationRepository(), new InMemoryMessageRepository(), new InMemoryImageStorage());
 
         public async Task<Pet> Seed(Guid owner)
         {

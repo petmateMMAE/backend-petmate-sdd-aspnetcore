@@ -64,6 +64,11 @@ internal sealed class BusinessDocument
     [BsonIgnoreIfNull]
     public string? LicenseNumber { get; set; }
 
+    /// <summary>URL pública de la foto del local (pm-111); el contenedor es público, así que no hay nada que firmar.</summary>
+    [BsonElement("photoUrl")]
+    [BsonIgnoreIfNull]
+    public string? PhotoUrl { get; set; }
+
     [BsonElement("schedule")]
     public Dictionary<string, List<TimeRangeDocument>> Schedule { get; set; } = [];
 
@@ -134,6 +139,7 @@ internal static class BusinessMapping
             }).ToList()),
         CreatedAtUtc = b.CreatedAtUtc,
         UpdatedAtUtc = b.UpdatedAtUtc,
+        PhotoUrl = b.PhotoUrl,
     };
 
     public static Business ToDomain(BusinessDocument d)
@@ -158,7 +164,8 @@ internal static class BusinessMapping
             d.LicenseNumber,
             schedule,
             AsUtc(d.CreatedAtUtc),
-            AsUtc(d.UpdatedAtUtc));
+            AsUtc(d.UpdatedAtUtc),
+            d.PhotoUrl);
     }
 
     public static BusinessServiceDocument ToDocument(BusinessService s) => new()

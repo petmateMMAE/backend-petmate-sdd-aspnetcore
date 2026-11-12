@@ -1,6 +1,6 @@
 # Spec — pm-081 private-image-access
 
-> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L9 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L9 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -32,13 +32,13 @@ Cada criterio se cita como `pm-081#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T093 | Nueva | Propuesto | Implementar el acceso privado a imágenes |
+| T093 | Nueva | Aprobada para iniciar (2026-11-11, aprobacion humana) | Implementar el acceso privado a imágenes |
 
 Detalle en [task.md](task.md).
 
 ## 7. Aprobación
 
-- [ ] Requisitos y criterios revisados por el usuario.
-- [ ] Constitución cumplida.
-- Revisor/usuario: pendiente.
+- [x] Requisitos y criterios revisados por el usuario.
+- [x] Constitución cumplida.
+- Revisor/usuario: Miguel (dueño del backend), 2026-11-11, aprobación transmitida por Adrián en el chat de la sesión.
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec. La evidencia histórica de esta funcionalidad permanece en `specs/_historico/`.

@@ -29,6 +29,15 @@ output "api_outbound_ip_addresses" {
   value = azurerm_container_app.api.outbound_ip_addresses
 }
 
+# Cuenta de las fotos (pm-079). El contenedor de negocios es público; el de mascotas, privado.
+output "images_storage_account_name" {
+  value = azurerm_storage_account.images.name
+}
+
+output "business_photos_base_url" {
+  value = "${azurerm_storage_account.images.primary_blob_endpoint}${azurerm_storage_container.business_photos.name}"
+}
+
 output "log_analytics_workspace_id" {
   value = azurerm_log_analytics_workspace.main.workspace_id
 }

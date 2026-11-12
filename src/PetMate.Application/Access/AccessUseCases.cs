@@ -191,7 +191,8 @@ public sealed class ResolveScanHandler(
     IVaccineRepository vaccines,
     IDewormingRepository dewormings,
     IWeightRepository weights,
-    IConsultationRepository consultations) : IRequestHandler<ResolveScanCommand, AccessOutcome<ScanFicha>>
+    IConsultationRepository consultations,
+    Images.IImageStorage images) : IRequestHandler<ResolveScanCommand, AccessOutcome<ScanFicha>>
 {
     public async Task<AccessOutcome<ScanFicha>> Handle(ResolveScanCommand request, CancellationToken cancellationToken)
     {
@@ -223,12 +224,22 @@ public sealed class ResolveScanHandler(
             return AccessOutcome.Failed<ScanFicha>(AccessStatus.Forbidden);
         }
 
-        await scans.Add(ScanLog.Record(pet.Id, pet.Name, pet.PhotoUrl, business.Id, now), cancellationToken).ConfigureAwait(false);
+        // La foto subida es privada (pm-081): el negocio recibe una URL temporal, y solo porque hay autorización vigente.
+        var photoUrl = pet.PhotoUrl;
+        if (pet.PhotoObjectKey is { } photoKey)
+        {
+            var temporary = await images
+                .CreateTemporaryUrl(Images.ImageContainer.PetPhotos, photoKey, Images.PhotoKeys.TemporaryUrlLifetime, cancellationToken)
+                .ConfigureAwait(false);
+            photoUrl = temporary?.Url.AbsoluteUri;
+        }
+
+        await scans.Add(ScanLog.Record(pet.Id, pet.Name, photoUrl, business.Id, now), cancellationToken).ConfigureAwait(false);
 
         var all = await allergies.ListByPet(pet.Id, pet.OwnerId, 0, CarnetLimits.MaxRecordsPerPetAndType, cancellationToken).ConfigureAwait(false);
         var activeAllergies = all.Where(a => a.Status == AllergyStatus.Active).Select(a => new ScanAllergy(a.Name, a.Kind, a.Notes)).ToArray();
         var (years, months) = Age(pet.BirthDate, DateOnly.FromDateTime(now));
-        var ficha = new ScanFicha(business.Type == BusinessType.Veterinary ? pet.Id : null, pet.PhotoUrl, pet.Name, pet.Species, pet.Breed, years, months, activeAllergies);
+        var ficha = new ScanFicha(business.Type == BusinessType.Veterinary ? pet.Id : null, photoUrl, pet.Name, pet.Species, pet.Breed, years, months, activeAllergies);
         if (business.Type != BusinessType.Veterinary)
         {
             // Tienda y estética reciben solo la ficha básica (pm-128).

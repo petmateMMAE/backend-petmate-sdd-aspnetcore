@@ -133,14 +133,21 @@ public sealed class DeleteMyPetHandler(
     Access.IConsultationRepository consultations,
     Followups.IFollowupRepository followups,
     Followups.IConversationRepository conversations,
-    Followups.IMessageRepository messages) : IRequestHandler<DeleteMyPetCommand, bool>
+    Followups.IMessageRepository messages,
+    Images.IImageStorage images) : IRequestHandler<DeleteMyPetCommand, bool>
 {
     public async Task<bool> Handle(DeleteMyPetCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        if (await pets.FindOwned(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false) is null)
+        if (await pets.FindOwned(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false) is not { } pet)
         {
             return false;
+        }
+
+        // La foto privada se va con la mascota (pm-080); el borrado del blob es idempotente.
+        if (pet.PhotoObjectKey is { } photoKey)
+        {
+            await images.Delete(Images.ImageContainer.PetPhotos, photoKey, cancellationToken).ConfigureAwait(false);
         }
 
         await vaccines.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
