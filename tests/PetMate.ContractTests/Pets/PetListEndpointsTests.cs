@@ -152,7 +152,8 @@ public sealed class PetListEndpointsTests
         using var unauthenticated = await Get(anonymous, "");
 
         Assert.Equal(HttpStatusCode.Unauthorized, unauthenticated.StatusCode);
-        Assert.Equal(401, JsonDocument.Parse(await unauthenticated.Content.ReadAsStringAsync()).RootElement.GetProperty("statusCode").GetInt32());
+        using var body = JsonDocument.Parse(await unauthenticated.Content.ReadAsStringAsync());
+        Assert.Equal(401, body.RootElement.GetProperty("statusCode").GetInt32());
     }
 
     private static HttpClient Client(AuthFlowFactory factory, Guid userId, UserRole role)
