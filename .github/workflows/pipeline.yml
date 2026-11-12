@@ -180,8 +180,8 @@ jobs:
       - uses: actions/checkout@v5
 
       # Trivy config incluye el motor de reglas de tfsec (tfsec está integrado en Trivy). HIGH y CRITICAL bloquean.
-      # Hoy infra/azure e infra/atlas no tienen hallazgos; si apareciera alguno que no se pueda corregir, cambiar
-      # exit-code a '0' (soft-fail con el SARIF como evidencia) y documentarlo en docs/ci-cd/pipeline.md.
+      # Los hallazgos que son decisiones de diseño aprobadas se listan uno por uno en .trivyignore.yaml, con motivo
+      # y fecha de caducidad; el job sigue en exit-code 1, así que cualquier hallazgo nuevo rompe la compilación.
       - name: Escanear Terraform (infra/)
         uses: aquasecurity/trivy-action@v0.35.0
         with:
@@ -192,6 +192,7 @@ jobs:
           output: trivy-iac.sarif
           limit-severities-for-sarif: true
           exit-code: '1'
+          trivyignores: .trivyignore.yaml
 
       - name: Informe SARIF
         if: always()
@@ -346,6 +347,11 @@ jobs:
           - conversations-get-all
           - conversations-mark-read
           - conversations-reopen
+          - pets-upload-photo
+          - pets-get-photo-url
+          - pets-delete-photo
+          - businesses-upload-photo
+          - businesses-delete-photo
     steps:
       - uses: actions/checkout@v5
 

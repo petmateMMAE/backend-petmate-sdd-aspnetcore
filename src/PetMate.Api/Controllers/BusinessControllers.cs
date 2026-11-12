@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using PetMate.Api.Authorization;
 using PetMate.Api.Contracts.Businesses;
+using PetMate.Api.Contracts.Images;
 using PetMate.Api.Contracts.Responses;
 using PetMate.Application.Businesses;
+using PetMate.Application.Images;
 using PetMate.Application.Mediator;
 using PetMate.Domain.Businesses;
 
@@ -70,7 +72,7 @@ public abstract class BusinessControllerBase(ISender sender) : ControllerBase
 
 /// <summary>Negocio afiliado de la cuenta (pm-107 a pm-110).</summary>
 [Route("api/v1/businesses")]
-public sealed class BusinessesController(ISender sender) : BusinessControllerBase(sender)
+public sealed class BusinessesController(ISender sender, IImageStorage storage) : BusinessControllerBase(sender)
 {
     [HttpPost("create")]
     [ProducesResponseType(typeof(ApiResponse<BusinessResponse>), StatusCodes.Status201Created)]
@@ -147,6 +149,62 @@ public sealed class BusinessesController(ISender sender) : BusinessControllerBas
 
         var status = await Sender.Send(new DeleteBusinessCommand(ownerId), cancellationToken);
         return status == BusinessStatus.Ok ? ApiResponseFactory.Create<object?>(StatusCodes.Status200OK, "Negocio dado de baja correctamente.", null) : Fail(status);
+    }
+
+    /// <summary>
+    /// Sube o reemplaza la foto del local (pm-111). Cuerpo <c>multipart/form-data</c> con el campo <c>file</c>:
+    /// JPEG, PNG o WebP de hasta 1 MB. La foto es pública: sale en el perfil del negocio y en el mapa.
+    /// </summary>
+    [HttpPost("upload-photo")]
+    [DisableFormValueModelBinding]
+    [ProducesResponseType(typeof(ApiResponse<BusinessPhotoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ObjectResult> UploadPhoto(CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(storage);
+        if (!TryGetOwnerId(out var ownerId))
+        {
+            return Status(StatusCodes.Status401Unauthorized);
+        }
+
+        if (!storage.IsEnabled)
+        {
+            return PhotoResponses.Unavailable();
+        }
+
+        var (rejection, photo) = await PhotoUploadReader.Read(Request, ImageContainer.BusinessPhotos, cancellationToken);
+        if (PhotoResponses.Rejected(rejection, ImageContainer.BusinessPhotos) is { } error)
+        {
+            return error;
+        }
+
+        using var accepted = photo!;
+        var outcome = await Sender.Send(new UploadBusinessPhotoCommand(ownerId, accepted.ContentType, accepted.Content), cancellationToken);
+        return outcome.Status == BusinessStatus.Ok && outcome.Value is { } url
+            ? ApiResponseFactory.Create(StatusCodes.Status200OK, "Fotografía guardada correctamente.", new BusinessPhotoResponse(url.AbsoluteUri))
+            : Fail(outcome.Status);
+    }
+
+    /// <summary>Quita la foto del local (pm-111).</summary>
+    [HttpDelete("delete-photo")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+    public async Task<ObjectResult> DeletePhoto(CancellationToken cancellationToken)
+    {
+        if (!TryGetOwnerId(out var ownerId))
+        {
+            return Status(StatusCodes.Status401Unauthorized);
+        }
+
+        var status = await Sender.Send(new DeleteBusinessPhotoCommand(ownerId), cancellationToken);
+        return status == BusinessStatus.Ok
+            ? ApiResponseFactory.Create<object?>(StatusCodes.Status200OK, "Fotografía eliminada correctamente.", null)
+            : Fail(status);
     }
 }
 

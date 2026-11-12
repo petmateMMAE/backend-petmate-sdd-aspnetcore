@@ -5,6 +5,7 @@ using PetMate.Application.Authentication;
 using PetMate.Application.Businesses;
 using PetMate.Application.Carnet;
 using PetMate.Application.Followups;
+using PetMate.Application.Images;
 using PetMate.Application.Mediator;
 using PetMate.Application.Pagination;
 using PetMate.Application.Pets;
@@ -171,6 +172,13 @@ public static class ApplicationServiceCollectionExtensions
         services.AddRequestHandler<RegeneratePetQrCommand, PetQrResult?, RegeneratePetQrHandler>();
         services.AddRequestValidator<CreatePetCommand, CreatePetCommandValidator>();
         services.AddRequestValidator<UpdateMyPetCommand, UpdateMyPetCommandValidator>();
+
+        // Fotos (pm-080, pm-081, pm-111). El contenido ya llega validado desde el controlador.
+        services.AddRequestHandler<UploadPetPhotoCommand, PetPhotoResult?, UploadPetPhotoHandler>();
+        services.AddRequestHandler<DeletePetPhotoCommand, bool, DeletePetPhotoHandler>();
+        services.AddRequestHandler<GetPetPhotoUrlQuery, PetPhotoResult?, GetPetPhotoUrlHandler>();
+        services.AddRequestHandler<UploadBusinessPhotoCommand, BusinessOutcome<Uri>, UploadBusinessPhotoHandler>();
+        services.AddRequestHandler<DeleteBusinessPhotoCommand, BusinessStatus, DeleteBusinessPhotoHandler>();
         return services;
     }
 

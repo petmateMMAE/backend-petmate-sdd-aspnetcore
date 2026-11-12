@@ -449,6 +449,9 @@ public class AuthFlowFactory : IsolatedApiFactory
 
     public FakeEmailSender Email { get; }
 
+    /// <summary>Almacenamiento de fotos en memoria (pm-079): las pruebas no tocan Azure ni el disco.</summary>
+    public InMemoryImageStorage Images { get; } = new();
+
     public InMemoryAuthAttemptThrottle Throttle { get; }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -498,6 +501,8 @@ public class AuthFlowFactory : IsolatedApiFactory
             services.AddSingleton<PetMate.Application.Carnet.IAllergyRepository>(Allergies);
             services.RemoveAll<IAuthAttemptThrottle>();
             services.AddSingleton<IAuthAttemptThrottle>(Throttle);
+            services.RemoveAll<PetMate.Application.Images.IImageStorage>();
+            services.AddSingleton<PetMate.Application.Images.IImageStorage>(Images);
         });
     }
 }

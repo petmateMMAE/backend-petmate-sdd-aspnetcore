@@ -11,7 +11,7 @@
 
 ### T091 — Implementar el adaptador de almacenamiento de imágenes
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Aprobada para iniciar (2026-11-11, aprobacion humana)
 - **Spec principal:** pm-079
 - **Criterios propios:** pm-079#CA-01, pm-079#CA-02, pm-079#CA-03
 - **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.

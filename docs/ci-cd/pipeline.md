@@ -55,7 +55,7 @@ Los nueve jobs `Endpoint · …` están en la misma columna (todos dependen solo
 | 2 | `build` | `dotnet restore`, `dotnet build -c Release -warnaserror` (analizadores de seguridad .NET como errores = SAST) y `dotnet format --verify-no-changes`. | DevSecOps | Sí |
 | 3 | `sast` | CodeQL para C#; el SARIF queda como artefacto. | DevSecOps | No (informativo, ver límites) |
 | 3 | `dependencies` | `scripts/quality-gate.ps1 -AuditOnly -MinSeverity High`: vulnerabilidades NuGet (High y Critical bloquean; las menores se muestran como advertencia), paquetes en desuso sin excepción aprobada y licencias fuera de la lista permitida. | DevSecOps | Sí |
-| 3 | `iac-scan` | Trivy config (motor de reglas de tfsec) sobre `infra/`; HIGH y CRITICAL bloquean. Hoy: 0 hallazgos. | DevSecOps | Sí |
+| 3 | `iac-scan` | Trivy config (motor de reglas de tfsec) sobre `infra/`; HIGH y CRITICAL bloquean. Las decisiones de diseno ya aprobadas se listan una por una en `.trivyignore.yaml`, con motivo y fecha de caducidad; hoy son 2, las dos de la cuenta de imagenes (contenedor publico de fotos de negocio y cuenta sin reglas de red, pm-111). Cualquier hallazgo nuevo sigue rompiendo. | DevSecOps | Si |
 | 3 | `sdd-integrity` | `scripts/check-sdd.ps1`: Specs, Tasks, dependencias, trazabilidad completa por criterio y hashes de los documentos históricos; `scripts/check-sdd.tests.ps1` prueba que falla ante cada inconsistencia. | Gobernanza SDD | Sí |
 | 4 | `unit-tests` | Pruebas unitarias. | Pruebas | Sí |
 | 4 | `security-tests` | JWT, autorización, rate limiting, configuración, detección de secretos en el código, manejo de errores. | DevSecOps | Sí |

@@ -189,7 +189,7 @@ public sealed class UpdateBusinessHandler(IBusinessRepository businesses, TimePr
 /// Da de baja el negocio de la cuenta (pm-110): primero su catálogo y al final el negocio, de modo que un fallo parcial deja el
 /// negocio visible y repetir la baja termina el trabajo. La cuenta y sus mascotas no se tocan.
 /// </summary>
-public sealed class DeleteBusinessHandler(IBusinessRepository businesses, IBusinessServiceRepository services, PublicBusinessCache? publicCache = null) : IRequestHandler<DeleteBusinessCommand, BusinessStatus>
+public sealed class DeleteBusinessHandler(IBusinessRepository businesses, IBusinessServiceRepository services, Images.IImageStorage images, PublicBusinessCache? publicCache = null) : IRequestHandler<DeleteBusinessCommand, BusinessStatus>
 {
     public async Task<BusinessStatus> Handle(DeleteBusinessCommand request, CancellationToken cancellationToken)
     {
@@ -202,6 +202,8 @@ public sealed class DeleteBusinessHandler(IBusinessRepository businesses, IBusin
 
         try
         {
+            // La foto pública se va con el negocio (pm-111); el borrado del blob es idempotente.
+            await images.Delete(Images.ImageContainer.BusinessPhotos, Images.PhotoKeys.ForBusiness(business.Id), cancellationToken).ConfigureAwait(false);
             await services.DeleteByBusiness(business.Id, cancellationToken).ConfigureAwait(false);
             var deleted = await businesses.DeleteByOwner(request.OwnerId, cancellationToken).ConfigureAwait(false);
             return deleted ? BusinessStatus.Ok : BusinessStatus.NoBusiness;

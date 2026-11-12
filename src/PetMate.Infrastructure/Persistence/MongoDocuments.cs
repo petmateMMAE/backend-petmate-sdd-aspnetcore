@@ -171,6 +171,11 @@ internal sealed class PetDocument
     [BsonIgnoreIfNull]
     public string? PhotoUrl { get; set; }
 
+    /// <summary>Clave del objeto en el contenedor privado cuando la foto se subió a Blob (pm-080).</summary>
+    [BsonElement("photoObjectKey")]
+    [BsonIgnoreIfNull]
+    public string? PhotoObjectKey { get; set; }
+
     [BsonElement("createdAtUtc")]
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime CreatedAtUtc { get; set; }

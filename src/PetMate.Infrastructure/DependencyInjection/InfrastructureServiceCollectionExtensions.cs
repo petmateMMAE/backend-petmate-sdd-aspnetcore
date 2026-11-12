@@ -1,3 +1,5 @@
+using Azure.Identity;
+using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -6,11 +8,13 @@ using PetMate.Application.Access;
 using PetMate.Application.Authentication;
 using PetMate.Application.Businesses;
 using PetMate.Application.Carnet;
+using PetMate.Application.Images;
 using PetMate.Application.Persistence;
 using PetMate.Application.Security;
 using PetMate.Infrastructure.Configuration;
 using PetMate.Infrastructure.Mail;
 using PetMate.Infrastructure.Health;
+using PetMate.Infrastructure.Images;
 using PetMate.Infrastructure.Persistence;
 using PetMate.Infrastructure.Redis;
 using PetMate.Infrastructure.Security;
@@ -76,6 +80,21 @@ public static class InfrastructureServiceCollectionExtensions
         {
             services.AddSingleton<IEmailSender, DisabledEmailSender>();
         }
+        // Imágenes en Blob Storage (pm-079): sin cuenta ni cadena de conexión no hay almacenamiento y los
+        // endpoints de fotos responden 503, igual que el correo de pm-088.
+        if (ImageStorageOptions.TryRead(name => configuration[name]) is { } imageOptions)
+        {
+            services.AddSingleton(imageOptions);
+            services.AddSingleton(_ => imageOptions.ConnectionString is { } connection
+                ? new BlobServiceClient(connection)
+                : new BlobServiceClient(imageOptions.ServiceUri, new DefaultAzureCredential()));
+            services.AddSingleton<IImageStorage, BlobImageStorage>();
+        }
+        else
+        {
+            services.AddSingleton<IImageStorage, DisabledImageStorage>();
+        }
+
         services.AddSingleton<MongoIndexInitializer>();
         services.AddHostedService<MongoIndexHostedService>();
 

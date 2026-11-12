@@ -71,6 +71,7 @@ public sealed class Business
     public const int MaxAddressLength = 200;
     public const int MaxDescriptionLength = 500;
     public const int MaxLicenseLength = 30;
+    public const int MaxPhotoUrlLength = 2048;
 
     private Business(Guid id, Guid ownerId, BusinessType type, DateTime createdAtUtc)
     {
@@ -110,6 +111,12 @@ public sealed class Business
 
     public WeeklySchedule Schedule { get; private set; }
 
+    /// <summary>
+    /// URL pública y permanente de la foto del local (pm-111). El contenedor es público de solo lectura y está
+    /// separado del de las mascotas, así que aquí no hay nada privado que proteger.
+    /// </summary>
+    public string? PhotoUrl { get; private set; }
+
     public DateTime CreatedAtUtc { get; }
 
     public DateTime UpdatedAtUtc { get; private set; }
@@ -148,6 +155,23 @@ public sealed class Business
         UpdatedAtUtc = now;
     }
 
+    /// <summary>Guarda la URL pública de la foto recién subida (pm-111), o la quita con <c>null</c>.</summary>
+    public void SetPhoto(string? publicUrl, DateTime nowUtc)
+    {
+        var trimmed = publicUrl?.Trim();
+        if (!string.IsNullOrEmpty(trimmed)
+            && !(trimmed.Length <= MaxPhotoUrlLength
+                && Uri.TryCreate(trimmed, UriKind.Absolute, out var uri)
+                && uri.Scheme == Uri.UriSchemeHttps
+                && string.IsNullOrEmpty(uri.UserInfo)))
+        {
+            throw new DomainException("La URL de la fotografía del negocio no es válida.");
+        }
+
+        PhotoUrl = string.IsNullOrEmpty(trimmed) ? null : trimmed;
+        UpdatedAtUtc = Guard.Utc(nowUtc, nameof(nowUtc));
+    }
+
     /// <summary>Cambia las coordenadas (pm-108). La geocodificación ocurre en la app.</summary>
     public void MoveTo(double latitude, double longitude, DateTime nowUtc)
     {
@@ -174,7 +198,8 @@ public sealed class Business
         string? licenseNumber,
         WeeklySchedule schedule,
         DateTime createdAtUtc,
-        DateTime updatedAtUtc)
+        DateTime updatedAtUtc,
+        string? photoUrl = null)
     {
         var created = Guard.Utc(createdAtUtc, nameof(createdAtUtc));
         var updated = Guard.Utc(updatedAtUtc, nameof(updatedAtUtc));
@@ -196,6 +221,7 @@ public sealed class Business
             Description = profile.Description,
             Schedule = schedule,
             UpdatedAtUtc = updated,
+            PhotoUrl = string.IsNullOrWhiteSpace(photoUrl) ? null : photoUrl.Trim(),
         };
         return business;
     }

@@ -216,7 +216,7 @@ public sealed class GetNearbyBusinessesHandler(IBusinessRepository businesses, P
         {
             var result = await businesses.FindNearby(new NearbyQuery(lat, lng, radiusKm * 1000, types, searchKey, (int)Math.Min(((long)page - 1) * pageSize, int.MaxValue), pageSize), cancellationToken).ConfigureAwait(false);
             cached = new CachedNearby(
-                result.Items.Select(h => new CachedBusinessCore(h.Business.Id, h.Business.Name, h.Business.Type, null, ScheduleView.Dto(h.Business.Schedule), Math.Round(h.DistanceMeters))).ToList(),
+                result.Items.Select(h => new CachedBusinessCore(h.Business.Id, h.Business.Name, h.Business.Type, h.Business.PhotoUrl, ScheduleView.Dto(h.Business.Schedule), Math.Round(h.DistanceMeters))).ToList(),
                 result.Total);
             await cache.Set("biz-near", cacheId, cached, cancellationToken).ConfigureAwait(false);
         }
@@ -284,7 +284,7 @@ public sealed class GetPublicBusinessHandler(IBusinessRepository businesses, IBu
             var list = await services.ListByBusiness(business.Id, 0, PublicBusinessLimits.MaxServicesInProfile, cancellationToken).ConfigureAwait(false);
             // La cédula profesional nunca forma parte del perfil público (pm-119#CA-02).
             cached = new CachedProfile(
-                business.Id, business.Name, business.Type, business.Description, null, ScheduleView.Dto(business.Schedule),
+                business.Id, business.Name, business.Type, business.Description, business.PhotoUrl, ScheduleView.Dto(business.Schedule),
                 business.Latitude, business.Longitude, business.Address, business.Phone, business.WhatsApp,
                 list.Select(s => new PublicService(s.Id, s.Name, s.Description, s.Price)).ToList());
             await cache.Set("biz-prof", id, cached, cancellationToken).ConfigureAwait(false);
