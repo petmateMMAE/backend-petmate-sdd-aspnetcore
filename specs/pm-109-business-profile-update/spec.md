@@ -1,6 +1,6 @@
 # Spec — pm-109 business-profile-update
 
-> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.3.0 | Nivel de ejecución: L10 (los números identifican, no ordenan) | Creado el 2026-11-09
+> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.3.0 | Nivel de ejecución: L10 (los números identifican, no ordenan) | Creado el 2026-11-09
 
 ## 1. Objetivo
 
@@ -31,7 +31,7 @@ Cada criterio se cita como `pm-109#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T127 | Nueva | Propuesto | Actualizar los datos del negocio propio |
+| T127 | Nueva | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Actualizar los datos del negocio propio |
 
 Detalle en [task.md](task.md).
 
@@ -41,7 +41,7 @@ Detalle en [task.md](task.md).
 
 ## 7. Aprobación
 
-- [ ] Requisitos y criterios revisados por el usuario.
-- [ ] Constitución cumplida.
-- Revisor/usuario: pendiente.
+- [x] Requisitos y criterios revisados por el usuario.
+- [x] Constitución cumplida.
+- Revisor/usuario: Miguel (usuario), 2026-11-10, aprobación en el chat de la sesión (specs completos del primer hito).
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec.

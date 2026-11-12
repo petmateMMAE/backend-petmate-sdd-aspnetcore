@@ -41,6 +41,8 @@ public class IsolatedApiFactory : WebApplicationFactory<Program>
             ["AUTH_RATE_LIMIT_PER_MINUTE"] = "1000",
             ["PETS_RATE_LIMIT_PER_MINUTE"] = "1000",
             ["CARNET_RATE_LIMIT_PER_MINUTE"] = "1000",
+            ["BUSINESS_RATE_LIMIT_PER_MINUTE"] = "1000",
+            ["PUBLIC_BUSINESS_RATE_LIMIT_PER_MINUTE"] = "1000",
             ["USERS_RATE_LIMIT_PER_MINUTE"] = "1000",
         };
         foreach (var (key, value) in overrides ?? new Dictionary<string, string>())

@@ -553,3 +553,34 @@ Aprobados por el usuario (H7, H3, H8 opción A; H4 opción B; H6 A+B+C) y regist
 - **Pendiente:** revisión independiente y aprobación de cierre de T103 a T109; el envío real de correo necesita un dominio verificado y `EMAIL_API_KEY`, `EMAIL_FROM`, `PASSWORD_RESET_URL_BASE`; `scripts/smoke-test.sh` y `acceptance-milestone.ps1` ya envían el nombre pero no se ejecutaron. Sin commit ni push.
 - **2026-11-09:** revisión independiente de T103 a T109 sin hallazgos bloqueantes; se corrigieron 503 que delataba la cuenta, enlaces antiguos vigentes y el orden de revocación. Unitarias 261. Pendiente solo la aprobación de cierre.
 - **2026-11-09:** T103 a T109 verificadas con aprobación del usuario. Primer hito (T103 a T122) cerrado; pendiente el envío real de correo (dominio y llave).
+- **2026-11-10:** el usuario aprobó las Tasks `T123` a `T185`. Estado «Aprobada para iniciar»; siguen pendientes los `plan.md`. solo siguen «Propuesto» T067 y T077 a T096.
+
+## Implementación de T123 a T133 (2026-11-10)
+
+- **Hecho:** modelo del negocio con índice único por cuenta e índice geoespacial (T123), horario estructurado con «abierto ahora» en America/Mexico_City (T124), alta (T125), ubicación (T126), perfil (T127), baja con su catálogo (T128) y servicios: crear, listar, editar y borrar (T130 a T133). La sesión informa el tipo del negocio.
+- **No hecho:** T129 (foto pública del negocio): depende de `pm-079` (Azure Blob, sin aprobar y con costo).
+- **Decisiones del agente a confirmar:** cuenta sin negocio en estas rutas responde 403; límites de campos (nombre 100, dirección 200, descripción 500, cédula 30, hasta 6 franjas por día, precio máximo 1 000 000); catálogo paginado con la convención de `pm-047`; la baja del negocio borra su catálogo.
+- **Pendiente:** revisión independiente y aprobación de cierre de T123 a T128 y T130 a T133. Sin commit ni push desde `64f6c51`.
+- **2026-11-10:** revisión independiente de T123 a T133 sin hallazgos bloqueantes. Documentado: el PUT del perfil reemplaza todo (omitir el horario lo vacía), no hay medianoche (`23:59`) y la sesión lee el tipo de negocio al iniciar o renovar. Aceptados: carrera mínima crear servicio / dar de baja negocio; 403 sin negocio en crear y listar frente a 404 en editar y borrar servicios. Pendiente: pruebas contra Atlas (sin conexión hoy) y cédula fuera de lecturas públicas en `pm-116` y `pm-119`.
+- **2026-11-10:** T123 a T128 y T130 a T133 verificadas con aprobación del usuario. Siguen pendientes T129, la ejecución de las pruebas contra Atlas y T134 en adelante.
+
+## Implementación de T134 a T147 (2026-11-10)
+
+- **Hecho:** mapa público (`get-nearby` con tipo y nombre, `get-by-id`) con límite por IP en Redis y caché de 5 minutos invalidada en cada cambio (T134–T139); autorización de acceso, cancelación al regenerar el QR, escaneo con límite por negocio, 403 sin autorización vigente, ficha básica y registro interno de escaneos (T140–T144, T146, T147). Nuevos: `FindByQr` (única lectura de mascota sin dueño), colecciones `access_grants` y `scan_logs`, política de caché ampliada.
+- **No hecho:** T145 (ficha completa de la veterinaria) espera las consultas veterinarias; la foto del negocio espera `pm-111` (Blob).
+- **Pruebas:** unitarias 309, seguridad 192, contrato 330. Integración Atlas escrita pero sin ejecutar (Atlas no responde desde este equipo).
+- **Decisiones del agente a confirmar:** radio máximo 50 km, búsqueda de 2 a 50 caracteres, 120 lecturas públicas por minuto por IP, 20 escaneos por minuto por negocio con 5 minutos de espera, TTL de 5 minutos, coordenadas redondeadas a 3 decimales en el mapa, `petId` solo para veterinarias en la ficha básica, `Consultations` aceptado como grupo autorizable aunque aún no hay consultas, y la veterinaria recibe hoy solo la ficha básica.
+- **Pendiente:** revisión independiente y aprobación de cierre de T134 a T144, T146 y T147; medir el tiempo de respuesta del mapa (RNF-10) con Atlas; ejecutar las pruebas de integración. Sin commit ni push desde `64f6c51`.
+- **2026-11-10:** revisión independiente de T134 a T147 sin hallazgos bloqueantes. Corregido: la baja del negocio invalida la caché aunque falle a mitad y `scans/resolve` también se limita por IP. Aceptados y documentados: carrera mínima de la caché al invalidar, 403/404 que revela la existencia de un código, registros de escaneo sin retención definida, una autorización creada en paralelo a regenerar el QR. Pendiente: pruebas de falla cerrada con Redis Auth caído, invalidación por foto (`pm-111`) y pruebas contra Atlas.
+- **2026-11-10:** T134 a T144, T146 y T147 verificadas con aprobación del usuario. Pendientes: T145, las pruebas contra Atlas de T123 a T147 y T148 en adelante.
+
+## Implementación de T148 a T167 (2026-11-10)
+
+- **Hecho:** mascotas atendidas (T148), consultas con receta y su lectura por el dueño (T149–T152), vacunas y desparasitaciones aplicadas por la veterinaria (T153, T154), historial unificado (T155), seguimiento con notas, lectura del dueño y listado de la veterinaria (T156–T160) y chat de texto: conversación por seguimiento, mensajes, cierre y reapertura, listado y estado de lectura (T161–T163, T165–T167). Nuevas colecciones: `consultations`, `followups`, `conversations`, `messages`; los registros de escaneo guardan nombre y foto de la mascota.
+- **No hecho:** T164 (foto en el chat: Blob sin aprobar) y T168 (tiempo real: el `plan.md` de `pm-150` recomienda reemplazarlo por la consulta con `after`, pendiente de tu decisión). T145 (ficha completa de la veterinaria) ya podría hacerse porque existen las consultas.
+- **Pruebas:** unitarias 323, seguridad 192, contrato 357. Integración Atlas escrita pero sin ejecutar (Atlas no responde desde este equipo).
+- **Decisiones del agente a confirmar:** el peso de la consulta no se suma al historial de peso; receta de hasta 10 medicamentos; 200 consultas por mascota; textos de 500 y 1000 caracteres; 200 notas por seguimiento; la veterinaria necesita autorización vigente para consulta, vacuna y desparasitación pero no para abrir el seguimiento de su propia consulta; la cuenta sin negocio recibe 403 en las rutas de la veterinaria; los avisos del sistema cuentan como mensajes sin leer del otro participante; un tercero recibe 404 en el chat.
+- **Pendiente:** revisión independiente y aprobación de cierre de T148 a T163 y T165 a T167; decidir T168; ejecutar las pruebas de integración. Sin commit ni push desde `64f6c51`.
+- **2026-11-10:** T148 a T163 y T165 a T167 marcadas «Verificado» por decisión del usuario, **sin revisión independiente** de este bloque y con las pruebas contra Atlas sin ejecutar.
+- **2026-11-10:** T145 implementada (ficha completa de la veterinaria por grupos autorizados). Contrato 359. Pendiente de revisión y cierre.
+- **2026-11-10:** T145 marcada «Verificado» por decisión del usuario, sin revisión independiente.

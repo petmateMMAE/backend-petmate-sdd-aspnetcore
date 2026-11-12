@@ -11,7 +11,7 @@
 
 ### T166 — Listar las conversaciones propias
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque)
 - **Spec principal:** pm-148
 - **Criterios propios:** pm-148#CA-01, pm-148#CA-02, pm-148#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

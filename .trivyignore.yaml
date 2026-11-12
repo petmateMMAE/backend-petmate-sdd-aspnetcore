@@ -1,0 +1,35 @@
+# Excepciones del escaneo de IaC (job `iac-scan`). Solo entran hallazgos revisados que son decisiones de diseno
+# ya aprobadas, nunca descuidos. Cada una lleva motivo, como se cierra y fecha de caducidad: al vencer, el escaneo
+# vuelve a bloquear y hay que renovarla o corregir. Todas las demas reglas siguen bloqueando con HIGH y CRITICAL.
+#
+# Las dos de abajo son de la cuenta de imagenes (pm-079, pm-111) y tienen la misma raiz: la foto de un negocio se
+# ve en el mapa publico desde cualquier telefono y sin cuenta, asi que ese contenedor tiene que poder leerse en
+# publico y la cuenta no puede negar el trafico por red.
+#
+# Lo que si queda protegido, y por eso el riesgo real es bajo:
+#   - Las fotos de las mascotas viven en un contenedor PRIVADO aparte y solo se leen con una URL firmada que
+#     caduca a los 15 minutos (pm-081); la propiedad se comprueba antes de firmar.
+#   - La cuenta no tiene llaves compartidas (shared_access_key_enabled = false): la API entra con identidad
+#     administrada, asi que no hay secreto que filtrar.
+#   - Es una cuenta aparte de la de Redis, que sigue negando todo lo que no venga de su subred.
+#   - El contenedor publico solo guarda fotos de locales: ningun dato de personas ni de mascotas.
+#
+# Como se cierran: con el CDN de pm-082, hoy diferido por costo (ADR-007). Con el CDN delante, el Blob deja de
+# publicarse y la cuenta puede negar todo el trafico que no venga de Azure.
+misconfigurations:
+  - id: AVD-AZU-0007
+    paths:
+      - "azure/storage.tf"
+    statement: >-
+      Aprobado el 2026-11-12. El contenedor business-photos es publico de solo lectura a proposito (pm-111#CA-01):
+      la foto del negocio se muestra en el mapa publico, que funciona sin cuenta. Solo contiene fotos de locales.
+      Se cierra con pm-082 (CDN).
+    expired_at: 2027-02-12
+  - id: AVD-AZU-0012
+    paths:
+      - "azure/storage.tf"
+    statement: >-
+      Aprobado el 2026-11-12. La cuenta de imagenes no puede negar el trafico por red porque los telefonos leen las
+      fotos publicas de los negocios directo del Blob. Las fotos de mascotas siguen en un contenedor privado con SAS
+      de 15 minutos y la cuenta no tiene llaves compartidas. Se cierra con pm-082 (CDN).
+    expired_at: 2027-02-12

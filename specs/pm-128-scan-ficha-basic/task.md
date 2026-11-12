@@ -11,7 +11,7 @@
 
 ### T146 — Entregar la ficha básica a una tienda o estética autorizada
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-128
 - **Criterios propios:** pm-128#CA-01, pm-128#CA-02, pm-128#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

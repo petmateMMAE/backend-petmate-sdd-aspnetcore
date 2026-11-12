@@ -11,6 +11,8 @@ public sealed class CachePolicyTests
         "src/PetMate.Application/Caching/ICacheStore.cs",
         "src/PetMate.Infrastructure/Redis/RedisCacheStore.cs",
         "src/PetMate.Infrastructure/DependencyInjection/InfrastructureServiceCollectionExtensions.cs",
+        // pm-121: única excepción documentada, solo para datos públicos de negocios.
+        "src/PetMate.Application/Businesses/PublicBusinessUseCases.cs",
     ];
 
     [Fact]
@@ -43,7 +45,7 @@ public sealed class CachePolicyTests
         var policy = File.ReadAllText(Path.Combine(root, "docs/security/cache-policy.md"));
         var catalog = File.ReadAllText(Path.Combine(root, "docs/api/endpoints.md"));
 
-        foreach (var term in new[] { "Público", "Privado", "Personal", "Sensible", "TTL", "ningún endpoint usa la caché" })
+        foreach (var term in new[] { "Público", "Privado", "Personal", "Sensible", "TTL", "solo las lecturas públicas de negocios usan la caché" })
         {
             Assert.Contains(term, policy, StringComparison.OrdinalIgnoreCase);
         }

@@ -11,7 +11,7 @@
 
 ### T145 — Entregar la ficha completa a una veterinaria autorizada
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente)
 - **Spec principal:** pm-127
 - **Criterios propios:** pm-127#CA-01, pm-127#CA-02, pm-127#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

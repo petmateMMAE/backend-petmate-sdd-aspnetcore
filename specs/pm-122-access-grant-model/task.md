@@ -11,7 +11,7 @@
 
 ### T140 — Modelar la autorización de acceso a una mascota
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-122
 - **Criterios propios:** pm-122#CA-01, pm-122#CA-02, pm-122#CA-03, pm-122#CA-04
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

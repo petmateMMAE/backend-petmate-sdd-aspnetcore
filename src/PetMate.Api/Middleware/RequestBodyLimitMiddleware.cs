@@ -13,11 +13,20 @@ public sealed class RequestBodyLimitMiddleware(RequestDelegate next)
 {
     public const long MaxRequestBodyBytes = 16 * 1024;
 
+    /// <summary>
+    /// Las rutas de carga de imágenes (pm-080) son la excepción: llevan un archivo, no JSON. El tope cubre la foto
+    /// más grande permitida (2 MB) más el envoltorio multipart; el tamaño real de la imagen lo revisa el endpoint.
+    /// </summary>
+    public const long MaxImageBodyBytes = (2 * 1024 * 1024) + (64 * 1024);
+
+    private const string UploadPhotoSegment = "/upload-photo";
+
     public async Task InvokeAsync(HttpContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        if (context.Request.ContentLength > MaxRequestBodyBytes)
+        var limit = IsImageUpload(context.Request.Path) ? MaxImageBodyBytes : MaxRequestBodyBytes;
+        if (context.Request.ContentLength > limit)
         {
             await ApiResponseFactory.WriteAsync<object?>(
                 context,
@@ -30,9 +39,12 @@ public sealed class RequestBodyLimitMiddleware(RequestDelegate next)
         var feature = context.Features.Get<IHttpMaxRequestBodySizeFeature>();
         if (feature is { IsReadOnly: false })
         {
-            feature.MaxRequestBodySize = MaxRequestBodyBytes;
+            feature.MaxRequestBodySize = limit;
         }
 
         await next(context);
     }
+
+    private static bool IsImageUpload(PathString path)
+        => path.HasValue && path.Value.Contains(UploadPhotoSegment, StringComparison.OrdinalIgnoreCase);
 }

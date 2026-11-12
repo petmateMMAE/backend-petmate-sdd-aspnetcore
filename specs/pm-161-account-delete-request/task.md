@@ -11,7 +11,7 @@
 
 ### T179 — Eliminar la cuenta con confirmación de contraseña
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md)
 - **Spec principal:** pm-161
 - **Criterios propios:** pm-161#CA-01, pm-161#CA-02, pm-161#CA-03, pm-161#CA-04
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

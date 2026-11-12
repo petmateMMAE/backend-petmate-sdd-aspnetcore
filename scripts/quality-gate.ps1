@@ -107,6 +107,9 @@ Step 'NuGet: auditoría de licencias (lista permitida, costo $0)' {
         if (-not $license) { $license = $xml.package.metadata.licenseUrl }
         # URL de licencia verificada manualmente: xunit.abstractions publica la licencia Apache-2.0 del proyecto xunit.
         if ($license -like 'https://raw.githubusercontent.com/xunit/xunit/*license.txt') { $license = 'Apache-2.0' }
+        # Licencia declarada como archivo, verificada a mano: el LICENSE.txt de Apache.Arrow es la Apache License 2.0
+        # y su autor es The Apache Software Foundation. Llega como dependencia transitiva de Azure.Storage.Blobs (pm-079).
+        if ($package.id -eq 'Apache.Arrow' -and $license -eq 'LICENSE.txt') { $license = 'Apache-2.0' }
         $isMicrosoft = $xml.package.metadata.authors -match 'Microsoft' -or $package.id -like 'Microsoft.*' -or $package.id -like 'System.*'
         if (($license -notin $allowed) -and -not ($isMicrosoft -and ($license -in $allowed -or $license -match 'dotnet|microsoft|aka\.ms|MS-EULA'))) {
             $unknown += "$($package.id) $($package.resolvedVersion): $license"

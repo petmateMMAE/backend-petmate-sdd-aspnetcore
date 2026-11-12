@@ -60,8 +60,17 @@ public sealed class Pet
 
     public PetSex Sex { get; private set; }
 
-    /// <summary>URL HTTPS de la fotografía. La carga de archivos llega con pm-079/pm-080; nunca se guarda en disco local.</summary>
+    /// <summary>
+    /// URL HTTPS de la fotografía cuando la escribió el cliente. Si la foto se subió a Blob (pm-080) queda
+    /// <c>null</c> y manda <see cref="PhotoObjectKey"/>: la foto es privada y su URL se pide aparte (pm-081).
+    /// </summary>
     public string? PhotoUrl { get; private set; }
+
+    /// <summary>
+    /// Clave del objeto en el contenedor privado cuando la foto se subió a Blob (pm-080). Nunca se publica:
+    /// el cliente recibe una URL temporal (pm-081).
+    /// </summary>
+    public string? PhotoObjectKey { get; private set; }
 
     /// <summary>QR permanente de la mascota (pm-093). Nunca se incluye en las respuestas de mascotas.</summary>
     public PetQr Qr { get; private set; }
@@ -75,6 +84,31 @@ public sealed class Pet
     {
         var now = Guard.Utc(nowUtc, nameof(nowUtc));
         return new Pet(Guid.CreateVersion7(), Guard.NotEmpty(ownerId, nameof(ownerId)), Normalize(details, now), PetQr.Generate(), now, now);
+    }
+
+    /// <summary>
+    /// Asocia la foto recién subida a Blob (pm-080). Sustituye a cualquier URL escrita a mano: una mascota tiene
+    /// una sola foto. Quien llama se encarga de borrar el objeto anterior.
+    /// </summary>
+    public void AttachPhoto(string objectKey, DateTime nowUtc)
+    {
+        var trimmed = objectKey?.Trim();
+        if (string.IsNullOrEmpty(trimmed) || trimmed.Length > MaxPhotoUrlLength || trimmed.Any(char.IsControl))
+        {
+            throw new DomainException("La clave de la fotografía no es válida.");
+        }
+
+        PhotoObjectKey = trimmed;
+        PhotoUrl = null;
+        UpdatedAtUtc = Guard.Utc(nowUtc, nameof(nowUtc));
+    }
+
+    /// <summary>Quita la foto, venga de Blob o de una URL escrita a mano.</summary>
+    public void RemovePhoto(DateTime nowUtc)
+    {
+        PhotoObjectKey = null;
+        PhotoUrl = null;
+        UpdatedAtUtc = Guard.Utc(nowUtc, nameof(nowUtc));
     }
 
     /// <summary>Genera un QR nuevo (pm-095). El anterior deja de ser válido de inmediato.</summary>
@@ -94,12 +128,14 @@ public sealed class Pet
         Breed = normalized.Breed;
         BirthDate = normalized.BirthDate;
         Sex = normalized.Sex;
+        // La foto subida a Blob manda sobre cualquier URL escrita a mano y solo se quita con delete-photo (pm-080),
+        // así que una actualización de datos no la toca ni deja objetos huérfanos.
         PhotoUrl = normalized.PhotoUrl;
         UpdatedAtUtc = now;
     }
 
     /// <summary>Rehidrata una mascota persistida y vuelve a validar sus invariantes. Interno: Infrastructure y pruebas.</summary>
-    internal static Pet Restore(Guid id, Guid ownerId, PetDetails details, DateTime createdAtUtc, DateTime updatedAtUtc, PetQr? qr = null)
+    internal static Pet Restore(Guid id, Guid ownerId, PetDetails details, DateTime createdAtUtc, DateTime updatedAtUtc, PetQr? qr = null, string? photoObjectKey = null)
     {
         var created = Guard.Utc(createdAtUtc, nameof(createdAtUtc));
         var updated = Guard.Utc(updatedAtUtc, nameof(updatedAtUtc));
@@ -109,7 +145,9 @@ public sealed class Pet
         }
 
         // La fecha de nacimiento se valida contra la última modificación: así un registro antiguo sigue siendo válido.
-        return new Pet(Guard.NotEmpty(id, nameof(id)), Guard.NotEmpty(ownerId, nameof(ownerId)), Normalize(details, updated, legacySpecies: true), qr ?? PetQr.Generate(), created, updated);
+        var pet = new Pet(Guard.NotEmpty(id, nameof(id)), Guard.NotEmpty(ownerId, nameof(ownerId)), Normalize(details, updated, legacySpecies: true), qr ?? PetQr.Generate(), created, updated);
+        pet.PhotoObjectKey = string.IsNullOrWhiteSpace(photoObjectKey) ? null : photoObjectKey.Trim();
+        return pet;
     }
 
     public static bool IsValidName(string? value) => IsValidText(value, MaxNameLength, required: true);
