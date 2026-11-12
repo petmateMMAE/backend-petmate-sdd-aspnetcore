@@ -21,7 +21,7 @@ namespace PetMate.Api.Controllers;
 [Authorize(Policy = AuthorizationPolicies.RequireUser)]
 [Route("api/v1/pets")]
 [EnableRateLimiting(RateLimitPolicy)]
-public sealed class PetsController(ISender sender) : ControllerBase
+public sealed class PetsController(ISender sender, IImageStorage storage) : ControllerBase
 {
     /// <summary>Política de límite por usuario (<c>PETS_RATE_LIMIT_PER_MINUTE</c>, por defecto 60 por minuto).</summary>
     public const string RateLimitPolicy = "pets";
@@ -163,7 +163,7 @@ public sealed class PetsController(ISender sender) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status413PayloadTooLarge)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status503ServiceUnavailable)]
-    public async Task<ObjectResult> UploadPhoto(Guid id, [FromServices] IImageStorage storage, CancellationToken cancellationToken)
+    public async Task<ObjectResult> UploadPhoto(Guid id, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(storage);
         if (!TryGetOwnerId(out var ownerId))

@@ -72,7 +72,7 @@ public abstract class BusinessControllerBase(ISender sender) : ControllerBase
 
 /// <summary>Negocio afiliado de la cuenta (pm-107 a pm-110).</summary>
 [Route("api/v1/businesses")]
-public sealed class BusinessesController(ISender sender) : BusinessControllerBase(sender)
+public sealed class BusinessesController(ISender sender, IImageStorage storage) : BusinessControllerBase(sender)
 {
     [HttpPost("create")]
     [ProducesResponseType(typeof(ApiResponse<BusinessResponse>), StatusCodes.Status201Created)]
@@ -163,7 +163,7 @@ public sealed class BusinessesController(ISender sender) : BusinessControllerBas
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status413PayloadTooLarge)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status503ServiceUnavailable)]
-    public async Task<ObjectResult> UploadPhoto([FromServices] IImageStorage storage, CancellationToken cancellationToken)
+    public async Task<ObjectResult> UploadPhoto(CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(storage);
         if (!TryGetOwnerId(out var ownerId))
