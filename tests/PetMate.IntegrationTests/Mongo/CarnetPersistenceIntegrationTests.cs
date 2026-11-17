@@ -75,7 +75,7 @@ public sealed class CarnetPersistenceIntegrationTests
             await context.Allergies.Add(Allergy.Create(target.Id, owner, RecordProvenance.ByOwner, new AllergyDetails("Pollo", AllergyKind.Allergy, null, null), now), CancellationToken.None);
         }
 
-        var handler = new DeleteMyPetHandler(context.Pets, context.Vaccines, context.Dewormings, context.Weights, context.Allergies);
+        var handler = new DeleteMyPetHandler(context.Pets, context.Vaccines, context.Dewormings, context.Weights, context.Allergies, new PetMate.TestDoubles.InMemoryAccessGrantRepository(), new PetMate.TestDoubles.InMemoryScanLogRepository(), new PetMate.TestDoubles.InMemoryConsultationRepository(), new PetMate.TestDoubles.InMemoryFollowupRepository(), new PetMate.TestDoubles.InMemoryConversationRepository(), new PetMate.TestDoubles.InMemoryMessageRepository(), new PetMate.TestDoubles.InMemoryImageStorage());
         Assert.True(await handler.Handle(new DeleteMyPetCommand(owner, pet.Id), CancellationToken.None));
 
         Assert.Null(await context.Pets.FindOwned(pet.Id, owner, CancellationToken.None));

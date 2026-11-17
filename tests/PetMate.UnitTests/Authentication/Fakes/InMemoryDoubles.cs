@@ -63,6 +63,9 @@ public sealed class InMemoryPetRepository : IPetRepository
         return Task.FromResult(pets.TryGetValue(pet.Id, out var stored) && stored.OwnerId == pet.OwnerId);
     }
 
+    public Task<Pet?> FindByQr(string tokenOrCode, CancellationToken cancellationToken)
+        => Task.FromResult(pets.Values.FirstOrDefault(p => p.Qr.Token == tokenOrCode || string.Equals(p.Qr.Code, tokenOrCode, StringComparison.OrdinalIgnoreCase)));
+
     public Task<bool> ReplaceQrOwned(Pet pet, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(pet);
@@ -160,6 +163,470 @@ public sealed class InMemoryUserRepository : IUserRepository
 }
 
 /// <summary>Repositorio de sesiones en memoria; <c>TryConsumeToken</c> es atómico (lock), como el update condicional de Atlas.</summary>
+/// <summary>Consultas en memoria.</summary>
+public sealed class InMemoryConsultationRepository()
+    : InMemoryHealthRecordRepository<PetMate.Domain.Carnet.Consultation>(items => items.OrderByDescending(c => c.ConsultedOn).ThenByDescending(c => c.Id)), PetMate.Application.Access.IConsultationRepository
+{
+    public Task<PetMate.Domain.Carnet.Consultation?> FindByIdForBusiness(Guid consultationId, Guid businessId, CancellationToken cancellationToken)
+        => Task.FromResult(All.FirstOrDefault(c => c.Id == consultationId && c.Provenance.BusinessId == businessId));
+
+    public Task<bool> ReplaceForBusiness(PetMate.Domain.Carnet.Consultation consultation, Guid businessId, CancellationToken cancellationToken)
+        => Task.FromResult(consultation.Provenance.BusinessId == businessId && All.Any(c => c.Id == consultation.Id));
+}
+
+/// <summary>Seguimientos en memoria con unicidad por consulta.</summary>
+public sealed class InMemoryFollowupRepository : PetMate.Application.Followups.IFollowupRepository
+{
+    private readonly List<PetMate.Domain.Followups.Followup> items = [];
+
+    public IReadOnlyCollection<PetMate.Domain.Followups.Followup> All
+    {
+        get
+        {
+            lock (items)
+            {
+                return [.. items];
+            }
+        }
+    }
+
+    public Task<bool> TryAdd(PetMate.Domain.Followups.Followup followup, CancellationToken cancellationToken)
+    {
+        lock (items)
+        {
+            if (items.Any(f => f.ConsultationId == followup.ConsultationId))
+            {
+                return Task.FromResult(false);
+            }
+
+            items.Add(followup);
+            return Task.FromResult(true);
+        }
+    }
+
+    public Task<PetMate.Domain.Followups.Followup?> FindForBusiness(Guid followupId, Guid businessId, CancellationToken cancellationToken)
+        => Task.FromResult(All.FirstOrDefault(f => f.Id == followupId && f.BusinessId == businessId));
+
+    public Task<PetMate.Domain.Followups.Followup?> FindByConsultation(Guid consultationId, Guid ownerId, CancellationToken cancellationToken)
+        => Task.FromResult(All.FirstOrDefault(f => f.ConsultationId == consultationId && f.OwnerId == ownerId));
+
+    public Task<PetMate.Domain.Followups.Followup?> FindById(Guid followupId, CancellationToken cancellationToken)
+        => Task.FromResult(All.FirstOrDefault(f => f.Id == followupId));
+
+    public Task<bool> Update(PetMate.Domain.Followups.Followup followup, CancellationToken cancellationToken)
+        => Task.FromResult(All.Any(f => f.Id == followup.Id && f.BusinessId == followup.BusinessId));
+
+    private IEnumerable<PetMate.Domain.Followups.Followup> Filter(Guid businessId, DateOnly? reviewOn, bool onlyActive)
+        => All.Where(f => f.BusinessId == businessId && (reviewOn is null || f.NextReviewOn == reviewOn) && (!onlyActive || f.Status != PetMate.Domain.Followups.FollowupStatus.Discharged));
+
+    public Task<IReadOnlyList<PetMate.Domain.Followups.Followup>> ListByBusiness(Guid businessId, DateOnly? reviewOn, bool onlyActive, int skip, int take, CancellationToken cancellationToken)
+        => Task.FromResult<IReadOnlyList<PetMate.Domain.Followups.Followup>>(Filter(businessId, reviewOn, onlyActive).OrderByDescending(f => f.UpdatedAtUtc).ThenByDescending(f => f.Id).Skip(skip).Take(take).ToArray());
+
+    public Task<long> CountByBusiness(Guid businessId, DateOnly? reviewOn, bool onlyActive, CancellationToken cancellationToken)
+        => Task.FromResult((long)Filter(businessId, reviewOn, onlyActive).Count());
+
+    public Task<long> DeleteByPet(Guid petId, CancellationToken cancellationToken)
+    {
+        lock (items)
+        {
+            return Task.FromResult((long)items.RemoveAll(f => f.PetId == petId));
+        }
+    }
+}
+
+/// <summary>Conversaciones en memoria con secuencia atómica.</summary>
+public sealed class InMemoryConversationRepository : PetMate.Application.Followups.IConversationRepository
+{
+    private readonly object gate = new();
+    private readonly List<ConversationState> items = [];
+
+    private sealed class ConversationState(PetMate.Domain.Chat.Conversation initial)
+    {
+        public PetMate.Domain.Chat.Conversation Value { get; set; } = initial;
+
+        public long LastSeq { get; set; }
+
+        public long OwnerRead { get; set; }
+
+        public long BusinessRead { get; set; }
+
+        public bool Closed { get; set; }
+
+        public DateTime UpdatedAt { get; set; } = initial.UpdatedAtUtc;
+    }
+
+    private static PetMate.Domain.Chat.Conversation Snapshot(ConversationState s)
+        => PetMate.Domain.Chat.Conversation.Restore(s.Value.Id, s.Value.FollowupId, s.Value.PetId, s.Value.OwnerAccountId, s.Value.BusinessId, s.Value.BusinessAccountId, s.Closed, s.LastSeq, s.OwnerRead, s.BusinessRead, s.Value.CreatedAtUtc, s.UpdatedAt);
+
+    public Task<bool> TryAdd(PetMate.Domain.Chat.Conversation conversation, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            if (items.Any(s => s.Value.FollowupId == conversation.FollowupId))
+            {
+                return Task.FromResult(false);
+            }
+
+            items.Add(new ConversationState(conversation));
+            return Task.FromResult(true);
+        }
+    }
+
+    public Task<PetMate.Domain.Chat.Conversation?> FindById(Guid conversationId, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            var state = items.FirstOrDefault(s => s.Value.Id == conversationId);
+            return Task.FromResult(state is null ? null : Snapshot(state));
+        }
+    }
+
+    public Task<PetMate.Domain.Chat.Conversation?> FindByFollowup(Guid followupId, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            var state = items.FirstOrDefault(s => s.Value.FollowupId == followupId);
+            return Task.FromResult(state is null ? null : Snapshot(state));
+        }
+    }
+
+    public Task<IReadOnlyList<PetMate.Domain.Chat.Conversation>> ListForAccount(Guid accountId, int skip, int take, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            return Task.FromResult<IReadOnlyList<PetMate.Domain.Chat.Conversation>>(items.Where(s => s.Value.HasParticipant(accountId)).OrderByDescending(s => s.UpdatedAt).ThenByDescending(s => s.Value.Id).Skip(skip).Take(take).Select(Snapshot).ToArray());
+        }
+    }
+
+    public Task<long> CountForAccount(Guid accountId, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            return Task.FromResult((long)items.Count(s => s.Value.HasParticipant(accountId)));
+        }
+    }
+
+    public Task<long> NextSeq(Guid conversationId, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            var state = items.First(s => s.Value.Id == conversationId);
+            state.LastSeq++;
+            state.UpdatedAt = nowUtc;
+            return Task.FromResult(state.LastSeq);
+        }
+    }
+
+    public Task MarkRead(Guid conversationId, bool businessSide, long upToSeq, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            var state = items.First(s => s.Value.Id == conversationId);
+            if (businessSide)
+            {
+                state.BusinessRead = Math.Max(state.BusinessRead, upToSeq);
+            }
+            else
+            {
+                state.OwnerRead = Math.Max(state.OwnerRead, upToSeq);
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task SetClosed(Guid conversationId, bool closed, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            var state = items.First(s => s.Value.Id == conversationId);
+            state.Closed = closed;
+            state.UpdatedAt = nowUtc;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task<IReadOnlyList<Guid>> IdsByPet(Guid petId, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            return Task.FromResult<IReadOnlyList<Guid>>(items.Where(s => s.Value.PetId == petId).Select(s => s.Value.Id).ToArray());
+        }
+    }
+
+    public Task<long> DeleteByPet(Guid petId, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            return Task.FromResult((long)items.RemoveAll(s => s.Value.PetId == petId));
+        }
+    }
+
+    public int Count
+    {
+        get
+        {
+            lock (gate)
+            {
+                return items.Count;
+            }
+        }
+    }
+}
+
+/// <summary>Mensajes en memoria.</summary>
+public sealed class InMemoryMessageRepository : PetMate.Application.Followups.IMessageRepository
+{
+    private readonly List<PetMate.Domain.Chat.Message> items = [];
+
+    public IReadOnlyCollection<PetMate.Domain.Chat.Message> All
+    {
+        get
+        {
+            lock (items)
+            {
+                return [.. items];
+            }
+        }
+    }
+
+    public Task Add(PetMate.Domain.Chat.Message message, CancellationToken cancellationToken)
+    {
+        lock (items)
+        {
+            items.Add(message);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task<IReadOnlyList<PetMate.Domain.Chat.Message>> List(Guid conversationId, long afterSeq, int take, CancellationToken cancellationToken)
+        => Task.FromResult<IReadOnlyList<PetMate.Domain.Chat.Message>>(All.Where(m => m.ConversationId == conversationId && m.Seq > afterSeq).OrderBy(m => m.Seq).Take(take).ToArray());
+
+    public Task<PetMate.Domain.Chat.Message?> Find(Guid conversationId, Guid messageId, CancellationToken cancellationToken)
+        => Task.FromResult(All.FirstOrDefault(m => m.ConversationId == conversationId && m.Id == messageId));
+
+    public Task<PetMate.Domain.Chat.Message?> Last(Guid conversationId, CancellationToken cancellationToken)
+        => Task.FromResult(All.Where(m => m.ConversationId == conversationId).OrderByDescending(m => m.Seq).FirstOrDefault());
+
+    public Task<long> CountUnread(Guid conversationId, long afterSeq, Guid exceptSender, CancellationToken cancellationToken)
+        => Task.FromResult((long)All.Count(m => m.ConversationId == conversationId && m.Seq > afterSeq && m.SenderAccountId != exceptSender));
+
+    public Task<long> DeleteByConversations(IReadOnlyCollection<Guid> conversationIds, CancellationToken cancellationToken)
+    {
+        lock (items)
+        {
+            return Task.FromResult((long)items.RemoveAll(m => conversationIds.Contains(m.ConversationId)));
+        }
+    }
+}
+
+/// <summary>Autorizaciones de acceso en memoria.</summary>
+public sealed class InMemoryAccessGrantRepository : PetMate.Application.Access.IAccessGrantRepository
+{
+    private readonly List<PetMate.Domain.Access.AccessGrant> grants = [];
+
+    public IReadOnlyCollection<PetMate.Domain.Access.AccessGrant> All
+    {
+        get
+        {
+            lock (grants)
+            {
+                return [.. grants];
+            }
+        }
+    }
+
+    public Task Add(PetMate.Domain.Access.AccessGrant grant, CancellationToken cancellationToken)
+    {
+        lock (grants)
+        {
+            grants.Add(grant);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task<IReadOnlyList<PetMate.Domain.Access.AccessGrant>> FindActive(Guid petId, Guid businessId, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        lock (grants)
+        {
+            return Task.FromResult<IReadOnlyList<PetMate.Domain.Access.AccessGrant>>(grants.Where(g => g.PetId == petId && g.IsActiveAt(nowUtc) && g.Covers(businessId)).ToArray());
+        }
+    }
+
+    public Task<long> CancelActiveForPet(Guid petId, Guid ownerId, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        lock (grants)
+        {
+            var active = grants.Where(g => g.PetId == petId && g.OwnerId == ownerId && g.IsActiveAt(nowUtc)).ToArray();
+            foreach (var grant in active)
+            {
+                grant.Cancel(nowUtc);
+            }
+
+            return Task.FromResult((long)active.Length);
+        }
+    }
+
+    public Task<long> DeleteByPet(Guid petId, Guid ownerId, CancellationToken cancellationToken)
+    {
+        lock (grants)
+        {
+            return Task.FromResult((long)grants.RemoveAll(g => g.PetId == petId && g.OwnerId == ownerId));
+        }
+    }
+}
+
+/// <summary>Registro de escaneos en memoria.</summary>
+public sealed class InMemoryScanLogRepository : PetMate.Application.Access.IScanLogRepository
+{
+    private readonly List<PetMate.Domain.Access.ScanLog> logs = [];
+
+    public IReadOnlyCollection<PetMate.Domain.Access.ScanLog> All
+    {
+        get
+        {
+            lock (logs)
+            {
+                return [.. logs];
+            }
+        }
+    }
+
+    public Task Add(PetMate.Domain.Access.ScanLog log, CancellationToken cancellationToken)
+    {
+        lock (logs)
+        {
+            logs.Add(log);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task<IReadOnlyList<PetMate.Domain.Access.ScanLog>> ListByBusiness(Guid businessId, DateTime? sinceUtc, int skip, int take, CancellationToken cancellationToken)
+        => Task.FromResult<IReadOnlyList<PetMate.Domain.Access.ScanLog>>(All.Where(l => l.BusinessId == businessId && (sinceUtc is null || l.AtUtc >= sinceUtc)).OrderByDescending(l => l.AtUtc).ThenByDescending(l => l.Id).Skip(skip).Take(take).ToArray());
+
+    public Task<long> CountByBusiness(Guid businessId, DateTime? sinceUtc, CancellationToken cancellationToken)
+        => Task.FromResult((long)All.Count(l => l.BusinessId == businessId && (sinceUtc is null || l.AtUtc >= sinceUtc)));
+
+    public Task<long> DeleteByPet(Guid petId, CancellationToken cancellationToken)
+    {
+        lock (logs)
+        {
+            return Task.FromResult((long)logs.RemoveAll(l => l.PetId == petId));
+        }
+    }
+}
+
+/// <summary>Caché en memoria para las pruebas.</summary>
+public sealed class InMemoryCacheStore : PetMate.Application.Caching.ICacheStore
+{
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, string> items = new();
+
+    public bool Failing { get; set; }
+
+    public int Count => items.Count;
+
+    public Task<string?> Read(PetMate.Application.Caching.CacheKey key, CancellationToken cancellationToken)
+        => Task.FromResult(!Failing && items.TryGetValue(key.Value, out var value) ? value : null);
+
+    public Task<bool> Write(PetMate.Application.Caching.CacheKey key, string value, TimeSpan ttl, CancellationToken cancellationToken)
+    {
+        if (Failing)
+        {
+            return Task.FromResult(false);
+        }
+
+        items[key.Value] = value;
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> Remove(PetMate.Application.Caching.CacheKey key, CancellationToken cancellationToken) => Task.FromResult(items.TryRemove(key.Value, out _));
+}
+
+/// <summary>Negocios en memoria con unicidad por cuenta (equivale al índice único de Atlas).</summary>
+public sealed class InMemoryBusinessRepository : PetMate.Application.Businesses.IBusinessRepository
+{
+    private readonly ConcurrentDictionary<Guid, PetMate.Domain.Businesses.Business> byOwner = new();
+
+    public IReadOnlyCollection<PetMate.Domain.Businesses.Business> All => byOwner.Values.ToArray();
+
+    public Task<bool> TryAdd(PetMate.Domain.Businesses.Business business, CancellationToken cancellationToken)
+        => Task.FromResult(byOwner.TryAdd(business.OwnerId, business));
+
+    public Task<PetMate.Domain.Businesses.Business?> FindByOwner(Guid ownerId, CancellationToken cancellationToken)
+        => Task.FromResult(byOwner.TryGetValue(ownerId, out var business) ? business : null);
+
+    public Task<PetMate.Domain.Businesses.Business?> FindById(Guid businessId, CancellationToken cancellationToken)
+        => Task.FromResult(byOwner.Values.FirstOrDefault(b => b.Id == businessId));
+
+    public Task<PetMate.Application.Businesses.NearbyPage> FindNearby(PetMate.Application.Businesses.NearbyQuery query, CancellationToken cancellationToken)
+    {
+        var key = string.IsNullOrEmpty(query.SearchKey) ? null : query.SearchKey;
+        var hits = byOwner.Values
+            .Where(b => query.Types is null or { Count: 0 } || query.Types.Contains(b.Type))
+            .Where(b => key is null || PetMate.Domain.Businesses.Business.SearchKey(b.Name).Contains(key, StringComparison.Ordinal))
+            .Select(b => new PetMate.Application.Businesses.NearbyHit(b, Haversine(query.Latitude, query.Longitude, b.Latitude, b.Longitude)))
+            .Where(h => h.DistanceMeters <= query.RadiusMeters)
+            .OrderBy(h => h.DistanceMeters).ThenBy(h => h.Business.Id)
+            .ToArray();
+        return Task.FromResult(new PetMate.Application.Businesses.NearbyPage(hits.Skip(query.Skip).Take(query.Take).ToArray(), hits.Length));
+    }
+
+    private static double Haversine(double lat1, double lng1, double lat2, double lng2)
+    {
+        const double R = 6371008.8;
+        var dLat = (lat2 - lat1) * Math.PI / 180;
+        var dLng = (lng2 - lng1) * Math.PI / 180;
+        var a = (Math.Sin(dLat / 2) * Math.Sin(dLat / 2)) + (Math.Cos(lat1 * Math.PI / 180) * Math.Cos(lat2 * Math.PI / 180) * Math.Sin(dLng / 2) * Math.Sin(dLng / 2));
+        return R * 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+    }
+
+    public Task<bool> UpdateOwned(PetMate.Domain.Businesses.Business business, CancellationToken cancellationToken)
+        => Task.FromResult(byOwner.TryGetValue(business.OwnerId, out var stored) && stored.Id == business.Id);
+
+    public Task<bool> DeleteByOwner(Guid ownerId, CancellationToken cancellationToken)
+        => Task.FromResult(byOwner.TryRemove(ownerId, out _));
+}
+
+/// <summary>Catálogo de servicios en memoria.</summary>
+public sealed class InMemoryBusinessServiceRepository : PetMate.Application.Businesses.IBusinessServiceRepository
+{
+    private readonly ConcurrentDictionary<Guid, PetMate.Domain.Businesses.BusinessService> items = new();
+
+    public IReadOnlyCollection<PetMate.Domain.Businesses.BusinessService> All => items.Values.ToArray();
+
+    public Task Add(PetMate.Domain.Businesses.BusinessService service, CancellationToken cancellationToken)
+    {
+        items[service.Id] = service;
+        return Task.CompletedTask;
+    }
+
+    public Task<long> CountByBusiness(Guid businessId, CancellationToken cancellationToken)
+        => Task.FromResult((long)items.Values.Count(s => s.BusinessId == businessId));
+
+    public Task<IReadOnlyList<PetMate.Domain.Businesses.BusinessService>> ListByBusiness(Guid businessId, int skip, int take, CancellationToken cancellationToken)
+        => Task.FromResult<IReadOnlyList<PetMate.Domain.Businesses.BusinessService>>(items.Values.Where(s => s.BusinessId == businessId)
+            .OrderBy(s => s.CreatedAtUtc).ThenBy(s => s.Id).Skip(skip).Take(take).ToArray());
+
+    public Task<PetMate.Domain.Businesses.BusinessService?> FindOwned(Guid serviceId, Guid businessId, CancellationToken cancellationToken)
+        => Task.FromResult(items.TryGetValue(serviceId, out var s) && s.BusinessId == businessId ? s : null);
+
+    public Task<bool> UpdateOwned(PetMate.Domain.Businesses.BusinessService service, CancellationToken cancellationToken)
+        => Task.FromResult(items.TryGetValue(service.Id, out var s) && s.BusinessId == service.BusinessId);
+
+    public Task<bool> DeleteOwned(Guid serviceId, Guid businessId, CancellationToken cancellationToken)
+        => Task.FromResult(items.TryGetValue(serviceId, out var s) && s.BusinessId == businessId && items.TryRemove(serviceId, out _));
+
+    public Task<long> DeleteByBusiness(Guid businessId, CancellationToken cancellationToken)
+    {
+        var ids = items.Values.Where(s => s.BusinessId == businessId).Select(s => s.Id).ToArray();
+        return Task.FromResult((long)ids.Count(id => items.TryRemove(id, out _)));
+    }
+}
+
 /// <summary>Correo falso: guarda los envíos para comprobarlos y puede simular un fallo del proveedor.</summary>
 public sealed class FakeEmailSender : PetMate.Application.Authentication.IEmailSender
 {

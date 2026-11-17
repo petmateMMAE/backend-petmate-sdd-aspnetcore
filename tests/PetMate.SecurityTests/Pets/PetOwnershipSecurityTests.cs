@@ -25,8 +25,12 @@ public sealed class PetOwnershipSecurityTests
     public void Every_repository_operation_except_add_requires_the_owner()
     {
         // Add, UpdateOwned y ReplaceQrOwned reciben la entidad, que lleva su propietario; los dos últimos filtran por Id y OwnerId de la entidad.
+        // FindByQr es la única lectura sin dueño (pm-125): solo la usa el escaneo de un negocio, que exige una autorización vigente.
         string[] entityBased = [nameof(IPetRepository.Add), nameof(IPetRepository.UpdateOwned), nameof(IPetRepository.ReplaceQrOwned)];
-        var methods = typeof(IPetRepository).GetMethods().Where(m => !entityBased.Contains(m.Name)).ToArray();
+        var methods = typeof(IPetRepository).GetMethods().Where(m => !entityBased.Contains(m.Name) && m.Name != nameof(IPetRepository.FindByQr)).ToArray();
+
+        // La única lectura sin dueño recibe solo el token o código del QR.
+        Assert.Equal([typeof(string), typeof(CancellationToken)], typeof(IPetRepository).GetMethod(nameof(IPetRepository.FindByQr))!.GetParameters().Select(p => p.ParameterType));
 
         Assert.NotEmpty(methods);
         Assert.All(methods, method => Assert.Contains(method.GetParameters(), p => OwnerNames.Contains(p.Name, StringComparer.Ordinal) && p.ParameterType == typeof(Guid)));

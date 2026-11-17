@@ -11,7 +11,7 @@
 
 ### T126 — Actualizar la ubicación del negocio
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-108
 - **Criterios propios:** pm-108#CA-01, pm-108#CA-02, pm-108#CA-03, pm-108#CA-04
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

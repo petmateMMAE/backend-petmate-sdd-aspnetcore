@@ -11,7 +11,7 @@
 
 ### T167 — Llevar el estado de lectura del chat
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque)
 - **Spec principal:** pm-149
 - **Criterios propios:** pm-149#CA-01, pm-149#CA-02, pm-149#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

@@ -11,7 +11,7 @@
 
 ### T177 — Avisar al otro participante de un mensaje nuevo
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md)
 - **Spec principal:** pm-159
 - **Criterios propios:** pm-159#CA-01, pm-159#CA-02, pm-159#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

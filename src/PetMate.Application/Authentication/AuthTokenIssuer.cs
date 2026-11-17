@@ -10,8 +10,13 @@ public sealed class AuthTokenIssuer(
     ISessionRepository sessions,
     IRefreshTokenFactory refreshTokens,
     IAccessTokenService accessTokens,
-    SessionPolicy policy)
+    SessionPolicy policy,
+    PetMate.Application.Businesses.IBusinessRepository? businesses = null)
 {
+    /// <summary>Tipo del negocio asociado a la cuenta o <c>null</c> (pm-087, pm-107#CA-04). Lo calcula el servidor.</summary>
+    public async Task<string?> FindBusinessType(Guid userId, CancellationToken cancellationToken)
+        => businesses is null ? null : (await businesses.FindByOwner(userId, cancellationToken).ConfigureAwait(false))?.Type.ToString();
+
     public async Task<AuthTokensResult> StartSession(User user, DateTime nowUtc, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(user);
@@ -29,6 +34,6 @@ public sealed class AuthTokenIssuer(
             user.Email.Value,
             user.Role,
             user.DisplayName,
-            BusinessType: null);
+            BusinessType: await FindBusinessType(user.Id, cancellationToken).ConfigureAwait(false));
     }
 }

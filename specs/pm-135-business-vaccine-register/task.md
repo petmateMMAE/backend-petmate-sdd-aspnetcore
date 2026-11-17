@@ -11,7 +11,7 @@
 
 ### T153 — Registrar una vacuna aplicada por la veterinaria
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque)
 - **Spec principal:** pm-135
 - **Criterios propios:** pm-135#CA-01, pm-135#CA-02, pm-135#CA-03, pm-135#CA-04
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

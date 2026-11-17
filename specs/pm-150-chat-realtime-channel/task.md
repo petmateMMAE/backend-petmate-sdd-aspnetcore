@@ -11,7 +11,7 @@
 
 ### T168 — Entregar los mensajes en tiempo real
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md)
 - **Spec principal:** pm-150
 - **Criterios propios:** pm-150#CA-01, pm-150#CA-02, pm-150#CA-03, pm-150#CA-04
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

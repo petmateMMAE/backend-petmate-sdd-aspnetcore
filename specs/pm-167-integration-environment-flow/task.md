@@ -11,7 +11,7 @@
 
 ### T185 — Documentar el flujo del entorno de integración con la app
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md)
 - **Spec principal:** pm-167
 - **Criterios propios:** pm-167#CA-01, pm-167#CA-02, pm-167#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

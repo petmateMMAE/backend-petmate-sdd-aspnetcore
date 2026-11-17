@@ -11,7 +11,7 @@
 
 ### T173 — Enviar los recordatorios vencidos
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md)
 - **Spec principal:** pm-155
 - **Criterios propios:** pm-155#CA-01, pm-155#CA-02, pm-155#CA-03, pm-155#CA-04
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

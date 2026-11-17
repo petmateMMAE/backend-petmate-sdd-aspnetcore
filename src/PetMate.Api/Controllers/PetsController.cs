@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using PetMate.Api.Authorization;
+using PetMate.Api.Contracts.Images;
 using PetMate.Api.Contracts.Pets;
 using PetMate.Api.Contracts.Responses;
+using PetMate.Application.Images;
 using PetMate.Application.Mediator;
 using PetMate.Application.Pets;
 using PetMate.Domain.Pets;
@@ -19,7 +21,7 @@ namespace PetMate.Api.Controllers;
 [Authorize(Policy = AuthorizationPolicies.RequireUser)]
 [Route("api/v1/pets")]
 [EnableRateLimiting(RateLimitPolicy)]
-public sealed class PetsController(ISender sender) : ControllerBase
+public sealed class PetsController(ISender sender, IImageStorage storage) : ControllerBase
 {
     /// <summary>Política de límite por usuario (<c>PETS_RATE_LIMIT_PER_MINUTE</c>, por defecto 60 por minuto).</summary>
     public const string RateLimitPolicy = "pets";
@@ -146,6 +148,86 @@ public sealed class PetsController(ISender sender) : ControllerBase
             ? ApiResponseFactory.Create<object?>(StatusCodes.Status200OK, "Mascota eliminada correctamente.", null)
             : Status(StatusCodes.Status404NotFound);
     }
+
+    /// <summary>
+    /// Sube o reemplaza la foto de una mascota propia (pm-080). Cuerpo <c>multipart/form-data</c> con el campo
+    /// <c>file</c>: JPEG, PNG o WebP de hasta 2 MB. El tipo se deduce de los bytes del archivo, no de su nombre.
+    /// La foto es privada: la respuesta trae una URL temporal (pm-081).
+    /// </summary>
+    [HttpPost("upload-photo/{id:guid}")]
+    [DisableFormValueModelBinding]
+    [ProducesResponseType(typeof(ApiResponse<PetPhotoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ObjectResult> UploadPhoto(Guid id, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(storage);
+        if (!TryGetOwnerId(out var ownerId))
+        {
+            return Status(StatusCodes.Status401Unauthorized);
+        }
+
+        if (!storage.IsEnabled)
+        {
+            return PhotoResponses.Unavailable();
+        }
+
+        var (rejection, photo) = await PhotoUploadReader.Read(Request, ImageContainer.PetPhotos, cancellationToken);
+        if (PhotoResponses.Rejected(rejection, ImageContainer.PetPhotos) is { } error)
+        {
+            return error;
+        }
+
+        using var accepted = photo!;
+        var result = await sender.Send(new UploadPetPhotoCommand(ownerId, id, accepted.ContentType, accepted.Content), cancellationToken);
+        return result is null
+            ? Status(StatusCodes.Status404NotFound)
+            : ApiResponseFactory.Create(StatusCodes.Status200OK, "Fotografía guardada correctamente.", ToPhotoResponse(result));
+    }
+
+    /// <summary>URL temporal de la foto de una mascota propia (pm-081); dura 15 minutos.</summary>
+    [HttpGet("get-photo-url/{id:guid}")]
+    [ProducesResponseType(typeof(ApiResponse<PetPhotoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
+    public async Task<ObjectResult> GetPhotoUrl(Guid id, CancellationToken cancellationToken)
+    {
+        if (!TryGetOwnerId(out var ownerId))
+        {
+            return Status(StatusCodes.Status401Unauthorized);
+        }
+
+        var result = await sender.Send(new GetPetPhotoUrlQuery(ownerId, id), cancellationToken);
+        return result is null
+            ? Status(StatusCodes.Status404NotFound)
+            : ApiResponseFactory.Create(StatusCodes.Status200OK, "Fotografía obtenida correctamente.", ToPhotoResponse(result));
+    }
+
+    /// <summary>Quita la foto de una mascota propia (pm-080).</summary>
+    [HttpDelete("delete-photo/{id:guid}")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status429TooManyRequests)]
+    public async Task<ObjectResult> DeletePhoto(Guid id, CancellationToken cancellationToken)
+    {
+        if (!TryGetOwnerId(out var ownerId))
+        {
+            return Status(StatusCodes.Status401Unauthorized);
+        }
+
+        return await sender.Send(new DeletePetPhotoCommand(ownerId, id), cancellationToken)
+            ? ApiResponseFactory.Create<object?>(StatusCodes.Status200OK, "Fotografía eliminada correctamente.", null)
+            : Status(StatusCodes.Status404NotFound);
+    }
+
+    private static PetPhotoResponse ToPhotoResponse(PetPhotoResult result)
+        => new(result.PetId, result.Url.AbsoluteUri, result.ExpiresAtUtc);
 
     private bool TryGetOwnerId(out Guid ownerId) => Guid.TryParse(User.FindFirst("sub")?.Value, out ownerId);
 

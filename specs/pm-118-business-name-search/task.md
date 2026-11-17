@@ -11,7 +11,7 @@
 
 ### T136 — Buscar negocios por nombre
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat)
 - **Spec principal:** pm-118
 - **Criterios propios:** pm-118#CA-01, pm-118#CA-02, pm-118#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

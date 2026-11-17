@@ -38,8 +38,8 @@ La preparación horizontal es obligatoria. Sin embargo, si Azure no ofrece varia
 | Load balancing / ingress | Ingress administrado del ambiente | Incluido | — | Es $0 | **Seleccionado** |
 | Redis Auth | Container App `redis:7.4`, TCP interno, TLS, AOF en Azure Files | ~USD 5/mes | Crédito | Redis administrado excede presupuesto | **Seleccionado** (enmienda §8.9) |
 | Redis Cache | Container App `redis:7.4`, TCP interno, TLS, LRU | ~USD 5/mes | Crédito | idem | **Seleccionado** (enmienda §8.9) |
-| Blob Storage | — | — | — | — | Diferido: sin endpoints de imágenes (pm-079…082) |
-| CDN | — | — | — | — | Diferido: sin endpoints de imágenes |
+| Blob Storage | Cuenta Standard LRS aparte, dos contenedores (fotos de mascotas privadas y de negocios publicas) | < USD 1/mes con los volumenes del proyecto (consulta 2026-11-12) | Credito Azure for Students | No hay forma de guardar imagenes a | Blob Storage | — | — | — | — | Diferido: sin endpoints de imágenes (pm-079…082) | | **Seleccionado** (pm-079 a pm-081, pm-111) |
+| CDN | - | - | - | - | Diferido: pm-082 sin aprobar; las fotos publicas se sirven directo del Blob (ADR-007) |
 | TLS certificate | Certificado administrado de `*.azurecontainerapps.io` | Incluido | — | Es $0 | **Seleccionado** |
 | Secret injection | Secretos de Container Apps (desde secretos de GitHub vía Terraform) | Incluido | — | Es $0 | **Seleccionado** (sin Key Vault) |
 

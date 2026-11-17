@@ -119,69 +119,69 @@
 | [pm-102-allergy-create-list](pm-102-allergy-create-list/spec.md) | Aprobado | L9 | pm-096 | T120 | El dueño registra y consulta las alergias y condiciones de su mascota con `POST /api/v1/allergies/create` y `GET /api/v1/allergies/get-all` |
 | [pm-103-allergy-update-status](pm-103-allergy-update-status/spec.md) | Aprobado | L10 | pm-102 | T121 | `PUT /api/v1/allergies/update/{id}` edita una alergia propia y cambia su estado entre activa y superada |
 | [pm-104-pet-delete-cascade](pm-104-pet-delete-cascade/spec.md) | Aprobado | L10 | pm-044, pm-093, pm-097, pm-099, pm-101, pm-102 | T122 | Eliminar una mascota borra también todo su carnet y deja de funcionar su QR |
-| [pm-105-business-persistence-model](pm-105-business-persistence-model/spec.md) | Propuesto | L6 | pm-086, pm-039 | T123 | Existe el modelo y la colección del negocio afiliado, con un único negocio por cuenta y datos listos para el mapa |
-| [pm-106-business-schedule-model](pm-106-business-schedule-model/spec.md) | Propuesto | L7 | pm-105 | T124 | El horario del negocio se guarda estructurado por día y permite calcular si está abierto en este momento |
-| [pm-107-business-affiliate-create](pm-107-business-affiliate-create/spec.md) | Propuesto | L9 | pm-105, pm-106, pm-087 | T125 | `POST /api/v1/businesses/create` asocia un negocio a la cuenta del usuario autenticado, sin aprobación manual |
-| [pm-108-business-location-update](pm-108-business-location-update/spec.md) | Propuesto | L10 | pm-107 | T126 | `PUT /api/v1/businesses/update-location` cambia las coordenadas del negocio propio |
-| [pm-109-business-profile-update](pm-109-business-profile-update/spec.md) | Propuesto | L10 | pm-107 | T127 | `PUT /api/v1/businesses/update` edita el nombre, la descripción, los teléfonos y el horario del negocio propio |
-| [pm-110-business-delete](pm-110-business-delete/spec.md) | Propuesto | L10 | pm-107 | T128 | `DELETE /api/v1/businesses/delete` elimina el negocio asociado a la cuenta |
-| [pm-111-business-photo-public-storage](pm-111-business-photo-public-storage/spec.md) | Propuesto | L7 | pm-105, pm-079 | T129 | La foto del negocio se guarda en Azure Blob Storage en un contenedor de acceso público separado del de las fotos privadas |
-| [pm-112-service-create](pm-112-service-create/spec.md) | Propuesto | L10 | pm-107 | T130 | `POST /api/v1/services/create` agrega un servicio al catálogo del negocio propio |
-| [pm-113-service-list-own](pm-113-service-list-own/spec.md) | Propuesto | L11 | pm-112 | T131 | `GET /api/v1/services/get-all` devuelve los servicios del negocio asociado a la cuenta |
-| [pm-114-service-update](pm-114-service-update/spec.md) | Propuesto | L11 | pm-112 | T132 | `PUT /api/v1/services/update/{id}` edita un servicio del negocio propio |
-| [pm-115-service-delete](pm-115-service-delete/spec.md) | Propuesto | L11 | pm-112 | T133 | `DELETE /api/v1/services/delete/{id}` elimina un servicio del negocio propio |
-| [pm-116-business-nearby-query](pm-116-business-nearby-query/spec.md) | Propuesto | L10 | pm-107, pm-106, pm-047 | T134 | `GET /api/v1/businesses/get-nearby` devuelve los negocios activos cercanos a unas coordenadas, también para quien no tiene cuenta |
-| [pm-117-business-type-filter](pm-117-business-type-filter/spec.md) | Propuesto | L11 | pm-116 | T135 | La consulta de negocios acepta uno o varios tipos para filtrar el resultado |
-| [pm-118-business-name-search](pm-118-business-name-search/spec.md) | Propuesto | L11 | pm-116 | T136 | La consulta de negocios acepta un texto para filtrar por nombre |
-| [pm-119-business-public-profile](pm-119-business-public-profile/spec.md) | Propuesto | L11 | pm-107, pm-112, pm-106 | T137 | `GET /api/v1/businesses/get-by-id/{id}` devuelve el perfil público de un negocio, también sin cuenta |
-| [pm-120-public-read-rate-limit](pm-120-public-read-rate-limit/spec.md) | Propuesto | L11 | pm-116, pm-036 | T138 | Las consultas públicas de negocios tienen un límite por IP compartido entre réplicas |
-| [pm-121-business-public-cache](pm-121-business-public-cache/spec.md) | Propuesto | L12 | pm-119, pm-050, pm-051 | T139 | Las respuestas públicas de negocios se guardan en Redis Cache con un TTL justificado |
-| [pm-122-access-grant-model](pm-122-access-grant-model/spec.md) | Propuesto | L10 | pm-093, pm-107, pm-045 | T140 | Existe el modelo de autorización con el que el dueño da acceso a un negocio a datos de su mascota por un tiempo limitado |
-| [pm-123-access-grant-create](pm-123-access-grant-create/spec.md) | Propuesto | L11 | pm-122 | T141 | `POST /api/v1/access-grants/create` crea la autorización que el dueño da a un negocio |
-| [pm-124-qr-regeneration-cancels-grants](pm-124-qr-regeneration-cancels-grants/spec.md) | Propuesto | L12 | pm-123, pm-095 | T142 | Regenerar el QR de una mascota cancela todas sus autorizaciones activas |
-| [pm-125-scan-resolve-qr](pm-125-scan-resolve-qr/spec.md) | Propuesto | L10 | pm-093, pm-107 | T143 | `POST /api/v1/scans/resolve` identifica la mascota de un token o código corto escaneado por un negocio |
-| [pm-126-scan-access-check](pm-126-scan-access-check/spec.md) | Propuesto | L11 | pm-125, pm-122 | T144 | Un negocio solo accede a una mascota con una autorización vigente que lo incluya |
-| [pm-127-scan-ficha-veterinary](pm-127-scan-ficha-veterinary/spec.md) | Propuesto | L14 | pm-126, pm-097, pm-099, pm-101, pm-102, pm-133 | T145 | Una veterinaria con autorización vigente recibe la ficha de la mascota con los datos autorizados |
-| [pm-128-scan-ficha-basic](pm-128-scan-ficha-basic/spec.md) | Propuesto | L12 | pm-126, pm-102 | T146 | Una tienda o estética con autorización vigente recibe solo los datos básicos de la mascota |
-| [pm-129-scan-log-record](pm-129-scan-log-record/spec.md) | Propuesto | L11 | pm-125 | T147 | Cada vez que un negocio accede a una mascota se guarda un registro interno del escaneo |
-| [pm-130-attended-pets-list](pm-130-attended-pets-list/spec.md) | Propuesto | L12 | pm-129 | T148 | `GET /api/v1/scans/get-attended` lista las mascotas que el negocio escaneó, sin abrir su ficha |
-| [pm-131-consultation-create](pm-131-consultation-create/spec.md) | Propuesto | L12 | pm-126, pm-107, pm-096 | T149 | `POST /api/v1/consultations/create` registra una consulta en el carnet de una mascota autorizada |
-| [pm-132-prescription-items](pm-132-prescription-items/spec.md) | Propuesto | L13 | pm-131 | T150 | Una consulta admite una receta con varios medicamentos |
-| [pm-133-consultation-owner-list](pm-133-consultation-owner-list/spec.md) | Propuesto | L13 | pm-131, pm-096 | T151 | `GET /api/v1/consultations/get-all` lista las consultas registradas por veterinarias para una mascota del dueño |
-| [pm-134-consultation-owner-detail](pm-134-consultation-owner-detail/spec.md) | Propuesto | L14 | pm-133, pm-132 | T152 | `GET /api/v1/consultations/get-by-id/{id}` devuelve una consulta con su receta completa |
-| [pm-135-business-vaccine-register](pm-135-business-vaccine-register/spec.md) | Propuesto | L12 | pm-126, pm-096, pm-097 | T153 | `POST /api/v1/vaccines/create-by-business` registra una vacuna en el carnet de una mascota autorizada |
-| [pm-136-business-deworming-register](pm-136-business-deworming-register/spec.md) | Propuesto | L12 | pm-126, pm-096, pm-099 | T154 | `POST /api/v1/dewormings/create-by-business` registra una desparasitación en el carnet de una mascota autorizada |
-| [pm-137-clinical-history-view](pm-137-clinical-history-view/spec.md) | Propuesto | L14 | pm-097, pm-099, pm-101, pm-133 | T155 | `GET /api/v1/history/get-all` devuelve el historial médico de una mascota propia con filtro por tipo |
-| [pm-138-followup-open](pm-138-followup-open/spec.md) | Propuesto | L13 | pm-131 | T156 | `POST /api/v1/followups/create` abre el seguimiento de una consulta con estado y próxima revisión |
-| [pm-139-followup-update](pm-139-followup-update/spec.md) | Propuesto | L14 | pm-138 | T157 | `PUT /api/v1/followups/update/{id}` cambia el estado y la próxima revisión |
-| [pm-140-followup-notes](pm-140-followup-notes/spec.md) | Propuesto | L14 | pm-138 | T158 | `POST /api/v1/followups/add-note` agrega una nota con fecha al seguimiento |
-| [pm-141-followup-owner-view](pm-141-followup-owner-view/spec.md) | Propuesto | L14 | pm-138 | T159 | `GET /api/v1/followups/get-by-consultation/{id}` muestra al dueño el estado, la revisión y las notas |
-| [pm-142-followup-business-list](pm-142-followup-business-list/spec.md) | Propuesto | L14 | pm-138, pm-130 | T160 | `GET /api/v1/followups/get-all` lista los seguimientos de la veterinaria con filtros |
-| [pm-143-chat-conversation-open](pm-143-chat-conversation-open/spec.md) | Propuesto | L14 | pm-138 | T161 | Al abrir un seguimiento existe una conversación entre el dueño y la veterinaria de esa atención |
-| [pm-144-chat-send-message](pm-144-chat-send-message/spec.md) | Propuesto | L15 | pm-143 | T162 | `POST /api/v1/messages/send` envía un mensaje a una conversación |
-| [pm-145-chat-list-messages](pm-145-chat-list-messages/spec.md) | Propuesto | L16 | pm-144 | T163 | `GET /api/v1/messages/get-all` devuelve los mensajes de una conversación a partir de un cursor |
-| [pm-146-chat-photo-message](pm-146-chat-photo-message/spec.md) | Propuesto | L16 | pm-144, pm-079 | T164 | Un mensaje puede llevar una foto guardada en Blob privado |
-| [pm-147-chat-close-reopen](pm-147-chat-close-reopen/spec.md) | Propuesto | L15 | pm-143, pm-139 | T165 | La conversación se cierra al dar de alta el seguimiento y la veterinaria puede reabrirla |
-| [pm-148-chat-conversation-list](pm-148-chat-conversation-list/spec.md) | Propuesto | L15 | pm-143 | T166 | `GET /api/v1/conversations/get-all` lista las conversaciones del usuario con su último mensaje |
-| [pm-149-chat-read-state](pm-149-chat-read-state/spec.md) | Propuesto | L17 | pm-145 | T167 | `POST /api/v1/conversations/mark-read` marca como leídos los mensajes de una conversación |
-| [pm-150-chat-realtime-channel](pm-150-chat-realtime-channel/spec.md) | Propuesto | L16 | pm-144 | T168 | Los mensajes llegan al otro participante sin recargar mientras la conversación está abierta |
-| [pm-151-device-token-register](pm-151-device-token-register/spec.md) | Propuesto | L6 | pm-086 | T169 | `POST /api/v1/devices/register` guarda el token de notificaciones del dispositivo del usuario |
-| [pm-152-device-token-unregister](pm-152-device-token-unregister/spec.md) | Propuesto | L7 | pm-151 | T170 | `POST /api/v1/devices/unregister` borra el token de un dispositivo |
-| [pm-153-push-provider-adapter](pm-153-push-provider-adapter/spec.md) | Propuesto | L3 | pm-004, pm-005 | T171 | Existe un puerto de aplicación para enviar notificaciones push y un adaptador a Firebase Cloud Messaging |
-| [pm-154-reminder-generation](pm-154-reminder-generation/spec.md) | Propuesto | L10 | pm-097, pm-099 | T172 | El servidor calcula el recordatorio de cada próxima dosis o fecha registrada en el carnet |
-| [pm-155-reminder-dispatch](pm-155-reminder-dispatch/spec.md) | Propuesto | L11 | pm-154, pm-151, pm-153 | T173 | Un trabajo del servidor envía por push los recordatorios que ya corresponden |
-| [pm-156-reminder-list](pm-156-reminder-list/spec.md) | Propuesto | L11 | pm-154 | T174 | `GET /api/v1/reminders/get-all` lista lo próximo de las mascotas del dueño |
-| [pm-157-notification-settings](pm-157-notification-settings/spec.md) | Propuesto | L6 | pm-086 | T175 | `GET` y `PUT /api/v1/notification-settings` consultan y cambian las preferencias de aviso del usuario |
-| [pm-158-followup-change-push](pm-158-followup-change-push/spec.md) | Propuesto | L15 | pm-139, pm-155 | T176 | Un cambio de estado o de revisión del seguimiento notifica al dueño por push |
-| [pm-159-chat-message-push](pm-159-chat-message-push/spec.md) | Propuesto | L16 | pm-144, pm-155 | T177 | Un mensaje nuevo en el chat notifica por push al otro participante |
-| [pm-160-review-reminder-push](pm-160-review-reminder-push/spec.md) | Propuesto | L14 | pm-138, pm-155 | T178 | Un día antes de la próxima revisión del seguimiento se notifica al dueño |
-| [pm-161-account-delete-request](pm-161-account-delete-request/spec.md) | Propuesto | L6 | pm-086, pm-028, pm-025 | T179 | `DELETE /api/v1/users/me/delete` elimina la cuenta del usuario autenticado tras confirmar su contraseña |
-| [pm-162-account-delete-user-data](pm-162-account-delete-user-data/spec.md) | Propuesto | L11 | pm-161, pm-104, pm-122 | T180 | Al eliminar la cuenta se borran las mascotas y todo lo asociado a ellas |
-| [pm-163-account-delete-business-data](pm-163-account-delete-business-data/spec.md) | Propuesto | L12 | pm-161, pm-110, pm-115, pm-129 | T181 | Al eliminar la cuenta se borra el negocio asociado y sus datos |
-| [pm-164-account-deletion-web-request](pm-164-account-deletion-web-request/spec.md) | Propuesto | L9 | pm-088, pm-036 | T182 | `POST /api/v1/account-deletion/request` inicia la eliminación de una cuenta sin entrar a la app |
-| [pm-165-account-deletion-web-confirm](pm-165-account-deletion-web-confirm/spec.md) | Propuesto | L10 | pm-164, pm-161 | T183 | `POST /api/v1/account-deletion/confirm` elimina la cuenta con el token del enlace |
-| [pm-166-openapi-contract-artifact](pm-166-openapi-contract-artifact/spec.md) | Propuesto | L6 | pm-061, pm-008 | T184 | Cada ejecución de CI genera el documento OpenAPI y lo publica como artefacto para el equipo móvil |
-| [pm-167-integration-environment-flow](pm-167-integration-environment-flow/spec.md) | Propuesto | L6 | pm-055, pm-059 | T185 | Existe un documento que fija cómo el equipo móvil consume el backend durante el desarrollo |
+| [pm-105-business-persistence-model](pm-105-business-persistence-model/spec.md) | Aprobado | L6 | pm-086, pm-039 | T123 | Existe el modelo y la colección del negocio afiliado, con un único negocio por cuenta y datos listos para el mapa |
+| [pm-106-business-schedule-model](pm-106-business-schedule-model/spec.md) | Aprobado | L7 | pm-105 | T124 | El horario del negocio se guarda estructurado por día y permite calcular si está abierto en este momento |
+| [pm-107-business-affiliate-create](pm-107-business-affiliate-create/spec.md) | Aprobado | L9 | pm-105, pm-106, pm-087 | T125 | `POST /api/v1/businesses/create` asocia un negocio a la cuenta del usuario autenticado, sin aprobación manual |
+| [pm-108-business-location-update](pm-108-business-location-update/spec.md) | Aprobado | L10 | pm-107 | T126 | `PUT /api/v1/businesses/update-location` cambia las coordenadas del negocio propio |
+| [pm-109-business-profile-update](pm-109-business-profile-update/spec.md) | Aprobado | L10 | pm-107 | T127 | `PUT /api/v1/businesses/update` edita el nombre, la descripción, los teléfonos y el horario del negocio propio |
+| [pm-110-business-delete](pm-110-business-delete/spec.md) | Aprobado | L10 | pm-107 | T128 | `DELETE /api/v1/businesses/delete` elimina el negocio asociado a la cuenta |
+| [pm-111-business-photo-public-storage](pm-111-business-photo-public-storage/spec.md) | Aprobado | L7 | pm-105, pm-079 | T129 | La foto del negocio se guarda en Azure Blob Storage en un contenedor de acceso público separado del de las fotos privadas |
+| [pm-112-service-create](pm-112-service-create/spec.md) | Aprobado | L10 | pm-107 | T130 | `POST /api/v1/services/create` agrega un servicio al catálogo del negocio propio |
+| [pm-113-service-list-own](pm-113-service-list-own/spec.md) | Aprobado | L11 | pm-112 | T131 | `GET /api/v1/services/get-all` devuelve los servicios del negocio asociado a la cuenta |
+| [pm-114-service-update](pm-114-service-update/spec.md) | Aprobado | L11 | pm-112 | T132 | `PUT /api/v1/services/update/{id}` edita un servicio del negocio propio |
+| [pm-115-service-delete](pm-115-service-delete/spec.md) | Aprobado | L11 | pm-112 | T133 | `DELETE /api/v1/services/delete/{id}` elimina un servicio del negocio propio |
+| [pm-116-business-nearby-query](pm-116-business-nearby-query/spec.md) | Aprobado | L10 | pm-107, pm-106, pm-047 | T134 | `GET /api/v1/businesses/get-nearby` devuelve los negocios activos cercanos a unas coordenadas, también para quien no tiene cuenta |
+| [pm-117-business-type-filter](pm-117-business-type-filter/spec.md) | Aprobado | L11 | pm-116 | T135 | La consulta de negocios acepta uno o varios tipos para filtrar el resultado |
+| [pm-118-business-name-search](pm-118-business-name-search/spec.md) | Aprobado | L11 | pm-116 | T136 | La consulta de negocios acepta un texto para filtrar por nombre |
+| [pm-119-business-public-profile](pm-119-business-public-profile/spec.md) | Aprobado | L11 | pm-107, pm-112, pm-106 | T137 | `GET /api/v1/businesses/get-by-id/{id}` devuelve el perfil público de un negocio, también sin cuenta |
+| [pm-120-public-read-rate-limit](pm-120-public-read-rate-limit/spec.md) | Aprobado | L11 | pm-116, pm-036 | T138 | Las consultas públicas de negocios tienen un límite por IP compartido entre réplicas |
+| [pm-121-business-public-cache](pm-121-business-public-cache/spec.md) | Aprobado | L12 | pm-119, pm-050, pm-051 | T139 | Las respuestas públicas de negocios se guardan en Redis Cache con un TTL justificado |
+| [pm-122-access-grant-model](pm-122-access-grant-model/spec.md) | Aprobado | L10 | pm-093, pm-107, pm-045 | T140 | Existe el modelo de autorización con el que el dueño da acceso a un negocio a datos de su mascota por un tiempo limitado |
+| [pm-123-access-grant-create](pm-123-access-grant-create/spec.md) | Aprobado | L11 | pm-122 | T141 | `POST /api/v1/access-grants/create` crea la autorización que el dueño da a un negocio |
+| [pm-124-qr-regeneration-cancels-grants](pm-124-qr-regeneration-cancels-grants/spec.md) | Aprobado | L12 | pm-123, pm-095 | T142 | Regenerar el QR de una mascota cancela todas sus autorizaciones activas |
+| [pm-125-scan-resolve-qr](pm-125-scan-resolve-qr/spec.md) | Aprobado | L10 | pm-093, pm-107 | T143 | `POST /api/v1/scans/resolve` identifica la mascota de un token o código corto escaneado por un negocio |
+| [pm-126-scan-access-check](pm-126-scan-access-check/spec.md) | Aprobado | L11 | pm-125, pm-122 | T144 | Un negocio solo accede a una mascota con una autorización vigente que lo incluya |
+| [pm-127-scan-ficha-veterinary](pm-127-scan-ficha-veterinary/spec.md) | Aprobado | L14 | pm-126, pm-097, pm-099, pm-101, pm-102, pm-133 | T145 | Una veterinaria con autorización vigente recibe la ficha de la mascota con los datos autorizados |
+| [pm-128-scan-ficha-basic](pm-128-scan-ficha-basic/spec.md) | Aprobado | L12 | pm-126, pm-102 | T146 | Una tienda o estética con autorización vigente recibe solo los datos básicos de la mascota |
+| [pm-129-scan-log-record](pm-129-scan-log-record/spec.md) | Aprobado | L11 | pm-125 | T147 | Cada vez que un negocio accede a una mascota se guarda un registro interno del escaneo |
+| [pm-130-attended-pets-list](pm-130-attended-pets-list/spec.md) | Aprobado | L12 | pm-129 | T148 | `GET /api/v1/scans/get-attended` lista las mascotas que el negocio escaneó, sin abrir su ficha |
+| [pm-131-consultation-create](pm-131-consultation-create/spec.md) | Aprobado | L12 | pm-126, pm-107, pm-096 | T149 | `POST /api/v1/consultations/create` registra una consulta en el carnet de una mascota autorizada |
+| [pm-132-prescription-items](pm-132-prescription-items/spec.md) | Aprobado | L13 | pm-131 | T150 | Una consulta admite una receta con varios medicamentos |
+| [pm-133-consultation-owner-list](pm-133-consultation-owner-list/spec.md) | Aprobado | L13 | pm-131, pm-096 | T151 | `GET /api/v1/consultations/get-all` lista las consultas registradas por veterinarias para una mascota del dueño |
+| [pm-134-consultation-owner-detail](pm-134-consultation-owner-detail/spec.md) | Aprobado | L14 | pm-133, pm-132 | T152 | `GET /api/v1/consultations/get-by-id/{id}` devuelve una consulta con su receta completa |
+| [pm-135-business-vaccine-register](pm-135-business-vaccine-register/spec.md) | Aprobado | L12 | pm-126, pm-096, pm-097 | T153 | `POST /api/v1/vaccines/create-by-business` registra una vacuna en el carnet de una mascota autorizada |
+| [pm-136-business-deworming-register](pm-136-business-deworming-register/spec.md) | Aprobado | L12 | pm-126, pm-096, pm-099 | T154 | `POST /api/v1/dewormings/create-by-business` registra una desparasitación en el carnet de una mascota autorizada |
+| [pm-137-clinical-history-view](pm-137-clinical-history-view/spec.md) | Aprobado | L14 | pm-097, pm-099, pm-101, pm-133 | T155 | `GET /api/v1/history/get-all` devuelve el historial médico de una mascota propia con filtro por tipo |
+| [pm-138-followup-open](pm-138-followup-open/spec.md) | Aprobado | L13 | pm-131 | T156 | `POST /api/v1/followups/create` abre el seguimiento de una consulta con estado y próxima revisión |
+| [pm-139-followup-update](pm-139-followup-update/spec.md) | Aprobado | L14 | pm-138 | T157 | `PUT /api/v1/followups/update/{id}` cambia el estado y la próxima revisión |
+| [pm-140-followup-notes](pm-140-followup-notes/spec.md) | Aprobado | L14 | pm-138 | T158 | `POST /api/v1/followups/add-note` agrega una nota con fecha al seguimiento |
+| [pm-141-followup-owner-view](pm-141-followup-owner-view/spec.md) | Aprobado | L14 | pm-138 | T159 | `GET /api/v1/followups/get-by-consultation/{id}` muestra al dueño el estado, la revisión y las notas |
+| [pm-142-followup-business-list](pm-142-followup-business-list/spec.md) | Aprobado | L14 | pm-138, pm-130 | T160 | `GET /api/v1/followups/get-all` lista los seguimientos de la veterinaria con filtros |
+| [pm-143-chat-conversation-open](pm-143-chat-conversation-open/spec.md) | Aprobado | L14 | pm-138 | T161 | Al abrir un seguimiento existe una conversación entre el dueño y la veterinaria de esa atención |
+| [pm-144-chat-send-message](pm-144-chat-send-message/spec.md) | Aprobado | L15 | pm-143 | T162 | `POST /api/v1/messages/send` envía un mensaje a una conversación |
+| [pm-145-chat-list-messages](pm-145-chat-list-messages/spec.md) | Aprobado | L16 | pm-144 | T163 | `GET /api/v1/messages/get-all` devuelve los mensajes de una conversación a partir de un cursor |
+| [pm-146-chat-photo-message](pm-146-chat-photo-message/spec.md) | Aprobado | L16 | pm-144, pm-079 | T164 | Un mensaje puede llevar una foto guardada en Blob privado |
+| [pm-147-chat-close-reopen](pm-147-chat-close-reopen/spec.md) | Aprobado | L15 | pm-143, pm-139 | T165 | La conversación se cierra al dar de alta el seguimiento y la veterinaria puede reabrirla |
+| [pm-148-chat-conversation-list](pm-148-chat-conversation-list/spec.md) | Aprobado | L15 | pm-143 | T166 | `GET /api/v1/conversations/get-all` lista las conversaciones del usuario con su último mensaje |
+| [pm-149-chat-read-state](pm-149-chat-read-state/spec.md) | Aprobado | L17 | pm-145 | T167 | `POST /api/v1/conversations/mark-read` marca como leídos los mensajes de una conversación |
+| [pm-150-chat-realtime-channel](pm-150-chat-realtime-channel/spec.md) | Aprobado | L16 | pm-144 | T168 | Los mensajes llegan al otro participante sin recargar mientras la conversación está abierta |
+| [pm-151-device-token-register](pm-151-device-token-register/spec.md) | Aprobado | L6 | pm-086 | T169 | `POST /api/v1/devices/register` guarda el token de notificaciones del dispositivo del usuario |
+| [pm-152-device-token-unregister](pm-152-device-token-unregister/spec.md) | Aprobado | L7 | pm-151 | T170 | `POST /api/v1/devices/unregister` borra el token de un dispositivo |
+| [pm-153-push-provider-adapter](pm-153-push-provider-adapter/spec.md) | Aprobado | L3 | pm-004, pm-005 | T171 | Existe un puerto de aplicación para enviar notificaciones push y un adaptador a Firebase Cloud Messaging |
+| [pm-154-reminder-generation](pm-154-reminder-generation/spec.md) | Aprobado | L10 | pm-097, pm-099 | T172 | El servidor calcula el recordatorio de cada próxima dosis o fecha registrada en el carnet |
+| [pm-155-reminder-dispatch](pm-155-reminder-dispatch/spec.md) | Aprobado | L11 | pm-154, pm-151, pm-153 | T173 | Un trabajo del servidor envía por push los recordatorios que ya corresponden |
+| [pm-156-reminder-list](pm-156-reminder-list/spec.md) | Aprobado | L11 | pm-154 | T174 | `GET /api/v1/reminders/get-all` lista lo próximo de las mascotas del dueño |
+| [pm-157-notification-settings](pm-157-notification-settings/spec.md) | Aprobado | L6 | pm-086 | T175 | `GET` y `PUT /api/v1/notification-settings` consultan y cambian las preferencias de aviso del usuario |
+| [pm-158-followup-change-push](pm-158-followup-change-push/spec.md) | Aprobado | L15 | pm-139, pm-155 | T176 | Un cambio de estado o de revisión del seguimiento notifica al dueño por push |
+| [pm-159-chat-message-push](pm-159-chat-message-push/spec.md) | Aprobado | L16 | pm-144, pm-155 | T177 | Un mensaje nuevo en el chat notifica por push al otro participante |
+| [pm-160-review-reminder-push](pm-160-review-reminder-push/spec.md) | Aprobado | L14 | pm-138, pm-155 | T178 | Un día antes de la próxima revisión del seguimiento se notifica al dueño |
+| [pm-161-account-delete-request](pm-161-account-delete-request/spec.md) | Aprobado | L6 | pm-086, pm-028, pm-025 | T179 | `DELETE /api/v1/users/me/delete` elimina la cuenta del usuario autenticado tras confirmar su contraseña |
+| [pm-162-account-delete-user-data](pm-162-account-delete-user-data/spec.md) | Aprobado | L11 | pm-161, pm-104, pm-122 | T180 | Al eliminar la cuenta se borran las mascotas y todo lo asociado a ellas |
+| [pm-163-account-delete-business-data](pm-163-account-delete-business-data/spec.md) | Aprobado | L12 | pm-161, pm-110, pm-115, pm-129 | T181 | Al eliminar la cuenta se borra el negocio asociado y sus datos |
+| [pm-164-account-deletion-web-request](pm-164-account-deletion-web-request/spec.md) | Aprobado | L9 | pm-088, pm-036 | T182 | `POST /api/v1/account-deletion/request` inicia la eliminación de una cuenta sin entrar a la app |
+| [pm-165-account-deletion-web-confirm](pm-165-account-deletion-web-confirm/spec.md) | Aprobado | L10 | pm-164, pm-161 | T183 | `POST /api/v1/account-deletion/confirm` elimina la cuenta con el token del enlace |
+| [pm-166-openapi-contract-artifact](pm-166-openapi-contract-artifact/spec.md) | Aprobado | L6 | pm-061, pm-008 | T184 | Cada ejecución de CI genera el documento OpenAPI y lo publica como artefacto para el equipo móvil |
+| [pm-167-integration-environment-flow](pm-167-integration-environment-flow/spec.md) | Aprobado | L6 | pm-055, pm-059 | T185 | Existe un documento que fija cómo el equipo móvil consume el backend durante el desarrollo |
 
 ## Orden de ejecución por niveles
 
@@ -334,69 +334,69 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T120 | Nueva | [pm-102](pm-102-allergy-create-list/spec.md) | Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Registrar y listar las alergias y condiciones de una mascota |
 | T121 | Nueva | [pm-103](pm-103-allergy-update-status/spec.md) | Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Editar y marcar como superada una alergia |
 | T122 | Nueva | [pm-104](pm-104-pet-delete-cascade/spec.md) | Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Eliminar el carnet y el QR al eliminar una mascota |
-| T123 | Nueva | [pm-105](pm-105-business-persistence-model/spec.md) | Propuesto | Crear el modelo y la colección del negocio |
-| T124 | Nueva | [pm-106](pm-106-business-schedule-model/spec.md) | Propuesto | Modelar el horario estructurado y el estado abierto ahora |
-| T125 | Nueva | [pm-107](pm-107-business-affiliate-create/spec.md) | Propuesto | Afiliar el negocio de un usuario |
-| T126 | Nueva | [pm-108](pm-108-business-location-update/spec.md) | Propuesto | Actualizar la ubicación del negocio |
-| T127 | Nueva | [pm-109](pm-109-business-profile-update/spec.md) | Propuesto | Actualizar los datos del negocio propio |
-| T128 | Nueva | [pm-110](pm-110-business-delete/spec.md) | Propuesto | Dar de baja el negocio propio |
-| T129 | Nueva | [pm-111](pm-111-business-photo-public-storage/spec.md) | Propuesto | Guardar la foto pública del negocio en Blob |
-| T130 | Nueva | [pm-112](pm-112-service-create/spec.md) | Propuesto | Crear un servicio del negocio |
-| T131 | Nueva | [pm-113](pm-113-service-list-own/spec.md) | Propuesto | Listar los servicios del negocio propio |
-| T132 | Nueva | [pm-114](pm-114-service-update/spec.md) | Propuesto | Editar un servicio del negocio propio |
-| T133 | Nueva | [pm-115](pm-115-service-delete/spec.md) | Propuesto | Borrar un servicio del negocio propio |
-| T134 | Nueva | [pm-116](pm-116-business-nearby-query/spec.md) | Propuesto | Consultar los negocios cercanos de forma pública |
-| T135 | Nueva | [pm-117](pm-117-business-type-filter/spec.md) | Propuesto | Filtrar los negocios por tipo |
-| T136 | Nueva | [pm-118](pm-118-business-name-search/spec.md) | Propuesto | Buscar negocios por nombre |
-| T137 | Nueva | [pm-119](pm-119-business-public-profile/spec.md) | Propuesto | Consultar el perfil público de un negocio |
-| T138 | Nueva | [pm-120](pm-120-public-read-rate-limit/spec.md) | Propuesto | Limitar por IP las lecturas públicas de negocios |
-| T139 | Nueva | [pm-121](pm-121-business-public-cache/spec.md) | Propuesto | Cachear las respuestas públicas de negocios |
-| T140 | Nueva | [pm-122](pm-122-access-grant-model/spec.md) | Propuesto | Modelar la autorización de acceso a una mascota |
-| T141 | Nueva | [pm-123](pm-123-access-grant-create/spec.md) | Propuesto | Crear una autorización de acceso |
-| T142 | Nueva | [pm-124](pm-124-qr-regeneration-cancels-grants/spec.md) | Propuesto | Cancelar las autorizaciones al regenerar el QR |
-| T143 | Nueva | [pm-125](pm-125-scan-resolve-qr/spec.md) | Propuesto | Resolver un token o código corto a una mascota |
-| T144 | Nueva | [pm-126](pm-126-scan-access-check/spec.md) | Propuesto | Exigir una autorización vigente para ver la mascota |
-| T145 | Nueva | [pm-127](pm-127-scan-ficha-veterinary/spec.md) | Propuesto | Entregar la ficha completa a una veterinaria autorizada |
-| T146 | Nueva | [pm-128](pm-128-scan-ficha-basic/spec.md) | Propuesto | Entregar la ficha básica a una tienda o estética autorizada |
-| T147 | Nueva | [pm-129](pm-129-scan-log-record/spec.md) | Propuesto | Registrar cada escaneo con acceso concedido |
-| T148 | Nueva | [pm-130](pm-130-attended-pets-list/spec.md) | Propuesto | Listar las mascotas atendidas por el negocio |
-| T149 | Nueva | [pm-131](pm-131-consultation-create/spec.md) | Propuesto | Registrar una consulta veterinaria |
-| T150 | Nueva | [pm-132](pm-132-prescription-items/spec.md) | Propuesto | Agregar medicamentos a la receta de una consulta |
-| T151 | Nueva | [pm-133](pm-133-consultation-owner-list/spec.md) | Propuesto | Listar las consultas de una mascota propia |
-| T152 | Nueva | [pm-134](pm-134-consultation-owner-detail/spec.md) | Propuesto | Consultar el detalle de una consulta propia |
-| T153 | Nueva | [pm-135](pm-135-business-vaccine-register/spec.md) | Propuesto | Registrar una vacuna aplicada por la veterinaria |
-| T154 | Nueva | [pm-136](pm-136-business-deworming-register/spec.md) | Propuesto | Registrar una desparasitación aplicada por la veterinaria |
-| T155 | Nueva | [pm-137](pm-137-clinical-history-view/spec.md) | Propuesto | Consultar el historial médico unificado |
-| T156 | Nueva | [pm-138](pm-138-followup-open/spec.md) | Propuesto | Abrir el seguimiento de una consulta |
-| T157 | Nueva | [pm-139](pm-139-followup-update/spec.md) | Propuesto | Cambiar el estado y la revisión del seguimiento |
-| T158 | Nueva | [pm-140](pm-140-followup-notes/spec.md) | Propuesto | Agregar notas al seguimiento |
-| T159 | Nueva | [pm-141](pm-141-followup-owner-view/spec.md) | Propuesto | Consultar el seguimiento de una consulta propia |
-| T160 | Nueva | [pm-142](pm-142-followup-business-list/spec.md) | Propuesto | Listar los seguimientos del negocio |
-| T161 | Nueva | [pm-143](pm-143-chat-conversation-open/spec.md) | Propuesto | Abrir la conversación de un seguimiento |
-| T162 | Nueva | [pm-144](pm-144-chat-send-message/spec.md) | Propuesto | Enviar un mensaje de texto |
-| T163 | Nueva | [pm-145](pm-145-chat-list-messages/spec.md) | Propuesto | Listar los mensajes de una conversación |
-| T164 | Nueva | [pm-146](pm-146-chat-photo-message/spec.md) | Propuesto | Enviar una foto en el chat |
-| T165 | Nueva | [pm-147](pm-147-chat-close-reopen/spec.md) | Propuesto | Cerrar y reabrir la conversación |
-| T166 | Nueva | [pm-148](pm-148-chat-conversation-list/spec.md) | Propuesto | Listar las conversaciones propias |
-| T167 | Nueva | [pm-149](pm-149-chat-read-state/spec.md) | Propuesto | Llevar el estado de lectura del chat |
-| T168 | Nueva | [pm-150](pm-150-chat-realtime-channel/spec.md) | Propuesto | Entregar los mensajes en tiempo real |
-| T169 | Nueva | [pm-151](pm-151-device-token-register/spec.md) | Propuesto | Registrar el dispositivo para recibir avisos |
-| T170 | Nueva | [pm-152](pm-152-device-token-unregister/spec.md) | Propuesto | Quitar el dispositivo al cerrar sesión |
-| T171 | Nueva | [pm-153](pm-153-push-provider-adapter/spec.md) | Propuesto | Implementar el puerto y el adaptador de notificaciones push |
-| T172 | Nueva | [pm-154](pm-154-reminder-generation/spec.md) | Propuesto | Calcular los recordatorios de vacunas y desparasitaciones |
-| T173 | Nueva | [pm-155](pm-155-reminder-dispatch/spec.md) | Propuesto | Enviar los recordatorios vencidos |
-| T174 | Nueva | [pm-156](pm-156-reminder-list/spec.md) | Propuesto | Listar los avisos de las mascotas |
-| T175 | Nueva | [pm-157](pm-157-notification-settings/spec.md) | Propuesto | Guardar los ajustes de notificación |
-| T176 | Nueva | [pm-158](pm-158-followup-change-push/spec.md) | Propuesto | Avisar al dueño de cambios en el seguimiento |
-| T177 | Nueva | [pm-159](pm-159-chat-message-push/spec.md) | Propuesto | Avisar al otro participante de un mensaje nuevo |
-| T178 | Nueva | [pm-160](pm-160-review-reminder-push/spec.md) | Propuesto | Avisar un día antes de la revisión |
-| T179 | Nueva | [pm-161](pm-161-account-delete-request/spec.md) | Propuesto | Eliminar la cuenta con confirmación de contraseña |
-| T180 | Nueva | [pm-162](pm-162-account-delete-user-data/spec.md) | Propuesto | Borrar los datos de mascotas al eliminar la cuenta |
-| T181 | Nueva | [pm-163](pm-163-account-delete-business-data/spec.md) | Propuesto | Borrar el negocio al eliminar la cuenta |
-| T182 | Nueva | [pm-164](pm-164-account-deletion-web-request/spec.md) | Propuesto | Solicitar la eliminación de la cuenta desde la web |
-| T183 | Nueva | [pm-165](pm-165-account-deletion-web-confirm/spec.md) | Propuesto | Confirmar la eliminación de la cuenta desde la web |
-| T184 | Nueva | [pm-166](pm-166-openapi-contract-artifact/spec.md) | Propuesto | Publicar el contrato OpenAPI como artefacto de CI |
-| T185 | Nueva | [pm-167](pm-167-integration-environment-flow/spec.md) | Propuesto | Documentar el flujo del entorno de integración con la app |
+| T123 | Nueva | [pm-105](pm-105-business-persistence-model/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Crear el modelo y la colección del negocio |
+| T124 | Nueva | [pm-106](pm-106-business-schedule-model/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Modelar el horario estructurado y el estado abierto ahora |
+| T125 | Nueva | [pm-107](pm-107-business-affiliate-create/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Afiliar el negocio de un usuario |
+| T126 | Nueva | [pm-108](pm-108-business-location-update/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Actualizar la ubicación del negocio |
+| T127 | Nueva | [pm-109](pm-109-business-profile-update/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Actualizar los datos del negocio propio |
+| T128 | Nueva | [pm-110](pm-110-business-delete/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Dar de baja el negocio propio |
+| T129 | Nueva | [pm-111](pm-111-business-photo-public-storage/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Guardar la foto pública del negocio en Blob |
+| T130 | Nueva | [pm-112](pm-112-service-create/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Crear un servicio del negocio |
+| T131 | Nueva | [pm-113](pm-113-service-list-own/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Listar los servicios del negocio propio |
+| T132 | Nueva | [pm-114](pm-114-service-update/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Editar un servicio del negocio propio |
+| T133 | Nueva | [pm-115](pm-115-service-delete/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Borrar un servicio del negocio propio |
+| T134 | Nueva | [pm-116](pm-116-business-nearby-query/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Consultar los negocios cercanos de forma pública |
+| T135 | Nueva | [pm-117](pm-117-business-type-filter/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Filtrar los negocios por tipo |
+| T136 | Nueva | [pm-118](pm-118-business-name-search/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Buscar negocios por nombre |
+| T137 | Nueva | [pm-119](pm-119-business-public-profile/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Consultar el perfil público de un negocio |
+| T138 | Nueva | [pm-120](pm-120-public-read-rate-limit/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Limitar por IP las lecturas públicas de negocios |
+| T139 | Nueva | [pm-121](pm-121-business-public-cache/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Cachear las respuestas públicas de negocios |
+| T140 | Nueva | [pm-122](pm-122-access-grant-model/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Modelar la autorización de acceso a una mascota |
+| T141 | Nueva | [pm-123](pm-123-access-grant-create/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Crear una autorización de acceso |
+| T142 | Nueva | [pm-124](pm-124-qr-regeneration-cancels-grants/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Cancelar las autorizaciones al regenerar el QR |
+| T143 | Nueva | [pm-125](pm-125-scan-resolve-qr/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Resolver un token o código corto a una mascota |
+| T144 | Nueva | [pm-126](pm-126-scan-access-check/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Exigir una autorización vigente para ver la mascota |
+| T145 | Nueva | [pm-127](pm-127-scan-ficha-veterinary/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente) | Entregar la ficha completa a una veterinaria autorizada |
+| T146 | Nueva | [pm-128](pm-128-scan-ficha-basic/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Entregar la ficha básica a una tienda o estética autorizada |
+| T147 | Nueva | [pm-129](pm-129-scan-log-record/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Registrar cada escaneo con acceso concedido |
+| T148 | Nueva | [pm-130](pm-130-attended-pets-list/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Listar las mascotas atendidas por el negocio |
+| T149 | Nueva | [pm-131](pm-131-consultation-create/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Registrar una consulta veterinaria |
+| T150 | Nueva | [pm-132](pm-132-prescription-items/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Agregar medicamentos a la receta de una consulta |
+| T151 | Nueva | [pm-133](pm-133-consultation-owner-list/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Listar las consultas de una mascota propia |
+| T152 | Nueva | [pm-134](pm-134-consultation-owner-detail/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Consultar el detalle de una consulta propia |
+| T153 | Nueva | [pm-135](pm-135-business-vaccine-register/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Registrar una vacuna aplicada por la veterinaria |
+| T154 | Nueva | [pm-136](pm-136-business-deworming-register/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Registrar una desparasitación aplicada por la veterinaria |
+| T155 | Nueva | [pm-137](pm-137-clinical-history-view/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Consultar el historial médico unificado |
+| T156 | Nueva | [pm-138](pm-138-followup-open/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Abrir el seguimiento de una consulta |
+| T157 | Nueva | [pm-139](pm-139-followup-update/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Cambiar el estado y la revisión del seguimiento |
+| T158 | Nueva | [pm-140](pm-140-followup-notes/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Agregar notas al seguimiento |
+| T159 | Nueva | [pm-141](pm-141-followup-owner-view/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Consultar el seguimiento de una consulta propia |
+| T160 | Nueva | [pm-142](pm-142-followup-business-list/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Listar los seguimientos del negocio |
+| T161 | Nueva | [pm-143](pm-143-chat-conversation-open/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Abrir la conversación de un seguimiento |
+| T162 | Nueva | [pm-144](pm-144-chat-send-message/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Enviar un mensaje de texto |
+| T163 | Nueva | [pm-145](pm-145-chat-list-messages/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Listar los mensajes de una conversación |
+| T164 | Nueva | [pm-146](pm-146-chat-photo-message/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Enviar una foto en el chat |
+| T165 | Nueva | [pm-147](pm-147-chat-close-reopen/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Cerrar y reabrir la conversación |
+| T166 | Nueva | [pm-148](pm-148-chat-conversation-list/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Listar las conversaciones propias |
+| T167 | Nueva | [pm-149](pm-149-chat-read-state/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Llevar el estado de lectura del chat |
+| T168 | Nueva | [pm-150](pm-150-chat-realtime-channel/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Entregar los mensajes en tiempo real |
+| T169 | Nueva | [pm-151](pm-151-device-token-register/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Registrar el dispositivo para recibir avisos |
+| T170 | Nueva | [pm-152](pm-152-device-token-unregister/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Quitar el dispositivo al cerrar sesión |
+| T171 | Nueva | [pm-153](pm-153-push-provider-adapter/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Implementar el puerto y el adaptador de notificaciones push |
+| T172 | Nueva | [pm-154](pm-154-reminder-generation/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Calcular los recordatorios de vacunas y desparasitaciones |
+| T173 | Nueva | [pm-155](pm-155-reminder-dispatch/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Enviar los recordatorios vencidos |
+| T174 | Nueva | [pm-156](pm-156-reminder-list/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Listar los avisos de las mascotas |
+| T175 | Nueva | [pm-157](pm-157-notification-settings/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Guardar los ajustes de notificación |
+| T176 | Nueva | [pm-158](pm-158-followup-change-push/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Avisar al dueño de cambios en el seguimiento |
+| T177 | Nueva | [pm-159](pm-159-chat-message-push/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Avisar al otro participante de un mensaje nuevo |
+| T178 | Nueva | [pm-160](pm-160-review-reminder-push/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Avisar un día antes de la revisión |
+| T179 | Nueva | [pm-161](pm-161-account-delete-request/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Eliminar la cuenta con confirmación de contraseña |
+| T180 | Nueva | [pm-162](pm-162-account-delete-user-data/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Borrar los datos de mascotas al eliminar la cuenta |
+| T181 | Nueva | [pm-163](pm-163-account-delete-business-data/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Borrar el negocio al eliminar la cuenta |
+| T182 | Nueva | [pm-164](pm-164-account-deletion-web-request/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Solicitar la eliminación de la cuenta desde la web |
+| T183 | Nueva | [pm-165](pm-165-account-deletion-web-confirm/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Confirmar la eliminación de la cuenta desde la web |
+| T184 | Nueva | [pm-166](pm-166-openapi-contract-artifact/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Publicar el contrato OpenAPI como artefacto de CI |
+| T185 | Nueva | [pm-167](pm-167-integration-environment-flow/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Documentar el flujo del entorno de integración con la app |
 
 ## Primer hito
 
@@ -458,3 +458,9 @@ Los cuatro endpoints de autenticación y los siete endpoints funcionales (11 en 
 - **2026-11-09 — Implementación de T110 a T122** (especie y sexo, QR, carnet de salud y cascada de borrado: `pm-092` a `pm-104`): código, pruebas (unitarias 233, seguridad 188, contrato 242, integración Atlas 30) y `plan.md`/`checklists/gates.md` de cada Spec. Quedan «Implementada; pendiente de revisión independiente y aprobación humana de cierre». Nada se marca «Verificado» ni «Cerrado».
 - **2026-11-09 — Aprobación de las Tasks T103 a T109** (cuenta, sesión, correo y recuperación de contraseña, celular: `pm-085` a `pm-091`): el usuario las aprueba. Quedan «Aprobada para iniciar»; falta el `plan.md` de cada Spec antes de implementar. No se marca la fase «Aprobación humana» del cierre, que corresponde al trabajo terminado.
 - **2026-11-09 — Implementación de T103 a T109** (cuenta, sesión, correo y recuperación de contraseña, celular: `pm-085` a `pm-091`): código, pruebas (unitarias 259, seguridad 186, contrato 269, integración Atlas 33), `plan.md` y `checklists/gates.md`. Quedan «Implementada; pendiente de revisión independiente y aprobación humana de cierre».
+- **2026-11-10 — Aprobación de los Specs del primer hito:** el usuario aprueba `pm-105` a `pm-167` (63 Specs, negocios, mapa, afiliación, panel, compartir, seguimiento, chat, avisos y página legal). Quedan «Aprobado»; sus Tasks `T123` a `T185` se aprueban para iniciar el mismo día. Los Specs que dependen de `pm-079` a `pm-081` (almacenamiento de imágenes, aún «Propuesto») no pueden implementarse hasta aprobarlos.
+- **2026-11-10 — Aprobación de las Tasks T123 a T185** (`pm-105` a `pm-167`): el usuario las aprueba. Quedan «Aprobada para iniciar»; falta el `plan.md` de cada Spec antes de implementar. No se marca la fase «Aprobación humana» del cierre, que corresponde al trabajo terminado.
+- **2026-11-10 — Implementación de T123 a T128 y T130 a T133** (negocio afiliado, horario, ubicación, perfil, baja y catálogo de servicios: `pm-105` a `pm-110` y `pm-112` a `pm-115`): código, pruebas, `plan.md` y `checklists/gates.md`. Quedan «Implementada; pendiente de revisión independiente y aprobación humana de cierre». **T129 (`pm-111`, foto pública del negocio) no se implementó**: depende de `pm-079` (almacenamiento de imágenes en Azure Blob), que sigue «Propuesto» y exige autorización de costos.
+- **2026-11-10 — Implementación de T134 a T144, T146 y T147** (mapa público, autorización de acceso, escaneo, ficha básica y registro de escaneos: `pm-116` a `pm-126`, `pm-128` y `pm-129`): código, pruebas, `plan.md` y `checklists/gates.md`. Quedan «Implementada; pendiente de revisión independiente y aprobación humana de cierre». **T145 (`pm-127`, ficha completa de la veterinaria) no se implementó**: depende de las consultas veterinarias (`pm-133`, T151).
+- **2026-11-10 — Implementación de T148 a T163 y T165 a T167** (mascotas atendidas, consultas con receta, vacunas y desparasitaciones de la veterinaria, historial, seguimiento y chat de texto: `pm-130` a `pm-145`, `pm-147` a `pm-149`): código, pruebas, `plan.md` y `checklists/gates.md`. Quedan «Implementada; pendiente de revisión independiente y aprobación humana de cierre». **T164 (`pm-146`, foto en el chat) no se implementó** (depende de Blob, sin aprobar) y **T168 (`pm-150`, tiempo real) tampoco**: su `plan.md` evalúa el costo y recomienda el reemplazo por la consulta al abrir (`pm-150#CA-04`), que espera la decisión del usuario.
+- **2026-11-10 — Implementación de T145** (ficha completa de la veterinaria, `pm-127`): `scans/resolve` añade a la ficha básica, solo para una veterinaria, los grupos que alguna autorización vigente permite (vacunas, desparasitaciones, peso y consultas con su receta; hasta 50 por grupo), de solo lectura. Queda «Implementada; pendiente de revisión independiente y aprobación humana de cierre».
