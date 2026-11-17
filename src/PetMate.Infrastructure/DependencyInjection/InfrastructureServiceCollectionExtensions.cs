@@ -66,6 +66,10 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<PetMate.Application.Followups.IFollowupRepository, MongoFollowupRepository>();
         services.AddSingleton<PetMate.Application.Followups.IConversationRepository, MongoConversationRepository>();
         services.AddSingleton<PetMate.Application.Followups.IMessageRepository, MongoMessageRepository>();
+        services.AddSingleton<PetMate.Application.Devices.IDeviceRepository, MongoDeviceRepository>();
+        services.AddSingleton<PetMate.Application.Accounts.IAccountDeletionTokenRepository, MongoAccountDeletionTokenRepository>();
+        services.AddSingleton<PetMate.Application.Reminders.IReminderRepository, MongoReminderRepository>();
+        services.AddSingleton<PetMate.Application.Notifications.INotificationSettingsRepository, MongoNotificationSettingsRepository>();
 
         // Correo transaccional (pm-088): sin las tres variables no se envía nada (adaptador deshabilitado).
         if (EmailOptions.TryRead(name => configuration[name]) is { } emailOptions)
@@ -80,6 +84,20 @@ public static class InfrastructureServiceCollectionExtensions
         {
             services.AddSingleton<IEmailSender, DisabledEmailSender>();
         }
+        // Avisos push con FCM (pm-153): sin la cuenta de servicio no se envía nada (adaptador deshabilitado), igual que el correo.
+        if (PetMate.Infrastructure.Push.FcmOptions.TryRead(name => configuration[name]) is { } fcmOptions)
+        {
+            services.AddSingleton<PetMate.Application.Push.IPushSender>(provider => new PetMate.Infrastructure.Push.FcmPushSender(
+                new HttpClient(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(5) }) { Timeout = TimeSpan.FromSeconds(10) },
+                fcmOptions,
+                provider.GetRequiredService<TimeProvider>(),
+                provider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<PetMate.Infrastructure.Push.FcmPushSender>>()));
+        }
+        else
+        {
+            services.AddSingleton<PetMate.Application.Push.IPushSender, PetMate.Infrastructure.Push.DisabledPushSender>();
+        }
+
         // Imágenes en Blob Storage (pm-079): sin cuenta ni cadena de conexión no hay almacenamiento y los
         // endpoints de fotos responden 503, igual que el correo de pm-088.
         if (ImageStorageOptions.TryRead(name => configuration[name]) is { } imageOptions)
@@ -97,6 +115,7 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.AddSingleton<MongoIndexInitializer>();
         services.AddHostedService<MongoIndexHostedService>();
+        services.AddHostedService<PetMate.Infrastructure.Push.ReminderDispatchHostedService>();
 
         // Hashing de contraseñas (T015): parámetros validados al arrancar, opcionales por entorno.
         services.AddSingleton(Argon2idOptions.Parse(configuration));

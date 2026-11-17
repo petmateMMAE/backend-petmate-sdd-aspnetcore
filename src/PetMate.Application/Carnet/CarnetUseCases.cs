@@ -1,6 +1,7 @@
 using PetMate.Application.Mediator;
 using PetMate.Application.Pagination;
 using PetMate.Application.Persistence;
+using PetMate.Application.Reminders;
 using PetMate.Application.Validation;
 using PetMate.Domain.Carnet;
 
@@ -26,20 +27,26 @@ public sealed record ListVaccinesQuery(Guid OwnerId, Guid PetId, int? Page, int?
 
 public sealed record DeleteVaccineCommand(Guid OwnerId, Guid VaccineId) : ICommand<CarnetStatus>;
 
-public sealed class CreateVaccineHandler(IPetRepository pets, IVaccineRepository vaccines, TimeProvider timeProvider)
+public sealed class CreateVaccineHandler(IPetRepository pets, IVaccineRepository vaccines, ReminderScheduler reminders, TimeProvider timeProvider)
     : IRequestHandler<CreateVaccineCommand, CarnetResult<VaccineResult>>
 {
-    public Task<CarnetResult<VaccineResult>> Handle(CreateVaccineCommand request, CancellationToken cancellationToken)
+    public async Task<CarnetResult<VaccineResult>> Handle(CreateVaccineCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        return CarnetFlow.Create(
+        var result = await CarnetFlow.Create(
             pets,
             vaccines,
             request.OwnerId,
             request.PetId,
             () => Vaccine.Create(request.PetId, request.OwnerId, RecordProvenance.ByOwner, request.Details, CarnetFlow.Today(timeProvider), timeProvider.GetUtcNow().UtcDateTime),
             VaccineResult.From,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
+        if (result.Value is { } vaccine)
+        {
+            await reminders.Schedule(vaccine.Id, ReminderKind.Vaccine, request.OwnerId, vaccine.PetId, vaccine.Name, vaccine.NextDoseOn, cancellationToken).ConfigureAwait(false);
+        }
+
+        return result;
     }
 }
 
@@ -53,12 +60,18 @@ public sealed class ListVaccinesHandler(IPetRepository pets, IVaccineRepository 
     }
 }
 
-public sealed class DeleteVaccineHandler(IVaccineRepository vaccines) : IRequestHandler<DeleteVaccineCommand, CarnetStatus>
+public sealed class DeleteVaccineHandler(IVaccineRepository vaccines, ReminderScheduler reminders) : IRequestHandler<DeleteVaccineCommand, CarnetStatus>
 {
-    public Task<CarnetStatus> Handle(DeleteVaccineCommand request, CancellationToken cancellationToken)
+    public async Task<CarnetStatus> Handle(DeleteVaccineCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        return CarnetFlow.DeleteOwn(vaccines, request.OwnerId, request.VaccineId, cancellationToken);
+        var status = await CarnetFlow.DeleteOwn(vaccines, request.OwnerId, request.VaccineId, cancellationToken).ConfigureAwait(false);
+        if (status == CarnetStatus.Ok)
+        {
+            await reminders.Cancel(request.VaccineId, request.OwnerId, cancellationToken).ConfigureAwait(false);
+        }
+
+        return status;
     }
 }
 
@@ -97,20 +110,26 @@ public sealed record ListDewormingsQuery(Guid OwnerId, Guid PetId, int? Page, in
 
 public sealed record DeleteDewormingCommand(Guid OwnerId, Guid DewormingId) : ICommand<CarnetStatus>;
 
-public sealed class CreateDewormingHandler(IPetRepository pets, IDewormingRepository dewormings, TimeProvider timeProvider)
+public sealed class CreateDewormingHandler(IPetRepository pets, IDewormingRepository dewormings, ReminderScheduler reminders, TimeProvider timeProvider)
     : IRequestHandler<CreateDewormingCommand, CarnetResult<DewormingResult>>
 {
-    public Task<CarnetResult<DewormingResult>> Handle(CreateDewormingCommand request, CancellationToken cancellationToken)
+    public async Task<CarnetResult<DewormingResult>> Handle(CreateDewormingCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        return CarnetFlow.Create(
+        var result = await CarnetFlow.Create(
             pets,
             dewormings,
             request.OwnerId,
             request.PetId,
             () => Deworming.Create(request.PetId, request.OwnerId, RecordProvenance.ByOwner, request.Details, CarnetFlow.Today(timeProvider), timeProvider.GetUtcNow().UtcDateTime),
             DewormingResult.From,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
+        if (result.Value is { } deworming)
+        {
+            await reminders.Schedule(deworming.Id, ReminderKind.Deworming, request.OwnerId, deworming.PetId, deworming.Product, deworming.NextOn, cancellationToken).ConfigureAwait(false);
+        }
+
+        return result;
     }
 }
 
@@ -124,12 +143,18 @@ public sealed class ListDewormingsHandler(IPetRepository pets, IDewormingReposit
     }
 }
 
-public sealed class DeleteDewormingHandler(IDewormingRepository dewormings) : IRequestHandler<DeleteDewormingCommand, CarnetStatus>
+public sealed class DeleteDewormingHandler(IDewormingRepository dewormings, ReminderScheduler reminders) : IRequestHandler<DeleteDewormingCommand, CarnetStatus>
 {
-    public Task<CarnetStatus> Handle(DeleteDewormingCommand request, CancellationToken cancellationToken)
+    public async Task<CarnetStatus> Handle(DeleteDewormingCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        return CarnetFlow.DeleteOwn(dewormings, request.OwnerId, request.DewormingId, cancellationToken);
+        var status = await CarnetFlow.DeleteOwn(dewormings, request.OwnerId, request.DewormingId, cancellationToken).ConfigureAwait(false);
+        if (status == CarnetStatus.Ok)
+        {
+            await reminders.Cancel(request.DewormingId, request.OwnerId, cancellationToken).ConfigureAwait(false);
+        }
+
+        return status;
     }
 }
 

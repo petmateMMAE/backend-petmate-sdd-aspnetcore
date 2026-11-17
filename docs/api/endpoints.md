@@ -142,12 +142,28 @@ Correo transaccional (pm-088): proveedor **Resend** (plan gratuito: 3 000 correo
 | GET | `/api/v1/technical/mediator-probe` | **Temporal:** público para no ampliar el alcance de pm-033. Pendiente revisar su exposición en producción en un trabajo de seguridad posterior |
 | GET | `/openapi/v1.json`, `/scalar/v1` | Solo en Development |
 
+## Eliminación de cuenta por la web (pm-164, pm-165)
+
+| Método | Endpoint | Acceso | Spec | Estado |
+|---|---|---|---|---|
+| POST | `/api/v1/account-deletion/request` | Público (límite por IP y por correo) | `pm-164` / T182 | Implementado (pendiente de cierre) |
+| POST | `/api/v1/account-deletion/confirm` | Público (token del correo) | `pm-165` / T183 | Implementado (pendiente de cierre) |
+
+#### POST `/api/v1/account-deletion/request`
+
+Cuerpo `{ "email": "..." }`. Responde **200 con el mismo mensaje** exista o no el correo. Para una cuenta existente envía un enlace de confirmación de un solo uso que vence en 1 hora (el más reciente invalida los anteriores). 400 con correo inválido o miembros desconocidos; 429 con `Retry-After` por exceso de solicitudes (3 por correo en 15 minutos y el límite por IP). El enlace usa la variable opcional `ACCOUNT_DELETION_URL_BASE` (HTTPS, se le añade `?token=`); sin ella no se envía el correo.
+
+#### POST `/api/v1/account-deletion/confirm`
+
+Cuerpo `{ "token": "..." }`. Elimina la cuenta con el mismo efecto que `DELETE users/me/delete` pero sin contraseña, y revoca todas las sesiones. 200 `null`; 400 con el mismo mensaje para token usado, vencido o inexistente (también uno de restablecimiento de contraseña) y para cuerpos inválidos; 429 por el límite por IP.
+
 ## Perfil
 
 | Método | Endpoint | Acceso | Spec | Estado |
 |---|---|---|---|---|
 | GET | `/api/v1/users/me/get` | Autenticado | `pm-037` / T026 | Implementado (cerrado el 2026-11-08) |
 | PUT | `/api/v1/users/me/update` | Autenticado | `pm-038` / T027 | Implementado (cerrado el 2026-11-08) |
+| DELETE | `/api/v1/users/me/delete` | Autenticado | `pm-161` a `pm-163` / T179–T181 | Implementado (pendiente de cierre) |
 
 ### Contratos de perfil
 
@@ -172,6 +188,63 @@ Cuerpo: `{ "displayName": "Ana Pérez", "phone": "55 1234 5678" }`. `phone` es o
 | 400 | Nombre vacío, demasiado largo, con caracteres de control o miembro desconocido | `{ "errors": [...] }` |
 | 401 | Sin autenticación válida | `null` |
 | 404 | La cuenta del token ya no existe | `null` |
+
+## Dispositivos
+
+| Método | Endpoint | Acceso | Spec | Estado |
+|---|---|---|---|---|
+| POST | `/api/v1/devices/register` | Autenticado | `pm-151` / T169 | Implementado (pendiente de cierre) |
+| GET | `/api/v1/reminders/get-all` | Autenticado | `pm-156` / T174 | Implementado parcialmente (estado de lectura pendiente) |
+| POST | `/api/v1/devices/unregister` | Autenticado | `pm-152` / T170 | Implementado (pendiente de cierre) |
+| GET | `/api/v1/notification-settings/get` | Autenticado | `pm-157` / T175 | Implementado (pendiente de cierre) |
+| PUT | `/api/v1/notification-settings/update` | Autenticado | `pm-157` / T175 | Implementado (pendiente de cierre) |
+
+#### POST `/api/v1/devices/register`
+
+Cuerpo: `{ "token": "<token FCM>" }`. El usuario sale del token de acceso. El token tiene de 20 a 4096 caracteres, sin espacios; otros miembros del cuerpo devuelven 400. Registrar un token ya propio no lo duplica; si estaba a nombre de otra cuenta pasa a la actual. Máximo 5 dispositivos por usuario. El token no se escribe en logs. Límite: 60 peticiones por minuto por usuario (`USERS_RATE_LIMIT_PER_MINUTE`).
+
+| Código | Cuándo | `data` |
+|---|---|---|
+| 200 | Dispositivo registrado (o ya registrado) | `null` |
+| 400 | Token ausente, demasiado corto o largo, con espacios, o miembro desconocido | `{ "errors": [...] }` |
+| 401 | Sin autenticación válida | `null` |
+| 409 | Se alcanzó el máximo de dispositivos | `null` |
+
+#### POST `/api/v1/devices/unregister`
+
+Cuerpo `{ "token": "..." }` (misma validación que el registro). Quita el token solo si es de la cuenta; un token desconocido o ajeno también responde 200 sin cambios. 400 si el token es inválido o hay miembros desconocidos; 401 sin autenticación.
+
+#### GET y PUT `/api/v1/notification-settings/{get|update}`
+
+`data`: `vaccines`, `reviews`, `chat`, `followups` (bool), `sound` (`default`, `soft`, `silent`) y `reminderDaysBefore` (1 a 14). Sin preferencias guardadas el GET devuelve todo activo, `default` y 3. El PUT reemplaza todo (todos los campos son obligatorios; otros miembros devuelven 400). Las preferencias son de la cuenta del token. 401 sin autenticación.
+
+#### POST `/api/v1/messages/send-photo?conversationId=`
+
+Cuerpo `multipart/form-data` con el campo `file` (JPEG, PNG o WebP de hasta **1 MB**; el tipo se deduce de los bytes). Crea un mensaje de tipo `Photo` (`hasPhoto: true`, texto vacío). 201 con el mensaje; 400 sin archivo, tipo no permitido o sin `conversationId`; 401; 404 si no es participante o la conversación no existe; 409 si está cerrada; 413 si pasa de 1 MB; 503 sin almacenamiento. La foto es privada (contenedor privado, prefijo `chat/`) y se borra con la conversación (al eliminar la mascota).
+
+#### GET `/api/v1/messages/get-photo-url?conversationId=&messageId=`
+
+URL temporal (15 minutos) de la foto de un mensaje, solo para los dos participantes. 200 `{ messageId, url, expiresAt }`; 404 para no participantes y mensajes sin foto; 401; 400 sin parámetros.
+
+#### GET `/api/v1/reminders/get-all?page=&pageSize=`
+
+Próximos recordatorios de vacunas y desparasitaciones de las mascotas propias (fecha de hoy en adelante, el más cercano primero, paginado según pm-047). Cada ítem: `id` (registro de origen), `kind` (`Vaccine` o `Deworming`), `petId`, `petName`, `title`, `dueOn`, `remindOn` (3 días antes por defecto o la preferencia de pm-157) e `isRead`. Se generan al registrar una próxima fecha y se cancelan al borrar el registro o la mascota. 400 con paginación inválida; 401 sin autenticación.
+
+#### DELETE `/api/v1/users/me/delete`
+
+Cuerpo `{ "password": "..." }` (contraseña actual; otros miembros devuelven 400). Elimina la cuenta, sus mascotas y todo lo asociado (carnet, QR, autorizaciones, escaneos, conversaciones y fotos), y el negocio con su catálogo, foto y escaneos; revoca todas las sesiones. Las consultas que el negocio registró en carnets ajenos se conservan. El borrado es inmediato y no hay recuperación.
+
+| Código | Cuándo | `data` |
+|---|---|---|
+| 200 | Cuenta eliminada | `null` |
+| 400 | Contraseña ausente o miembro desconocido | `{ "errors": [...] }` |
+| 401 | Sin autenticación válida (también el token usado tras eliminar) | `null` |
+| 403 | Contraseña incorrecta (o cuenta inexistente): no se elimina nada | `null` |
+| 429 | Más de 5 intentos en 15 minutos; bloqueo de 15 minutos con `Retry-After` | `null` |
+
+#### Avisos push del seguimiento y del chat (pm-158 a pm-160)
+
+No son endpoints: ocurren como efecto de otros. Cambiar el estado o la próxima revisión (`PUT followups/update`) o reabrir la conversación avisa al dueño si tiene activo `followups`. Enviar un mensaje o una foto avisa al otro participante si tiene activo `chat`, salvo que haya consultado la conversación (`messages/get-all` o `conversations/mark-read`) en los últimos 30 segundos; el aviso nunca incluye el contenido. La próxima revisión de un seguimiento genera un recordatorio (`kind: Review`, visible en `reminders/get-all`) que se avisa un día antes si el dueño tiene activo `reviews`.
 
 ## Mascotas
 
@@ -222,6 +295,8 @@ Cuerpo: `{ "displayName": "Ana Pérez", "phone": "55 1234 5678" }`. `phone` es o
 | GET | `/api/v1/followups/get-all` | Veterinaria | `pm-142` | Implementado (pendiente de cierre) |
 | POST | `/api/v1/messages/send` | Participante | `pm-144` | Implementado (pendiente de cierre) |
 | GET | `/api/v1/messages/get-all` | Participante | `pm-145` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/messages/send-photo` | Participante | `pm-146` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/messages/get-photo-url` | Participante | `pm-146` | Implementado (pendiente de cierre) |
 | GET | `/api/v1/conversations/get-all` | Participante | `pm-148` | Implementado (pendiente de cierre) |
 | POST | `/api/v1/conversations/mark-read` | Participante | `pm-149` | Implementado (pendiente de cierre) |
 | POST | `/api/v1/conversations/reopen` | Veterinaria | `pm-147` | Implementado (pendiente de cierre) |

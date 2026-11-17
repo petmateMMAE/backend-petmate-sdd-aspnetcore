@@ -375,28 +375,28 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T161 | Nueva | [pm-143](pm-143-chat-conversation-open/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Abrir la conversación de un seguimiento |
 | T162 | Nueva | [pm-144](pm-144-chat-send-message/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Enviar un mensaje de texto |
 | T163 | Nueva | [pm-145](pm-145-chat-list-messages/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Listar los mensajes de una conversación |
-| T164 | Nueva | [pm-146](pm-146-chat-photo-message/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Enviar una foto en el chat |
+| T164 | Nueva | [pm-146](pm-146-chat-photo-message/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Enviar una foto en el chat |
 | T165 | Nueva | [pm-147](pm-147-chat-close-reopen/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Cerrar y reabrir la conversación |
 | T166 | Nueva | [pm-148](pm-148-chat-conversation-list/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Listar las conversaciones propias |
 | T167 | Nueva | [pm-149](pm-149-chat-read-state/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Llevar el estado de lectura del chat |
 | T168 | Nueva | [pm-150](pm-150-chat-realtime-channel/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Entregar los mensajes en tiempo real |
-| T169 | Nueva | [pm-151](pm-151-device-token-register/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Registrar el dispositivo para recibir avisos |
-| T170 | Nueva | [pm-152](pm-152-device-token-unregister/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Quitar el dispositivo al cerrar sesión |
-| T171 | Nueva | [pm-153](pm-153-push-provider-adapter/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Implementar el puerto y el adaptador de notificaciones push |
-| T172 | Nueva | [pm-154](pm-154-reminder-generation/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Calcular los recordatorios de vacunas y desparasitaciones |
-| T173 | Nueva | [pm-155](pm-155-reminder-dispatch/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Enviar los recordatorios vencidos |
-| T174 | Nueva | [pm-156](pm-156-reminder-list/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Listar los avisos de las mascotas |
-| T175 | Nueva | [pm-157](pm-157-notification-settings/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Guardar los ajustes de notificación |
-| T176 | Nueva | [pm-158](pm-158-followup-change-push/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Avisar al dueño de cambios en el seguimiento |
-| T177 | Nueva | [pm-159](pm-159-chat-message-push/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Avisar al otro participante de un mensaje nuevo |
-| T178 | Nueva | [pm-160](pm-160-review-reminder-push/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Avisar un día antes de la revisión |
-| T179 | Nueva | [pm-161](pm-161-account-delete-request/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Eliminar la cuenta con confirmación de contraseña |
-| T180 | Nueva | [pm-162](pm-162-account-delete-user-data/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Borrar los datos de mascotas al eliminar la cuenta |
-| T181 | Nueva | [pm-163](pm-163-account-delete-business-data/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Borrar el negocio al eliminar la cuenta |
-| T182 | Nueva | [pm-164](pm-164-account-deletion-web-request/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Solicitar la eliminación de la cuenta desde la web |
-| T183 | Nueva | [pm-165](pm-165-account-deletion-web-confirm/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Confirmar la eliminación de la cuenta desde la web |
-| T184 | Nueva | [pm-166](pm-166-openapi-contract-artifact/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Publicar el contrato OpenAPI como artefacto de CI |
-| T185 | Nueva | [pm-167](pm-167-integration-environment-flow/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Documentar el flujo del entorno de integración con la app |
+| T169 | Nueva | [pm-151](pm-151-device-token-register/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Registrar el dispositivo para recibir avisos |
+| T170 | Nueva | [pm-152](pm-152-device-token-unregister/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Quitar el dispositivo al cerrar sesión |
+| T171 | Nueva | [pm-153](pm-153-push-provider-adapter/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Implementar el puerto y el adaptador de notificaciones push |
+| T172 | Nueva | [pm-154](pm-154-reminder-generation/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Calcular los recordatorios de vacunas y desparasitaciones |
+| T173 | Nueva | [pm-155](pm-155-reminder-dispatch/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Enviar los recordatorios vencidos |
+| T174 | Nueva | [pm-156](pm-156-reminder-list/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Listar los avisos de las mascotas |
+| T175 | Nueva | [pm-157](pm-157-notification-settings/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Guardar los ajustes de notificación |
+| T176 | Nueva | [pm-158](pm-158-followup-change-push/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Avisar al dueño de cambios en el seguimiento |
+| T177 | Nueva | [pm-159](pm-159-chat-message-push/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Avisar al otro participante de un mensaje nuevo |
+| T178 | Nueva | [pm-160](pm-160-review-reminder-push/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Avisar un día antes de la revisión |
+| T179 | Nueva | [pm-161](pm-161-account-delete-request/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Eliminar la cuenta con confirmación de contraseña |
+| T180 | Nueva | [pm-162](pm-162-account-delete-user-data/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Borrar los datos de mascotas al eliminar la cuenta |
+| T181 | Nueva | [pm-163](pm-163-account-delete-business-data/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Borrar el negocio al eliminar la cuenta |
+| T182 | Nueva | [pm-164](pm-164-account-deletion-web-request/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Solicitar la eliminación de la cuenta desde la web |
+| T183 | Nueva | [pm-165](pm-165-account-deletion-web-confirm/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Confirmar la eliminación de la cuenta desde la web |
+| T184 | Nueva | [pm-166](pm-166-openapi-contract-artifact/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Publicar el contrato OpenAPI como artefacto de CI |
+| T185 | Nueva | [pm-167](pm-167-integration-environment-flow/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Documentar el flujo del entorno de integración con la app |
 
 ## Primer hito
 

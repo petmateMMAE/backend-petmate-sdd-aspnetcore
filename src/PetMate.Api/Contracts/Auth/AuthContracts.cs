@@ -30,6 +30,18 @@ public sealed record ResetPasswordRequest(string? Token, string? NewPassword)
 }
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record RequestAccountDeletionRequest(string? Email)
+{
+    public override string ToString() => nameof(RequestAccountDeletionRequest);
+}
+
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record ConfirmAccountDeletionRequest(string? Token)
+{
+    public override string ToString() => nameof(ConfirmAccountDeletionRequest);
+}
+
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record RefreshRequest(string? RefreshToken)
 {
     public override string ToString() => nameof(RefreshRequest);

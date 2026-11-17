@@ -584,3 +584,32 @@ Aprobados por el usuario (H7, H3, H8 opción A; H4 opción B; H6 A+B+C) y regist
 - **2026-11-10:** T148 a T163 y T165 a T167 marcadas «Verificado» por decisión del usuario, **sin revisión independiente** de este bloque y con las pruebas contra Atlas sin ejecutar.
 - **2026-11-10:** T145 implementada (ficha completa de la veterinaria por grupos autorizados). Contrato 359. Pendiente de revisión y cierre.
 - **2026-11-10:** T145 marcada «Verificado» por decisión del usuario, sin revisión independiente.
+
+## Implementación de T169 a T183 sin Azure (2026-11-17)
+
+- **Hecho (pendiente de revisión y aprobación humana):** dispositivos (T169, T170 parcial), preferencias de aviso (T175), foto en el chat (T164), generación y listado de recordatorios (T172, T174 parcial), eliminación de cuenta con contraseña (T179), borrado de datos de usuario y de negocio (T180, T181) y eliminación por la web (T182, T183). Planes en cada `specs/pm-NNN/plan.md`.
+- **Pruebas:** unitarias 339, seguridad 196, contrato 425. Integración Atlas escrita pero sin ejecutar (los repositorios Mongo nuevos no se probaron contra Atlas).
+- **No hecho:** T171 (adaptador FCM: falta verificar licencia y costo del paquete), T173, T176–T178 (dependen de T171), T184, T185 y T168 (decisión del usuario). T170 queda sin cerrar por pm-152#CA-02 (tokens inválidos del proveedor) y T174 por pm-156#CA-01 (revisiones) y CA-02 (no hay forma de marcar leído).
+- **Decisiones del agente a confirmar:** 5 dispositivos por usuario (409 al superarlo); rutas `notification-settings/get|update` (acción literal en lugar de la del Spec); sonidos `default|soft|silent` y anticipación de 1 a 14 días; fotos del chat en el contenedor privado de mascotas bajo `chat/`; 403 por contraseña incorrecta al eliminar y 5 intentos cada 15 minutos; tokens de eliminación en su propia colección; variable opcional `ACCOUNT_DELETION_URL_BASE`; los seguimientos y conversaciones de una veterinaria eliminada se conservan para el dueño; programar recordatorios es de mejor esfuerzo.
+- **Riesgos:** la eliminación de cuenta no es atómica (sin transacciones en Atlas $0); es reintentable. Las rutas de eliminación por la web son públicas y dependen de un dominio de envío verificado que aún no existe.
+
+## T171, T184 y T185 (2026-11-17)
+
+- **Hecho (pendiente de revisión y aprobación humana):** T171 puerto `IPushSender` y adaptador FCM HTTP v1 sin paquetes nuevos (costo $0 verificado el 2026-11-17; plan en pm-153); T184 el CI exporta `openapi.json` y lo publica como artefacto `openapi`; T185 `docs/ci-cd/mobile-development-flow.md`.
+- **Pruebas:** seguridad 206 (incluye 8 del adaptador FCM con proveedor falso). El artefacto de CI solo se comprobó localmente (la publicación real se verá en la primera ejecución del pipeline). El envío a FCM real no se probó.
+- **Observación:** el 2026-11-17 `GET /api/v1/health/live` de la demo de Azure respondió 200 (una sola petición de solo lectura); se anotó en el documento de T185 como estado fechado.
+- **Desbloquea:** T173 (despacho de recordatorios) ya tiene sus tres dependencias (T169, T172, T171); T176–T178 dependen de T173.
+
+## T173 (2026-11-17)
+
+- **Hecho (pendiente de revisión y aprobación humana):** envío de recordatorios por push cada 5 minutos con reclamación atómica (`ReminderDispatcher` + `ReminderDispatchHostedService`); borra los tokens que FCM reporta inválidos (cubre pm-152#CA-02). Plan en pm-155.
+- **Pruebas:** 8 unitarias nuevas (incluye 8 ejecuciones simultáneas). Reclamo atómico en Mongo y envío a FCM sin probar contra servicios reales.
+- **Riesgo:** con el modo ahorro de Azure la API se apaga sin tráfico y el trabajo no corre mientras tanto.
+- **Desbloquea:** T176 a T178 (pushes de seguimiento, chat y reseña) ya tienen su dependencia.
+
+## T178, T176 y T177 (2026-11-17)
+
+- **Hecho (pendiente de revisión y aprobación humana):** recordatorio de revisión del seguimiento un día antes (T178), aviso push al dueño por cambios de estado o de revisión (T176) y aviso push de mensajes y fotos del chat que se suprime mientras el destinatario consulta la conversación (T177). Planes en pm-160, pm-158 y pm-159.
+- **Decisiones del usuario:** envío inmediato sin cola (un aviso fallido se pierde); la supresión «leyendo» se implementa como «consultó la conversación hace menos de 30 s» (marca en Atlas, no en Redis); preferencias de pm-157.
+- **Decisión del agente a confirmar:** el aviso de revisión usa `reviews` (no `followups`), porque pm-157 los separa.
+- **Pruebas:** nada probado contra FCM ni Atlas reales.

@@ -24,6 +24,9 @@ public interface IAccessGrantRepository
 
     /// <summary>Borra todas las autorizaciones de la mascota (cascada, pm-104).</summary>
     Task<long> DeleteByPet(Guid petId, Guid ownerId, CancellationToken cancellationToken);
+
+    /// <summary>Borra las autorizaciones dirigidas a un negocio (baja de su cuenta, pm-163). Las de «cualquier negocio» no se tocan.</summary>
+    Task<long> DeleteByBusiness(Guid businessId, CancellationToken cancellationToken);
 }
 
 /// <summary>Registro interno de escaneos con acceso concedido (pm-129). Sin lectura para el dueño.</summary>
@@ -32,6 +35,8 @@ public interface IScanLogRepository
     Task Add(ScanLog log, CancellationToken cancellationToken);
 
     Task<long> DeleteByPet(Guid petId, CancellationToken cancellationToken);
+
+    Task<long> DeleteByBusiness(Guid businessId, CancellationToken cancellationToken);
 
     /// <summary>Escaneos del negocio desde la fecha dada (o todos), del más reciente al más antiguo (pm-130).</summary>
     Task<IReadOnlyList<ScanLog>> ListByBusiness(Guid businessId, DateTime? sinceUtc, int skip, int take, CancellationToken cancellationToken);

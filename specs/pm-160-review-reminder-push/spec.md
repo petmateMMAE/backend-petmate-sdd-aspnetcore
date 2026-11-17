@@ -31,7 +31,7 @@ Cada criterio se cita como `pm-160#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T178 | Nueva | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Avisar un día antes de la revisión |
+| T178 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Avisar un día antes de la revisión |
 
 Detalle en [task.md](task.md).
 

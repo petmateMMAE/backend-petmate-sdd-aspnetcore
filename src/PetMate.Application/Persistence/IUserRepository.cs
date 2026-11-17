@@ -17,4 +17,7 @@ public interface IUserRepository
 
     /// <summary>Persiste los datos de perfil editables (nombre visible) y la fecha de actualización (pm-038).</summary>
     Task UpdateProfile(User user, CancellationToken cancellationToken);
+
+    /// <summary>Elimina la cuenta (pm-161). Idempotente: que ya no exista no es un error.</summary>
+    Task Delete(Guid userId, CancellationToken cancellationToken);
 }

@@ -102,6 +102,18 @@ public sealed class MongoIndexInitializer(IMongoDatabase database, MongoCollecti
             ],
             cancellationToken).ConfigureAwait(false);
 
+        // pm-164: los tokens de confirmación de eliminación usan la misma forma y los mismos índices que los de restablecimiento.
+        await database.GetCollection<PasswordResetDocument>(names.AccountDeletionTokens).Indexes.CreateManyAsync(
+            [
+                new CreateIndexModel<PasswordResetDocument>(
+                    Builders<PasswordResetDocument>.IndexKeys.Ascending(d => d.TokenHash),
+                    new CreateIndexOptions { Name = "ux_account_deletion_tokens_tokenHash", Unique = true }),
+                new CreateIndexModel<PasswordResetDocument>(
+                    Builders<PasswordResetDocument>.IndexKeys.Ascending(d => d.ExpiresAtUtc),
+                    new CreateIndexOptions { Name = "ttl_account_deletion_tokens_expiresAtUtc", ExpireAfter = TimeSpan.FromDays(1) }),
+            ],
+            cancellationToken).ConfigureAwait(false);
+
         // pm-105: un solo negocio por cuenta (índice único) y consultas por cercanía (índice geoespacial 2dsphere).
         var businessCollection = database.GetCollection<BusinessDocument>(names.Businesses);
         await businessCollection.Indexes.CreateManyAsync(
@@ -125,6 +137,18 @@ public sealed class MongoIndexInitializer(IMongoDatabase database, MongoCollecti
                     new CreateIndexOptions { Name = AccessGrantTtlIndex, ExpireAfter = TimeSpan.FromDays(1) }),
             ],
             cancellationToken).ConfigureAwait(false);
+        // pm-155: el trabajo de envío busca por fecha de aviso los recordatorios sin enviar.
+        await database.GetCollection<ReminderDocument>(names.Reminders).Indexes.CreateOneAsync(
+            new CreateIndexModel<ReminderDocument>(Builders<ReminderDocument>.IndexKeys.Ascending(d => d.RemindOn).Ascending(d => d.SentAtUtc), new CreateIndexOptions { Name = "ix_reminders_remindOn_sentAtUtc" }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+        // pm-154: el listado del dueño ordena por fecha del recordatorio.
+        await database.GetCollection<ReminderDocument>(names.Reminders).Indexes.CreateOneAsync(
+            new CreateIndexModel<ReminderDocument>(Builders<ReminderDocument>.IndexKeys.Ascending(d => d.OwnerId).Ascending(d => d.DueOn), new CreateIndexOptions { Name = "ix_reminders_ownerId_dueOn" }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+        // pm-151: el token es el _id (único); este índice sirve al conteo por usuario.
+        await database.GetCollection<DeviceDocument>(names.Devices).Indexes.CreateOneAsync(
+            new CreateIndexModel<DeviceDocument>(Builders<DeviceDocument>.IndexKeys.Ascending(d => d.UserId), new CreateIndexOptions { Name = "ix_devices_userId" }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
         await database.GetCollection<ScanLogDocument>(names.ScanLogs).Indexes.CreateOneAsync(
             new CreateIndexModel<ScanLogDocument>(
                 Builders<ScanLogDocument>.IndexKeys.Ascending(d => d.PetId),

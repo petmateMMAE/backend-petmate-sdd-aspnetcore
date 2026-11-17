@@ -8,6 +8,13 @@ namespace PetMate.Api.Contracts.Users;
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record UpdateProfileRequest(string? DisplayName, string? Phone = null);
 
+/// <summary>Confirmación de contraseña para eliminar la cuenta (pm-161). <c>ToString</c> no la imprime.</summary>
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record DeleteAccountRequest(string? Password)
+{
+    public override string ToString() => nameof(DeleteAccountRequest);
+}
+
 /// <summary>Perfil del usuario autenticado. Nunca incluye el hash de la contraseña ni tokens.</summary>
 public sealed record UserProfileResponse(Guid Id, string Email, string Role, string? DisplayName, DateTime CreatedAt, string? Phone = null)
 {

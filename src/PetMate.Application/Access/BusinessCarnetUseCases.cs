@@ -224,7 +224,7 @@ public sealed record CreateVaccineByBusinessCommand(Guid AccountId, Guid PetId, 
 public sealed record CreateDewormingByBusinessCommand(Guid AccountId, Guid PetId, DewormingDetails Details) : ICommand<AccessOutcome<DewormingResult>>;
 
 public sealed class CreateVaccineByBusinessHandler(
-    IBusinessRepository businesses, IAccessGrantRepository grants, IPetRepository pets, IVaccineRepository vaccines, TimeProvider timeProvider)
+    IBusinessRepository businesses, IAccessGrantRepository grants, IPetRepository pets, IVaccineRepository vaccines, Reminders.ReminderScheduler reminders, TimeProvider timeProvider)
     : IRequestHandler<CreateVaccineByBusinessCommand, AccessOutcome<VaccineResult>>
 {
     public async Task<AccessOutcome<VaccineResult>> Handle(CreateVaccineByBusinessCommand request, CancellationToken cancellationToken)
@@ -246,12 +246,13 @@ public sealed class CreateVaccineByBusinessHandler(
         var now = timeProvider.GetUtcNow().UtcDateTime;
         var vaccine = Vaccine.Create(request.PetId, access.OwnerId, RecordProvenance.ByBusiness(access.Business.Id, access.Business.Name), details, DateOnly.FromDateTime(now), now);
         await vaccines.Add(vaccine, cancellationToken).ConfigureAwait(false);
+        await reminders.Schedule(vaccine.Id, Reminders.ReminderKind.Vaccine, access.OwnerId, vaccine.PetId, vaccine.Name, vaccine.NextDoseOn, cancellationToken).ConfigureAwait(false);
         return AccessOutcome.Ok(VaccineResult.From(vaccine));
     }
 }
 
 public sealed class CreateDewormingByBusinessHandler(
-    IBusinessRepository businesses, IAccessGrantRepository grants, IPetRepository pets, IDewormingRepository dewormings, TimeProvider timeProvider)
+    IBusinessRepository businesses, IAccessGrantRepository grants, IPetRepository pets, IDewormingRepository dewormings, Reminders.ReminderScheduler reminders, TimeProvider timeProvider)
     : IRequestHandler<CreateDewormingByBusinessCommand, AccessOutcome<DewormingResult>>
 {
     public async Task<AccessOutcome<DewormingResult>> Handle(CreateDewormingByBusinessCommand request, CancellationToken cancellationToken)
@@ -272,6 +273,7 @@ public sealed class CreateDewormingByBusinessHandler(
         var now = timeProvider.GetUtcNow().UtcDateTime;
         var deworming = Deworming.Create(request.PetId, access.OwnerId, RecordProvenance.ByBusiness(access.Business.Id, access.Business.Name), details, DateOnly.FromDateTime(now), now);
         await dewormings.Add(deworming, cancellationToken).ConfigureAwait(false);
+        await reminders.Schedule(deworming.Id, Reminders.ReminderKind.Deworming, access.OwnerId, deworming.PetId, deworming.Product, deworming.NextOn, cancellationToken).ConfigureAwait(false);
         return AccessOutcome.Ok(DewormingResult.From(deworming));
     }
 }

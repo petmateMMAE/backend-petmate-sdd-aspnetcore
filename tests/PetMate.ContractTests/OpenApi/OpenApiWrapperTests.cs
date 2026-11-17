@@ -73,6 +73,7 @@ public sealed class OpenApiWrapperTests
                     || path.Name.Contains("/businesses/get-by-id", StringComparison.Ordinal)
                     || path.Name.Contains("/auth/forgot-password", StringComparison.Ordinal)
                     || path.Name.Contains("/auth/reset-password", StringComparison.Ordinal)
+                    || path.Name.Contains("/account-deletion/", StringComparison.Ordinal)
                     || path.Name.Contains("/health/", StringComparison.Ordinal)
                     || path.Name.Contains("/technical/", StringComparison.Ordinal);
                 if (!isPublic)
@@ -81,6 +82,44 @@ public sealed class OpenApiWrapperTests
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// pm-166#CA-01: exporta el documento OpenAPI. Con <c>PETMATE_OPENAPI_OUT</c> definida (el CI la fija) lo guarda en esa ruta para
+    /// publicarlo como artefacto; sin ella solo comprueba que el documento es válido. El documento sale del propio arranque de la
+    /// API en Development, igual que lo ve el equipo móvil.
+    /// </summary>
+    [Trait("Endpoint", "transversal")]
+    [Fact]
+    public async Task The_openapi_document_is_valid_and_is_exported_when_the_ci_asks_for_it()
+    {
+        using var factory = new WrapperFactory();
+        using var client = factory.CreateClient();
+        var json = await client.GetStringAsync("/openapi/v1.json");
+
+        using var document = JsonDocument.Parse(json);
+        Assert.StartsWith("3.", document.RootElement.GetProperty("openapi").GetString(), StringComparison.Ordinal);
+        Assert.True(document.RootElement.GetProperty("paths").EnumerateObject().Any());
+
+        if (Environment.GetEnvironmentVariable("PETMATE_OPENAPI_OUT") is { Length: > 0 } output)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
+            await File.WriteAllTextAsync(output, json);
+        }
+    }
+
+    [Trait("Endpoint", "transversal")]
+    [Fact]
+    public async Task Production_keeps_openapi_and_scalar_hidden()
+    {
+        using var factory = new IsolatedApiFactory("Production");
+        using var client = factory.CreateClient();
+
+        using var openapi = await client.GetAsync("/openapi/v1.json");
+        using var scalar = await client.GetAsync("/scalar/v1");
+
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, openapi.StatusCode);
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, scalar.StatusCode);
     }
 
     private sealed class WrapperFactory : IsolatedApiFactory

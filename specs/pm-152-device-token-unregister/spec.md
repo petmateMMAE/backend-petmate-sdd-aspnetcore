@@ -30,7 +30,7 @@ Cada criterio se cita como `pm-152#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T170 | Nueva | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Quitar el dispositivo al cerrar sesión |
+| T170 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Quitar el dispositivo al cerrar sesión |
 
 Detalle en [task.md](task.md).
 

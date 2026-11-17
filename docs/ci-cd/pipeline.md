@@ -60,7 +60,7 @@ Los nueve jobs `Endpoint · …` están en la misma columna (todos dependen solo
 | 4 | `unit-tests` | Pruebas unitarias. | Pruebas | Sí |
 | 4 | `security-tests` | JWT, autorización, rate limiting, configuración, detección de secretos en el código, manejo de errores. | DevSecOps | Sí |
 | 4 | `endpoint-tests` (matriz de 9) | Un job por endpoint: `--filter "Endpoint=<valor>"` de ContractTests. | Pruebas | Sí |
-| 4 | `contract-transversal` | Contrato que no es de un solo endpoint (wrapper, OpenAPI, autorización, superficie pública). | Pruebas | Sí |
+| 4 | `contract-transversal` | Contrato que no es de un solo endpoint (wrapper, OpenAPI, autorización, superficie pública). Además exporta `openapi.json` y lo publica como artefacto `openapi` (30 días) para el equipo móvil (pm-166); en Production OpenAPI y Scalar siguen ocultos. | Pruebas | Sí |
 | 4 | `integration-tests` | MongoDB Atlas de pruebas y dos Redis efímeros. Sin secretos de Atlas, esas pruebas quedan *Skipped* con aviso. | Pruebas | Sí (si una prueba falla) |
 | 5 | `quality-gate` | Depende de todas las anteriores; escribe en el resumen una tabla etapa → resultado y falla si una etapa bloqueante no terminó bien. | Puerta | Sí |
 | 6 | `docker-build` | Construye la imagen, Trivy de imagen (HIGH y CRITICAL bloquean) y SBOM SPDX con Syft. Nunca publica. | DevSecOps | Sí |

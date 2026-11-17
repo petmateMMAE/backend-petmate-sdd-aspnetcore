@@ -66,6 +66,8 @@ public sealed class RefreshResilienceTests
         public Task Revoke(RefreshSession session, CancellationToken cancellationToken)
             => inner.Revoke(session, cancellationToken);
 
+        public Task DeleteAllForUser(Guid userId, CancellationToken cancellationToken) => inner.DeleteAllForUser(userId, cancellationToken);
+
         public Task<IReadOnlyList<Guid>> RevokeAllForUser(Guid userId, DateTime nowUtc, SessionRevocationReason reason, CancellationToken cancellationToken)
             => inner.RevokeAllForUser(userId, nowUtc, reason, cancellationToken);
     }

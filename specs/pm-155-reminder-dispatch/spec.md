@@ -33,7 +33,7 @@ Cada criterio se cita como `pm-155#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T173 | Nueva | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Enviar los recordatorios vencidos |
+| T173 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Enviar los recordatorios vencidos |
 
 Detalle en [task.md](task.md).
 
