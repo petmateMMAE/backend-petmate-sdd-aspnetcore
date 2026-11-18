@@ -182,7 +182,7 @@
 | [pm-165-account-deletion-web-confirm](pm-165-account-deletion-web-confirm/spec.md) | Aprobado | L10 | pm-164, pm-161 | T183 | `POST /api/v1/account-deletion/confirm` elimina la cuenta con el token del enlace |
 | [pm-166-openapi-contract-artifact](pm-166-openapi-contract-artifact/spec.md) | Aprobado | L6 | pm-061, pm-008 | T184 | Cada ejecución de CI genera el documento OpenAPI y lo publica como artefacto para el equipo móvil |
 | [pm-167-integration-environment-flow](pm-167-integration-environment-flow/spec.md) | Aprobado | L6 | pm-055, pm-059 | T185 | Existe un documento que fija cómo el equipo móvil consume el backend durante el desarrollo |
-| [pm-168-business-get-own](pm-168-business-get-own/spec.md) | Aprobado | L10 | pm-107, pm-109 | T186 | `GET /api/v1/businesses/get` devuelve al afiliado los datos completos de su propio negocio |
+| [pm-168-business-get-own](pm-168-business-get-own/spec.md) | Cerrado | L10 | pm-107, pm-109 | T186 | `GET /api/v1/businesses/get` devuelve al afiliado los datos completos de su propio negocio |
 
 ## Orden de ejecución por niveles
 

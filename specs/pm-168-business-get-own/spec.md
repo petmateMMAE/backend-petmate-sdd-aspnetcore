@@ -1,6 +1,6 @@
 # Spec — pm-168 business-get-own
 
-> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.3.0 | Nivel de ejecución: L10 (los números identifican, no ordenan) | Creado el 2026-11-18
+> Estado: Cerrado | Constitución: `.specify/memory/constitution.md` v1.3.0 | Nivel de ejecución: L10 (los números identifican, no ordenan) | Creado el 2026-11-18
 
 ## 1. Objetivo
 
@@ -48,4 +48,5 @@ Detalle en [task.md](task.md).
 - [x] Requisitos y criterios revisados por el usuario.
 - [x] Constitución cumplida.
 - Revisor/usuario: Miguel (usuario), 2026-11-18, aprobación en el chat de la sesión.
+- Cierre del Spec: usuario, 2026-11-18, en el chat, sin revisión independiente.
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec.

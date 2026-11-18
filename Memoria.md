@@ -647,3 +647,5 @@ Aprobados por el usuario (H7, H3, H8 opción A; H4 opción B; H6 A+B+C) y regist
 - **Pruebas:** build Release `-warnaserror` limpio; unitarias 348, seguridad 206, contrato 436. Sin integración nueva (no aplica). `check-sdd.ps1` no se ejecutó (sin `pwsh`).
 - **Decisión del agente a confirmar:** 404 (según CA-03) en lugar del 403 que usan las demás rutas del panel cuando la cuenta no tiene negocio.
 - **Riesgo:** sin prueba de 429 propia; el límite se hereda del controlador.
+
+- **Cierre del Spec pm-168 (2026-11-18):** el usuario cerró el Spec en el chat.
