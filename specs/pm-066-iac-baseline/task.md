@@ -11,7 +11,7 @@
 
 ### T078 — Establecer la línea base de IaC
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** En progreso (registro retrospectivo; ver gates)
 - **Spec principal:** pm-066
 - **Criterios propios:** pm-066#CA-01, pm-066#CA-02, pm-066#CA-03
 - **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.

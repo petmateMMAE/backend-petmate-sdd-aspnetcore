@@ -11,7 +11,7 @@
 
 ### T086 — Configurar el registro de contenedores
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** En progreso (registro retrospectivo; ver gates)
 - **Spec principal:** pm-074
 - **Criterios propios:** pm-074#CA-01, pm-074#CA-02, pm-074#CA-03
 - **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.

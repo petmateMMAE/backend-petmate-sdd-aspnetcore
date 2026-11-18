@@ -1,6 +1,6 @@
 # Spec — pm-069 atlas-cloud-integration
 
-> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -34,7 +34,7 @@ Cada criterio se cita como `pm-069#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T081 | Nueva | Propuesto | Integrar MongoDB Atlas con el entorno Azure |
+| T081 | Nueva | En progreso | Integrar MongoDB Atlas con el entorno Azure |
 
 Detalle en [task.md](task.md).
 

@@ -1,6 +1,6 @@
 # Spec — pm-074 container-registry
 
-> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -32,7 +32,7 @@ Cada criterio se cita como `pm-074#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T086 | Nueva | Propuesto | Configurar el registro de contenedores |
+| T086 | Nueva | En progreso | Configurar el registro de contenedores |
 
 Detalle en [task.md](task.md).
 

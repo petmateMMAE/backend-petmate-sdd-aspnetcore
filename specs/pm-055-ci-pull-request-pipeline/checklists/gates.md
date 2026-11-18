@@ -1,6 +1,6 @@
-# Gates — pm-055 ci-pull-request-pipeline (T066)
+# Gates — pm-055 ci-pull-request-pipeline (T066, T067)
 
-> Estado: T066 cerrada con aprobación humana el 2026-11-08 (sin revisión independiente). T067 sigue abierta; T012 quedó cerrada el mismo día.
+> Estado: T066 cerrada con aprobación humana el 2026-11-08 y T067 el 2026-11-18 (sin revisión independiente); T012 quedó cerrada el mismo día.
 
 | CA | Comprobación | Resultado |
 |---|---|---|
@@ -16,3 +16,13 @@
 - Cambio menor: la fila de resumen "Pruebas por endpoint (9 jobs)" pasa a "(matriz)" porque la matriz ya tiene 13 endpoints.
 - [ ] Revisión independiente (no realizada; el usuario aprobó el cierre sin ella).
 - [x] Aprobación humana del cierre de T066 (2026-11-08).
+
+## T067 — ramas protegidas (2026-11-18)
+| CA | Comprobación | Resultado |
+|---|---|---|
+| `pm-055#CA-03` | Ruleset de ramas creado en GitHub (Settings → Rules) exigiendo los checks del workflow | Declarado por el usuario; el agente no lo verificó (sin acceso a la configuración de GitHub) |
+| `pm-055#CA-04` | Los checks requeridos no se pueden omitir; cambios solo por pull request | Declarado por el usuario; sin verificar |
+
+- Limitación: la lista exacta de checks requeridos y el patrón de ramas no quedaron registrados aquí; conviene anotarlos.
+- [ ] Revisión independiente (no realizada).
+- [x] Aprobación humana del cierre de T067 (2026-11-18).

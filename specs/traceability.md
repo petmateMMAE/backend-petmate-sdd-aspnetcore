@@ -63,7 +63,7 @@
 | T042 (retrospectiva) | pm-007 | pm-007#CA-01..03 | Documenta la evidencia existente de rutas versionadas (origen T007) sin cerrarse. |
 | T055 (nueva) | pm-007 | pm-007#CA-04..05 | Cubre los criterios que faltan (verificación automática de rutas y reglas de nombrado). |
 | T022 (histórica) | pm-033 | pm-033#CA-01..04 | Cerrado y aprobado (2026-11-08, aprobación humana); cumple: la aplicación de Owner a los endpoints de mascotas se cumple en pm-040 a pm-044 y se traza con pm-045 CA-02. |
-| T012 (histórica) | pm-055 | workflow, Trivy y Syft en `pipeline.yml` | Cerrado y aprobado (2026-11-08, aprobación humana); T066 y T067 cubren los criterios de pm-055. |
+| T012 (histórica) | pm-055 | workflow, Trivy y Syft en `pipeline.yml` | Cerrado y aprobado (2026-11-08, aprobación humana); T066 y T067 (cerrada el 2026-11-18) cubren los criterios de pm-055. |
 | T047 / T097 | pm-017 | pm-017#CA-01..03 / CA-04 | Evidencia existente indirecta; la directa contra spoofing es trabajo nuevo. |
 | T054 / T057 | pm-036 | pm-036#CA-01,02,04 / CA-03 | Rate limiting de autenticación existente; la matriz global la entregó T057 (cerrada el 2026-11-08). |
 
@@ -245,8 +245,8 @@
 | pm-054#CA-03 | T065 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-054-structured-logging-pii-safe/checklists/gates.md) |
 | pm-055#CA-01 | T066 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-055-ci-pull-request-pipeline/checklists/gates.md) |
 | pm-055#CA-02 | T066 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-055-ci-pull-request-pipeline/checklists/gates.md) |
-| pm-055#CA-03 | T067 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-055#CA-04 | T067 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-055#CA-03 | T067 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana) | [gates](pm-055-ci-pull-request-pipeline/checklists/gates.md) |
+| pm-055#CA-04 | T067 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana) | [gates](pm-055-ci-pull-request-pipeline/checklists/gates.md) |
 | pm-056#CA-01 | T068 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; CA-02 pendiente de enmienda) | [gates](pm-056-test-coverage-baseline/checklists/gates.md) |
 | pm-056#CA-02 | T068 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana; CA-02 pendiente de enmienda) | [gates](pm-056-test-coverage-baseline/checklists/gates.md) |
 | pm-057#CA-01 | T069 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-057-container-image-scan/checklists/gates.md) |
@@ -275,65 +275,65 @@
 | pm-064#CA-01 | T076 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-064-environment-strategy/checklists/gates.md) |
 | pm-064#CA-02 | T076 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-064-environment-strategy/checklists/gates.md) |
 | pm-064#CA-03 | T076 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | [gates](pm-064-environment-strategy/checklists/gates.md) |
-| pm-065#CA-01 | T077 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-065#CA-02 | T077 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-065#CA-03 | T077 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-066#CA-01 | T078 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-066#CA-02 | T078 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-066#CA-03 | T078 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-067#CA-01 | T079 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-067#CA-02 | T079 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-067#CA-03 | T079 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-068#CA-01 | T080 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-068#CA-02 | T080 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-068#CA-03 | T080 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-068#CA-04 | T080 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-069#CA-01 | T081 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-069#CA-02 | T081 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-069#CA-03 | T081 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-070#CA-01 | T082 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-070#CA-02 | T082 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-070#CA-03 | T082 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-070#CA-04 | T082 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-070#CA-05 | T082 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-070#CA-06 | T082 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-070#CA-07 | T082 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-070#CA-08 | T082 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-070#CA-09 | T082 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-071#CA-01 | T083 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-071#CA-02 | T083 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-071#CA-03 | T083 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-071#CA-04 | T083 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-071#CA-05 | T083 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-071#CA-06 | T083 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-071#CA-07 | T083 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-071#CA-08 | T083 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-071#CA-09 | T083 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-071#CA-10 | T083 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-072#CA-01 | T084 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-072#CA-02 | T084 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-072#CA-03 | T084 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-073#CA-01 | T085 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-073#CA-02 | T085 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-073#CA-03 | T085 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-073#CA-04 | T085 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-074#CA-01 | T086 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-074#CA-02 | T086 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-074#CA-03 | T086 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-075#CA-01 | T087 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-075#CA-02 | T087 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-075#CA-03 | T087 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-075#CA-04 | T087 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-076#CA-01 | T088 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-076#CA-02 | T088 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-076#CA-03 | T088 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-077#CA-01 | T089 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-077#CA-02 | T089 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-077#CA-03 | T089 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-077#CA-04 | T089 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-078#CA-01 | T090 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-078#CA-02 | T090 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-078#CA-03 | T090 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-065#CA-01 | T077 | Nueva | En progreso | [gates](pm-065-cost-guardrails/checklists/gates.md) |
+| pm-065#CA-02 | T077 | Nueva | En progreso | [gates](pm-065-cost-guardrails/checklists/gates.md) |
+| pm-065#CA-03 | T077 | Nueva | En progreso | [gates](pm-065-cost-guardrails/checklists/gates.md) |
+| pm-066#CA-01 | T078 | Nueva | En progreso | [gates](pm-066-iac-baseline/checklists/gates.md) |
+| pm-066#CA-02 | T078 | Nueva | En progreso | [gates](pm-066-iac-baseline/checklists/gates.md) |
+| pm-066#CA-03 | T078 | Nueva | En progreso | [gates](pm-066-iac-baseline/checklists/gates.md) |
+| pm-067#CA-01 | T079 | Nueva | En progreso | [gates](pm-067-iac-state-management/checklists/gates.md) |
+| pm-067#CA-02 | T079 | Nueva | En progreso | [gates](pm-067-iac-state-management/checklists/gates.md) |
+| pm-067#CA-03 | T079 | Nueva | En progreso | [gates](pm-067-iac-state-management/checklists/gates.md) |
+| pm-068#CA-01 | T080 | Nueva | En progreso | [gates](pm-068-cloud-secrets-configuration/checklists/gates.md) |
+| pm-068#CA-02 | T080 | Nueva | En progreso | [gates](pm-068-cloud-secrets-configuration/checklists/gates.md) |
+| pm-068#CA-03 | T080 | Nueva | En progreso | [gates](pm-068-cloud-secrets-configuration/checklists/gates.md) |
+| pm-068#CA-04 | T080 | Nueva | En progreso | [gates](pm-068-cloud-secrets-configuration/checklists/gates.md) |
+| pm-069#CA-01 | T081 | Nueva | En progreso | [gates](pm-069-atlas-cloud-integration/checklists/gates.md) |
+| pm-069#CA-02 | T081 | Nueva | En progreso | [gates](pm-069-atlas-cloud-integration/checklists/gates.md) |
+| pm-069#CA-03 | T081 | Nueva | En progreso | [gates](pm-069-atlas-cloud-integration/checklists/gates.md) |
+| pm-070#CA-01 | T082 | Nueva | Propuesto | [gates](pm-070-cloud-redis-auth/checklists/gates.md) |
+| pm-070#CA-02 | T082 | Nueva | Propuesto | [gates](pm-070-cloud-redis-auth/checklists/gates.md) |
+| pm-070#CA-03 | T082 | Nueva | Propuesto | [gates](pm-070-cloud-redis-auth/checklists/gates.md) |
+| pm-070#CA-04 | T082 | Nueva | Propuesto | [gates](pm-070-cloud-redis-auth/checklists/gates.md) |
+| pm-070#CA-05 | T082 | Nueva | Propuesto | [gates](pm-070-cloud-redis-auth/checklists/gates.md) |
+| pm-070#CA-06 | T082 | Nueva | Propuesto | [gates](pm-070-cloud-redis-auth/checklists/gates.md) |
+| pm-070#CA-07 | T082 | Nueva | Propuesto | [gates](pm-070-cloud-redis-auth/checklists/gates.md) |
+| pm-070#CA-08 | T082 | Nueva | Propuesto | [gates](pm-070-cloud-redis-auth/checklists/gates.md) |
+| pm-070#CA-09 | T082 | Nueva | Propuesto | [gates](pm-070-cloud-redis-auth/checklists/gates.md) |
+| pm-071#CA-01 | T083 | Nueva | Propuesto | [gates](pm-071-cloud-redis-cache/checklists/gates.md) |
+| pm-071#CA-02 | T083 | Nueva | Propuesto | [gates](pm-071-cloud-redis-cache/checklists/gates.md) |
+| pm-071#CA-03 | T083 | Nueva | Propuesto | [gates](pm-071-cloud-redis-cache/checklists/gates.md) |
+| pm-071#CA-04 | T083 | Nueva | Propuesto | [gates](pm-071-cloud-redis-cache/checklists/gates.md) |
+| pm-071#CA-05 | T083 | Nueva | Propuesto | [gates](pm-071-cloud-redis-cache/checklists/gates.md) |
+| pm-071#CA-06 | T083 | Nueva | Propuesto | [gates](pm-071-cloud-redis-cache/checklists/gates.md) |
+| pm-071#CA-07 | T083 | Nueva | Propuesto | [gates](pm-071-cloud-redis-cache/checklists/gates.md) |
+| pm-071#CA-08 | T083 | Nueva | Propuesto | [gates](pm-071-cloud-redis-cache/checklists/gates.md) |
+| pm-071#CA-09 | T083 | Nueva | Propuesto | [gates](pm-071-cloud-redis-cache/checklists/gates.md) |
+| pm-071#CA-10 | T083 | Nueva | Propuesto | [gates](pm-071-cloud-redis-cache/checklists/gates.md) |
+| pm-072#CA-01 | T084 | Nueva | En progreso | [gates](pm-072-cloud-network-security/checklists/gates.md) |
+| pm-072#CA-02 | T084 | Nueva | En progreso | [gates](pm-072-cloud-network-security/checklists/gates.md) |
+| pm-072#CA-03 | T084 | Nueva | En progreso | [gates](pm-072-cloud-network-security/checklists/gates.md) |
+| pm-073#CA-01 | T085 | Nueva | En progreso | [gates](pm-073-public-https-endpoint/checklists/gates.md) |
+| pm-073#CA-02 | T085 | Nueva | En progreso | [gates](pm-073-public-https-endpoint/checklists/gates.md) |
+| pm-073#CA-03 | T085 | Nueva | En progreso | [gates](pm-073-public-https-endpoint/checklists/gates.md) |
+| pm-073#CA-04 | T085 | Nueva | En progreso | [gates](pm-073-public-https-endpoint/checklists/gates.md) |
+| pm-074#CA-01 | T086 | Nueva | En progreso | [gates](pm-074-container-registry/checklists/gates.md) |
+| pm-074#CA-02 | T086 | Nueva | En progreso | [gates](pm-074-container-registry/checklists/gates.md) |
+| pm-074#CA-03 | T086 | Nueva | En progreso | [gates](pm-074-container-registry/checklists/gates.md) |
+| pm-075#CA-01 | T087 | Nueva | En progreso | [gates](pm-075-backend-two-instances/checklists/gates.md) |
+| pm-075#CA-02 | T087 | Nueva | En progreso | [gates](pm-075-backend-two-instances/checklists/gates.md) |
+| pm-075#CA-03 | T087 | Nueva | En progreso | [gates](pm-075-backend-two-instances/checklists/gates.md) |
+| pm-075#CA-04 | T087 | Nueva | En progreso | [gates](pm-075-backend-two-instances/checklists/gates.md) |
+| pm-076#CA-01 | T088 | Nueva | En progreso | [gates](pm-076-load-balancer/checklists/gates.md) |
+| pm-076#CA-02 | T088 | Nueva | En progreso | [gates](pm-076-load-balancer/checklists/gates.md) |
+| pm-076#CA-03 | T088 | Nueva | En progreso | [gates](pm-076-load-balancer/checklists/gates.md) |
+| pm-077#CA-01 | T089 | Nueva | En progreso | [gates](pm-077-cd-deployment-pipeline/checklists/gates.md) |
+| pm-077#CA-02 | T089 | Nueva | En progreso | [gates](pm-077-cd-deployment-pipeline/checklists/gates.md) |
+| pm-077#CA-03 | T089 | Nueva | En progreso | [gates](pm-077-cd-deployment-pipeline/checklists/gates.md) |
+| pm-077#CA-04 | T089 | Nueva | En progreso | [gates](pm-077-cd-deployment-pipeline/checklists/gates.md) |
+| pm-078#CA-01 | T090 | Nueva | En progreso | [gates](pm-078-cloud-observability/checklists/gates.md) |
+| pm-078#CA-02 | T090 | Nueva | En progreso | [gates](pm-078-cloud-observability/checklists/gates.md) |
+| pm-078#CA-03 | T090 | Nueva | En progreso | [gates](pm-078-cloud-observability/checklists/gates.md) |
 | pm-079#CA-01 | T091 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Ver `checklists/gates.md` |
 | pm-079#CA-02 | T091 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Ver `checklists/gates.md` |
 | pm-079#CA-03 | T091 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Ver `checklists/gates.md` |
@@ -343,16 +343,16 @@
 | pm-081#CA-01 | T093 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Ver `checklists/gates.md` |
 | pm-081#CA-02 | T093 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Ver `checklists/gates.md` |
 | pm-081#CA-03 | T093 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Ver `checklists/gates.md` |
-| pm-082#CA-01 | T094 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-082#CA-02 | T094 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-083#CA-01 | T095 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-083#CA-02 | T095 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-083#CA-03 | T095 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-083#CA-04 | T095 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-084#CA-01 | T096 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-084#CA-02 | T096 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-084#CA-03 | T096 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-084#CA-04 | T096 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-082#CA-01 | T094 | Nueva | Propuesto | [gates](pm-082-cdn-public-delivery/checklists/gates.md) |
+| pm-082#CA-02 | T094 | Nueva | Propuesto | [gates](pm-082-cdn-public-delivery/checklists/gates.md) |
+| pm-083#CA-01 | T095 | Nueva | En progreso | [gates](pm-083-infrastructure-teardown/checklists/gates.md) |
+| pm-083#CA-02 | T095 | Nueva | En progreso | [gates](pm-083-infrastructure-teardown/checklists/gates.md) |
+| pm-083#CA-03 | T095 | Nueva | En progreso | [gates](pm-083-infrastructure-teardown/checklists/gates.md) |
+| pm-083#CA-04 | T095 | Nueva | En progreso | [gates](pm-083-infrastructure-teardown/checklists/gates.md) |
+| pm-084#CA-01 | T096 | Nueva | En progreso | [gates](pm-084-cloud-deployment-acceptance/checklists/gates.md) |
+| pm-084#CA-02 | T096 | Nueva | En progreso | [gates](pm-084-cloud-deployment-acceptance/checklists/gates.md) |
+| pm-084#CA-03 | T096 | Nueva | En progreso | [gates](pm-084-cloud-deployment-acceptance/checklists/gates.md) |
+| pm-084#CA-04 | T096 | Nueva | En progreso | [gates](pm-084-cloud-deployment-acceptance/checklists/gates.md) |
 | pm-085#CA-01 | T103 | Nueva | Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-085#CA-02 | T103 | Nueva | Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-085#CA-03 | T103 | Nueva | Verificado (2026-11-09; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Pendiente (se registra en `checklists/gates.md` del Spec) |

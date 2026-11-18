@@ -11,7 +11,7 @@
 
 ### T090 — Configurar la observabilidad cloud
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** En progreso (registro retrospectivo; ver gates)
 - **Spec principal:** pm-078
 - **Criterios propios:** pm-078#CA-01, pm-078#CA-02, pm-078#CA-03
 - **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.

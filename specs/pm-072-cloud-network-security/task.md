@@ -11,7 +11,7 @@
 
 ### T084 — Definir red y seguridad de red
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** En progreso (registro retrospectivo; ver gates)
 - **Spec principal:** pm-072
 - **Criterios propios:** pm-072#CA-01, pm-072#CA-02, pm-072#CA-03
 - **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.

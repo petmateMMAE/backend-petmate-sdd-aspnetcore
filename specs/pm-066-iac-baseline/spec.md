@@ -1,6 +1,6 @@
 # Spec — pm-066 iac-baseline
 
-> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L3 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -32,7 +32,7 @@ Cada criterio se cita como `pm-066#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T078 | Nueva | Propuesto | Establecer la línea base de IaC |
+| T078 | Nueva | En progreso | Establecer la línea base de IaC |
 
 Detalle en [task.md](task.md).
 

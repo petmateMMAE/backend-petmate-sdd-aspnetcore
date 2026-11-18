@@ -1,6 +1,6 @@
 # Spec — pm-075 backend-two-instances
 
-> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L7 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L7 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -38,7 +38,7 @@ Cada criterio se cita como `pm-075#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T087 | Nueva | Propuesto | Desplegar dos instancias del backend |
+| T087 | Nueva | En progreso | Desplegar dos instancias del backend |
 
 Detalle en [task.md](task.md).
 
