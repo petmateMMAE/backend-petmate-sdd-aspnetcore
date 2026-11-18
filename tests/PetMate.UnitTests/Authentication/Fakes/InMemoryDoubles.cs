@@ -1383,6 +1383,20 @@ public sealed class InMemoryReminderRepository : PetMate.Application.Reminders.I
         }
     }
 
+    public Task<bool> MarkRead(Guid sourceId, Guid ownerId, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            if (!items.TryGetValue(sourceId, out var r) || r.OwnerId != ownerId)
+            {
+                return Task.FromResult(false);
+            }
+
+            items[sourceId] = r with { ReadAtUtc = r.ReadAtUtc ?? nowUtc };
+            return Task.FromResult(true);
+        }
+    }
+
     public Task<IReadOnlyList<PetMate.Application.Reminders.Reminder>> ListUpcoming(Guid ownerId, DateOnly from, int skip, int take, CancellationToken cancellationToken)
         => Task.FromResult<IReadOnlyList<PetMate.Application.Reminders.Reminder>>(All.Where(r => r.OwnerId == ownerId && r.DueOn >= from).OrderBy(r => r.DueOn).ThenBy(r => r.SourceId).Skip(skip).Take(take).ToArray());
 

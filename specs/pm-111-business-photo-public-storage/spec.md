@@ -32,7 +32,7 @@ Cada criterio se cita como `pm-111#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T129 | Nueva | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Guardar la foto pública del negocio en Blob |
+| T129 | Nueva | Cerrado y aprobado (2026-11-17, aprobación humana en el chat, sin revisión independiente) | Guardar la foto pública del negocio en Blob |
 
 Detalle en [task.md](task.md).
 

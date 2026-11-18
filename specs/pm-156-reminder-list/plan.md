@@ -5,9 +5,10 @@
 - `isRead` refleja el estado de lectura guardado (CA-02).
 - Sin paquetes nuevos.
 
-## Pendientes de decisión (T174 no puede cerrarse)
-- **Revisiones (CA-01):** el listado incluye vacunas y desparasitaciones; las revisiones de seguimiento todavía no generan recordatorios (ver pm-154).
-- **Estado de lectura (CA-02):** el Spec no define cómo se marca un recordatorio como leído (no hay endpoint). `isRead` siempre es `false` hasta decidirlo.
+## Estado de lectura y revisiones (2026-11-17)
+- **Revisiones (CA-01):** ya entran en el listado porque pm-160 las programa como recordatorios `Review`.
+- **Estado de lectura (CA-02):** decisión del usuario: una marca por aviso. `POST /api/v1/reminders/mark-read` `{ "id" }` guarda `readAtUtc` del recordatorio del dueño; idempotente; ajeno o inexistente → 404; `id` vacío o miembros desconocidos → 400.
 
 ## Verificación
+
 - Contrato: `Endpoint=reminders-get-all`.

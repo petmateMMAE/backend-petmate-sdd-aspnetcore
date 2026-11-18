@@ -194,7 +194,8 @@ Cuerpo: `{ "displayName": "Ana Pérez", "phone": "55 1234 5678" }`. `phone` es o
 | Método | Endpoint | Acceso | Spec | Estado |
 |---|---|---|---|---|
 | POST | `/api/v1/devices/register` | Autenticado | `pm-151` / T169 | Implementado (pendiente de cierre) |
-| GET | `/api/v1/reminders/get-all` | Autenticado | `pm-156` / T174 | Implementado parcialmente (estado de lectura pendiente) |
+| GET | `/api/v1/reminders/get-all` | Autenticado | `pm-156` / T174 | Implementado (pendiente de cierre) |
+| POST | `/api/v1/reminders/mark-read` | Autenticado | `pm-156` / T174 | Implementado (pendiente de cierre) |
 | POST | `/api/v1/devices/unregister` | Autenticado | `pm-152` / T170 | Implementado (pendiente de cierre) |
 | GET | `/api/v1/notification-settings/get` | Autenticado | `pm-157` / T175 | Implementado (pendiente de cierre) |
 | PUT | `/api/v1/notification-settings/update` | Autenticado | `pm-157` / T175 | Implementado (pendiente de cierre) |
@@ -228,7 +229,11 @@ URL temporal (15 minutos) de la foto de un mensaje, solo para los dos participan
 
 #### GET `/api/v1/reminders/get-all?page=&pageSize=`
 
-Próximos recordatorios de vacunas y desparasitaciones de las mascotas propias (fecha de hoy en adelante, el más cercano primero, paginado según pm-047). Cada ítem: `id` (registro de origen), `kind` (`Vaccine` o `Deworming`), `petId`, `petName`, `title`, `dueOn`, `remindOn` (3 días antes por defecto o la preferencia de pm-157) e `isRead`. Se generan al registrar una próxima fecha y se cancelan al borrar el registro o la mascota. 400 con paginación inválida; 401 sin autenticación.
+Próximos recordatorios de vacunas, desparasitaciones y revisiones de seguimiento de las mascotas propias (fecha de hoy en adelante, el más cercano primero, paginado según pm-047). Cada ítem: `id` (registro de origen), `kind` (`Vaccine`, `Deworming` o `Review`), `petId`, `petName`, `title`, `dueOn`, `remindOn` (3 días antes por defecto o la preferencia de pm-157) e `isRead`. Se generan al registrar una próxima fecha y se cancelan al borrar el registro o la mascota. 400 con paginación inválida; 401 sin autenticación.
+
+#### POST `/api/v1/reminders/mark-read`
+
+Cuerpo `{ "id": "<id del recordatorio>" }`. Marca como leído un recordatorio propio (`isRead` pasa a `true`). Idempotente. 200 `data: null`; 400 sin `id`, con `id` vacío o con miembros desconocidos; 401; 404 si no existe o es de otra cuenta.
 
 #### DELETE `/api/v1/users/me/delete`
 

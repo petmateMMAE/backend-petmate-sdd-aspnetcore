@@ -87,6 +87,18 @@ public sealed class MongoReminderRepository : IReminderRepository
     public async Task<long> DeleteByPet(Guid petId, Guid ownerId, CancellationToken cancellationToken)
         => (await Run(() => reminders.DeleteManyAsync(d => d.PetId == petId && d.OwnerId == ownerId, cancellationToken)).ConfigureAwait(false)).DeletedCount;
 
+    public async Task<bool> MarkRead(Guid sourceId, Guid ownerId, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        // Filtro por dueño: un recordatorio ajeno no se toca. Releer un aviso ya leído no cambia su fecha de lectura.
+        var owned = Builders<ReminderDocument>.Filter.And(
+            Builders<ReminderDocument>.Filter.Eq(d => d.SourceId, sourceId), Builders<ReminderDocument>.Filter.Eq(d => d.OwnerId, ownerId));
+        var result = await Run(() => reminders.UpdateOneAsync(
+            Builders<ReminderDocument>.Filter.And(owned, Builders<ReminderDocument>.Filter.Eq(d => d.ReadAtUtc, null)),
+            Builders<ReminderDocument>.Update.Set(d => d.ReadAtUtc, nowUtc),
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
+        return result.ModifiedCount > 0 || await Run(() => reminders.CountDocumentsAsync(owned, cancellationToken: cancellationToken)).ConfigureAwait(false) > 0;
+    }
+
     public async Task<IReadOnlyList<Reminder>> ListUpcoming(Guid ownerId, DateOnly from, int skip, int take, CancellationToken cancellationToken)
     {
         var fromText = Format(from);

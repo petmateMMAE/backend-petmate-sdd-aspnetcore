@@ -32,7 +32,7 @@ Cada criterio se cita como `pm-081#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T093 | Nueva | Aprobada para iniciar (2026-11-11, aprobacion humana) | Implementar el acceso privado a imágenes |
+| T093 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Implementar el acceso privado a imágenes |
 
 Detalle en [task.md](task.md).
 

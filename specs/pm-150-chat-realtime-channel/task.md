@@ -9,9 +9,9 @@
 
 ## Tasks
 
-### T168 — Entregar los mensajes en tiempo real
+### T168 — Entregar los mensajes en tiempo real (por consulta con `after`)
 - **Tipo:** Nueva
-- **Estado:** Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md)
+- **Estado:** Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana
 - **Spec principal:** pm-150
 - **Criterios propios:** pm-150#CA-01, pm-150#CA-02, pm-150#CA-03, pm-150#CA-04
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

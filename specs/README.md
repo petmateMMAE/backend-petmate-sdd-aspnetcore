@@ -93,9 +93,9 @@
 | [pm-076-load-balancer](pm-076-load-balancer/spec.md) | Aprobado | L8 | pm-075 | T088 | Balanceador de carga con reparto verificable |
 | [pm-077-cd-deployment-pipeline](pm-077-cd-deployment-pipeline/spec.md) | Aprobado | L10 | pm-055, pm-057, pm-058, pm-059, pm-073, pm-075, pm-076 | T089 | Despliegue continuo versionado con humo posterior y reversa |
 | [pm-078-cloud-observability](pm-078-cloud-observability/spec.md) | Aprobado | L8 | pm-054, pm-075 | T090 | Eventos, errores y alertas en un servicio de observabilidad de Azure, sin PII ni secretos |
-| [pm-079-image-storage-adapter](pm-079-image-storage-adapter/spec.md) | Propuesto | L6 | pm-039, pm-066 | T091 | Almacenamiento de imágenes privado por defecto |
-| [pm-080-image-upload-endpoint](pm-080-image-upload-endpoint/spec.md) | Propuesto | L8 | pm-045, pm-079 | T092 | Contrato, límites y validación de subida de imágenes |
-| [pm-081-private-image-access](pm-081-private-image-access/spec.md) | Propuesto | L9 | pm-079, pm-080 | T093 | URLs temporales para imágenes privadas |
+| [pm-079-image-storage-adapter](pm-079-image-storage-adapter/spec.md) | Aprobado | L6 | pm-039, pm-066 | T091 | Almacenamiento de imágenes privado por defecto |
+| [pm-080-image-upload-endpoint](pm-080-image-upload-endpoint/spec.md) | Aprobado | L8 | pm-045, pm-079 | T092 | Contrato, límites y validación de subida de imágenes |
+| [pm-081-private-image-access](pm-081-private-image-access/spec.md) | Aprobado | L9 | pm-079, pm-080 | T093 | URLs temporales para imágenes privadas |
 | [pm-082-cdn-public-delivery](pm-082-cdn-public-delivery/spec.md) | Propuesto | L10 | pm-073, pm-079 | T094 | Distribución de imágenes públicas mediante CDN |
 | [pm-083-infrastructure-teardown](pm-083-infrastructure-teardown/spec.md) | Aprobado | L11 | pm-066, pm-067, pm-068, pm-069, pm-070, pm-071, pm-072, pm-073, pm-074, pm-075, pm-076, pm-078, pm-079, pm-082 | T095 | Destrucción ordenada y protegida de la infraestructura |
 | [pm-084-cloud-deployment-acceptance](pm-084-cloud-deployment-acceptance/spec.md) | Aprobado | L12 | pm-046, pm-073, pm-075, pm-076, pm-077, pm-078, pm-083 | T096 | Aceptación del sistema desplegado: dos instancias, balanceador, HTTPS y costo |
@@ -125,7 +125,7 @@
 | [pm-108-business-location-update](pm-108-business-location-update/spec.md) | Aprobado | L10 | pm-107 | T126 | `PUT /api/v1/businesses/update-location` cambia las coordenadas del negocio propio |
 | [pm-109-business-profile-update](pm-109-business-profile-update/spec.md) | Aprobado | L10 | pm-107 | T127 | `PUT /api/v1/businesses/update` edita el nombre, la descripción, los teléfonos y el horario del negocio propio |
 | [pm-110-business-delete](pm-110-business-delete/spec.md) | Aprobado | L10 | pm-107 | T128 | `DELETE /api/v1/businesses/delete` elimina el negocio asociado a la cuenta |
-| [pm-111-business-photo-public-storage](pm-111-business-photo-public-storage/spec.md) | Aprobado | L7 | pm-105, pm-079 | T129 | La foto del negocio se guarda en Azure Blob Storage en un contenedor de acceso público separado del de las fotos privadas |
+| [pm-111-business-photo-public-storage](pm-111-business-photo-public-storage/spec.md) | Cerrado | L7 | pm-105, pm-079 | T129 | La foto del negocio se guarda en Azure Blob Storage en un contenedor de acceso público separado del de las fotos privadas |
 | [pm-112-service-create](pm-112-service-create/spec.md) | Aprobado | L10 | pm-107 | T130 | `POST /api/v1/services/create` agrega un servicio al catálogo del negocio propio |
 | [pm-113-service-list-own](pm-113-service-list-own/spec.md) | Aprobado | L11 | pm-112 | T131 | `GET /api/v1/services/get-all` devuelve los servicios del negocio asociado a la cuenta |
 | [pm-114-service-update](pm-114-service-update/spec.md) | Aprobado | L11 | pm-112 | T132 | `PUT /api/v1/services/update/{id}` edita un servicio del negocio propio |
@@ -302,9 +302,9 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T088 | Nueva | [pm-076](pm-076-load-balancer/spec.md) | Propuesto | Configurar el Load Balancer |
 | T089 | Nueva | [pm-077](pm-077-cd-deployment-pipeline/spec.md) | Propuesto | Implementar el pipeline de CD |
 | T090 | Nueva | [pm-078](pm-078-cloud-observability/spec.md) | Propuesto | Configurar la observabilidad cloud |
-| T091 | Nueva | [pm-079](pm-079-image-storage-adapter/spec.md) | Propuesto | Implementar el adaptador de almacenamiento de imágenes |
-| T092 | Nueva | [pm-080](pm-080-image-upload-endpoint/spec.md) | Propuesto | Implementar el endpoint de carga de imágenes |
-| T093 | Nueva | [pm-081](pm-081-private-image-access/spec.md) | Propuesto | Implementar el acceso privado a imágenes |
+| T091 | Nueva | [pm-079](pm-079-image-storage-adapter/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Implementar el adaptador de almacenamiento de imágenes |
+| T092 | Nueva | [pm-080](pm-080-image-upload-endpoint/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Implementar el endpoint de carga de imágenes |
+| T093 | Nueva | [pm-081](pm-081-private-image-access/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Implementar el acceso privado a imágenes |
 | T094 | Nueva | [pm-082](pm-082-cdn-public-delivery/spec.md) | Propuesto | Configurar el CDN de contenido público |
 | T095 | Nueva | [pm-083](pm-083-infrastructure-teardown/spec.md) | Propuesto | Definir y probar el procedimiento de teardown |
 | T096 | Nueva | [pm-084](pm-084-cloud-deployment-acceptance/spec.md) | Propuesto | Ejecutar la aceptación del despliegue cloud |
@@ -340,7 +340,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T126 | Nueva | [pm-108](pm-108-business-location-update/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Actualizar la ubicación del negocio |
 | T127 | Nueva | [pm-109](pm-109-business-profile-update/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Actualizar los datos del negocio propio |
 | T128 | Nueva | [pm-110](pm-110-business-delete/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Dar de baja el negocio propio |
-| T129 | Nueva | [pm-111](pm-111-business-photo-public-storage/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Guardar la foto pública del negocio en Blob |
+| T129 | Nueva | [pm-111](pm-111-business-photo-public-storage/spec.md) | Cerrado y aprobado (2026-11-17, aprobación humana en el chat, sin revisión independiente) | Guardar la foto pública del negocio en Blob |
 | T130 | Nueva | [pm-112](pm-112-service-create/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Crear un servicio del negocio |
 | T131 | Nueva | [pm-113](pm-113-service-list-own/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Listar los servicios del negocio propio |
 | T132 | Nueva | [pm-114](pm-114-service-update/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Editar un servicio del negocio propio |
@@ -379,7 +379,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T165 | Nueva | [pm-147](pm-147-chat-close-reopen/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Cerrar y reabrir la conversación |
 | T166 | Nueva | [pm-148](pm-148-chat-conversation-list/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Listar las conversaciones propias |
 | T167 | Nueva | [pm-149](pm-149-chat-read-state/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Llevar el estado de lectura del chat |
-| T168 | Nueva | [pm-150](pm-150-chat-realtime-channel/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Entregar los mensajes en tiempo real |
+| T168 | Nueva | [pm-150](pm-150-chat-realtime-channel/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Entregar los mensajes en tiempo real |
 | T169 | Nueva | [pm-151](pm-151-device-token-register/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Registrar el dispositivo para recibir avisos |
 | T170 | Nueva | [pm-152](pm-152-device-token-unregister/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Quitar el dispositivo al cerrar sesión |
 | T171 | Nueva | [pm-153](pm-153-push-provider-adapter/spec.md) | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Implementar el puerto y el adaptador de notificaciones push |

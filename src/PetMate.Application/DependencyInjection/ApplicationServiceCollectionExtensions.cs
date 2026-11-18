@@ -124,6 +124,8 @@ public static class ApplicationServiceCollectionExtensions
         services.AddSingleton<PetMate.Application.Push.PushNotifier>();
         services.AddRequestHandler<PetMate.Application.Reminders.ListRemindersQuery, PagedResult<PetMate.Application.Reminders.ReminderResult>, PetMate.Application.Reminders.ListRemindersHandler>();
         services.AddRequestValidator<PetMate.Application.Reminders.ListRemindersQuery, PetMate.Application.Reminders.ListRemindersQueryValidator>();
+        services.AddRequestHandler<PetMate.Application.Reminders.MarkReminderReadCommand, bool, PetMate.Application.Reminders.MarkReminderReadHandler>();
+        services.AddRequestValidator<PetMate.Application.Reminders.MarkReminderReadCommand, PetMate.Application.Reminders.MarkReminderReadCommandValidator>();
         services.AddRequestHandler<PetMate.Application.Devices.UnregisterDeviceCommand, bool, PetMate.Application.Devices.UnregisterDeviceHandler>();
         services.AddRequestValidator<PetMate.Application.Devices.UnregisterDeviceCommand, PetMate.Application.Devices.UnregisterDeviceCommandValidator>();
         services.AddRequestHandler<PetMate.Application.Notifications.GetNotificationSettingsQuery, PetMate.Application.Notifications.NotificationSettings, PetMate.Application.Notifications.GetNotificationSettingsHandler>();

@@ -613,3 +613,14 @@ Aprobados por el usuario (H7, H3, H8 opción A; H4 opción B; H6 A+B+C) y regist
 - **Decisiones del usuario:** envío inmediato sin cola (un aviso fallido se pierde); la supresión «leyendo» se implementa como «consultó la conversación hace menos de 30 s» (marca en Atlas, no en Redis); preferencias de pm-157.
 - **Decisión del agente a confirmar:** el aviso de revisión usa `reviews` (no `followups`), porque pm-157 los separa.
 - **Pruebas:** nada probado contra FCM ni Atlas reales.
+
+## T129 y T168 (2026-11-17)
+
+- **T129** (pm-111) ya estaba implementada (commit `4719ce4`); el usuario la cerró en el chat el 2026-11-17 **sin revisión independiente** (excepción suya). Cobertura de CA-03 por pruebas de contrato; el tipo de archivo del negocio comparte validador con las mascotas. Blob real sin probar.
+- **T168** (pm-150): el usuario aprobó sustituir el canal en vivo por la consulta con `after` de pm-145. Sin código nuevo; «Implementada», pendiente de revisión y aprobación. Los 18 Specs de T164 y T169 a T185 tienen `gates.md` con la evidencia de hoy (unitarias 348, seguridad 206, contrato 431; integración 12 y 69 omitidas).
+
+## T174 completada y T091 a T093 documentadas (2026-11-17)
+
+- **T174** (pm-156): nuevo `POST /api/v1/reminders/mark-read` (marca por aviso, decisión del usuario); las revisiones ya entraban al listado por pm-160. Unitarias 348, seguridad 206, contrato 435 en contenedor; `MarkRead` en Atlas sin probar. Pendiente de revisión y aprobación.
+- **T091 a T093** (pm-079 a pm-081): ya estaban en código (commit `4719ce4`); se añadieron sus `gates.md` con las pruebas de `PhotoEndpointsTests`. Infraestructura (`storage.tf`) y Blob real sin verificar.
+- **Gate local en contenedor:** build `-warnaserror` limpio; `dotnet format` falla por CRLF en archivos ajenos (sin corregir); la auditoría de vulnerabilidades no dio resultado utilizable.

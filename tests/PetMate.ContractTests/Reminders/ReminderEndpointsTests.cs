@@ -94,6 +94,44 @@ public sealed class ReminderEndpointsTests
         return document.RootElement.GetProperty("data").GetProperty("items").GetArrayLength();
     }
 
+    [Trait("Endpoint", "reminders-mark-read")]
+    [Fact]
+    public async Task Marking_a_reminder_read_shows_it_read_is_idempotent_and_a_stranger_gets_404()
+    {
+        using var factory = new AuthFlowFactory();
+        using var ana = Client(factory, Guid.NewGuid());
+        using var luis = Client(factory, Guid.NewGuid());
+        var pet = await CreatePet(ana);
+        await Send(ana, HttpMethod.Post, "dewormings/create", $"{{\"petId\":\"{pet}\",\"appliedOn\":\"{Days(-10)}\",\"product\":\"Drontal\",\"nextOn\":\"{Days(10)}\"}}");
+        var id = factory.Reminders.All.Single().SourceId;
+
+        using var stranger = await Send(luis, HttpMethod.Post, "reminders/mark-read", $"{{\"id\":\"{id}\"}}");
+        using var first = await Send(ana, HttpMethod.Post, "reminders/mark-read", $"{{\"id\":\"{id}\"}}");
+        using var second = await Send(ana, HttpMethod.Post, "reminders/mark-read", $"{{\"id\":\"{id}\"}}");
+        using var list = await Send(ana, HttpMethod.Get, "reminders/get-all");
+        using var document = JsonDocument.Parse(await list.Content.ReadAsStringAsync());
+
+        Assert.Equal(HttpStatusCode.NotFound, stranger.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, first.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, second.StatusCode);
+        Assert.True(document.RootElement.GetProperty("data").GetProperty("items")[0].GetProperty("isRead").GetBoolean());
+    }
+
+    [Trait("Endpoint", "reminders-mark-read")]
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("{\"id\":\"00000000-0000-0000-0000-000000000000\"}")]
+    [InlineData("{\"id\":\"6f1c1b0e-6c3b-4a55-9a52-0d5a9d2b7c11\",\"extra\":1}")]
+    public async Task Marking_read_with_a_missing_empty_or_unknown_member_returns_400(string body)
+    {
+        using var factory = new AuthFlowFactory();
+        using var client = Client(factory, Guid.NewGuid());
+
+        using var response = await Send(client, HttpMethod.Post, "reminders/mark-read", body);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     private static string Days(int offset) => DateTime.UtcNow.AddDays(offset).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
 
     private static HttpClient Client(AuthFlowFactory factory, Guid userId)

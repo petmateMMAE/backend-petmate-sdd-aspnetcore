@@ -34,6 +34,9 @@ public interface IReminderRepository
 
     Task<long> DeleteByPet(Guid petId, Guid ownerId, CancellationToken cancellationToken);
 
+    /// <summary>Marca como leído el recordatorio del dueño (pm-156#CA-02). <c>false</c> si no existe o es de otra cuenta.</summary>
+    Task<bool> MarkRead(Guid sourceId, Guid ownerId, DateTime nowUtc, CancellationToken cancellationToken);
+
     /// <summary>Recordatorios del dueño con fecha desde <paramref name="from"/>, el más cercano primero.</summary>
     Task<IReadOnlyList<Reminder>> ListUpcoming(Guid ownerId, DateOnly from, int skip, int take, CancellationToken cancellationToken);
 
@@ -139,6 +142,28 @@ public sealed class ListRemindersHandler(IReminderRepository reminders, IPetRepo
             .Select(r => new ReminderResult(r.SourceId, r.Kind.ToString(), r.PetId, names[r.PetId], r.Title, r.DueOn, r.RemindOn, r.ReadAtUtc is not null))
             .ToArray();
         return new PagedResult<ReminderResult>(items, page, pageSize, total);
+    }
+}
+
+/// <summary>pm-156#CA-02: el dueño marca un recordatorio propio como leído. Idempotente; uno ajeno o inexistente es 404.</summary>
+public sealed record MarkReminderReadCommand(Guid OwnerId, Guid ReminderId) : ICommand<bool>;
+
+public sealed class MarkReminderReadHandler(IReminderRepository reminders, TimeProvider timeProvider) : IRequestHandler<MarkReminderReadCommand, bool>
+{
+    public Task<bool> Handle(MarkReminderReadCommand request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        return reminders.MarkRead(request.ReminderId, request.OwnerId, timeProvider.GetUtcNow().UtcDateTime, cancellationToken);
+    }
+}
+
+public sealed class MarkReminderReadCommandValidator : PetMate.Application.Validation.IRequestValidator<MarkReminderReadCommand>
+{
+    public Task<IReadOnlyList<PetMate.Application.Validation.ValidationFailure>> Validate(MarkReminderReadCommand request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        return Task.FromResult<IReadOnlyList<PetMate.Application.Validation.ValidationFailure>>(
+            request.ReminderId == Guid.Empty ? [new PetMate.Application.Validation.ValidationFailure("id", "El identificador del recordatorio es obligatorio.")] : []);
     }
 }
 

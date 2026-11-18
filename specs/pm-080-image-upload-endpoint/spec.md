@@ -32,7 +32,7 @@ Cada criterio se cita como `pm-080#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T092 | Nueva | Aprobada para iniciar (2026-11-11, aprobacion humana) | Implementar el endpoint de carga de imágenes |
+| T092 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Implementar el endpoint de carga de imágenes |
 
 Detalle en [task.md](task.md).
 

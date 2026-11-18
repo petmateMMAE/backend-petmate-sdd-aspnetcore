@@ -10,6 +10,9 @@ public sealed record RegisterDeviceRequest(string? Token)
 }
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record MarkReminderReadRequest(Guid? Id);
+
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record UnregisterDeviceRequest(string? Token)
 {
     public override string ToString() => nameof(UnregisterDeviceRequest);

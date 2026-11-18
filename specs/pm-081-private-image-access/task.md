@@ -11,7 +11,7 @@
 
 ### T093 — Implementar el acceso privado a imágenes
 - **Tipo:** Nueva
-- **Estado:** Aprobada para iniciar (2026-11-11, aprobacion humana)
+- **Estado:** Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana
 - **Spec principal:** pm-081
 - **Criterios propios:** pm-081#CA-01, pm-081#CA-02, pm-081#CA-03
 - **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.
