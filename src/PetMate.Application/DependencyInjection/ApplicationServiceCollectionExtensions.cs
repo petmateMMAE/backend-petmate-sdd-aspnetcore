@@ -142,6 +142,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddRequestHandler<UpdateBusinessLocationCommand, BusinessOutcome<BusinessResult>, UpdateBusinessLocationHandler>();
         services.AddRequestHandler<UpdateBusinessCommand, BusinessOutcome<BusinessResult>, UpdateBusinessHandler>();
         services.AddRequestHandler<DeleteBusinessCommand, BusinessStatus, DeleteBusinessHandler>();
+        services.AddRequestHandler<GetOwnBusinessQuery, BusinessOutcome<BusinessResult>, GetOwnBusinessHandler>();
         services.AddRequestValidator<CreateBusinessCommand, CreateBusinessCommandValidator>();
         services.AddRequestValidator<UpdateBusinessLocationCommand, UpdateBusinessLocationCommandValidator>();
         services.AddRequestValidator<UpdateBusinessCommand, UpdateBusinessCommandValidator>();

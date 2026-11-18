@@ -103,6 +103,21 @@ public sealed class BusinessesController(ISender sender, IImageStorage storage) 
             : Fail(result.Status);
     }
 
+    [HttpGet("get")]
+    [ProducesResponseType(typeof(ApiResponse<BusinessResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<ObjectResult> Get(CancellationToken cancellationToken)
+    {
+        if (!TryGetOwnerId(out var ownerId))
+        {
+            return Status(StatusCodes.Status401Unauthorized);
+        }
+
+        var result = await Sender.Send(new GetOwnBusinessQuery(ownerId), cancellationToken);
+        return result.Status == BusinessStatus.Ok ? ApiResponseFactory.Ok("Negocio obtenido correctamente.", ToResponse(result.Value!)) : Fail(result.Status);
+    }
+
     [HttpPut("update-location")]
     [ProducesResponseType(typeof(ApiResponse<BusinessResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<ValidationErrorsData>), StatusCodes.Status400BadRequest)]

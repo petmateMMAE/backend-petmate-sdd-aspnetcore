@@ -5,8 +5,8 @@
 ## Convenciones
 
 - Estructura plana `specs/pm-NNN-slug/` con `spec.md` y `task.md`; `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras la aprobación del Spec.
-- Numeración de Specs `pm-001`…`pm-167`: global, secuencial e inmutable. Un Spec retirado pasa a `Reemplazado`.
-- Tasks globales `T001`…`T185`: `T001`–`T041` históricas (identificador, alcance y estado intactos), `T042`–`T054` retrospectivas, `T055`–`T185` nuevas.
+- Numeración de Specs `pm-001`…`pm-168`: global, secuencial e inmutable. Un Spec retirado pasa a `Reemplazado`.
+- Tasks globales `T001`…`T186`: `T001`–`T041` históricas (identificador, alcance y estado intactos), `T042`–`T054` retrospectivas, `T055`–`T186` nuevas.
 - Cada Task tiene un único Spec principal; criterios citados como `pm-NNN#CA-NN`.
 - Estado de Spec al migrar: `En revisión` si tiene Tasks históricas cerradas, verificadas o implementadas, o retrospectivas (texto nuevo pendiente de aprobación humana); `Propuesto` en los demás casos. Ninguna Task cambia de estado por la migración.
 - Plataforma cloud: Microsoft Azure con Azure for Students (Constitución §8). Los Specs cloud documentan servicios candidatos como hipótesis; ninguno se asume gratuito hasta completar pm-062.
@@ -182,6 +182,7 @@
 | [pm-165-account-deletion-web-confirm](pm-165-account-deletion-web-confirm/spec.md) | Aprobado | L10 | pm-164, pm-161 | T183 | `POST /api/v1/account-deletion/confirm` elimina la cuenta con el token del enlace |
 | [pm-166-openapi-contract-artifact](pm-166-openapi-contract-artifact/spec.md) | Aprobado | L6 | pm-061, pm-008 | T184 | Cada ejecución de CI genera el documento OpenAPI y lo publica como artefacto para el equipo móvil |
 | [pm-167-integration-environment-flow](pm-167-integration-environment-flow/spec.md) | Aprobado | L6 | pm-055, pm-059 | T185 | Existe un documento que fija cómo el equipo móvil consume el backend durante el desarrollo |
+| [pm-168-business-get-own](pm-168-business-get-own/spec.md) | Aprobado | L10 | pm-107, pm-109 | T186 | `GET /api/v1/businesses/get` devuelve al afiliado los datos completos de su propio negocio |
 
 ## Orden de ejecución por niveles
 
@@ -199,7 +200,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | L7 | pm-031, pm-045, pm-075, pm-085, pm-091, pm-092, pm-093, pm-106, pm-111, pm-152 |
 | L8 | pm-032, pm-036, pm-076, pm-078, pm-080, pm-087, pm-094, pm-096 |
 | L9 | pm-034, pm-073, pm-081, pm-089, pm-095, pm-097, pm-099, pm-101, pm-102, pm-107, pm-164 |
-| L10 | pm-035, pm-077, pm-082, pm-090, pm-098, pm-100, pm-103, pm-104, pm-108, pm-109, pm-110, pm-112, pm-116, pm-122, pm-125, pm-154, pm-165 |
+| L10 | pm-035, pm-077, pm-082, pm-090, pm-098, pm-100, pm-103, pm-104, pm-108, pm-109, pm-110, pm-112, pm-116, pm-122, pm-125, pm-154, pm-165, pm-168 |
 | L11 | pm-046, pm-083, pm-113, pm-114, pm-115, pm-117, pm-118, pm-119, pm-120, pm-123, pm-126, pm-129, pm-155, pm-156, pm-162 |
 | L12 | pm-053, pm-084, pm-121, pm-124, pm-128, pm-130, pm-131, pm-135, pm-136, pm-163 |
 | L13 | pm-132, pm-133, pm-138 |
@@ -208,7 +209,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | L16 | pm-145, pm-146, pm-150, pm-159 |
 | L17 | pm-149 |
 
-## Tasks T001–T185
+## Tasks T001–T186
 
 | Task | Tipo | Spec principal | Estado | Título |
 |---|---|---|---|---|
@@ -397,6 +398,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T183 | Nueva | [pm-165](pm-165-account-deletion-web-confirm/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Confirmar la eliminación de la cuenta desde la web |
 | T184 | Nueva | [pm-166](pm-166-openapi-contract-artifact/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Publicar el contrato OpenAPI como artefacto de CI |
 | T185 | Nueva | [pm-167](pm-167-integration-environment-flow/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Documentar el flujo del entorno de integración con la app |
+| T186 | Nueva | [pm-168](pm-168-business-get-own/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; ver Memoria.md) | Consultar el negocio propio |
 
 ## Primer hito
 
@@ -464,3 +466,4 @@ Los cuatro endpoints de autenticación y los siete endpoints funcionales (11 en 
 - **2026-11-10 — Implementación de T134 a T144, T146 y T147** (mapa público, autorización de acceso, escaneo, ficha básica y registro de escaneos: `pm-116` a `pm-126`, `pm-128` y `pm-129`): código, pruebas, `plan.md` y `checklists/gates.md`. Quedan «Implementada; pendiente de revisión independiente y aprobación humana de cierre». **T145 (`pm-127`, ficha completa de la veterinaria) no se implementó**: depende de las consultas veterinarias (`pm-133`, T151).
 - **2026-11-10 — Implementación de T148 a T163 y T165 a T167** (mascotas atendidas, consultas con receta, vacunas y desparasitaciones de la veterinaria, historial, seguimiento y chat de texto: `pm-130` a `pm-145`, `pm-147` a `pm-149`): código, pruebas, `plan.md` y `checklists/gates.md`. Quedan «Implementada; pendiente de revisión independiente y aprobación humana de cierre». **T164 (`pm-146`, foto en el chat) no se implementó** (depende de Blob, sin aprobar) y **T168 (`pm-150`, tiempo real) tampoco**: su `plan.md` evalúa el costo y recomienda el reemplazo por la consulta al abrir (`pm-150#CA-04`), que espera la decisión del usuario.
 - **2026-11-10 — Implementación de T145** (ficha completa de la veterinaria, `pm-127`): `scans/resolve` añade a la ficha básica, solo para una veterinaria, los grupos que alguna autorización vigente permite (vacunas, desparasitaciones, peso y consultas con su receta; hasta 50 por grupo), de solo lectura. Queda «Implementada; pendiente de revisión independiente y aprobación humana de cierre».
+- **2026-11-18 — Nuevo Spec `pm-168` y Task `T186`** (consulta del negocio propio, `GET /api/v1/businesses/get`): cubre el hueco de RF-30/31 detectado al revisar el alcance (la sesión solo informa el tipo y `BusinessResponse` solo lo devuelven `create` y `update`). Estado «Propuesto»; pendiente de aprobación humana, plan y gates.

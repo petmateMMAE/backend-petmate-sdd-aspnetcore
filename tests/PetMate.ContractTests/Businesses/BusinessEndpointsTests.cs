@@ -113,6 +113,29 @@ public sealed class BusinessEndpointsTests
         Assert.Equal("User", profileDoc.RootElement.GetProperty("data").GetProperty("role").GetString());
     }
 
+    // ---------- Negocio propio (pm-168) ----------
+
+    [Trait("Endpoint", "businesses-get")]
+    [Fact]
+    public async Task Get_returns_the_full_own_business_including_the_license_and_404_without_one()
+    {
+        using var factory = new AuthFlowFactory();
+        using var ana = await Owner(factory, "ana@example.com");
+        using var luis = await Owner(factory, "luis@example.com");
+        using var created = await Send(ana, HttpMethod.Post, "businesses/create", Vet);
+        using var createdDoc = JsonDocument.Parse(await created.Content.ReadAsStringAsync());
+
+        using var own = await Send(ana, HttpMethod.Get, "businesses/get", null);
+        using var ownDoc = JsonDocument.Parse(await own.Content.ReadAsStringAsync());
+        var data = ownDoc.RootElement.GetProperty("data");
+
+        Assert.Equal(HttpStatusCode.OK, own.StatusCode);
+        Assert.Equal(createdDoc.RootElement.GetProperty("data").GetProperty("id").GetGuid(), data.GetProperty("id").GetGuid());
+        Assert.NotEqual(JsonValueKind.Null, data.GetProperty("licenseNumber").ValueKind);
+        await AssertWrapper(await Send(luis, HttpMethod.Get, "businesses/get", null), HttpStatusCode.NotFound);
+        await AssertWrapper(await Send(factory.CreateClient(), HttpMethod.Get, "businesses/get", null), HttpStatusCode.Unauthorized);
+    }
+
     // ---------- Ubicación (pm-108) ----------
 
     [Trait("Endpoint", "businesses-update-location")]

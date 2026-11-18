@@ -640,3 +640,10 @@ Aprobados por el usuario (H7, H3, H8 opción A; H4 opción B; H6 A+B+C) y regist
 - **Pendiente:** enmendar pm-150 y pm-157; ejecutar integración contra Atlas y verificar FCM/Blob en un entorno no productivo; las Specs siguen en estado «Aprobado» (el cierre de Spec no se modificó).
 
 - **Enmiendas (2026-11-18):** pm-150 y pm-157 actualizados para reflejar lo implementado (consulta con `after`; rutas `notification-settings/get|update`).
+
+## pm-168 / T186 — consulta del negocio propio (2026-11-18)
+
+- **Hecho (cerrado por el usuario en el chat el 2026-11-18, sin revisión independiente):** hueco de RF-30/31 (la app no podía cargar su negocio para editarlo). Spec aprobado por el usuario en el chat el 2026-11-18; `GET /api/v1/businesses/get` devuelve el `BusinessResponse` completo (con `id` y cédula) de la cuenta del token; 404 sin negocio, 401 sin token. Reutiliza `FindByOwner`; sin paquetes ni persistencia nueva.
+- **Pruebas:** build Release `-warnaserror` limpio; unitarias 348, seguridad 206, contrato 436. Sin integración nueva (no aplica). `check-sdd.ps1` no se ejecutó (sin `pwsh`).
+- **Decisión del agente a confirmar:** 404 (según CA-03) en lugar del 403 que usan las demás rutas del panel cuando la cuenta no tiene negocio.
+- **Riesgo:** sin prueba de 429 propia; el límite se hereda del controlador.

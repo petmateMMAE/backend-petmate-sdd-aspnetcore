@@ -628,6 +628,11 @@
 | pm-167#CA-01 | T185 | Nueva | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-167#CA-02 | T185 | Nueva | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-167#CA-03 | T185 | Nueva | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Pendiente (se registra en `checklists/gates.md` del Spec) |
+| pm-168#CA-01 | T186 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; ver Memoria.md) | Contrato 436/436 y `checklists/gates.md` |
+| pm-168#CA-02 | T186 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; ver Memoria.md) | Contrato 436/436 y `checklists/gates.md` |
+| pm-168#CA-03 | T186 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; ver Memoria.md) | Contrato 436/436 y `checklists/gates.md` |
+| pm-168#CA-04 | T186 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; ver Memoria.md) | Contrato 436/436 y `checklists/gates.md` |
+| pm-168#CA-05 | T186 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; ver Memoria.md) | Contrato 436/436 y `checklists/gates.md` |
 
 ## 5. Requisitos de las fuentes de producto → Specs
 
@@ -654,7 +659,7 @@
 | RF-23 | Perfil y contacto del negocio | pm-119 |
 | RF-25 a RF-27 | Afiliación, ubicación y alta del negocio | pm-105, pm-107, pm-108 |
 | RF-28 | Baja del negocio | pm-110 |
-| RF-30, RF-31 | Editar negocio y ubicación | pm-109, pm-108 |
+| RF-30, RF-31 | Editar negocio y ubicación (incluye leer el negocio propio) | pm-109, pm-108, pm-168 |
 | RF-32 | Servicios del negocio | pm-112, pm-113, pm-114, pm-115 |
 | RF-33 | Escanear el QR | pm-125 |
 | RF-34 | Ficha según el tipo de negocio | pm-126, pm-127, pm-128 |
