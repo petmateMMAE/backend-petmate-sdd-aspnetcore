@@ -624,3 +624,19 @@ Aprobados por el usuario (H7, H3, H8 opción A; H4 opción B; H6 A+B+C) y regist
 - **T174** (pm-156): nuevo `POST /api/v1/reminders/mark-read` (marca por aviso, decisión del usuario); las revisiones ya entraban al listado por pm-160. Unitarias 348, seguridad 206, contrato 435 en contenedor; `MarkRead` en Atlas sin probar. Pendiente de revisión y aprobación.
 - **T091 a T093** (pm-079 a pm-081): ya estaban en código (commit `4719ce4`); se añadieron sus `gates.md` con las pruebas de `PhotoEndpointsTests`. Infraestructura (`storage.tf`) y Blob real sin verificar.
 - **Gate local en contenedor:** build `-warnaserror` limpio; `dotnet format` falla por CRLF en archivos ajenos (sin corregir); la auditoría de vulnerabilidades no dio resultado utilizable.
+
+## Cierre del bloque 1 (2026-11-18)
+
+- **Hecho:** el usuario cerró en el chat, con aprobación humana, T091–T093, T164 y T168–T185 (22 Tasks; pm-079 a pm-081, pm-146, pm-150 a pm-167). Estado de las Tasks: «Cerrado y aprobado (2026-11-18)» en `task.md`, tablas de los Specs y `specs/README.md`.
+- **Excepción del usuario:** se cerró **sin revisión independiente** de seguridad ni de trazabilidad (§12.2 paso 10), igual que T129. Los agentes no firmaron; la aprobación es del usuario.
+- **Avisos aceptados por el usuario:**
+  1. Repositorios Mongo nuevos y pruebas de integración sin ejecutar contra Atlas (`MarkRead`, reclamo atómico de recordatorios, dispositivos, avisos, borrado).
+  2. Sin pruebas contra FCM, Blob (`storage.tf` incluido) ni la publicación del artefacto OpenAPI en CI.
+  3. pm-150 se cubre con consulta `after` en lugar de canal en vivo; pm-150 y pm-157 (rutas `notification-settings/get|update`) quedan por enmendar.
+  4. Borrado de cuenta no atómico (reintentable); rutas públicas de eliminación web dependen de un dominio de envío aún inexistente.
+  5. Decisiones del agente sin confirmar: 5 dispositivos por usuario, sonidos `default|soft|silent`, anticipación 1–14 días, fotos del chat en el contenedor de mascotas bajo `chat/`, aviso de revisión con `reviews`.
+  6. Avisos push sin cola (un fallo se pierde); el despachador no corre con la API apagada por el modo ahorro de Azure.
+  7. Gate local: `dotnet format` falla por CRLF ajenos y la auditoría de vulnerabilidades no dio resultado utilizable.
+- **Pendiente:** enmendar pm-150 y pm-157; ejecutar integración contra Atlas y verificar FCM/Blob en un entorno no productivo; las Specs siguen en estado «Aprobado» (el cierre de Spec no se modificó).
+
+- **Enmiendas (2026-11-18):** pm-150 y pm-157 actualizados para reflejar lo implementado (consulta con `after`; rutas `notification-settings/get|update`).

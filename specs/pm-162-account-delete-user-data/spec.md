@@ -32,7 +32,7 @@ Cada criterio se cita como `pm-162#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T180 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Borrar los datos de mascotas al eliminar la cuenta |
+| T180 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Borrar los datos de mascotas al eliminar la cuenta |
 
 Detalle en [task.md](task.md).
 

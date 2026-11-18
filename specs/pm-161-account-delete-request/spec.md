@@ -33,7 +33,7 @@ Cada criterio se cita como `pm-161#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T179 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Eliminar la cuenta con confirmación de contraseña |
+| T179 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Eliminar la cuenta con confirmación de contraseña |
 
 Detalle en [task.md](task.md).
 

@@ -11,7 +11,7 @@
 
 ### T174 — Listar los avisos de las mascotas
 - **Tipo:** Nueva
-- **Estado:** Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana
+- **Estado:** Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md)
 - **Spec principal:** pm-156
 - **Criterios propios:** pm-156#CA-01, pm-156#CA-02, pm-156#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

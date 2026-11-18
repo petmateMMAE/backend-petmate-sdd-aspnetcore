@@ -11,7 +11,7 @@
 
 ### T181 — Borrar el negocio al eliminar la cuenta
 - **Tipo:** Nueva
-- **Estado:** Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana
+- **Estado:** Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md)
 - **Spec principal:** pm-163
 - **Criterios propios:** pm-163#CA-01, pm-163#CA-02, pm-163#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

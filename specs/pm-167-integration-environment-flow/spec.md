@@ -31,7 +31,7 @@ Cada criterio se cita como `pm-167#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T185 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Documentar el flujo del entorno de integración con la app |
+| T185 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Documentar el flujo del entorno de integración con la app |
 
 Detalle en [task.md](task.md).
 

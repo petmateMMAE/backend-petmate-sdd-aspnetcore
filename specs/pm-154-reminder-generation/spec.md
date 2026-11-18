@@ -31,7 +31,7 @@ Cada criterio se cita como `pm-154#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T172 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Calcular los recordatorios de vacunas y desparasitaciones |
+| T172 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Calcular los recordatorios de vacunas y desparasitaciones |
 
 Detalle en [task.md](task.md).
 

@@ -31,7 +31,7 @@ Cada criterio se cita como `pm-150#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T168 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Entregar los mensajes en tiempo real |
+| T168 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Entregar los mensajes en tiempo real |
 
 Detalle en [task.md](task.md).
 
@@ -39,6 +39,8 @@ Detalle en [task.md](task.md).
 
 - Decisión del usuario (2026-11-17, chat): se aprueba el reemplazo recomendado en `plan.md`. Sin cambios de código ni de contrato: reutiliza pm-145.
 - Con varias instancias el canal en vivo exigiría un respaldo compartido (por ejemplo, un Redis) y una decisión de la Constitución §5; el plan lo evaluará.
+
+- Enmienda del 2026-11-18: el objetivo y CA-04 ya reflejan la consulta con `after` en lugar del canal en vivo; el título «tiempo real» de T168 y el slug del Spec se conservan por la inmutabilidad de identificadores (§12.3).
 
 ## 7. Aprobación
 

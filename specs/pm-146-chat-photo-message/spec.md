@@ -31,7 +31,7 @@ Cada criterio se cita como `pm-146#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T164 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Enviar una foto en el chat |
+| T164 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Enviar una foto en el chat |
 
 Detalle en [task.md](task.md).
 

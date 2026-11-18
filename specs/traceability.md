@@ -334,15 +334,15 @@
 | pm-078#CA-01 | T090 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-078#CA-02 | T090 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-078#CA-03 | T090 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-079#CA-01 | T091 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Ver `checklists/gates.md` |
-| pm-079#CA-02 | T091 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Ver `checklists/gates.md` |
-| pm-079#CA-03 | T091 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Ver `checklists/gates.md` |
-| pm-080#CA-01 | T092 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Ver `checklists/gates.md` |
-| pm-080#CA-02 | T092 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Ver `checklists/gates.md` |
-| pm-080#CA-03 | T092 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Ver `checklists/gates.md` |
-| pm-081#CA-01 | T093 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Ver `checklists/gates.md` |
-| pm-081#CA-02 | T093 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Ver `checklists/gates.md` |
-| pm-081#CA-03 | T093 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Ver `checklists/gates.md` |
+| pm-079#CA-01 | T091 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Ver `checklists/gates.md` |
+| pm-079#CA-02 | T091 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Ver `checklists/gates.md` |
+| pm-079#CA-03 | T091 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Ver `checklists/gates.md` |
+| pm-080#CA-01 | T092 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Ver `checklists/gates.md` |
+| pm-080#CA-02 | T092 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Ver `checklists/gates.md` |
+| pm-080#CA-03 | T092 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Ver `checklists/gates.md` |
+| pm-081#CA-01 | T093 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Ver `checklists/gates.md` |
+| pm-081#CA-02 | T093 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Ver `checklists/gates.md` |
+| pm-081#CA-03 | T093 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Ver `checklists/gates.md` |
 | pm-082#CA-01 | T094 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-082#CA-02 | T094 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-083#CA-01 | T095 | Nueva | Propuesto | Pendiente (se registra en `checklists/gates.md` del Spec) |
@@ -570,10 +570,10 @@
 | pm-149#CA-01 | T167 | Nueva | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-149#CA-02 | T167 | Nueva | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-149#CA-03 | T167 | Nueva | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Pendiente (se registra en `checklists/gates.md` del Spec) |
-| pm-150#CA-01 | T168 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Por consulta con `after` (pm-145); ver `checklists/gates.md` |
-| pm-150#CA-02 | T168 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Por consulta con `after` (pm-145); ver `checklists/gates.md` |
-| pm-150#CA-03 | T168 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Por consulta con `after` (pm-145); ver `checklists/gates.md` |
-| pm-150#CA-04 | T168 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Por consulta con `after` (pm-145); ver `checklists/gates.md` |
+| pm-150#CA-01 | T168 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Por consulta con `after` (pm-145); ver `checklists/gates.md` |
+| pm-150#CA-02 | T168 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Por consulta con `after` (pm-145); ver `checklists/gates.md` |
+| pm-150#CA-03 | T168 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Por consulta con `after` (pm-145); ver `checklists/gates.md` |
+| pm-150#CA-04 | T168 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Por consulta con `after` (pm-145); ver `checklists/gates.md` |
 | pm-151#CA-01 | T169 | Nueva | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-151#CA-02 | T169 | Nueva | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Pendiente (se registra en `checklists/gates.md` del Spec) |
 | pm-151#CA-03 | T169 | Nueva | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Pendiente (se registra en `checklists/gates.md` del Spec) |

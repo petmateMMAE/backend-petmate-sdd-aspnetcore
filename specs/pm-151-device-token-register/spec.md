@@ -30,7 +30,7 @@ Cada criterio se cita como `pm-151#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T169 | Nueva | Implementada (2026-11-17); pendiente de revisión independiente y aprobación humana | Registrar el dispositivo para recibir avisos |
+| T169 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Registrar el dispositivo para recibir avisos |
 
 Detalle en [task.md](task.md).
 
