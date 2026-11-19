@@ -103,9 +103,27 @@ public sealed class OpenApiWrapperTests
 
         if (Environment.GetEnvironmentVariable("PETMATE_OPENAPI_OUT") is { Length: > 0 } output)
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
-            await File.WriteAllTextAsync(output, json);
+            // Una ruta relativa se resolvía contra el directorio del proceso de pruebas (bin/Release/net10.0/...), no
+            // contra la raíz del repositorio, así que el artefacto quedaba fuera del alcance de upload-artifact y el job
+            // fallaba con "No files were found with the provided path: openapi/openapi.json" aunque las pruebas pasaran.
+            var destination = Path.IsPathRooted(output) ? output : Path.Combine(RepositoryRoot(), output);
+            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(destination))!);
+            await File.WriteAllTextAsync(destination, json);
         }
+    }
+
+    /// <summary>Raíz del repositorio: la carpeta que contiene <c>PetMate.sln</c>.</summary>
+    private static string RepositoryRoot()
+    {
+        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "PetMate.sln")))
+            {
+                return directory.FullName;
+            }
+        }
+
+        throw new DirectoryNotFoundException("No se encontró la raíz del repositorio.");
     }
 
     [Trait("Endpoint", "transversal")]
