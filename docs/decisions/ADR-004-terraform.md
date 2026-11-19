@@ -1,7 +1,7 @@
 # ADR-004 — Terraform como herramienta de infraestructura como código
 
-- **Estado:** Propuesto (pendiente de aprobación humana en el PR)
-- **Fecha:** 2026-11-05
+- **Estado:** Aprobado por Adrián Adonai García Jiménez el 2026-11-19
+- **Fecha:** 2026-11-05 (propuesta) · 2026-11-19 (aprobación)
 - **Specs:** pm-066 (principal), pm-067, pm-083
 - **Constitución:** §8.15
 

@@ -79,6 +79,7 @@ internal static class MongoMapping
         BirthDate = pet.BirthDate?.ToString(BirthDateFormat, CultureInfo.InvariantCulture),
         Sex = (int)pet.Sex,
         PhotoUrl = pet.PhotoUrl,
+        PhotoObjectKey = pet.PhotoObjectKey,
         CreatedAtUtc = pet.CreatedAtUtc,
         UpdatedAtUtc = pet.UpdatedAtUtc,
         QrToken = pet.Qr.Token,
@@ -97,7 +98,8 @@ internal static class MongoMapping
             document.PhotoUrl),
         AsUtc(document.CreatedAtUtc),
         AsUtc(document.UpdatedAtUtc),
-        PetQr.IsWellFormed(document.QrToken, document.QrCode) ? new PetQr(document.QrToken!, document.QrCode!) : null);
+        PetQr.IsWellFormed(document.QrToken, document.QrCode) ? new PetQr(document.QrToken!, document.QrCode!) : null,
+        document.PhotoObjectKey);
 
     private const string BirthDateFormat = "yyyy-MM-dd";
 

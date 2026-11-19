@@ -142,12 +142,28 @@ Correo transaccional (pm-088): proveedor **Resend** (plan gratuito: 3 000 correo
 | GET | `/api/v1/technical/mediator-probe` | **Temporal:** público para no ampliar el alcance de pm-033. Pendiente revisar su exposición en producción en un trabajo de seguridad posterior |
 | GET | `/openapi/v1.json`, `/scalar/v1` | Solo en Development |
 
+## Eliminación de cuenta por la web (pm-164, pm-165)
+
+| Método | Endpoint | Acceso | Spec | Estado |
+|---|---|---|---|---|
+| POST | `/api/v1/account-deletion/request` | Público (límite por IP y por correo) | `pm-164` / T182 | Implementado (pendiente de cierre) |
+| POST | `/api/v1/account-deletion/confirm` | Público (token del correo) | `pm-165` / T183 | Implementado (pendiente de cierre) |
+
+#### POST `/api/v1/account-deletion/request`
+
+Cuerpo `{ "email": "..." }`. Responde **200 con el mismo mensaje** exista o no el correo. Para una cuenta existente envía un enlace de confirmación de un solo uso que vence en 1 hora (el más reciente invalida los anteriores). 400 con correo inválido o miembros desconocidos; 429 con `Retry-After` por exceso de solicitudes (3 por correo en 15 minutos y el límite por IP). El enlace usa la variable opcional `ACCOUNT_DELETION_URL_BASE` (HTTPS, se le añade `?token=`); sin ella no se envía el correo.
+
+#### POST `/api/v1/account-deletion/confirm`
+
+Cuerpo `{ "token": "..." }`. Elimina la cuenta con el mismo efecto que `DELETE users/me/delete` pero sin contraseña, y revoca todas las sesiones. 200 `null`; 400 con el mismo mensaje para token usado, vencido o inexistente (también uno de restablecimiento de contraseña) y para cuerpos inválidos; 429 por el límite por IP.
+
 ## Perfil
 
 | Método | Endpoint | Acceso | Spec | Estado |
 |---|---|---|---|---|
 | GET | `/api/v1/users/me/get` | Autenticado | `pm-037` / T026 | Implementado (cerrado el 2026-11-08) |
 | PUT | `/api/v1/users/me/update` | Autenticado | `pm-038` / T027 | Implementado (cerrado el 2026-11-08) |
+| DELETE | `/api/v1/users/me/delete` | Autenticado | `pm-161` a `pm-163` / T179–T181 | Implementado (pendiente de cierre) |
 
 ### Contratos de perfil
 
@@ -173,6 +189,68 @@ Cuerpo: `{ "displayName": "Ana Pérez", "phone": "55 1234 5678" }`. `phone` es o
 | 401 | Sin autenticación válida | `null` |
 | 404 | La cuenta del token ya no existe | `null` |
 
+## Dispositivos
+
+| Método | Endpoint | Acceso | Spec | Estado |
+|---|---|---|---|---|
+| POST | `/api/v1/devices/register` | Autenticado | `pm-151` / T169 | Implementado (pendiente de cierre) |
+| GET | `/api/v1/reminders/get-all` | Autenticado | `pm-156` / T174 | Implementado (pendiente de cierre) |
+| POST | `/api/v1/reminders/mark-read` | Autenticado | `pm-156` / T174 | Implementado (pendiente de cierre) |
+| POST | `/api/v1/devices/unregister` | Autenticado | `pm-152` / T170 | Implementado (pendiente de cierre) |
+| GET | `/api/v1/notification-settings/get` | Autenticado | `pm-157` / T175 | Implementado (pendiente de cierre) |
+| PUT | `/api/v1/notification-settings/update` | Autenticado | `pm-157` / T175 | Implementado (pendiente de cierre) |
+
+#### POST `/api/v1/devices/register`
+
+Cuerpo: `{ "token": "<token FCM>" }`. El usuario sale del token de acceso. El token tiene de 20 a 4096 caracteres, sin espacios; otros miembros del cuerpo devuelven 400. Registrar un token ya propio no lo duplica; si estaba a nombre de otra cuenta pasa a la actual. Máximo 5 dispositivos por usuario. El token no se escribe en logs. Límite: 60 peticiones por minuto por usuario (`USERS_RATE_LIMIT_PER_MINUTE`).
+
+| Código | Cuándo | `data` |
+|---|---|---|
+| 200 | Dispositivo registrado (o ya registrado) | `null` |
+| 400 | Token ausente, demasiado corto o largo, con espacios, o miembro desconocido | `{ "errors": [...] }` |
+| 401 | Sin autenticación válida | `null` |
+| 409 | Se alcanzó el máximo de dispositivos | `null` |
+
+#### POST `/api/v1/devices/unregister`
+
+Cuerpo `{ "token": "..." }` (misma validación que el registro). Quita el token solo si es de la cuenta; un token desconocido o ajeno también responde 200 sin cambios. 400 si el token es inválido o hay miembros desconocidos; 401 sin autenticación.
+
+#### GET y PUT `/api/v1/notification-settings/{get|update}`
+
+`data`: `vaccines`, `reviews`, `chat`, `followups` (bool), `sound` (`default`, `soft`, `silent`) y `reminderDaysBefore` (1 a 14). Sin preferencias guardadas el GET devuelve todo activo, `default` y 3. El PUT reemplaza todo (todos los campos son obligatorios; otros miembros devuelven 400). Las preferencias son de la cuenta del token. 401 sin autenticación.
+
+#### POST `/api/v1/messages/send-photo?conversationId=`
+
+Cuerpo `multipart/form-data` con el campo `file` (JPEG, PNG o WebP de hasta **1 MB**; el tipo se deduce de los bytes). Crea un mensaje de tipo `Photo` (`hasPhoto: true`, texto vacío). 201 con el mensaje; 400 sin archivo, tipo no permitido o sin `conversationId`; 401; 404 si no es participante o la conversación no existe; 409 si está cerrada; 413 si pasa de 1 MB; 503 sin almacenamiento. La foto es privada (contenedor privado, prefijo `chat/`) y se borra con la conversación (al eliminar la mascota).
+
+#### GET `/api/v1/messages/get-photo-url?conversationId=&messageId=`
+
+URL temporal (15 minutos) de la foto de un mensaje, solo para los dos participantes. 200 `{ messageId, url, expiresAt }`; 404 para no participantes y mensajes sin foto; 401; 400 sin parámetros.
+
+#### GET `/api/v1/reminders/get-all?page=&pageSize=`
+
+Próximos recordatorios de vacunas, desparasitaciones y revisiones de seguimiento de las mascotas propias (fecha de hoy en adelante, el más cercano primero, paginado según pm-047). Cada ítem: `id` (registro de origen), `kind` (`Vaccine`, `Deworming` o `Review`), `petId`, `petName`, `title`, `dueOn`, `remindOn` (3 días antes por defecto o la preferencia de pm-157) e `isRead`. Se generan al registrar una próxima fecha y se cancelan al borrar el registro o la mascota. 400 con paginación inválida; 401 sin autenticación.
+
+#### POST `/api/v1/reminders/mark-read`
+
+Cuerpo `{ "id": "<id del recordatorio>" }`. Marca como leído un recordatorio propio (`isRead` pasa a `true`). Idempotente. 200 `data: null`; 400 sin `id`, con `id` vacío o con miembros desconocidos; 401; 404 si no existe o es de otra cuenta.
+
+#### DELETE `/api/v1/users/me/delete`
+
+Cuerpo `{ "password": "..." }` (contraseña actual; otros miembros devuelven 400). Elimina la cuenta, sus mascotas y todo lo asociado (carnet, QR, autorizaciones, escaneos, conversaciones y fotos), y el negocio con su catálogo, foto y escaneos; revoca todas las sesiones. Las consultas que el negocio registró en carnets ajenos se conservan. El borrado es inmediato y no hay recuperación.
+
+| Código | Cuándo | `data` |
+|---|---|---|
+| 200 | Cuenta eliminada | `null` |
+| 400 | Contraseña ausente o miembro desconocido | `{ "errors": [...] }` |
+| 401 | Sin autenticación válida (también el token usado tras eliminar) | `null` |
+| 403 | Contraseña incorrecta (o cuenta inexistente): no se elimina nada | `null` |
+| 429 | Más de 5 intentos en 15 minutos; bloqueo de 15 minutos con `Retry-After` | `null` |
+
+#### Avisos push del seguimiento y del chat (pm-158 a pm-160)
+
+No son endpoints: ocurren como efecto de otros. Cambiar el estado o la próxima revisión (`PUT followups/update`) o reabrir la conversación avisa al dueño si tiene activo `followups`. Enviar un mensaje o una foto avisa al otro participante si tiene activo `chat`, salvo que haya consultado la conversación (`messages/get-all` o `conversations/mark-read`) en los últimos 30 segundos; el aviso nunca incluye el contenido. La próxima revisión de un seguimiento genera un recordatorio (`kind: Review`, visible en `reminders/get-all`) que se avisa un día antes si el dueño tiene activo `reviews`.
+
 ## Mascotas
 
 | Método | Endpoint | Acceso | Spec | Estado |
@@ -195,6 +273,44 @@ Cuerpo: `{ "displayName": "Ana Pérez", "phone": "55 1234 5678" }`. `phone` es o
 | POST | `/api/v1/allergies/create` | User + propietario | `pm-102` | Implementado (pendiente de cierre) |
 | GET | `/api/v1/allergies/get-all` | User + propietario | `pm-102` | Implementado (pendiente de cierre) |
 | PUT | `/api/v1/allergies/update/{id}` | User + propietario | `pm-103` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/businesses/create` | User (negocio de la cuenta) | `pm-107` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/businesses/get` | User (negocio de la cuenta) | `pm-168` | Implementado (pendiente de cierre) |
+| PUT | `/api/v1/businesses/update-location` | User (negocio de la cuenta) | `pm-108` | Implementado (pendiente de cierre) |
+| PUT | `/api/v1/businesses/update` | User (negocio de la cuenta) | `pm-109` | Implementado (pendiente de cierre) |
+| DELETE | `/api/v1/businesses/delete` | User (negocio de la cuenta) | `pm-110` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/services/create` | User (negocio de la cuenta) | `pm-112` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/services/get-all` | User (negocio de la cuenta) | `pm-113` | Implementado (pendiente de cierre) |
+| PUT | `/api/v1/services/update/{id}` | User (negocio de la cuenta) | `pm-114` | Implementado (pendiente de cierre) |
+| DELETE | `/api/v1/services/delete/{id}` | User (negocio de la cuenta) | `pm-115` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/businesses/get-nearby` | Público | `pm-116` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/businesses/get-by-id/{id}` | Público | `pm-119` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/access-grants/create` | User + propietario | `pm-123` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/scans/resolve` | User con negocio | `pm-125` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/consultations/create` | User con veterinaria autorizada | `pm-131` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/consultations/add-medication` | Veterinaria autora | `pm-132` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/consultations/get-all` | User + propietario | `pm-133` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/consultations/get-by-id/{id}` | User + propietario | `pm-134` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/vaccines/create-by-business` | User con veterinaria autorizada | `pm-135` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/dewormings/create-by-business` | User con veterinaria autorizada | `pm-136` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/history/get-all` | User + propietario | `pm-137` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/scans/get-attended` | User con negocio | `pm-130` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/followups/create` | Veterinaria autora | `pm-138` | Implementado (pendiente de cierre) |
+| PUT | `/api/v1/followups/update/{id}` | Veterinaria autora | `pm-139` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/followups/add-note` | Veterinaria autora | `pm-140` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/followups/get-by-consultation/{id}` | User + propietario | `pm-141` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/followups/get-all` | Veterinaria | `pm-142` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/messages/send` | Participante | `pm-144` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/messages/get-all` | Participante | `pm-145` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/messages/send-photo` | Participante | `pm-146` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/messages/get-photo-url` | Participante | `pm-146` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/conversations/get-all` | Participante | `pm-148` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/conversations/mark-read` | Participante | `pm-149` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/conversations/reopen` | Veterinaria | `pm-147` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/pets/upload-photo/{id}` | User + propietario | `pm-080` | Implementado (pendiente de cierre) |
+| GET | `/api/v1/pets/get-photo-url/{id}` | User + propietario | `pm-081` | Implementado (pendiente de cierre) |
+| DELETE | `/api/v1/pets/delete-photo/{id}` | User + propietario | `pm-080` | Implementado (pendiente de cierre) |
+| POST | `/api/v1/businesses/upload-photo` | User (negocio de la cuenta) | `pm-111` | Implementado (pendiente de cierre) |
+| DELETE | `/api/v1/businesses/delete-photo` | User (negocio de la cuenta) | `pm-111` | Implementado (pendiente de cierre) |
 
 ### Contrato de mascotas
 
@@ -203,15 +319,69 @@ Cuerpo: `{ "displayName": "Ana Pérez", "phone": "55 1234 5678" }`. `phone` es o
   `{ "name": "Firulais", "species": "Perro", "breed": "Mestizo", "birthDate": "2020-05-01", "sex": "Male", "photoUrl": "https://..." }`
   - `name` 1–50 obligatorio; `species` obligatoria y solo `Perro` o `Gato` (lista cerrada); `sex` opcional (`Male`, `Female` o `Unknown`; si falta se guarda `Unknown`); `breed` hasta 60, opcional.
   - `birthDate` opcional, `yyyy-MM-dd`, no futura ni de hace más de 50 años.
-  - `photoUrl` opcional: URL HTTPS sin credenciales (la carga de archivos llega con pm-079/pm-080).
+  - `photoUrl` opcional: URL HTTPS sin credenciales. Es la forma antigua de poner foto; desde pm-080 se puede **subir** el archivo y entonces `photoUrl` deja de usarse (ver «Contrato de imágenes»).
 - Respuesta (`data`): `id`, los campos anteriores, `createdAt` y `updatedAt`. Nunca incluye el propietario.
 - Listado `GET /api/v1/pets/get-all?page=1&pageSize=20` (convención de paginación de pm-047, aplicable a todos los listados): solo las mascotas del propietario del token, de la más reciente a la más antigua; cualquier `ownerId` en la consulta se ignora.
   - `page` desde 1 (por defecto 1); `pageSize` por defecto 20 y máximo 50. Un valor menor que 1, mayor que 50 o no numérico devuelve **400** con el nombre del parámetro; no se recorta en silencio.
   - `data`: `{ "items": [...], "page": 1, "pageSize": 20, "totalCount": 3, "totalPages": 1 }`. Una página fuera de rango devuelve `items` vacío con el total real; sin mascotas, `totalCount` y `totalPages` valen 0.
 - Códigos: crear **201** (o **409** en el máximo); listar, detalle, actualizar y eliminar **200** (eliminar con `data: null`); datos inválidos **400** con `data.errors`; mascota ajena, inexistente o `{id}` que no es GUID **404**.
-- La URL de la foto (`photoUrl`) solo se guarda y se devuelve: el servidor nunca la resuelve ni la descarga. Los textos (`name`, `species`, `breed`) no se sanean ni se codifican (se rechazan solo los caracteres de control): el cliente debe tratarlos como texto al mostrarlos. Cuando exista la carga de imágenes (pm-079/pm-080) se restringirá el origen permitido.
+- La URL de la foto (`photoUrl`) solo se guarda y se devuelve: el servidor nunca la resuelve ni la descarga. Los textos (`name`, `species`, `breed`) no se sanean ni se codifican (se rechazan solo los caracteres de control): el cliente debe tratarlos como texto al mostrarlos. Una foto **subida** (pm-080) no pasa por `photoUrl`: la guarda el servidor en su propio almacenamiento y manda su origen.
 - Límites contra el abuso (pm-045 CA-04): máximo **100 mascotas por propietario** (crear una más devuelve **409** con el wrapper); **60 peticiones por minuto por usuario** en `/api/v1/pets/*` (`PETS_RATE_LIMIT_PER_MINUTE`; al excederlo, **429** con `Retry-After`); y **16 KB** como tamaño máximo del cuerpo de cualquier petición de la API (**413** con el wrapper, también si el cuerpo llega fragmentado). El tope de 100 se comprueba al crear y no es atómico: peticiones simultáneas pueden superarlo por muy poco.
 - Eliminar es **físico** (decisión del usuario, 2026-11-08): la mascota deja de existir.
+
+### Contrato de imágenes (`pm-079` a `pm-081`, `pm-111`)
+
+- **Único punto de la API que no es JSON**: el cuerpo es `multipart/form-data` con un solo campo, `file`. Cualquier otro campo se ignora. Sin archivo → **400**.
+- **Tipos permitidos**: `image/jpeg`, `image/png` y `image/webp`. El tipo se deduce de los **bytes** del archivo: el nombre y el `Content-Type` que manda el cliente se ignoran, así que un `.jpg` que en realidad es otra cosa responde **400**. La extensión con la que se guarda la decide el servidor.
+- **Tamaño**: hasta **2 MB** la foto de una mascota y **1 MB** la de un negocio (`pm-111#CA-02`). Pasarse responde **413**. El límite general de 16 KB del cuerpo no aplica a estas rutas.
+- **Dónde se guarda**: Azure Blob Storage, nunca el disco del contenedor. Dos contenedores separados: `pet-photos` es **privado** y `business-photos` es **público de solo lectura**.
+- Sin almacenamiento configurado en el entorno (`IMAGES_STORAGE_ACCOUNT` o `IMAGES_STORAGE_CONNECTION`), las rutas de carga responden **503**; el resto de la API funciona igual.
+
+**Foto de una mascota (privada).** Una mascota tiene una sola foto: subir otra la reemplaza.
+
+- `POST pets/upload-photo/{id}` → **200** con `{ "petId", "url", "expiresAt" }`. Mascota ajena o inexistente → **404**, el mismo código para los dos casos.
+- `GET pets/get-photo-url/{id}` → **200** con la misma forma. La propiedad se comprueba **antes** de firmar: una mascota ajena responde 404 y no se emite ninguna URL. Una mascota sin foto subida también responde 404.
+- `DELETE pets/delete-photo/{id}` → **200** con `data: null`. Quita la foto y borra el archivo.
+- `url` es temporal y dura **15 minutos** (`expiresAt` dice cuándo caduca). No existe ninguna URL permanente de la foto de una mascota: sin firma vigente el archivo no se puede leer. Una URL ya emitida no se puede revocar antes de que caduque; la ventana corta es la mitigación.
+- La ficha del escaneo (`scans/resolve`) manda en `photoUrl` una URL temporal igual, y solo cuando hay una autorización vigente del dueño.
+- Eliminar la mascota borra su foto.
+
+**Foto de un negocio (pública).**
+
+- `POST businesses/upload-photo` → **200** con `{ "photoUrl" }`. Cuenta sin negocio → **403**, como el resto del módulo.
+- `DELETE businesses/delete-photo` → **200** con `data: null`.
+- `photoUrl` es permanente y la sirve el Blob directo: aparece en `businesses/get-by-id` y en `businesses/get-nearby`, que antes mandaban `null`. Lleva un parámetro `?v=` que cambia al reemplazar la foto, para que nadie siga viendo la anterior desde su caché.
+- Dar de baja el negocio borra su foto.
+
+### Negocio afiliado y catálogo (`pm-105` a `pm-115`)
+
+- Acceso: cualquier `User` autenticado. El negocio es **siempre el de la cuenta del token** (no hay identificador de negocio en el cliente): solo el dueño puede ver o cambiar su negocio y su catálogo. Una cuenta tiene como máximo un negocio y no hay aprobación manual: al crearlo aparece de inmediato.
+- `POST businesses/create` `{type, name, phone, whatsApp?, address, description?, latitude, longitude, licenseNumber?, schedule?}` → **201** con el negocio. `type`: `Veterinary`, `Store` o `Grooming` (uno solo). `licenseNumber` es obligatoria solo para `Veterinary`, se captura sin validarse y es **privada** (solo la ve su dueño). Teléfonos de 10 dígitos (se admite +52). Una cuenta que ya tiene negocio → **409**. El tipo de negocio de la sesión (`user.business`) se calcula en el servidor al iniciar sesión, registrarse o renovar la sesión (login y refresh dependen de la colección de negocios); no cambia en un access token ya emitido.
+- `schedule`: `{ "monday": [{"open":"09:00","close":"18:00"}], ... }` con los días `monday` a `sunday`; cierre posterior a la apertura, hasta 6 franjas por día y sin solaparse; un día ausente o sin franjas es un día cerrado. Las horas son locales de America/Mexico_City; el cierre es exclusivo y no se puede expresar medianoche (`24:00` no es válido): para cerrar al final del día se usa `23:59`.
+- `PUT businesses/update-location` `{latitude, longitude}` (latitud −90 a 90, longitud −180 a 180; la geocodificación ocurre en la app). `PUT businesses/update` `{name, description?, phone, whatsApp?, schedule?}` **reemplaza el perfil completo**: omitir `schedule` deja el negocio sin horario (todos los días cerrado) y omitir `description` o `whatsApp` los quita, por lo que el cliente debe reenviar lo que quiera conservar; el tipo **no se puede cambiar** (enviar `type` devuelve **400**: hay que dar de baja el negocio y afiliarlo de nuevo).
+- `GET businesses/get` (pm-168) devuelve el mismo `BusinessResponse` que `create` y `update`, con `id` y `licenseNumber`, **sin parámetros**: la cuenta sale del token. Cuenta sin negocio → **404** con `data: null` (excepción a la regla del 403 siguiente); sin token → 401.
+- `DELETE businesses/delete` da de baja el negocio y su catálogo (primero los servicios y al final el negocio, idempotente). La cuenta, su rol y sus mascotas siguen funcionando.
+- Cuenta sin negocio en estas rutas o en el catálogo → **403** «La cuenta no tiene un negocio asociado.», con `data: null`.
+- Catálogo: `POST services/create` `{name, description?, price?}` (**201**; `price` ≥ 0 con hasta 2 decimales y máximo 1 000 000; sin precio se devuelve `null`, nunca 0; sin existencias ni ventas), `GET services/get-all` (paginado con la convención de `pm-047`, más antiguo primero y por identificador), `PUT services/update/{id}`, `DELETE services/delete/{id}`. Servicio de otro negocio o inexistente → **404** idéntico.
+- Límites: **60 peticiones por minuto por usuario** (`BUSINESS_RATE_LIMIT_PER_MINUTE`) y 16 KB de cuerpo. Persistencia: un índice único por cuenta y un índice geoespacial `2dsphere` para las consultas por cercanía de los Specs siguientes. La foto del negocio (`pm-111`) se sube aparte; ver «Contrato de imágenes».
+
+### Mapa público, autorizaciones y escaneo (`pm-116` a `pm-129`)
+
+- **Mapa público** (sin cuenta, `AllowAnonymous`): `GET businesses/get-nearby?latitude=&longitude=&radiusKm=5&types=Veterinary,Store&search=&page=&pageSize=` devuelve los negocios activos dentro del radio (5 km por defecto, máximo 50), de más cerca a más lejos (a igualdad, por identificador), paginados con la convención de `pm-047`. Cada elemento: `id`, `name`, `type`, `photoUrl` (la foto pública del local, o nulo si no subió ninguna), `isOpenNow`, `todayHours` y `distanceMeters`. `latitude` y `longitude` son obligatorias; `types` acepta uno o varios valores separados por comas (uno inválido → **400**; sin parámetro, todos); `search` filtra por nombre sin distinguir mayúsculas ni acentos (2 a 50 caracteres, se trata como dato y nunca como expresión) y se combina con tipo y cercanía.
+- `GET businesses/get-by-id/{id}`: perfil público con descripción, foto, horario, ubicación, servicios y contacto (`phone`, `whatsApp`; ausente → `null`). **Nunca incluye la cédula profesional.** Negocio inexistente o dado de baja → **404**.
+- Límites: **120 solicitudes por minuto por IP** (`PUBLIC_BUSINESS_RATE_LIMIT_PER_MINUTE`), contadas en Redis Auth y compartidas entre réplicas; al excederlo **429** con `Retry-After`. Estas lecturas se guardan en la caché **5 minutos**; cada cambio del negocio o su catálogo la invalida (política en `docs/security/cache-policy.md`). El objetivo de 2 segundos en 4G se mide en la línea base de rendimiento.
+- **Autorización de acceso** (dueño): `POST access-grants/create` `{petId, businessId?, data[], durationMinutes}`. `businessId` ausente = cualquier negocio que escanee; `data`: `Vaccines`, `Dewormings`, `Weights`, `Consultations` (las alergias siempre se incluyen); `durationMinutes`: **30, 1440 o 10080**, otro valor → **400**. Mascota ajena o inexistente → **404**. **No existe endpoint para listar ni revocar autorizaciones**: el dueño no las revoca ni ve quién entró; la única forma de cortar el acceso es `pets/regenerate-qr`, que las cancela todas antes de cambiar el QR. Un negocio destinatario inexistente → 400 (`businessId`).
+- **Escaneo** (cuenta con negocio): `POST scans/resolve` `{code}` con el token del QR (43 caracteres) o el código corto de 8 (sin distinguir mayúsculas). Cuenta sin negocio → **403**; código desconocido o QR regenerado → **404** con el mismo mensaje; sin una autorización vigente que incluya al negocio → **403 sin datos de la mascota** (conocer el QR no basta); más de **20 intentos por negocio por minuto** o más de 120 por IP → **429** (5 minutos de espera por negocio; impide enumerar códigos). Limitación conocida: un código existente no autorizado responde 403 y uno inexistente 404, lo que permite saber que existe; lo exige el Spec y lo acota el código de 40 bits con el límite por negocio e IP. Con autorización vigente responde **200** con la ficha básica: `photoUrl`, `name`, `species`, `breed`, `ageYears`, `ageMonths` y las alergias activas, y ningún otro campo; `petId` se añade solo para una veterinaria. Una **veterinaria** recibe además, solo de los grupos que alguna autorización vigente permite, `vaccines`, `dewormings`, `weights` y `consultations` (con su receta; hasta 50 por grupo, de solo lectura); un grupo no autorizado no aparece en la respuesta y una tienda o estética nunca los recibe (`pm-127`). Cada acceso concedido deja un registro interno de escaneo (negocio, mascota y fecha) que ni el dueño ni la API pueden consultar; se borra al eliminar la mascota.
+
+### Consultas, seguimiento y chat (`pm-130` a `pm-149`)
+
+- **Operaciones de una veterinaria sobre una mascota ajena** (`consultations/create`, `vaccines/create-by-business`, `dewormings/create-by-business`): solo una cuenta con una **veterinaria** (tienda y estética → **403**) y con una autorización vigente que la incluya (si no, **403**); mascota inexistente → 404. El registro queda en el carnet con origen de negocio (nombre del negocio en «aplicada por», fijado por el servidor) y es de **solo lectura** para el dueño. Fechas: aplicación no futura; próxima dosis posterior; próxima fecha de desparasitación futura.
+- **Consultas:** `POST consultations/create` `{petId, reason, diagnosis, weightKg?, medications[]}` (motivo y diagnóstico obligatorios de hasta 500 caracteres, peso de 0.1 a 200 kg con un decimal, receta de hasta **10** medicamentos con `name`, `dose`, `frequency`, `duration` e `instructions?`). El peso de la consulta se queda en la consulta: no se suma al historial de peso. `POST consultations/add-medication` agrega un medicamento (solo la veterinaria autora; el dueño no modifica la receta). El dueño usa `GET consultations/get-all?petId=` (de la más reciente a la más antigua: fecha, veterinaria, motivo y diagnóstico) y `GET consultations/get-by-id/{id}` (con la receta completa); ajeno o inexistente → **404**.
+- **Historial:** `GET history/get-all?petId=&types=Consultation,Vaccine,Deworming,Weight` mezcla consultas, vacunas, desparasitaciones y pesos de la más reciente a la más antigua (hasta 200 registros por tipo), con paginación de `pm-047`.
+- **Mascotas atendidas:** `GET scans/get-attended?period=day|week` lista, para el negocio, las mascotas escaneadas con foto, nombre y fecha (sin datos clínicos ni acceso a la ficha). «Hoy» y «semana» (últimos 7 días) se cuentan en America/Mexico_City. El nombre y la foto son los del momento del escaneo.
+- **Seguimiento:** `POST followups/create` `{consultationId, nextReviewInDays?}` (3, 7 o 15; solo la veterinaria autora de la consulta; una consulta tiene un solo seguimiento → **409**); abre el seguimiento en `Treating` y **crea su conversación** con el dueño y la veterinaria. `PUT followups/update/{id}` `{status, nextReviewInDays?}` (`Treating`, `Improving`, `Discharged`; dar de alta elimina la revisión y **cierra la conversación**). `POST followups/add-note` `{followupId, text}` (hasta 500 caracteres, en orden cronológico). El dueño lee con `GET followups/get-by-consultation/{id}`. La veterinaria lista con `GET followups/get-all?reviewDate=&onlyActive=` (marca `isOverdue` si la revisión ya pasó y no está dado de alta; solo los de su negocio).
+- **Chat:** conversación de exactamente dos participantes (el dueño y la cuenta de la veterinaria); cualquier otro usuario recibe **404**. `POST messages/send` `{conversationId, text}` (hasta 1000 caracteres; conversación cerrada → **409**), `GET messages/get-all?conversationId=&after=<messageId>&pageSize=` (en orden; `after` pide solo los posteriores; incluye los avisos del sistema del seguimiento; `hasMore`), `GET conversations/get-all` (con último mensaje y mensajes sin leer, paginado), `POST conversations/mark-read` `{conversationId, upToMessageId?}` (cada participante lleva su propio estado de lectura) y `POST conversations/reopen` `{conversationId}` (solo la veterinaria; el seguimiento vuelve a `Treating`; el dueño → **403**).
+- **Pendientes de este bloque:** las fotos del chat (`pm-146`) dependen de Blob y el tiempo real (`pm-150`) está propuesto para sustituirse por la consulta al abrir (`pm-150#CA-04`); ver `specs/pm-150-*/plan.md`.
 
 ### Carnet de salud (`pm-096` a `pm-103`)
 

@@ -23,6 +23,30 @@ public sealed record MongoCollectionNames(string Prefix = "")
     public string Allergies => Prefix + "allergies";
 
     public string PasswordResets => Prefix + "password_resets";
+
+    public string Businesses => Prefix + "businesses";
+
+    public string BusinessServices => Prefix + "business_services";
+
+    public string AccessGrants => Prefix + "access_grants";
+
+    public string ScanLogs => Prefix + "scan_logs";
+
+    public string Consultations => Prefix + "consultations";
+
+    public string Followups => Prefix + "followups";
+
+    public string Conversations => Prefix + "conversations";
+
+    public string Messages => Prefix + "messages";
+
+    public string Devices => Prefix + "devices";
+
+    public string AccountDeletionTokens => Prefix + "account_deletion_tokens";
+
+    public string Reminders => Prefix + "reminders";
+
+    public string NotificationSettings => Prefix + "notification_settings";
 }
 
 // Documentos de persistencia: viven en Infrastructure y mantienen Domain libre de atributos Bson.
@@ -154,6 +178,11 @@ internal sealed class PetDocument
     [BsonElement("photoUrl")]
     [BsonIgnoreIfNull]
     public string? PhotoUrl { get; set; }
+
+    /// <summary>Clave del objeto en el contenedor privado cuando la foto se subió a Blob (pm-080).</summary>
+    [BsonElement("photoObjectKey")]
+    [BsonIgnoreIfNull]
+    public string? PhotoObjectKey { get; set; }
 
     [BsonElement("createdAtUtc")]
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]

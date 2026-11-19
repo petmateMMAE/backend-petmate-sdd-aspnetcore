@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -26,6 +26,7 @@
   <ItemGroup>
     <!-- Reloj manual compartido con UnitTests (sin duplicar código). -->
     <Compile Include="../PetMate.UnitTests/Authentication/Fakes/InMemoryDoubles.cs" Link="Support/InMemoryDoubles.cs" />
+    <Compile Include="../PetMate.UnitTests/Authentication/Fakes/InMemoryImageStorage.cs" Link="Support/InMemoryImageStorage.cs" />
   </ItemGroup>
 
 </Project>

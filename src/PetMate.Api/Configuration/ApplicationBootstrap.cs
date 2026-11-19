@@ -62,10 +62,14 @@ public static class ApplicationBootstrap
         builder.Logging.AddFilter("Microsoft.AspNetCore.Hosting.Diagnostics", LogLevel.None);
         // JwtBearer registra la excepción interna completa si Redis falla; el middleware global ya la registra saneada.
         builder.Logging.AddFilter("Microsoft.AspNetCore.Authentication.JwtBearer", LogLevel.Critical);
+        // HttpsRedirectionMiddleware registra la URL completa a la que redirige, con los identificadores de la ruta y los
+        // parámetros de consulta: la misma fuga que Hosting.Diagnostics, por el mismo motivo (pm-054). Se desactiva igual.
+        builder.Logging.AddFilter("Microsoft.AspNetCore.HttpsPolicy", LogLevel.None);
         builder.Services.AddControllers()
             .AddJsonOptions(options => options.JsonSerializerOptions.TypeInfoResolverChain.Insert(0, PetMate.Api.Contracts.Responses.ApiJsonContext.Default))
             .ConfigureApiBehaviorOptions(PetMate.Api.Middleware.ApiBehaviorConfiguration.Configure);
         ConfigureCompression(builder.Services);
+        ConfigureHsts(builder.Services);
         builder.Services.AddOpenApi("v1", options =>
         {
             options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
@@ -101,6 +105,29 @@ public static class ApplicationBootstrap
         services.Configure<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Fastest);
         services.Configure<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Fastest);
         services.AddSingleton<Microsoft.AspNetCore.ResponseCompression.IResponseCompressionProvider, PetMate.Api.Middleware.SensitiveAwareCompressionProvider>();
+    }
+
+    // HSTS (pm-073#CA-03): el navegador recuerda durante un año que este host es
+    // solo HTTPS. Se declara explícito en vez de usar el valor por omisión de
+    // ASP.NET (30 días), porque un plazo corto reabre la ventana de la primera
+    // petición en claro cada mes.
+    //
+    // Sin IncludeSubDomains: el host de Azure Container Apps es un subdominio
+    // compartido (*.azurecontainerapps.io) y marcar sus hermanos como solo-HTTPS
+    // afectaría a aplicaciones de terceros. Se puede activar cuando el proyecto
+    // tenga dominio propio.
+    //
+    // Sin Preload: inscribir el dominio en la lista precargada de los
+    // navegadores es irreversible en la práctica y no corresponde a un host
+    // prestado.
+    private static void ConfigureHsts(IServiceCollection services)
+    {
+        services.AddHsts(options =>
+        {
+            options.MaxAge = TimeSpan.FromDays(365);
+            options.IncludeSubDomains = false;
+            options.Preload = false;
+        });
     }
 
     // Solo se confía en X-Forwarded-* de los proxies listados en TRUSTED_PROXIES (IPs separadas por coma). Sin la variable,
@@ -152,9 +179,13 @@ public static class ApplicationBootstrap
         var petsPermitLimit = ReadPerMinuteLimit(configuration, "PETS_RATE_LIMIT_PER_MINUTE", 60);
         var usersPermitLimit = ReadPerMinuteLimit(configuration, "USERS_RATE_LIMIT_PER_MINUTE", 60);
         var carnetPermitLimit = ReadPerMinuteLimit(configuration, "CARNET_RATE_LIMIT_PER_MINUTE", 60);
+        var businessPermitLimit = ReadPerMinuteLimit(configuration, "BUSINESS_RATE_LIMIT_PER_MINUTE", 60);
+        var publicBusinessPermitLimit = ReadPerMinuteLimit(configuration, "PUBLIC_BUSINESS_RATE_LIMIT_PER_MINUTE", 120);
 
         services.AddSingleton(new PetMate.Api.Authentication.AuthIpThrottleOptions(permitLimit));
         services.AddScoped<PetMate.Api.Authentication.AuthIpThrottleFilter>();
+        services.AddSingleton(new PetMate.Api.Authentication.PublicBusinessIpThrottleOptions(publicBusinessPermitLimit));
+        services.AddScoped<PetMate.Api.Authentication.PublicBusinessIpThrottleFilter>();
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -172,6 +203,20 @@ public static class ApplicationBootstrap
 
             // Carnet de salud (pm-096): mismo esquema por usuario autenticado, con su propia variable.
             options.AddPolicy(PetMate.Api.Controllers.CarnetControllerBase.RateLimitPolicy, context => PerUserWindow(context, carnetPermitLimit));
+
+            // Lecturas públicas de negocios (pm-120): límite por IP en proceso; el compartido entre réplicas lo aplica el filtro de Redis.
+            options.AddPolicy(PetMate.Api.Controllers.PublicBusinessesController.RateLimitPolicy, context => RateLimitPartition.GetFixedWindowLimiter(
+                RateLimitKey.For(context.Connection.RemoteIpAddress),
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = publicBusinessPermitLimit,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0,
+                    AutoReplenishment = true,
+                }));
+
+            // Negocio afiliado y su catálogo (pm-107 a pm-115): mismo esquema por usuario autenticado.
+            options.AddPolicy(PetMate.Api.Controllers.BusinessControllerBase.RateLimitPolicy, context => PerUserWindow(context, businessPermitLimit));
 
             // Perfil propio (pm-036 CA-03, matriz de límites): mismo esquema por usuario autenticado.
             options.AddPolicy(PetMate.Api.Controllers.UsersController.RateLimitPolicy, context => PerUserWindow(context, usersPermitLimit));

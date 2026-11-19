@@ -10,11 +10,14 @@ namespace PetMate.Infrastructure.Mail;
 /// Proveedor elegido en el plan: Resend (plan gratuito: 3 000 correos al mes y 100 al día, verificado el 2026-11-09 en
 /// resend.com/pricing). Exige un dominio de envío verificado (SPF y DKIM).
 /// </summary>
-public sealed record EmailOptions(string ApiKey, string From, Uri ResetUrlBase)
+public sealed record EmailOptions(string ApiKey, string From, Uri ResetUrlBase, Uri? DeletionUrlBase = null)
 {
     public const string ApiKeyVariable = "EMAIL_API_KEY";
     public const string FromVariable = "EMAIL_FROM";
     public const string ResetUrlBaseVariable = "PASSWORD_RESET_URL_BASE";
+
+    /// <summary>Opcional (pm-164): URL HTTPS a la que se añade <c>?token=</c> en el correo de eliminación de cuenta. Sin ella ese correo no se envía.</summary>
+    public const string DeletionUrlBaseVariable = "ACCOUNT_DELETION_URL_BASE";
 
     public override string ToString() => nameof(EmailOptions);
 
@@ -27,7 +30,7 @@ public sealed record EmailOptions(string ApiKey, string From, Uri ResetUrlBase)
         var baseUrl = read(ResetUrlBaseVariable);
         return !string.IsNullOrWhiteSpace(key) && !string.IsNullOrWhiteSpace(from)
             && Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri) && uri.Scheme == Uri.UriSchemeHttps
-            ? new EmailOptions(key.Trim(), from.Trim(), uri)
+            ? new EmailOptions(key.Trim(), from.Trim(), uri, Uri.TryCreate(read(DeletionUrlBaseVariable), UriKind.Absolute, out var deletion) && deletion.Scheme == Uri.UriSchemeHttps ? deletion : null)
             : null;
     }
 }
@@ -36,6 +39,12 @@ public sealed record EmailOptions(string ApiKey, string From, Uri ResetUrlBase)
 public sealed partial class DisabledEmailSender(ILogger<DisabledEmailSender> logger) : IEmailSender
 {
     public Task<bool> SendPasswordReset(string toEmail, string resetToken, CancellationToken cancellationToken)
+    {
+        LogDisabled(logger);
+        return Task.FromResult(false);
+    }
+
+    public Task<bool> SendAccountDeletion(string toEmail, string deletionToken, CancellationToken cancellationToken)
     {
         LogDisabled(logger);
         return Task.FromResult(false);
@@ -53,17 +62,38 @@ public sealed partial class ResendEmailSender(HttpClient client, EmailOptions op
 {
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(5);
 
-    public async Task<bool> SendPasswordReset(string toEmail, string resetToken, CancellationToken cancellationToken)
+    public Task<bool> SendPasswordReset(string toEmail, string resetToken, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(toEmail);
         ArgumentException.ThrowIfNullOrWhiteSpace(resetToken);
         var link = new UriBuilder(options.ResetUrlBase) { Query = "token=" + Uri.EscapeDataString(resetToken) }.Uri;
-        var payload = new ResendMessage(
+        return Send(new ResendMessage(
             options.From,
             [toEmail],
             "Restablece tu contraseña de PetMate",
-            $"<p>Recibimos una solicitud para restablecer tu contraseña de PetMate.</p><p><a href=\"{System.Net.WebUtility.HtmlEncode(link.AbsoluteUri)}\">Crear una contraseña nueva</a></p><p>El enlace vence en 1 hora y solo se puede usar una vez. Si no lo pediste, ignora este correo.</p>");
+            $"<p>Recibimos una solicitud para restablecer tu contraseña de PetMate.</p><p><a href=\"{System.Net.WebUtility.HtmlEncode(link.AbsoluteUri)}\">Crear una contraseña nueva</a></p><p>El enlace vence en 1 hora y solo se puede usar una vez. Si no lo pediste, ignora este correo.</p>"), cancellationToken);
+    }
 
+    public Task<bool> SendAccountDeletion(string toEmail, string deletionToken, CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(toEmail);
+        ArgumentException.ThrowIfNullOrWhiteSpace(deletionToken);
+        if (options.DeletionUrlBase is null)
+        {
+            // Sin URL de confirmación no hay enlace que enviar: no se manda nada.
+            return Task.FromResult(false);
+        }
+
+        var link = new UriBuilder(options.DeletionUrlBase) { Query = "token=" + Uri.EscapeDataString(deletionToken) }.Uri;
+        return Send(new ResendMessage(
+            options.From,
+            [toEmail],
+            "Confirma la eliminación de tu cuenta de PetMate",
+            $"<p>Recibimos una solicitud para eliminar tu cuenta de PetMate y todos tus datos.</p><p><a href=\"{System.Net.WebUtility.HtmlEncode(link.AbsoluteUri)}\">Confirmar la eliminación de mi cuenta</a></p><p>El enlace vence en 1 hora y solo se puede usar una vez. La eliminación no se puede deshacer. Si no lo pediste, ignora este correo y tu cuenta seguirá igual.</p>"), cancellationToken);
+    }
+
+    private async Task<bool> Send(ResendMessage payload, CancellationToken cancellationToken)
+    {
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(Timeout);
         try

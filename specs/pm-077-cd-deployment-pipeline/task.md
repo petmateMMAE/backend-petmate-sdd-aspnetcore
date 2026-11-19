@@ -11,7 +11,7 @@
 
 ### T089 — Implementar el pipeline de CD
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** En progreso (registro retrospectivo; ver gates)
 - **Spec principal:** pm-077
 - **Criterios propios:** pm-077#CA-01, pm-077#CA-02, pm-077#CA-03, pm-077#CA-04
 - **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.

@@ -55,12 +55,12 @@ Los nueve jobs `Endpoint · …` están en la misma columna (todos dependen solo
 | 2 | `build` | `dotnet restore`, `dotnet build -c Release -warnaserror` (analizadores de seguridad .NET como errores = SAST) y `dotnet format --verify-no-changes`. | DevSecOps | Sí |
 | 3 | `sast` | CodeQL para C#; el SARIF queda como artefacto. | DevSecOps | No (informativo, ver límites) |
 | 3 | `dependencies` | `scripts/quality-gate.ps1 -AuditOnly -MinSeverity High`: vulnerabilidades NuGet (High y Critical bloquean; las menores se muestran como advertencia), paquetes en desuso sin excepción aprobada y licencias fuera de la lista permitida. | DevSecOps | Sí |
-| 3 | `iac-scan` | Trivy config (motor de reglas de tfsec) sobre `infra/`; HIGH y CRITICAL bloquean. Hoy: 0 hallazgos. | DevSecOps | Sí |
+| 3 | `iac-scan` | Trivy config (motor de reglas de tfsec) sobre `infra/`; HIGH y CRITICAL bloquean. Las decisiones de diseno ya aprobadas se listan una por una en `.trivyignore.yaml`, con motivo y fecha de caducidad; hoy son 2, las dos de la cuenta de imagenes (contenedor publico de fotos de negocio y cuenta sin reglas de red, pm-111). Cualquier hallazgo nuevo sigue rompiendo. | DevSecOps | Si |
 | 3 | `sdd-integrity` | `scripts/check-sdd.ps1`: Specs, Tasks, dependencias, trazabilidad completa por criterio y hashes de los documentos históricos; `scripts/check-sdd.tests.ps1` prueba que falla ante cada inconsistencia. | Gobernanza SDD | Sí |
 | 4 | `unit-tests` | Pruebas unitarias. | Pruebas | Sí |
 | 4 | `security-tests` | JWT, autorización, rate limiting, configuración, detección de secretos en el código, manejo de errores. | DevSecOps | Sí |
 | 4 | `endpoint-tests` (matriz de 9) | Un job por endpoint: `--filter "Endpoint=<valor>"` de ContractTests. | Pruebas | Sí |
-| 4 | `contract-transversal` | Contrato que no es de un solo endpoint (wrapper, OpenAPI, autorización, superficie pública). | Pruebas | Sí |
+| 4 | `contract-transversal` | Contrato que no es de un solo endpoint (wrapper, OpenAPI, autorización, superficie pública). Además exporta `openapi.json` y lo publica como artefacto `openapi` (30 días) para el equipo móvil (pm-166); en Production OpenAPI y Scalar siguen ocultos. | Pruebas | Sí |
 | 4 | `integration-tests` | MongoDB Atlas de pruebas y dos Redis efímeros. Sin secretos de Atlas, esas pruebas quedan *Skipped* con aviso. | Pruebas | Sí (si una prueba falla) |
 | 5 | `quality-gate` | Depende de todas las anteriores; escribe en el resumen una tabla etapa → resultado y falla si una etapa bloqueante no terminó bien. | Puerta | Sí |
 | 6 | `docker-build` | Construye la imagen, Trivy de imagen (HIGH y CRITICAL bloquean) y SBOM SPDX con Syft. Nunca publica. | DevSecOps | Sí |

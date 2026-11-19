@@ -1,10 +1,10 @@
 # Spec — pm-157 notification-settings
 
-> Estado: Propuesto | Constitución: `.specify/memory/constitution.md` v1.3.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Creado el 2026-11-09
+> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.3.0 | Nivel de ejecución: L6 (los números identifican, no ordenan) | Creado el 2026-11-09
 
 ## 1. Objetivo
 
-`GET` y `PUT /api/v1/notification-settings` consultan y cambian las preferencias de aviso del usuario.
+`GET /api/v1/notification-settings/get` y `PUT /api/v1/notification-settings/update` (acción literal, Constitución §7.1) consultan y cambian las preferencias de aviso del usuario.
 
 ## 2. Dependencias
 
@@ -30,7 +30,7 @@ Cada criterio se cita como `pm-157#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T175 | Nueva | Propuesto | Guardar los ajustes de notificación |
+| T175 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Guardar los ajustes de notificación |
 
 Detalle en [task.md](task.md).
 
@@ -38,9 +38,11 @@ Detalle en [task.md](task.md).
 
 - La maqueta incluye un aviso de promociones de negocios cercanos que ninguna fuente define como funcionalidad; queda fuera hasta que se decida.
 
+- Enmienda del 2026-11-18: las rutas pasan de `GET/PUT /api/v1/notification-settings` a `notification-settings/get` y `notification-settings/update` (§7.1); ya implementado y descrito en `plan.md` y `docs/api/endpoints.md`. Los valores concretos (sonidos `default|soft|silent`, anticipación de 1 a 14 días) fueron decisión del agente, aceptada por el usuario el 2026-11-18.
+
 ## 7. Aprobación
 
-- [ ] Requisitos y criterios revisados por el usuario.
-- [ ] Constitución cumplida.
-- Revisor/usuario: pendiente.
+- [x] Requisitos y criterios revisados por el usuario.
+- [x] Constitución cumplida.
+- Revisor/usuario: Miguel (usuario), 2026-11-10, aprobación en el chat de la sesión (specs completos del primer hito).
 - Nota: `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras aprobar este Spec.

@@ -29,6 +29,8 @@
 | `JWT_ACCESS_TOKEN_MINUTES` | API | No | Vida del access token; 1–60, por defecto 15. |
 | `AUTH_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por IP y minuto en register/login/refresh; 1–10000, por defecto 10. |
 | `PETS_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por usuario y minuto en `/api/v1/pets/*`; 1–10000, por defecto 60. |
+| `PUBLIC_BUSINESS_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por IP y minuto en las lecturas públicas de negocios (`get-nearby`, `get-by-id`), compartidas entre réplicas mediante Redis Auth; 1–10000, por defecto 120. |
+| `BUSINESS_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por usuario y minuto en `/api/v1/businesses/*` y `/api/v1/services/*`; 1–10000, por defecto 60. |
 | `CARNET_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por usuario y minuto en el carnet (`/api/v1/vaccines`, `dewormings`, `weights`, `allergies`); 1–10000, por defecto 60. |
 | `USERS_RATE_LIMIT_PER_MINUTE` | API | No | Solicitudes por usuario y minuto en `/api/v1/users/*`; 1–10000, por defecto 60. |
 | `REQUIRE_TRUSTED_PROXIES` | API | No | `true` hace que Production no arranque sin `TRUSTED_PROXIES`; por defecto solo se advierte en el log (el primer despliegue la deja vacía hasta medir las IPs del ingress). |

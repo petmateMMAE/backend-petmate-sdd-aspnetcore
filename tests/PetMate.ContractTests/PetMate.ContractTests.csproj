@@ -31,6 +31,7 @@
   <ItemGroup>
     <!-- Dobles en memoria compartidos con UnitTests (sin duplicar código). -->
     <Compile Include="../PetMate.UnitTests/Authentication/Fakes/InMemoryDoubles.cs" Link="Support/InMemoryDoubles.cs" />
+    <Compile Include="../PetMate.UnitTests/Authentication/Fakes/InMemoryImageStorage.cs" Link="Support/InMemoryImageStorage.cs" />
   </ItemGroup>
 
 </Project>

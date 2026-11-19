@@ -180,8 +180,8 @@ jobs:
       - uses: actions/checkout@v5
 
       # Trivy config incluye el motor de reglas de tfsec (tfsec está integrado en Trivy). HIGH y CRITICAL bloquean.
-      # Hoy infra/azure e infra/atlas no tienen hallazgos; si apareciera alguno que no se pueda corregir, cambiar
-      # exit-code a '0' (soft-fail con el SARIF como evidencia) y documentarlo en docs/ci-cd/pipeline.md.
+      # Los hallazgos que son decisiones de diseño aprobadas se listan uno por uno en .trivyignore.yaml, con motivo
+      # y fecha de caducidad; el job sigue en exit-code 1, así que cualquier hallazgo nuevo rompe la compilación.
       - name: Escanear Terraform (infra/)
         uses: aquasecurity/trivy-action@v0.35.0
         with:
@@ -192,6 +192,7 @@ jobs:
           output: trivy-iac.sarif
           limit-severities-for-sarif: true
           exit-code: '1'
+          trivyignores: .trivyignore.yaml
 
       - name: Informe SARIF
         if: always()
@@ -295,6 +296,14 @@ jobs:
           - auth-reset-password
           - users-me-get
           - users-me-update
+          - users-me-delete
+          - account-deletion-request
+          - account-deletion-confirm
+          - devices-register
+          - reminders-get-all
+          - devices-unregister
+          - notification-settings-get
+          - notification-settings-update
           - health-live
           - health-ready
           - technical-mediator-probe
@@ -316,6 +325,43 @@ jobs:
           - allergies-create
           - allergies-get-all
           - allergies-update
+          - businesses-create
+          - businesses-update-location
+          - businesses-update
+          - businesses-delete
+          - services-create
+          - services-get-all
+          - services-update
+          - services-delete
+          - businesses-get-nearby
+          - businesses-get-by-id
+          - access-grants-create
+          - scans-resolve
+          - consultations-create
+          - consultations-add-medication
+          - consultations-get-all
+          - consultations-get-by-id
+          - history-get-all
+          - vaccines-create-by-business
+          - dewormings-create-by-business
+          - scans-get-attended
+          - followups-create
+          - followups-update
+          - followups-add-note
+          - followups-get-by-consultation
+          - followups-get-all
+          - messages-send
+          - messages-send-photo
+          - messages-get-photo-url
+          - messages-get-all
+          - conversations-get-all
+          - conversations-mark-read
+          - conversations-reopen
+          - pets-upload-photo
+          - pets-get-photo-url
+          - pets-delete-photo
+          - businesses-upload-photo
+          - businesses-delete-photo
     steps:
       - uses: actions/checkout@v5
 
@@ -356,6 +402,9 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Pruebas de contrato que no pertenecen a un solo endpoint
+        # PETMATE_OPENAPI_OUT: una de estas pruebas exporta el documento OpenAPI de Development a esa ruta (pm-166).
+        env:
+          PETMATE_OPENAPI_OUT: openapi/openapi.json
         run: |
           dotnet test tests/PetMate.ContractTests -c Release \
             --filter "Endpoint=transversal" \
@@ -374,6 +423,16 @@ jobs:
           path: TestResults
           if-no-files-found: ignore
           retention-days: 7
+
+      # pm-166: el equipo móvil descarga el contrato de cada build. En Production OpenAPI y Scalar siguen ocultos (404).
+      - name: Documento OpenAPI (artefacto para el equipo móvil)
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: openapi
+          path: openapi/openapi.json
+          if-no-files-found: error
+          retention-days: 30
 
   integration-tests:
     name: "4 · Pruebas de integración (Atlas y Redis)"

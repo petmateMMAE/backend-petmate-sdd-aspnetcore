@@ -18,7 +18,8 @@ public sealed class RefreshHandler(
     SessionPolicy policy,
     TimeProvider timeProvider,
     IAuthAttemptThrottle? throttle = null,
-    ITokenRevocationStore? revocations = null) : IRequestHandler<RefreshCommand, AuthResult<AuthTokensResult>>
+    ITokenRevocationStore? revocations = null,
+    PetMate.Application.Businesses.IBusinessRepository? businesses = null) : IRequestHandler<RefreshCommand, AuthResult<AuthTokensResult>>
 {
     /// <summary>Ventana tras consumir un refresh token en la que volver a presentarlo no se trata como replay (pm-031 CA-04, hallazgo H8).</summary>
     public static readonly TimeSpan ReplayGrace = TimeSpan.FromSeconds(10);
@@ -106,7 +107,7 @@ public sealed class RefreshHandler(
             user.Email.Value,
             user.Role,
             user.DisplayName,
-            BusinessType: null));
+            BusinessType: businesses is null ? null : (await businesses.FindByOwner(user.Id, cancellationToken).ConfigureAwait(false))?.Type.ToString()));
     }
 
     private async Task RevokeForReplay(RefreshSession session, DateTime now, CancellationToken cancellationToken)

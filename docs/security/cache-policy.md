@@ -24,8 +24,11 @@
 | `POST/PUT/DELETE /pets/*` | Privado/personal | No | — | Escrituras y datos del propietario |
 | `GET /pets/get-all`, `/pets/get-by-id/{id}` | Privado/personal | No | — | Datos por propietario con nombre; el índice por propietario ya los sirve rápido (pm-052) |
 | `GET /health/*`, `GET /technical/mediator-probe` | Público técnico | No | — | Deben reflejar el estado real |
+| `GET /businesses/get-nearby`, `GET /businesses/get-by-id/{id}` | Público | **Sí** (pm-121) | 5 minutos | Datos públicos de negocios (nombre, tipo, horario, ubicación, servicios y contacto público); nunca la cédula ni datos de personas. Cada cambio de un negocio, sus servicios o su foto invalida la caché (cambio de versión) y el TTL solo acota un dato viejo si la invalidación falla. «Abierto ahora» no se guarda: se calcula en cada respuesta. Las coordenadas de la consulta se redondean a 3 decimales. Un fallo de la caché no afecta la respuesta. |
+| `POST /access-grants/create`, `POST /scans/resolve` | Privado/sensible | No | — | Autorizaciones y fichas de mascotas: datos del propietario y de la mascota |
+| `/consultations/*`, `/history/*`, `/followups/*`, `/messages/*`, `/conversations/*`, `GET /scans/get-attended` | Sensible/personal | **Nunca** | — | Datos clínicos y conversaciones privadas |
 
-**Resultado actual: ningún endpoint usa la caché.** Un endpoint nuevo cacheable (p. ej. catálogos) necesita una fila aquí, su clase, TTL justificado y la prueba `CachePolicyTests` actualizada.
+**Resultado actual: solo las lecturas públicas de negocios usan la caché** (pm-121, ampliación de pm-051); ningún dato personal, clínico ni de autenticación se cachea. Un endpoint nuevo cacheable (p. ej. catálogos) necesita una fila aquí, su clase, TTL justificado y la prueba `CachePolicyTests` actualizada.
 
 ## 4. Verificación
 `CachePolicyTests` (SecurityTests) comprueba que el código de producción no consume `ICacheStore` fuera de su definición y registro, y que este documento clasifica cada ruta del catálogo.

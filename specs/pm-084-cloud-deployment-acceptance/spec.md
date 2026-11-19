@@ -1,6 +1,6 @@
 # Spec — pm-084 cloud-deployment-acceptance
 
-> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L12 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L12 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -38,7 +38,7 @@ Cada criterio se cita como `pm-084#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T096 | Nueva | Propuesto | Ejecutar la aceptación del despliegue cloud |
+| T096 | Nueva | En progreso | Ejecutar la aceptación del despliegue cloud |
 
 Detalle en [task.md](task.md).
 

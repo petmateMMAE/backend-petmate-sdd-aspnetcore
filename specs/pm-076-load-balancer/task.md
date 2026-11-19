@@ -11,7 +11,7 @@
 
 ### T088 — Configurar el Load Balancer
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** En progreso (registro retrospectivo; ver gates)
 - **Spec principal:** pm-076
 - **Criterios propios:** pm-076#CA-01, pm-076#CA-02, pm-076#CA-03
 - **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.

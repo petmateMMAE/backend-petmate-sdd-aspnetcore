@@ -1,6 +1,6 @@
 # Spec — pm-078 cloud-observability
 
-> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L8 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L8 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -32,7 +32,7 @@ Cada criterio se cita como `pm-078#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T090 | Nueva | Propuesto | Configurar la observabilidad cloud |
+| T090 | Nueva | En progreso | Configurar la observabilidad cloud |
 
 Detalle en [task.md](task.md).
 

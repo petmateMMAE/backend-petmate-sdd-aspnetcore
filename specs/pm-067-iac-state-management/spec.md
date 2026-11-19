@@ -1,6 +1,6 @@
 # Spec — pm-067 iac-state-management
 
-> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L4 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L4 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -31,7 +31,7 @@ Cada criterio se cita como `pm-067#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T079 | Nueva | Propuesto | Configurar el estado remoto de IaC |
+| T079 | Nueva | En progreso | Configurar el estado remoto de IaC |
 
 Detalle en [task.md](task.md).
 

@@ -11,7 +11,7 @@
 
 ### T093 — Implementar el acceso privado a imágenes
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md)
 - **Spec principal:** pm-081
 - **Criterios propios:** pm-081#CA-01, pm-081#CA-02, pm-081#CA-03
 - **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.

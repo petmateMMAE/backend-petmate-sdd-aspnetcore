@@ -9,9 +9,9 @@
 
 ## Tasks
 
-### T168 — Entregar los mensajes en tiempo real
+### T168 — Entregar los mensajes en tiempo real (por consulta con `after`)
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md)
 - **Spec principal:** pm-150
 - **Criterios propios:** pm-150#CA-01, pm-150#CA-02, pm-150#CA-03, pm-150#CA-04
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

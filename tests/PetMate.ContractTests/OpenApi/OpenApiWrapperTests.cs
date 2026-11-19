@@ -69,8 +69,11 @@ public sealed class OpenApiWrapperTests
                 var isPublic = path.Name.Contains("/auth/register", StringComparison.Ordinal)
                     || path.Name.Contains("/auth/login", StringComparison.Ordinal)
                     || path.Name.Contains("/auth/refresh", StringComparison.Ordinal)
+                    || path.Name.Contains("/businesses/get-nearby", StringComparison.Ordinal)
+                    || path.Name.Contains("/businesses/get-by-id", StringComparison.Ordinal)
                     || path.Name.Contains("/auth/forgot-password", StringComparison.Ordinal)
                     || path.Name.Contains("/auth/reset-password", StringComparison.Ordinal)
+                    || path.Name.Contains("/account-deletion/", StringComparison.Ordinal)
                     || path.Name.Contains("/health/", StringComparison.Ordinal)
                     || path.Name.Contains("/technical/", StringComparison.Ordinal);
                 if (!isPublic)
@@ -79,6 +82,62 @@ public sealed class OpenApiWrapperTests
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// pm-166#CA-01: exporta el documento OpenAPI. Con <c>PETMATE_OPENAPI_OUT</c> definida (el CI la fija) lo guarda en esa ruta para
+    /// publicarlo como artefacto; sin ella solo comprueba que el documento es válido. El documento sale del propio arranque de la
+    /// API en Development, igual que lo ve el equipo móvil.
+    /// </summary>
+    [Trait("Endpoint", "transversal")]
+    [Fact]
+    public async Task The_openapi_document_is_valid_and_is_exported_when_the_ci_asks_for_it()
+    {
+        using var factory = new WrapperFactory();
+        using var client = factory.CreateClient();
+        var json = await client.GetStringAsync("/openapi/v1.json");
+
+        using var document = JsonDocument.Parse(json);
+        Assert.StartsWith("3.", document.RootElement.GetProperty("openapi").GetString(), StringComparison.Ordinal);
+        Assert.True(document.RootElement.GetProperty("paths").EnumerateObject().Any());
+
+        if (Environment.GetEnvironmentVariable("PETMATE_OPENAPI_OUT") is { Length: > 0 } output)
+        {
+            // Una ruta relativa se resolvía contra el directorio del proceso de pruebas (bin/Release/net10.0/...), no
+            // contra la raíz del repositorio, así que el artefacto quedaba fuera del alcance de upload-artifact y el job
+            // fallaba con "No files were found with the provided path: openapi/openapi.json" aunque las pruebas pasaran.
+            var destination = Path.IsPathRooted(output) ? output : Path.Combine(RepositoryRoot(), output);
+            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(destination))!);
+            await File.WriteAllTextAsync(destination, json);
+        }
+    }
+
+    /// <summary>Raíz del repositorio: la carpeta que contiene <c>PetMate.sln</c>.</summary>
+    private static string RepositoryRoot()
+    {
+        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "PetMate.sln")))
+            {
+                return directory.FullName;
+            }
+        }
+
+        throw new DirectoryNotFoundException("No se encontró la raíz del repositorio.");
+    }
+
+    [Trait("Endpoint", "transversal")]
+    [Fact]
+    public async Task Production_keeps_openapi_and_scalar_hidden()
+    {
+        using var factory = new IsolatedApiFactory("Production");
+        using var client = factory.CreateClient();
+
+        using var openapi = await client.GetAsync("/openapi/v1.json");
+        using var scalar = await client.GetAsync("/scalar/v1");
+
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, openapi.StatusCode);
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, scalar.StatusCode);
     }
 
     private sealed class WrapperFactory : IsolatedApiFactory

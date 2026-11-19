@@ -11,7 +11,7 @@
 
 ### T092 — Implementar el endpoint de carga de imágenes
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md)
 - **Spec principal:** pm-080
 - **Criterios propios:** pm-080#CA-01, pm-080#CA-02, pm-080#CA-03
 - **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.

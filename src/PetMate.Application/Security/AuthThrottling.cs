@@ -18,6 +18,18 @@ public static class AuthThrottleRules
     /// <summary>Solicitudes de restablecimiento por correo (pm-089#CA-03).</summary>
     public const string ForgotPasswordScope = "forgot-email";
 
+    /// <summary>Intentos de escaneo por negocio (pm-125#CA-04): impide enumerar códigos.</summary>
+    public const string ScanScope = "scan-business";
+
+    /// <summary>Intentos de confirmar la contraseña al eliminar la cuenta, por usuario (pm-161#CA-04).</summary>
+    public const string DeleteAccountScope = "delete-account";
+
+    /// <summary>Solicitudes de eliminación de cuenta por la web, por correo (pm-164#CA-03).</summary>
+    public const string DeletionRequestScope = "deletion-request-email";
+
+    /// <summary>Lecturas públicas de negocios por IP, compartidas entre réplicas (pm-120).</summary>
+    public const string PublicBusinessIpScope = "public-business-ip";
+
     public static readonly AuthThrottleRule Login = new(5, TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(15));
 
     // H3: el bloqueo duro (5 fallos en 15 minutos, 15 de bloqueo) se cuenta por par (correo, IP). El techo por correo (50 intentos
@@ -27,6 +39,15 @@ public static class AuthThrottleRules
     public static readonly AuthThrottleRule Refresh = new(30, TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(15));
 
     // pm-089: 3 solicitudes por correo en 15 minutos; la cuarta espera 15 minutos. Cuentan existan o no las cuentas.
+    // pm-125: 20 escaneos por negocio por minuto; al superarlo, 5 minutos de espera. El código corto tiene 40 bits.
+    public static readonly AuthThrottleRule Scan = new(20, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(5));
+
+    // pm-161: 5 intentos por usuario en 15 minutos; el sexto bloquea 15 minutos.
+    public static readonly AuthThrottleRule DeleteAccount = new(5, TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(15));
+
+    // pm-164: igual que el restablecimiento: 3 solicitudes por correo en 15 minutos; la cuarta espera 15 minutos.
+    public static readonly AuthThrottleRule DeletionRequest = new(3, TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(15));
+
     public static readonly AuthThrottleRule ForgotPassword = new(3, TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(15));
 }
 

@@ -15,6 +15,9 @@ public interface IEmailSender
     /// llamador no lo revela al cliente (pm-088#CA-03). El token en claro solo viaja al correo; nunca se registra.
     /// </summary>
     Task<bool> SendPasswordReset(string toEmail, string resetToken, CancellationToken cancellationToken);
+
+    /// <summary>Envía el enlace para confirmar la eliminación de la cuenta (pm-164). Mismo contrato: nunca lanza y el token no se registra.</summary>
+    Task<bool> SendAccountDeletion(string toEmail, string deletionToken, CancellationToken cancellationToken);
 }
 
 /// <summary>Persistencia de los tokens de restablecimiento (solo hashes).</summary>
@@ -30,6 +33,9 @@ public interface IPasswordResetRepository
 
     /// <summary>Invalida los tokens pendientes del usuario (se usan al emitir uno nuevo y al terminar un restablecimiento).</summary>
     Task InvalidateAllForUser(Guid userId, DateTime nowUtc, CancellationToken cancellationToken);
+
+    /// <summary>Borra los tokens del usuario (eliminación de cuenta, pm-161).</summary>
+    Task DeleteByUser(Guid userId, CancellationToken cancellationToken);
 }
 
 // Los comandos transportan secretos (token, contraseña): su ToString nunca imprime valores.

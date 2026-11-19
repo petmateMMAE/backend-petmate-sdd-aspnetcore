@@ -23,7 +23,7 @@ public sealed class GetPetQrHandler(IPetRepository pets) : IRequestHandler<GetPe
     }
 }
 
-public sealed class RegeneratePetQrHandler(IPetRepository pets, TimeProvider timeProvider) : IRequestHandler<RegeneratePetQrCommand, PetQrResult?>
+public sealed class RegeneratePetQrHandler(IPetRepository pets, Access.IAccessGrantRepository grants, TimeProvider timeProvider) : IRequestHandler<RegeneratePetQrCommand, PetQrResult?>
 {
     public async Task<PetQrResult?> Handle(RegeneratePetQrCommand request, CancellationToken cancellationToken)
     {
@@ -34,8 +34,11 @@ public sealed class RegeneratePetQrHandler(IPetRepository pets, TimeProvider tim
             return null;
         }
 
-        pet.RegenerateQr(timeProvider.GetUtcNow().UtcDateTime);
-        // Punto de extensión (pm-095): al existir el módulo de compartir, aquí se cancelan las autorizaciones activas.
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+        // pm-124: primero se cancelan las autorizaciones y después se cambia el QR. Si algo falla entre ambos pasos, el QR sigue
+        // siendo el anterior y no queda ninguna autorización viva con un QR nuevo.
+        await grants.CancelActiveForPet(pet.Id, pet.OwnerId, now, cancellationToken).ConfigureAwait(false);
+        pet.RegenerateQr(now);
         return await pets.ReplaceQrOwned(pet, cancellationToken).ConfigureAwait(false)
             ? new PetQrResult(pet.Id, pet.Qr.Token, pet.Qr.Code)
             : null;

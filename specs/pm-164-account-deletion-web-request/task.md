@@ -11,7 +11,7 @@
 
 ### T182 — Solicitar la eliminación de la cuenta desde la web
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md)
 - **Spec principal:** pm-164
 - **Criterios propios:** pm-164#CA-01, pm-164#CA-02, pm-164#CA-03
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.
