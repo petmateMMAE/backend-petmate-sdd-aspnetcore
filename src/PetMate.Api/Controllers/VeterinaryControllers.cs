@@ -2,10 +2,12 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PetMate.Api.Contracts.Carnet;
+using PetMate.Api.Contracts.Images;
 using PetMate.Api.Contracts.Responses;
 using PetMate.Application.Access;
 using PetMate.Application.Carnet;
 using PetMate.Application.Followups;
+using PetMate.Application.Images;
 using PetMate.Application.Mediator;
 using PetMate.Domain.Carnet;
 using PetMate.Domain.Chat;
@@ -60,7 +62,9 @@ public sealed record FollowupResponse(Guid Id, Guid ConsultationId, Guid PetId, 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record SendMessageRequest(Guid? ConversationId, string? Text);
 
-public sealed record MessageResponse(Guid Id, Guid ConversationId, long Seq, string Kind, bool IsMine, string Text, DateTime CreatedAt);
+public sealed record MessageResponse(Guid Id, Guid ConversationId, long Seq, string Kind, bool IsMine, string Text, DateTime CreatedAt, bool HasPhoto = false);
+
+public sealed record MessagePhotoResponse(Guid MessageId, string Url, DateTimeOffset ExpiresAt);
 
 public sealed record MessageListResponse(List<MessageResponse> Items, bool HasMore);
 
@@ -90,7 +94,7 @@ public abstract class VeterinaryControllerBase(ISender sender) : BusinessControl
 
     protected static ObjectResult FailCarnet(CarnetStatus status) => status == CarnetStatus.NotFound ? Status(StatusCodes.Status404NotFound) : Status(StatusCodes.Status500InternalServerError);
 
-    protected static MessageResponse ToResponse(MessageResult m) => new(m.Id, m.ConversationId, m.Seq, m.Kind.ToString(), m.IsMine, m.Text, m.CreatedAtUtc);
+    protected static MessageResponse ToResponse(MessageResult m) => new(m.Id, m.ConversationId, m.Seq, m.Kind.ToString(), m.IsMine, m.Text, m.CreatedAtUtc, m.HasPhoto);
 
     protected static FollowupResponse ToResponse(FollowupResult f)
         => new(f.Id, f.ConsultationId, f.PetId, f.PetName, f.Status.ToString(), f.NextReviewOn, f.IsOverdue, f.Notes.Select(n => new FollowupNoteResponse(n.AtUtc, n.Text)).ToList(), f.ConversationId, f.CreatedAtUtc, f.UpdatedAtUtc);
@@ -397,7 +401,7 @@ public sealed class FollowupsController(ISender sender) : VeterinaryControllerBa
 // ---------- Chat (pm-143 a pm-149) ----------
 
 [Route("api/v1/messages")]
-public sealed class MessagesController(ISender sender) : VeterinaryControllerBase(sender)
+public sealed class MessagesController(ISender sender, IImageStorage storage) : VeterinaryControllerBase(sender)
 {
     [HttpPost("send")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
@@ -414,6 +418,61 @@ public sealed class MessagesController(ISender sender) : VeterinaryControllerBas
 
         var result = await Sender.Send(new SendMessageCommand(accountId, request.ConversationId ?? Guid.Empty, request.Text ?? string.Empty), cancellationToken);
         return result.Status == AccessStatus.Ok ? ApiResponseFactory.Create(StatusCodes.Status201Created, "Mensaje enviado correctamente.", ToResponse(result.Value!)) : FailAccess(result.Status);
+    }
+
+    /// <summary>
+    /// Envía una foto a la conversación (pm-146). Cuerpo <c>multipart/form-data</c> con el campo <c>file</c> (JPEG, PNG o WebP de
+    /// hasta 1 MB) y <c>conversationId</c> en la query. La foto es privada: se lee con <c>get-photo-url</c>.
+    /// </summary>
+    [HttpPost("send-photo")]
+    [DisableFormValueModelBinding]
+    [ProducesResponseType(typeof(ApiResponse<MessageResponse>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<ValidationErrorsData>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ObjectResult> SendPhoto([FromQuery] Guid? conversationId, CancellationToken cancellationToken)
+    {
+        if (!TryGetOwnerId(out var accountId))
+        {
+            return Status(StatusCodes.Status401Unauthorized);
+        }
+
+        if (!storage.IsEnabled)
+        {
+            return PhotoResponses.Unavailable();
+        }
+
+        var (rejection, photo) = await PhotoUploadReader.Read(Request, ImageContainer.ChatPhotos, cancellationToken);
+        if (PhotoResponses.Rejected(rejection, ImageContainer.ChatPhotos) is { } error)
+        {
+            return error;
+        }
+
+        using var accepted = photo!;
+        var result = await Sender.Send(new SendPhotoMessageCommand(accountId, conversationId ?? Guid.Empty, accepted.ContentType, accepted.Content), cancellationToken);
+        return result.Status == AccessStatus.Ok ? ApiResponseFactory.Create(StatusCodes.Status201Created, "Foto enviada correctamente.", ToResponse(result.Value!)) : FailAccess(result.Status);
+    }
+
+    /// <summary>URL temporal de la foto de un mensaje (15 minutos), solo para los participantes (pm-146).</summary>
+    [HttpGet("get-photo-url")]
+    [ProducesResponseType(typeof(ApiResponse<MessagePhotoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<ValidationErrorsData>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<ObjectResult> GetPhotoUrl([FromQuery] Guid? conversationId, [FromQuery] Guid? messageId, CancellationToken cancellationToken)
+    {
+        if (!TryGetOwnerId(out var accountId))
+        {
+            return Status(StatusCodes.Status401Unauthorized);
+        }
+
+        var result = await Sender.Send(new GetMessagePhotoUrlQuery(accountId, conversationId ?? Guid.Empty, messageId ?? Guid.Empty), cancellationToken);
+        return result.Status == AccessStatus.Ok
+            ? ApiResponseFactory.Ok("Foto obtenida correctamente.", new MessagePhotoResponse(result.Value!.MessageId, result.Value.Url.ToString(), result.Value.ExpiresAtUtc))
+            : FailAccess(result.Status);
     }
 
     [HttpGet("get-all")]

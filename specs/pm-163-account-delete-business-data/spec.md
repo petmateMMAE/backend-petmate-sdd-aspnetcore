@@ -33,7 +33,7 @@ Cada criterio se cita como `pm-163#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T181 | Nueva | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Borrar el negocio al eliminar la cuenta |
+| T181 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Borrar el negocio al eliminar la cuenta |
 
 Detalle en [task.md](task.md).
 

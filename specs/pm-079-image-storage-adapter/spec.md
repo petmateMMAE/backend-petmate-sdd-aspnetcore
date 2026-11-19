@@ -32,7 +32,7 @@ Cada criterio se cita como `pm-079#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T091 | Nueva | Aprobada para iniciar (2026-11-11, aprobacion humana) | Implementar el adaptador de almacenamiento de imágenes |
+| T091 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Implementar el adaptador de almacenamiento de imágenes |
 
 Detalle en [task.md](task.md).
 

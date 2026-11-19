@@ -3,6 +3,8 @@ using PetMate.Application.Businesses;
 using PetMate.Application.Mediator;
 using PetMate.Application.Pagination;
 using PetMate.Application.Persistence;
+using PetMate.Application.Push;
+using PetMate.Application.Reminders;
 using PetMate.Application.Validation;
 using PetMate.Domain.Chat;
 using PetMate.Domain.Followups;
@@ -56,6 +58,9 @@ public interface IConversationRepository
     /// <summary>Marca como leído hasta la secuencia dada para un lado; nunca retrocede.</summary>
     Task MarkRead(Guid conversationId, bool businessSide, long upToSeq, CancellationToken cancellationToken);
 
+    /// <summary>Marca que la cuenta está consultando la conversación ahora (pm-159: quien está leyendo no recibe push).</summary>
+    Task Touch(Guid conversationId, bool businessSide, DateTime nowUtc, CancellationToken cancellationToken);
+
     Task SetClosed(Guid conversationId, bool closed, DateTime nowUtc, CancellationToken cancellationToken);
 
     /// <summary>Identificadores de las conversaciones de una mascota (para la cascada).</summary>
@@ -79,6 +84,9 @@ public interface IMessageRepository
     Task<long> CountUnread(Guid conversationId, long afterSeq, Guid exceptSender, CancellationToken cancellationToken);
 
     Task<long> DeleteByConversations(IReadOnlyCollection<Guid> conversationIds, CancellationToken cancellationToken);
+
+    /// <summary>Claves de las fotos de las conversaciones dadas, para borrarlas del almacenamiento (pm-146#CA-03).</summary>
+    Task<IReadOnlyList<string>> PhotoKeysByConversations(IReadOnlyCollection<Guid> conversationIds, CancellationToken cancellationToken);
 }
 
 // ---------- Resultados ----------
@@ -94,12 +102,12 @@ public sealed record FollowupResult(Guid Id, Guid ConsultationId, Guid PetId, st
     }
 }
 
-public sealed record MessageResult(Guid Id, Guid ConversationId, long Seq, MessageKind Kind, bool IsMine, string Text, DateTime CreatedAtUtc)
+public sealed record MessageResult(Guid Id, Guid ConversationId, long Seq, MessageKind Kind, bool IsMine, string Text, DateTime CreatedAtUtc, bool HasPhoto = false)
 {
     public static MessageResult From(Message m, Guid accountId)
     {
         ArgumentNullException.ThrowIfNull(m);
-        return new(m.Id, m.ConversationId, m.Seq, m.Kind, m.SenderAccountId == accountId, m.Text, m.CreatedAtUtc);
+        return new(m.Id, m.ConversationId, m.Seq, m.Kind, m.SenderAccountId == accountId, m.Text, m.CreatedAtUtc, m.HasPhoto);
     }
 }
 
@@ -125,7 +133,7 @@ public sealed record ListFollowupsQuery(Guid AccountId, DateOnly? ReviewOn, bool
 /// </summary>
 public sealed class CreateFollowupHandler(
     IBusinessRepository businesses, IConsultationRepository consultations, IPetRepository pets, IFollowupRepository followups,
-    IConversationRepository conversations, IMessageRepository messages, TimeProvider timeProvider)
+    IConversationRepository conversations, IMessageRepository messages, ReminderScheduler reminders, TimeProvider timeProvider)
     : IRequestHandler<CreateFollowupCommand, AccessOutcome<FollowupResult>>
 {
     public async Task<AccessOutcome<FollowupResult>> Handle(CreateFollowupCommand request, CancellationToken cancellationToken)
@@ -161,12 +169,17 @@ public sealed class CreateFollowupHandler(
             await messages.Add(Message.FromSystem(conversation.Id, seq, "Se abrió el seguimiento de la consulta.", now), cancellationToken).ConfigureAwait(false);
         }
 
+        // pm-160: un día antes de la próxima revisión se avisa al dueño.
+        await reminders.Schedule(followup.Id, ReminderKind.Review, followup.OwnerId, followup.PetId, ReviewReminderTitle, followup.NextReviewOn, cancellationToken, daysBefore: 1).ConfigureAwait(false);
         return AccessOutcome.Ok(FollowupResult.From(followup, DateOnly.FromDateTime(now), conversationId));
     }
+
+    internal const string ReviewReminderTitle = "Revisión del seguimiento";
 }
 
 public sealed class UpdateFollowupHandler(
-    IBusinessRepository businesses, IFollowupRepository followups, IConversationRepository conversations, IMessageRepository messages, TimeProvider timeProvider)
+    IBusinessRepository businesses, IFollowupRepository followups, IConversationRepository conversations, IMessageRepository messages,
+    ReminderScheduler reminders, PushNotifier notifier, TimeProvider timeProvider)
     : IRequestHandler<UpdateFollowupCommand, AccessOutcome<FollowupResult>>
 {
     public async Task<AccessOutcome<FollowupResult>> Handle(UpdateFollowupCommand request, CancellationToken cancellationToken)
@@ -187,10 +200,36 @@ public sealed class UpdateFollowupHandler(
         var now = timeProvider.GetUtcNow().UtcDateTime;
         var today = DateOnly.FromDateTime(now);
         var before = followup.Status;
+        var reviewBefore = followup.NextReviewOn;
         followup.Update(request.Status!.Value, request.ReviewInDays, today, now);
         if (!await followups.Update(followup, cancellationToken).ConfigureAwait(false))
         {
             return AccessOutcome.Failed<FollowupResult>(AccessStatus.NotFound);
+        }
+
+        // pm-160#CA-02: si la revisión cambia de fecha se reprograma; al dar de alta (sin revisión) se cancela.
+        await reminders.Schedule(followup.Id, ReminderKind.Review, followup.OwnerId, followup.PetId, CreateFollowupHandler.ReviewReminderTitle, followup.NextReviewOn, cancellationToken, daysBefore: 1).ConfigureAwait(false);
+
+        // pm-158: solo un cambio real de estado o de revisión avisa al dueño; repetir la misma actualización no envía nada (CA-03).
+        var changes = new List<string>();
+        if (before != followup.Status)
+        {
+            changes.Add(followup.Status switch
+            {
+                FollowupStatus.Discharged => "La mascota fue dada de alta.",
+                FollowupStatus.Improving => "Estado: Mejorando.",
+                _ => "Estado: En tratamiento.",
+            });
+        }
+
+        if (followup.NextReviewOn is { } review && review != reviewBefore)
+        {
+            changes.Add(string.Create(System.Globalization.CultureInfo.InvariantCulture, $"Próxima revisión: {review:dd/MM/yyyy}."));
+        }
+
+        if (changes.Count > 0)
+        {
+            await notifier.Notify(followup.OwnerId, NotificationTopic.Followups, new PushMessage($"{followup.PetName}: seguimiento", string.Join(' ', changes)), cancellationToken).ConfigureAwait(false);
         }
 
         var conversation = await conversations.FindByFollowup(followup.Id, cancellationToken).ConfigureAwait(false);
@@ -365,6 +404,14 @@ public sealed class ListFollowupsQueryValidator : IRequestValidator<ListFollowup
 
 public sealed record SendMessageCommand(Guid AccountId, Guid ConversationId, string Text) : ICommand<AccessOutcome<MessageResult>>;
 
+/// <summary>pm-146: un participante envía una foto (JPEG, PNG o WebP de hasta 1 MB, ya validada) a la conversación.</summary>
+public sealed record SendPhotoMessageCommand(Guid AccountId, Guid ConversationId, string ContentType, Stream Content) : ICommand<AccessOutcome<MessageResult>>;
+
+/// <summary>pm-146: URL temporal de la foto de un mensaje, solo para los participantes.</summary>
+public sealed record GetMessagePhotoUrlQuery(Guid AccountId, Guid ConversationId, Guid MessageId) : IQuery<AccessOutcome<MessagePhotoResult>>;
+
+public sealed record MessagePhotoResult(Guid MessageId, Uri Url, DateTimeOffset ExpiresAtUtc);
+
 public sealed record ListMessagesQuery(Guid AccountId, Guid ConversationId, Guid? AfterMessageId, int? PageSize) : IQuery<AccessOutcome<MessageList>>;
 
 public sealed record ListConversationsQuery(Guid AccountId, int? Page, int? PageSize) : IQuery<PagedResult<ConversationSummary>>;
@@ -373,7 +420,28 @@ public sealed record MarkReadCommand(Guid AccountId, Guid ConversationId, Guid? 
 
 public sealed record ReopenConversationCommand(Guid AccountId, Guid ConversationId) : ICommand<AccessOutcome<FollowupResult>>;
 
-public sealed class SendMessageHandler(IConversationRepository conversations, IMessageRepository messages, TimeProvider timeProvider)
+/// <summary>Aviso push de un mensaje nuevo al otro participante (pm-159).</summary>
+internal static class ChatNotifications
+{
+    /// <summary>
+    /// Avisa al otro participante, salvo que esté leyendo la conversación ahora (CA-01). El aviso no incluye el contenido del mensaje
+    /// ni de la foto: nada clínico sale hacia el proveedor push (CA-02). Se llama una vez por mensaje enviado (CA-03).
+    /// </summary>
+    public static Task Notify(PushNotifier notifier, Conversation conversation, Guid senderAccountId, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        var toOwner = senderAccountId != conversation.OwnerAccountId;
+        var recipient = toOwner ? conversation.OwnerAccountId : conversation.BusinessAccountId;
+        return conversation.IsBeingRead(recipient, nowUtc)
+            ? Task.CompletedTask
+            : notifier.Notify(
+                recipient,
+                NotificationTopic.Chat,
+                new PushMessage("Nuevo mensaje", toOwner ? "Tu veterinaria te escribió en el seguimiento." : "Un cliente te escribió en el seguimiento."),
+                cancellationToken);
+    }
+}
+
+public sealed class SendMessageHandler(IConversationRepository conversations, IMessageRepository messages, PushNotifier notifier, TimeProvider timeProvider)
     : IRequestHandler<SendMessageCommand, AccessOutcome<MessageResult>>
 {
     public async Task<AccessOutcome<MessageResult>> Handle(SendMessageCommand request, CancellationToken cancellationToken)
@@ -396,11 +464,75 @@ public sealed class SendMessageHandler(IConversationRepository conversations, IM
         var message = Message.FromParticipant(conversation.Id, seq, request.AccountId, request.Text, now);
         await messages.Add(message, cancellationToken).ConfigureAwait(false);
         await conversations.MarkRead(conversation.Id, conversation.IsBusinessSide(request.AccountId), seq, cancellationToken).ConfigureAwait(false);
+        await ChatNotifications.Notify(notifier, conversation, request.AccountId, now, cancellationToken).ConfigureAwait(false);
         return AccessOutcome.Ok(MessageResult.From(message, request.AccountId));
     }
 }
 
-public sealed class ListMessagesHandler(IConversationRepository conversations, IMessageRepository messages)
+public sealed class SendPhotoMessageHandler(IConversationRepository conversations, IMessageRepository messages, Images.IImageStorage storage, PushNotifier notifier, TimeProvider timeProvider)
+    : IRequestHandler<SendPhotoMessageCommand, AccessOutcome<MessageResult>>
+{
+    public async Task<AccessOutcome<MessageResult>> Handle(SendPhotoMessageCommand request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var conversation = await conversations.FindById(request.ConversationId, cancellationToken).ConfigureAwait(false);
+        if (conversation is null || !conversation.HasParticipant(request.AccountId))
+        {
+            return AccessOutcome.Failed<MessageResult>(AccessStatus.NotFound);
+        }
+
+        if (conversation.IsClosed)
+        {
+            return AccessOutcome.Failed<MessageResult>(AccessStatus.Closed);
+        }
+
+        var messageId = Guid.CreateVersion7();
+        var key = Images.PhotoKeys.ForChatMessage(conversation.Id, messageId);
+        await storage.Save(Images.ImageContainer.ChatPhotos, key, request.ContentType, request.Content, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var now = timeProvider.GetUtcNow().UtcDateTime;
+            var seq = await conversations.NextSeq(conversation.Id, now, cancellationToken).ConfigureAwait(false);
+            var message = Message.FromParticipantPhoto(messageId, conversation.Id, seq, request.AccountId, key, now);
+            await messages.Add(message, cancellationToken).ConfigureAwait(false);
+            await conversations.MarkRead(conversation.Id, conversation.IsBusinessSide(request.AccountId), seq, cancellationToken).ConfigureAwait(false);
+            await ChatNotifications.Notify(notifier, conversation, request.AccountId, now, cancellationToken).ConfigureAwait(false);
+            return AccessOutcome.Ok(MessageResult.From(message, request.AccountId));
+        }
+        catch
+        {
+            // Si el mensaje no se guardó no debe quedar la foto huérfana en el almacenamiento.
+            await storage.Delete(Images.ImageContainer.ChatPhotos, key, CancellationToken.None).ConfigureAwait(false);
+            throw;
+        }
+    }
+}
+
+public sealed class GetMessagePhotoUrlHandler(IConversationRepository conversations, IMessageRepository messages, Images.IImageStorage storage)
+    : IRequestHandler<GetMessagePhotoUrlQuery, AccessOutcome<MessagePhotoResult>>
+{
+    public async Task<AccessOutcome<MessagePhotoResult>> Handle(GetMessagePhotoUrlQuery request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var conversation = await conversations.FindById(request.ConversationId, cancellationToken).ConfigureAwait(false);
+        if (conversation is null || !conversation.HasParticipant(request.AccountId))
+        {
+            // Quien no es participante no firma nada y no sabe si la conversación existe.
+            return AccessOutcome.Failed<MessagePhotoResult>(AccessStatus.NotFound);
+        }
+
+        var message = await messages.Find(conversation.Id, request.MessageId, cancellationToken).ConfigureAwait(false);
+        if (message?.PhotoObjectKey is not { } key)
+        {
+            return AccessOutcome.Failed<MessagePhotoResult>(AccessStatus.NotFound);
+        }
+
+        var url = await storage.CreateTemporaryUrl(Images.ImageContainer.ChatPhotos, key, Images.PhotoKeys.TemporaryUrlLifetime, cancellationToken).ConfigureAwait(false);
+        return url is null ? AccessOutcome.Failed<MessagePhotoResult>(AccessStatus.NotFound) : AccessOutcome.Ok(new MessagePhotoResult(message.Id, url.Url, url.ExpiresAtUtc));
+    }
+}
+
+public sealed class ListMessagesHandler(IConversationRepository conversations, IMessageRepository messages, TimeProvider timeProvider)
     : IRequestHandler<ListMessagesQuery, AccessOutcome<MessageList>>
 {
     public async Task<AccessOutcome<MessageList>> Handle(ListMessagesQuery request, CancellationToken cancellationToken)
@@ -412,6 +544,8 @@ public sealed class ListMessagesHandler(IConversationRepository conversations, I
             return AccessOutcome.Failed<MessageList>(AccessStatus.NotFound);
         }
 
+        // La app consulta la conversación mientras está abierta: eso cuenta como «estar leyendo» (pm-159).
+        await conversations.Touch(conversation.Id, conversation.IsBusinessSide(request.AccountId), timeProvider.GetUtcNow().UtcDateTime, cancellationToken).ConfigureAwait(false);
         long after = 0;
         if (request.AfterMessageId is { } afterId)
         {
@@ -464,7 +598,7 @@ public sealed class ListConversationsHandler(IConversationRepository conversatio
     }
 }
 
-public sealed class MarkReadHandler(IConversationRepository conversations, IMessageRepository messages)
+public sealed class MarkReadHandler(IConversationRepository conversations, IMessageRepository messages, TimeProvider timeProvider)
     : IRequestHandler<MarkReadCommand, AccessOutcome<ConversationSummary>>
 {
     public async Task<AccessOutcome<ConversationSummary>> Handle(MarkReadCommand request, CancellationToken cancellationToken)
@@ -476,6 +610,7 @@ public sealed class MarkReadHandler(IConversationRepository conversations, IMess
             return AccessOutcome.Failed<ConversationSummary>(AccessStatus.NotFound);
         }
 
+        await conversations.Touch(conversation.Id, conversation.IsBusinessSide(request.AccountId), timeProvider.GetUtcNow().UtcDateTime, cancellationToken).ConfigureAwait(false);
         var upTo = conversation.LastSeq;
         if (request.UpToMessageId is { } messageId)
         {
@@ -496,7 +631,7 @@ public sealed class MarkReadHandler(IConversationRepository conversations, IMess
 
 /// <summary>La veterinaria reabre la conversación y el seguimiento vuelve a «En tratamiento» (pm-147). El dueño no puede reabrirla.</summary>
 public sealed class ReopenConversationHandler(
-    IConversationRepository conversations, IFollowupRepository followups, IMessageRepository messages, TimeProvider timeProvider)
+    IConversationRepository conversations, IFollowupRepository followups, IMessageRepository messages, PushNotifier notifier, TimeProvider timeProvider)
     : IRequestHandler<ReopenConversationCommand, AccessOutcome<FollowupResult>>
 {
     public async Task<AccessOutcome<FollowupResult>> Handle(ReopenConversationCommand request, CancellationToken cancellationToken)
@@ -527,6 +662,9 @@ public sealed class ReopenConversationHandler(
             await conversations.SetClosed(conversation.Id, false, now, cancellationToken).ConfigureAwait(false);
             var seq = await conversations.NextSeq(conversation.Id, now, cancellationToken).ConfigureAwait(false);
             await messages.Add(Message.FromSystem(conversation.Id, seq, "La veterinaria reabrió el seguimiento.", now), cancellationToken).ConfigureAwait(false);
+
+            // pm-158: reabrir es un cambio de estado del seguimiento: se avisa al dueño.
+            await notifier.Notify(followup.OwnerId, NotificationTopic.Followups, new PushMessage($"{followup.PetName}: seguimiento", "Estado: En tratamiento."), cancellationToken).ConfigureAwait(false);
         }
 
         return AccessOutcome.Ok(FollowupResult.From(followup, DateOnly.FromDateTime(now), conversation.Id));
@@ -547,6 +685,36 @@ public sealed class SendMessageCommandValidator : IRequestValidator<SendMessageC
         if (!Message.IsValidText(request.Text))
         {
             failures.Add(new ValidationFailure("text", $"El mensaje es obligatorio y debe tener de 1 a {Message.MaxTextLength} caracteres."));
+        }
+
+        return Task.FromResult<IReadOnlyList<ValidationFailure>>(failures);
+    }
+}
+
+public sealed class SendPhotoMessageCommandValidator : IRequestValidator<SendPhotoMessageCommand>
+{
+    public Task<IReadOnlyList<ValidationFailure>> Validate(SendPhotoMessageCommand request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        IReadOnlyList<ValidationFailure> failures = request.ConversationId == Guid.Empty ? [new ValidationFailure("conversationId", "La conversación es obligatoria.")] : [];
+        return Task.FromResult(failures);
+    }
+}
+
+public sealed class GetMessagePhotoUrlQueryValidator : IRequestValidator<GetMessagePhotoUrlQuery>
+{
+    public Task<IReadOnlyList<ValidationFailure>> Validate(GetMessagePhotoUrlQuery request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var failures = new List<ValidationFailure>();
+        if (request.ConversationId == Guid.Empty)
+        {
+            failures.Add(new ValidationFailure("conversationId", "La conversación es obligatoria."));
+        }
+
+        if (request.MessageId == Guid.Empty)
+        {
+            failures.Add(new ValidationFailure("messageId", "El mensaje es obligatorio."));
         }
 
         return Task.FromResult<IReadOnlyList<ValidationFailure>>(failures);

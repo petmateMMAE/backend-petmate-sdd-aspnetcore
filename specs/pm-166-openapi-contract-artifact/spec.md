@@ -31,7 +31,7 @@ Cada criterio se cita como `pm-166#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T184 | Nueva | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Publicar el contrato OpenAPI como artefacto de CI |
+| T184 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Publicar el contrato OpenAPI como artefacto de CI |
 
 Detalle en [task.md](task.md).
 

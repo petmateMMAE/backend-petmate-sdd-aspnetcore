@@ -39,6 +39,14 @@ public sealed record MongoCollectionNames(string Prefix = "")
     public string Conversations => Prefix + "conversations";
 
     public string Messages => Prefix + "messages";
+
+    public string Devices => Prefix + "devices";
+
+    public string AccountDeletionTokens => Prefix + "account_deletion_tokens";
+
+    public string Reminders => Prefix + "reminders";
+
+    public string NotificationSettings => Prefix + "notification_settings";
 }
 
 // Documentos de persistencia: viven en Infrastructure y mantienen Domain libre de atributos Bson.

@@ -11,6 +11,9 @@ public enum ImageContainer
 
     /// <summary>Público de solo lectura: la foto del negocio se ve en el mapa (pm-111).</summary>
     BusinessPhotos = 2,
+
+    /// <summary>Privado: fotos de mensajes del chat (pm-146). Comparte contenedor con las de mascotas, bajo el prefijo <c>chat/</c>.</summary>
+    ChatPhotos = 3,
 }
 
 /// <summary>Imagen ya guardada. <see cref="PublicUrl"/> solo existe en los contenedores públicos.</summary>
@@ -73,9 +76,16 @@ public static class ImageRules
     /// <summary>Tipos permitidos, para documentar el contrato y los mensajes de error.</summary>
     public static IReadOnlyList<string> AllowedContentTypes { get; } = [Jpeg, Png, WebP];
 
+    /// <summary>Foto de un mensaje del chat: 1 MB (pm-146#CA-01).</summary>
+    public const long MaxChatPhotoBytes = 1024 * 1024;
+
     /// <summary>Tamaño máximo del contenedor indicado.</summary>
-    public static long MaxBytes(ImageContainer container)
-        => container == ImageContainer.BusinessPhotos ? MaxBusinessPhotoBytes : MaxPetPhotoBytes;
+    public static long MaxBytes(ImageContainer container) => container switch
+    {
+        ImageContainer.BusinessPhotos => MaxBusinessPhotoBytes,
+        ImageContainer.ChatPhotos => MaxChatPhotoBytes,
+        _ => MaxPetPhotoBytes,
+    };
 
     /// <summary>
     /// Reconoce el tipo real por los bytes mágicos del archivo (pm-080#CA-02). El nombre y el <c>Content-Type</c> que

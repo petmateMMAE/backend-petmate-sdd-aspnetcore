@@ -1,6 +1,6 @@
 # Spec — pm-083 infrastructure-teardown
 
-> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L11 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L11 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -45,7 +45,7 @@ Cada criterio se cita como `pm-083#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T095 | Nueva | Propuesto | Definir y probar el procedimiento de teardown |
+| T095 | Nueva | En progreso | Definir y probar el procedimiento de teardown |
 
 Detalle en [task.md](task.md).
 

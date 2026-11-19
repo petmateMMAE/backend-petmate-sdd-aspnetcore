@@ -107,6 +107,19 @@ public sealed class MongoSessionRepository : ISessionRepository
             cancellationToken: cancellationToken));
     }
 
+    public async Task DeleteAllForUser(Guid userId, CancellationToken cancellationToken)
+    {
+        var ids = await Execute(async () => await sessions.Find(Builders<RefreshSessionDocument>.Filter.Eq(item => item.UserId, userId)).Project(item => item.Id).ToListAsync(cancellationToken).ConfigureAwait(false)).ConfigureAwait(false);
+        if (ids.Count == 0)
+        {
+            return;
+        }
+
+        // Primero los tokens: una sesión sin tokens es inutilizable, un token sin sesión no debe existir.
+        await Execute(() => tokens.DeleteManyAsync(Builders<RefreshTokenDocument>.Filter.In(item => item.SessionId, ids), cancellationToken)).ConfigureAwait(false);
+        await Execute(() => sessions.DeleteManyAsync(Builders<RefreshSessionDocument>.Filter.In(item => item.Id, ids), cancellationToken)).ConfigureAwait(false);
+    }
+
     public async Task<IReadOnlyList<Guid>> RevokeAllForUser(Guid userId, DateTime nowUtc, SessionRevocationReason reason, CancellationToken cancellationToken)
     {
         var active = Builders<RefreshSessionDocument>.Filter.And(

@@ -11,7 +11,7 @@
 
 ### T096 — Ejecutar la aceptación del despliegue cloud
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** En progreso (registro retrospectivo; ver gates)
 - **Spec principal:** pm-084
 - **Criterios propios:** pm-084#CA-01, pm-084#CA-02, pm-084#CA-03, pm-084#CA-04
 - **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.

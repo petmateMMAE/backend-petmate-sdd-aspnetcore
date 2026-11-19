@@ -18,6 +18,10 @@ public static class PhotoKeys
     public static string ForPet(Guid ownerId, Guid petId)
         => string.Create(CultureInfo.InvariantCulture, $"{ownerId:N}/{petId:N}");
 
+    /// <summary>Clave de la foto de un mensaje: fija por mensaje, nunca derivada de lo que mande el cliente (pm-146).</summary>
+    public static string ForChatMessage(Guid conversationId, Guid messageId)
+        => string.Create(CultureInfo.InvariantCulture, $"chat/{conversationId:N}/{messageId:N}");
+
     public static string ForBusiness(Guid businessId) => businessId.ToString("N", CultureInfo.InvariantCulture);
 }
 

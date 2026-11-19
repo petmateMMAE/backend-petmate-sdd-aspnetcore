@@ -584,3 +584,82 @@ Aprobados por el usuario (H7, H3, H8 opción A; H4 opción B; H6 A+B+C) y regist
 - **2026-11-10:** T148 a T163 y T165 a T167 marcadas «Verificado» por decisión del usuario, **sin revisión independiente** de este bloque y con las pruebas contra Atlas sin ejecutar.
 - **2026-11-10:** T145 implementada (ficha completa de la veterinaria por grupos autorizados). Contrato 359. Pendiente de revisión y cierre.
 - **2026-11-10:** T145 marcada «Verificado» por decisión del usuario, sin revisión independiente.
+
+## Implementación de T169 a T183 sin Azure (2026-11-17)
+
+- **Hecho (pendiente de revisión y aprobación humana):** dispositivos (T169, T170 parcial), preferencias de aviso (T175), foto en el chat (T164), generación y listado de recordatorios (T172, T174 parcial), eliminación de cuenta con contraseña (T179), borrado de datos de usuario y de negocio (T180, T181) y eliminación por la web (T182, T183). Planes en cada `specs/pm-NNN/plan.md`.
+- **Pruebas:** unitarias 339, seguridad 196, contrato 425. Integración Atlas escrita pero sin ejecutar (los repositorios Mongo nuevos no se probaron contra Atlas).
+- **No hecho:** T171 (adaptador FCM: falta verificar licencia y costo del paquete), T173, T176–T178 (dependen de T171), T184, T185 y T168 (decisión del usuario). T170 queda sin cerrar por pm-152#CA-02 (tokens inválidos del proveedor) y T174 por pm-156#CA-01 (revisiones) y CA-02 (no hay forma de marcar leído).
+- **Decisiones del agente a confirmar:** 5 dispositivos por usuario (409 al superarlo); rutas `notification-settings/get|update` (acción literal en lugar de la del Spec); sonidos `default|soft|silent` y anticipación de 1 a 14 días; fotos del chat en el contenedor privado de mascotas bajo `chat/`; 403 por contraseña incorrecta al eliminar y 5 intentos cada 15 minutos; tokens de eliminación en su propia colección; variable opcional `ACCOUNT_DELETION_URL_BASE`; los seguimientos y conversaciones de una veterinaria eliminada se conservan para el dueño; programar recordatorios es de mejor esfuerzo.
+- **Riesgos:** la eliminación de cuenta no es atómica (sin transacciones en Atlas $0); es reintentable. Las rutas de eliminación por la web son públicas y dependen de un dominio de envío verificado que aún no existe.
+
+## T171, T184 y T185 (2026-11-17)
+
+- **Hecho (pendiente de revisión y aprobación humana):** T171 puerto `IPushSender` y adaptador FCM HTTP v1 sin paquetes nuevos (costo $0 verificado el 2026-11-17; plan en pm-153); T184 el CI exporta `openapi.json` y lo publica como artefacto `openapi`; T185 `docs/ci-cd/mobile-development-flow.md`.
+- **Pruebas:** seguridad 206 (incluye 8 del adaptador FCM con proveedor falso). El artefacto de CI solo se comprobó localmente (la publicación real se verá en la primera ejecución del pipeline). El envío a FCM real no se probó.
+- **Observación:** el 2026-11-17 `GET /api/v1/health/live` de la demo de Azure respondió 200 (una sola petición de solo lectura); se anotó en el documento de T185 como estado fechado.
+- **Desbloquea:** T173 (despacho de recordatorios) ya tiene sus tres dependencias (T169, T172, T171); T176–T178 dependen de T173.
+
+## T173 (2026-11-17)
+
+- **Hecho (pendiente de revisión y aprobación humana):** envío de recordatorios por push cada 5 minutos con reclamación atómica (`ReminderDispatcher` + `ReminderDispatchHostedService`); borra los tokens que FCM reporta inválidos (cubre pm-152#CA-02). Plan en pm-155.
+- **Pruebas:** 8 unitarias nuevas (incluye 8 ejecuciones simultáneas). Reclamo atómico en Mongo y envío a FCM sin probar contra servicios reales.
+- **Riesgo:** con el modo ahorro de Azure la API se apaga sin tráfico y el trabajo no corre mientras tanto.
+- **Desbloquea:** T176 a T178 (pushes de seguimiento, chat y reseña) ya tienen su dependencia.
+
+## T178, T176 y T177 (2026-11-17)
+
+- **Hecho (pendiente de revisión y aprobación humana):** recordatorio de revisión del seguimiento un día antes (T178), aviso push al dueño por cambios de estado o de revisión (T176) y aviso push de mensajes y fotos del chat que se suprime mientras el destinatario consulta la conversación (T177). Planes en pm-160, pm-158 y pm-159.
+- **Decisiones del usuario:** envío inmediato sin cola (un aviso fallido se pierde); la supresión «leyendo» se implementa como «consultó la conversación hace menos de 30 s» (marca en Atlas, no en Redis); preferencias de pm-157.
+- **Decisión del agente a confirmar:** el aviso de revisión usa `reviews` (no `followups`), porque pm-157 los separa.
+- **Pruebas:** nada probado contra FCM ni Atlas reales.
+
+## T129 y T168 (2026-11-17)
+
+- **T129** (pm-111) ya estaba implementada (commit `4719ce4`); el usuario la cerró en el chat el 2026-11-17 **sin revisión independiente** (excepción suya). Cobertura de CA-03 por pruebas de contrato; el tipo de archivo del negocio comparte validador con las mascotas. Blob real sin probar.
+- **T168** (pm-150): el usuario aprobó sustituir el canal en vivo por la consulta con `after` de pm-145. Sin código nuevo; «Implementada», pendiente de revisión y aprobación. Los 18 Specs de T164 y T169 a T185 tienen `gates.md` con la evidencia de hoy (unitarias 348, seguridad 206, contrato 431; integración 12 y 69 omitidas).
+
+## T174 completada y T091 a T093 documentadas (2026-11-17)
+
+- **T174** (pm-156): nuevo `POST /api/v1/reminders/mark-read` (marca por aviso, decisión del usuario); las revisiones ya entraban al listado por pm-160. Unitarias 348, seguridad 206, contrato 435 en contenedor; `MarkRead` en Atlas sin probar. Pendiente de revisión y aprobación.
+- **T091 a T093** (pm-079 a pm-081): ya estaban en código (commit `4719ce4`); se añadieron sus `gates.md` con las pruebas de `PhotoEndpointsTests`. Infraestructura (`storage.tf`) y Blob real sin verificar.
+- **Gate local en contenedor:** build `-warnaserror` limpio; `dotnet format` falla por CRLF en archivos ajenos (sin corregir); la auditoría de vulnerabilidades no dio resultado utilizable.
+
+## Cierre del bloque 1 (2026-11-18)
+
+- **Hecho:** el usuario cerró en el chat, con aprobación humana, T091–T093, T164 y T168–T185 (22 Tasks; pm-079 a pm-081, pm-146, pm-150 a pm-167). Estado de las Tasks: «Cerrado y aprobado (2026-11-18)» en `task.md`, tablas de los Specs y `specs/README.md`.
+- **Excepción del usuario:** se cerró **sin revisión independiente** de seguridad ni de trazabilidad (§12.2 paso 10), igual que T129. Los agentes no firmaron; la aprobación es del usuario.
+- **Avisos aceptados por el usuario:**
+  1. Repositorios Mongo nuevos y pruebas de integración sin ejecutar contra Atlas (`MarkRead`, reclamo atómico de recordatorios, dispositivos, avisos, borrado).
+  2. Sin pruebas contra FCM, Blob (`storage.tf` incluido) ni la publicación del artefacto OpenAPI en CI.
+  3. pm-150 se cubre con consulta `after` en lugar de canal en vivo; pm-150 y pm-157 (rutas `notification-settings/get|update`) quedan por enmendar.
+  4. Borrado de cuenta no atómico (reintentable); rutas públicas de eliminación web dependen de un dominio de envío aún inexistente.
+  5. Decisiones del agente sin confirmar: 5 dispositivos por usuario, sonidos `default|soft|silent`, anticipación 1–14 días, fotos del chat en el contenedor de mascotas bajo `chat/`, aviso de revisión con `reviews`.
+  6. Avisos push sin cola (un fallo se pierde); el despachador no corre con la API apagada por el modo ahorro de Azure.
+  7. Gate local: `dotnet format` falla por CRLF ajenos y la auditoría de vulnerabilidades no dio resultado utilizable.
+- **Pendiente:** enmendar pm-150 y pm-157; ejecutar integración contra Atlas y verificar FCM/Blob en un entorno no productivo; las Specs siguen en estado «Aprobado» (el cierre de Spec no se modificó).
+
+- **Enmiendas (2026-11-18):** pm-150 y pm-157 actualizados para reflejar lo implementado (consulta con `after`; rutas `notification-settings/get|update`).
+
+## pm-168 / T186 — consulta del negocio propio (2026-11-18)
+
+- **Hecho (cerrado por el usuario en el chat el 2026-11-18, sin revisión independiente):** hueco de RF-30/31 (la app no podía cargar su negocio para editarlo). Spec aprobado por el usuario en el chat el 2026-11-18; `GET /api/v1/businesses/get` devuelve el `BusinessResponse` completo (con `id` y cédula) de la cuenta del token; 404 sin negocio, 401 sin token. Reutiliza `FindByOwner`; sin paquetes ni persistencia nueva.
+- **Pruebas:** build Release `-warnaserror` limpio; unitarias 348, seguridad 206, contrato 436. Sin integración nueva (no aplica). `check-sdd.ps1` no se ejecutó (sin `pwsh`).
+- **Decisión del agente a confirmar:** 404 (según CA-03) en lugar del 403 que usan las demás rutas del panel cuando la cuenta no tiene negocio.
+- **Riesgo:** sin prueba de 429 propia; el límite se hereda del controlador.
+
+- **Cierre del Spec pm-168 (2026-11-18):** el usuario cerró el Spec en el chat.
+
+- **Cierre de T067 y Spec pm-055 (2026-11-18):** el usuario creó el ruleset de ramas protegidas en GitHub y aprobó el cierre. **Evidencia:** declarada por el usuario; no verificada por el agente. **Riesgo:** no quedó registrada la lista de checks requeridos ni el patrón de ramas; sin revisión independiente.
+
+- **Registro retrospectivo de la infraestructura Azure (2026-11-18):** gates de pm-065 a pm-084 creados con revisión estática; sin `terraform plan` ni consulta a Azure/Atlas/GitHub. **Riesgos:** HSTS ausente (pm-073); sin NSG ni pruebas de acceso denegado (pm-072); sin procedimiento de rotación de secretos (pm-068); `destroy` incluye la cuenta Blob con fotos privadas (pm-083); CDN no implementado y ADR-007 lo difiere (pm-082); Redis autogestionado frente a "administrado" (pm-070/071); sin alerta de indisponibilidad (pm-078); CD sin aprobación humana por límite del plan gratuito de GitHub (pm-077); `check-sdd.ps1` no ejecutado (sin `pwsh`).
+
+## Estado del proyecto y pendientes (2026-11-18)
+
+- **Cerrado hoy:** T067 y Spec pm-055 (ruleset de ramas creado por el usuario en GitHub; evidencia declarada, no verificada; sin revisión independiente; faltan por anotar los checks requeridos y el patrón de ramas).
+- **Funcionalidad del backend:** completa; solo quedan abiertos los Specs de despliegue y cierres formales.
+- **Pendientes fuera de Azure:** pm-056 sigue `En progreso` (T068 con CA-02 pendiente de enmienda); los Specs retrospectivos T042 a T054 están `Verificado`, sin cierre formal; varias Tasks se cerraron sin revisión independiente (T012, T066, T067); decisiones del agente por confirmar (por ejemplo 404 en lugar de 403 en `businesses/get`).
+- **Infraestructura Azure ya existente sin registro previo (pm-065 a pm-084):** Terraform en `infra/azure` e `infra/atlas`, bootstrap del estado, ACR, Container Apps (API y dos Redis), Blob de imágenes, presupuesto, alerta 5xx, workflows `infra.yml`, `atlas-ip-sync.yml` y job `deploy` de `pipeline.yml` con prueba de humo y reversa. Registrada hoy como `plan.md` y `checklists/gates.md` de cada Spec (revisión estática). Los Specs aprobados pasan a `En progreso`; pm-070, pm-071 y pm-082 siguen `Propuesto`.
+- **Razones para no aprobar aún (resumen):** pm-065 sin procedimiento ante agotamiento de créditos y presupuesto en USD; pm-066 con ADR-004 sin aprobar; pm-068 sin procedimiento de rotación de secretos; pm-069 con usuario de Atlas fuera de IaC; pm-070/071 sin aprobar, Redis autogestionado y sin pruebas negativas; pm-072 sin NSG, sin reglas de salida y sin pruebas de acceso denegado; pm-073 sin HSTS y con `TRUSTED_PROXIES` vacío; pm-075 cumple solo con `MODO_AHORRO=false`; pm-076 sin evidencia de reparto ni de retirar una réplica; pm-077 despliega sin aprobación humana (límite del plan gratuito de GitHub); pm-078 sin alerta de indisponibilidad; pm-082 sin CDN (ADR-007 lo difiere) y sin aprobar; pm-083 `destroy` incluiría la cuenta Blob con fotos privadas (sin `prevent_destroy`); pm-084 depende de todos los anteriores.
+- **Acción recomendada primero:** proteger la cuenta Blob `images` del `destroy` (pm-083 CA-03), porque es riesgo de pérdida de datos.
+- **Limitaciones:** `check-sdd.ps1` no se ejecutó (sin `pwsh`); no se consultó Azure, Atlas ni GitHub; la evidencia de despliegue es la de v0.1.0 (2026-11-06) y el `live` 200 del 2026-11-17.

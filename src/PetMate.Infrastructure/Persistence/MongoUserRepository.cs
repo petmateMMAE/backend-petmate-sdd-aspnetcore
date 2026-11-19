@@ -63,6 +63,18 @@ public sealed class MongoUserRepository : IUserRepository
         }
     }
 
+    public async Task Delete(Guid userId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await users.DeleteOneAsync(Builders<UserDocument>.Filter.Eq(document => document.Id, userId), cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception exception) when (exception is MongoException or TimeoutException)
+        {
+            throw new PersistenceUnavailableException(exception);
+        }
+    }
+
     public async Task UpdateProfile(User user, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(user);

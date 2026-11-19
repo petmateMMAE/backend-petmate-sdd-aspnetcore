@@ -7,6 +7,9 @@ public enum MessageKind
 {
     Text = 1,
     System = 2,
+
+    /// <summary>Mensaje con una foto privada (pm-146).</summary>
+    Photo = 3,
 }
 
 /// <summary>
@@ -16,8 +19,10 @@ public enum MessageKind
 /// </summary>
 public sealed class Conversation
 {
-    private Conversation(Guid id, Guid followupId, Guid petId, Guid ownerAccountId, Guid businessId, Guid businessAccountId, bool isClosed, long lastSeq, long ownerReadSeq, long businessReadSeq, DateTime createdAtUtc, DateTime updatedAtUtc)
+    private Conversation(Guid id, Guid followupId, Guid petId, Guid ownerAccountId, Guid businessId, Guid businessAccountId, bool isClosed, long lastSeq, long ownerReadSeq, long businessReadSeq, DateTime createdAtUtc, DateTime updatedAtUtc, DateTime? ownerSeenAtUtc = null, DateTime? businessSeenAtUtc = null)
     {
+        OwnerSeenAtUtc = ownerSeenAtUtc;
+        BusinessSeenAtUtc = businessSeenAtUtc;
         Id = id;
         FollowupId = followupId;
         PetId = petId;
@@ -58,6 +63,24 @@ public sealed class Conversation
 
     public DateTime UpdatedAtUtc { get; private set; }
 
+    /// <summary>Último momento en que el dueño abrió o consultó la conversación (la app la consulta mientras está abierta).</summary>
+    public DateTime? OwnerSeenAtUtc { get; }
+
+    public DateTime? BusinessSeenAtUtc { get; }
+
+    /// <summary>Tiempo durante el cual se considera que alguien «está leyendo» tras su última consulta (pm-159: no se le avisa por push).</summary>
+    public static readonly TimeSpan ReadingWindow = TimeSpan.FromSeconds(30);
+
+    /// <summary>Cada cuánto se actualiza la marca de lectura como máximo, para no escribir en cada consulta de la app.</summary>
+    public static readonly TimeSpan SeenRefresh = TimeSpan.FromSeconds(10);
+
+    /// <summary>¿La cuenta consultó esta conversación hace menos de <see cref="ReadingWindow"/>?</summary>
+    public bool IsBeingRead(Guid accountId, DateTime nowUtc)
+    {
+        var seen = IsBusinessSide(accountId) ? BusinessSeenAtUtc : OwnerSeenAtUtc;
+        return seen is { } at && nowUtc - at < ReadingWindow;
+    }
+
     public static Conversation Open(Guid followupId, Guid petId, Guid ownerAccountId, Guid businessId, Guid businessAccountId, DateTime nowUtc)
     {
         var now = Guard.Utc(nowUtc, nameof(nowUtc));
@@ -91,8 +114,8 @@ public sealed class Conversation
     }
 
     /// <summary>Rehidrata una conversación persistida. Interno: Infrastructure y pruebas.</summary>
-    internal static Conversation Restore(Guid id, Guid followupId, Guid petId, Guid ownerAccountId, Guid businessId, Guid businessAccountId, bool isClosed, long lastSeq, long ownerReadSeq, long businessReadSeq, DateTime createdAtUtc, DateTime updatedAtUtc)
-        => new(id, followupId, petId, ownerAccountId, businessId, businessAccountId, isClosed, lastSeq, ownerReadSeq, businessReadSeq, Guard.Utc(createdAtUtc, nameof(createdAtUtc)), Guard.Utc(updatedAtUtc, nameof(updatedAtUtc)));
+    internal static Conversation Restore(Guid id, Guid followupId, Guid petId, Guid ownerAccountId, Guid businessId, Guid businessAccountId, bool isClosed, long lastSeq, long ownerReadSeq, long businessReadSeq, DateTime createdAtUtc, DateTime updatedAtUtc, DateTime? ownerSeenAtUtc = null, DateTime? businessSeenAtUtc = null)
+        => new(id, followupId, petId, ownerAccountId, businessId, businessAccountId, isClosed, lastSeq, ownerReadSeq, businessReadSeq, Guard.Utc(createdAtUtc, nameof(createdAtUtc)), Guard.Utc(updatedAtUtc, nameof(updatedAtUtc)), ownerSeenAtUtc, businessSeenAtUtc);
 }
 
 /// <summary>Mensaje de una conversación (pm-144). Los avisos del sistema no tienen remitente.</summary>
@@ -100,8 +123,9 @@ public sealed class Message
 {
     public const int MaxTextLength = 1000;
 
-    private Message(Guid id, Guid conversationId, long seq, MessageKind kind, Guid? senderAccountId, string text, DateTime createdAtUtc)
+    private Message(Guid id, Guid conversationId, long seq, MessageKind kind, Guid? senderAccountId, string text, DateTime createdAtUtc, string? photoObjectKey = null)
     {
+        PhotoObjectKey = photoObjectKey;
         Id = id;
         ConversationId = conversationId;
         Seq = seq;
@@ -125,6 +149,11 @@ public sealed class Message
 
     public DateTime CreatedAtUtc { get; }
 
+    /// <summary>Clave del objeto en el almacenamiento privado; solo en los mensajes de tipo foto.</summary>
+    public string? PhotoObjectKey { get; }
+
+    public bool HasPhoto => PhotoObjectKey is not null;
+
     public static bool IsValidText(string? text)
     {
         var trimmed = text?.Trim();
@@ -136,10 +165,15 @@ public sealed class Message
             ? new Message(Guid.CreateVersion7(), Guard.NotEmpty(conversationId, nameof(conversationId)), seq, MessageKind.Text, Guard.NotEmpty(senderAccountId, nameof(senderAccountId)), text.Trim(), Guard.Utc(nowUtc, nameof(nowUtc)))
             : throw new DomainException("El mensaje no es válido.");
 
+    /// <summary>Mensaje con foto (pm-146). El identificador lo da quien llama porque la clave del objeto se arma con él.</summary>
+    public static Message FromParticipantPhoto(Guid id, Guid conversationId, long seq, Guid senderAccountId, string photoObjectKey, DateTime nowUtc)
+        => new(Guard.NotEmpty(id, nameof(id)), Guard.NotEmpty(conversationId, nameof(conversationId)), seq, MessageKind.Photo, Guard.NotEmpty(senderAccountId, nameof(senderAccountId)), string.Empty,
+            Guard.Utc(nowUtc, nameof(nowUtc)), string.IsNullOrWhiteSpace(photoObjectKey) ? throw new DomainException("La clave de la foto es obligatoria.") : photoObjectKey);
+
     public static Message FromSystem(Guid conversationId, long seq, string text, DateTime nowUtc)
         => new(Guid.CreateVersion7(), Guard.NotEmpty(conversationId, nameof(conversationId)), seq, MessageKind.System, null, text, Guard.Utc(nowUtc, nameof(nowUtc)));
 
     /// <summary>Rehidrata un mensaje persistido. Interno: Infrastructure y pruebas.</summary>
-    internal static Message Restore(Guid id, Guid conversationId, long seq, MessageKind kind, Guid? senderAccountId, string text, DateTime createdAtUtc)
-        => new(id, conversationId, seq, kind, senderAccountId, text, Guard.Utc(createdAtUtc, nameof(createdAtUtc)));
+    internal static Message Restore(Guid id, Guid conversationId, long seq, MessageKind kind, Guid? senderAccountId, string text, DateTime createdAtUtc, string? photoObjectKey = null)
+        => new(id, conversationId, seq, kind, senderAccountId, text, Guard.Utc(createdAtUtc, nameof(createdAtUtc)), photoObjectKey);
 }

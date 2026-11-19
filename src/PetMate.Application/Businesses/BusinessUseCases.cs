@@ -116,6 +116,21 @@ public sealed record UpdateBusinessCommand(Guid OwnerId, BusinessProfile Profile
 
 public sealed record DeleteBusinessCommand(Guid OwnerId) : ICommand<BusinessStatus>;
 
+/// <summary>Negocio propio de la cuenta (pm-168). Solo lectura: sin cuenta con negocio devuelve <c>NotFound</c>.</summary>
+public sealed record GetOwnBusinessQuery(Guid OwnerId) : IQuery<BusinessOutcome<BusinessResult>>;
+
+public sealed class GetOwnBusinessHandler(IBusinessRepository businesses) : IRequestHandler<GetOwnBusinessQuery, BusinessOutcome<BusinessResult>>
+{
+    public async Task<BusinessOutcome<BusinessResult>> Handle(GetOwnBusinessQuery request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var business = await businesses.FindByOwner(request.OwnerId, cancellationToken).ConfigureAwait(false);
+        return business is null
+            ? BusinessOutcome.Failed<BusinessResult>(BusinessStatus.NotFound)
+            : BusinessOutcome.Ok(BusinessResult.From(business));
+    }
+}
+
 public sealed class CreateBusinessHandler(IBusinessRepository businesses, TimeProvider timeProvider, PublicBusinessCache? publicCache = null)
     : IRequestHandler<CreateBusinessCommand, BusinessOutcome<BusinessResult>>
 {

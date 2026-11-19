@@ -29,5 +29,8 @@ public interface ISessionRepository
     Task Revoke(RefreshSession session, CancellationToken cancellationToken);
 
     /// <summary>Revoca todas las sesiones activas del usuario (pm-090) y devuelve sus identificadores.</summary>
+    /// <summary>Borra todas las sesiones y los refresh tokens del usuario (eliminación de cuenta, pm-161).</summary>
+    Task DeleteAllForUser(Guid userId, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<Guid>> RevokeAllForUser(Guid userId, DateTime nowUtc, SessionRevocationReason reason, CancellationToken cancellationToken);
 }

@@ -5,8 +5,8 @@
 ## Convenciones
 
 - Estructura plana `specs/pm-NNN-slug/` con `spec.md` y `task.md`; `plan.md` y `checklists/gates.md` se crean en la fase de plan, tras la aprobación del Spec.
-- Numeración de Specs `pm-001`…`pm-167`: global, secuencial e inmutable. Un Spec retirado pasa a `Reemplazado`.
-- Tasks globales `T001`…`T185`: `T001`–`T041` históricas (identificador, alcance y estado intactos), `T042`–`T054` retrospectivas, `T055`–`T185` nuevas.
+- Numeración de Specs `pm-001`…`pm-168`: global, secuencial e inmutable. Un Spec retirado pasa a `Reemplazado`.
+- Tasks globales `T001`…`T186`: `T001`–`T041` históricas (identificador, alcance y estado intactos), `T042`–`T054` retrospectivas, `T055`–`T186` nuevas.
 - Cada Task tiene un único Spec principal; criterios citados como `pm-NNN#CA-NN`.
 - Estado de Spec al migrar: `En revisión` si tiene Tasks históricas cerradas, verificadas o implementadas, o retrospectivas (texto nuevo pendiente de aprobación humana); `Propuesto` en los demás casos. Ninguna Task cambia de estado por la migración.
 - Plataforma cloud: Microsoft Azure con Azure for Students (Constitución §8). Los Specs cloud documentan servicios candidatos como hipótesis; ninguno se asume gratuito hasta completar pm-062.
@@ -69,7 +69,7 @@
 | [pm-052-database-indexing-efficiency](pm-052-database-indexing-efficiency/spec.md) | Verificado | L6 | pm-024, pm-025, pm-039 | T063 | Inventario de índices y evidencia de consultas críticas |
 | [pm-053-api-performance-baseline](pm-053-api-performance-baseline/spec.md) | Verificado | L12 | pm-046 | T064 | Objetivos de latencia medibles y prueba de carga sin costo |
 | [pm-054-structured-logging-pii-safe](pm-054-structured-logging-pii-safe/spec.md) | Verificado | L5 | pm-010 | T065 | Logging estructurado con correlación y sin datos personales |
-| [pm-055-ci-pull-request-pipeline](pm-055-ci-pull-request-pipeline/spec.md) | En progreso | L4 | pm-021 | T012, T066, T067 | Workflow de pull request con paridad respecto al gate local y ramas protegidas |
+| [pm-055-ci-pull-request-pipeline](pm-055-ci-pull-request-pipeline/spec.md) | Cerrado | L4 | pm-021 | T012, T066, T067 | Workflow de pull request con paridad respecto al gate local y ramas protegidas |
 | [pm-056-test-coverage-baseline](pm-056-test-coverage-baseline/spec.md) | En progreso | L4 | pm-021 | T068 | Línea base y umbral de cobertura de pruebas |
 | [pm-057-container-image-scan](pm-057-container-image-scan/spec.md) | Cerrado | L5 | pm-015, pm-055 | T069 | Escaneo de la imagen de contenedor con herramienta $0 |
 | [pm-058-sbom-generation](pm-058-sbom-generation/spec.md) | Cerrado | L5 | pm-055 | T070 | Generación de SBOM por compilación |
@@ -79,26 +79,26 @@
 | [pm-062-cloud-cost-feasibility-study](pm-062-cloud-cost-feasibility-study/spec.md) | Verificado | L0 | — | T074 | Estudio con fuentes oficiales del costo $0 MXN por componente en Azure for Students y del costo total de operación de la arquitectura |
 | [pm-063-cloud-provider-selection](pm-063-cloud-provider-selection/spec.md) | Verificado | L1 | pm-062 | T075 | Registrar Azure for Students como proveedor definitivo y seleccionar mediante ADR el servicio de Azure para cada componente |
 | [pm-064-environment-strategy](pm-064-environment-strategy/spec.md) | Verificado | L2 | pm-063 | T076 | Entornos, bases por entorno y convenciones de nombres |
-| [pm-065-cost-guardrails](pm-065-cost-guardrails/spec.md) | Aprobado | L2 | pm-063 | T077 | Presupuesto, alertas y etiquetado de costos |
-| [pm-066-iac-baseline](pm-066-iac-baseline/spec.md) | Aprobado | L3 | pm-063, pm-064 | T078 | Herramienta de IaC elegida por ADR, estructura y flujo plan/apply |
-| [pm-067-iac-state-management](pm-067-iac-state-management/spec.md) | Aprobado | L4 | pm-066 | T079 | Estado remoto de IaC con bloqueo, cifrado y sin secretos |
-| [pm-068-cloud-secrets-configuration](pm-068-cloud-secrets-configuration/spec.md) | Aprobado | L5 | pm-066, pm-067 | T080 | Inyección de secretos y configuración sin `.env` en la nube |
-| [pm-069-atlas-cloud-integration](pm-069-atlas-cloud-integration/spec.md) | Aprobado | L6 | pm-012, pm-066, pm-068, pm-072 | T081 | Acceso de red y usuarios de Atlas para los entornos cloud |
+| [pm-065-cost-guardrails](pm-065-cost-guardrails/spec.md) | Cerrado | L2 | pm-063 | T077 | Presupuesto, alertas y etiquetado de costos |
+| [pm-066-iac-baseline](pm-066-iac-baseline/spec.md) | Cerrado | L3 | pm-063, pm-064 | T078 | Herramienta de IaC elegida por ADR, estructura y flujo plan/apply |
+| [pm-067-iac-state-management](pm-067-iac-state-management/spec.md) | Cerrado | L4 | pm-066 | T079 | Estado remoto de IaC con bloqueo, cifrado y sin secretos |
+| [pm-068-cloud-secrets-configuration](pm-068-cloud-secrets-configuration/spec.md) | Cerrado | L5 | pm-066, pm-067 | T080 | Inyección de secretos y configuración sin `.env` en la nube |
+| [pm-069-atlas-cloud-integration](pm-069-atlas-cloud-integration/spec.md) | En progreso | L6 | pm-012, pm-066, pm-068, pm-072 | T081 | Acceso de red y usuarios de Atlas para los entornos cloud |
 | [pm-070-cloud-redis-auth](pm-070-cloud-redis-auth/spec.md) | Propuesto | L6 | pm-013, pm-066, pm-068, pm-072 | T082 | Redis Auth administrado en Azure con TLS, autenticación, red privada, `noeviction` y comportamiento fail-closed |
 | [pm-071-cloud-redis-cache](pm-071-cloud-redis-cache/spec.md) | Propuesto | L6 | pm-013, pm-066, pm-068, pm-072 | T083 | Redis Cache administrado en Azure con TLS, autenticación, red privada, expulsión LRU y degradación segura |
-| [pm-072-cloud-network-security](pm-072-cloud-network-security/spec.md) | Aprobado | L4 | pm-066 | T084 | Red, reglas de entrada y salida y segmentación |
-| [pm-073-public-https-endpoint](pm-073-public-https-endpoint/spec.md) | Aprobado | L9 | pm-017, pm-072, pm-076 | T085 | Dominio, DNS, TLS, HSTS y redirección de HTTP a HTTPS |
-| [pm-074-container-registry](pm-074-container-registry/spec.md) | Aprobado | L6 | pm-059, pm-066 | T086 | Azure Container Registry (o alternativa validada dentro de Azure) con etiquetas inmutables y trazabilidad imagen-versión |
-| [pm-075-backend-two-instances](pm-075-backend-two-instances/spec.md) | Aprobado | L7 | pm-015, pm-068, pm-069, pm-070, pm-071, pm-072, pm-074 | T087 | Al menos dos instancias del backend con sondas y sin estado local |
-| [pm-076-load-balancer](pm-076-load-balancer/spec.md) | Aprobado | L8 | pm-075 | T088 | Balanceador de carga con reparto verificable |
-| [pm-077-cd-deployment-pipeline](pm-077-cd-deployment-pipeline/spec.md) | Aprobado | L10 | pm-055, pm-057, pm-058, pm-059, pm-073, pm-075, pm-076 | T089 | Despliegue continuo versionado con humo posterior y reversa |
-| [pm-078-cloud-observability](pm-078-cloud-observability/spec.md) | Aprobado | L8 | pm-054, pm-075 | T090 | Eventos, errores y alertas en un servicio de observabilidad de Azure, sin PII ni secretos |
-| [pm-079-image-storage-adapter](pm-079-image-storage-adapter/spec.md) | Propuesto | L6 | pm-039, pm-066 | T091 | Almacenamiento de imágenes privado por defecto |
-| [pm-080-image-upload-endpoint](pm-080-image-upload-endpoint/spec.md) | Propuesto | L8 | pm-045, pm-079 | T092 | Contrato, límites y validación de subida de imágenes |
-| [pm-081-private-image-access](pm-081-private-image-access/spec.md) | Propuesto | L9 | pm-079, pm-080 | T093 | URLs temporales para imágenes privadas |
+| [pm-072-cloud-network-security](pm-072-cloud-network-security/spec.md) | En progreso | L4 | pm-066 | T084 | Red, reglas de entrada y salida y segmentación |
+| [pm-073-public-https-endpoint](pm-073-public-https-endpoint/spec.md) | Cerrado | L9 | pm-017, pm-072, pm-076 | T085 | Dominio, DNS, TLS, HSTS y redirección de HTTP a HTTPS |
+| [pm-074-container-registry](pm-074-container-registry/spec.md) | Cerrado | L6 | pm-059, pm-066 | T086 | Azure Container Registry (o alternativa validada dentro de Azure) con etiquetas inmutables y trazabilidad imagen-versión |
+| [pm-075-backend-two-instances](pm-075-backend-two-instances/spec.md) | Cerrado | L7 | pm-015, pm-068, pm-069, pm-070, pm-071, pm-072, pm-074 | T087 | Al menos dos instancias del backend con sondas y sin estado local |
+| [pm-076-load-balancer](pm-076-load-balancer/spec.md) | En progreso | L8 | pm-075 | T088 | Balanceador de carga con reparto verificable |
+| [pm-077-cd-deployment-pipeline](pm-077-cd-deployment-pipeline/spec.md) | En progreso | L10 | pm-055, pm-057, pm-058, pm-059, pm-073, pm-075, pm-076 | T089 | Despliegue continuo versionado con humo posterior y reversa |
+| [pm-078-cloud-observability](pm-078-cloud-observability/spec.md) | En progreso | L8 | pm-054, pm-075 | T090 | Eventos, errores y alertas en un servicio de observabilidad de Azure, sin PII ni secretos |
+| [pm-079-image-storage-adapter](pm-079-image-storage-adapter/spec.md) | Aprobado | L6 | pm-039, pm-066 | T091 | Almacenamiento de imágenes privado por defecto |
+| [pm-080-image-upload-endpoint](pm-080-image-upload-endpoint/spec.md) | Aprobado | L8 | pm-045, pm-079 | T092 | Contrato, límites y validación de subida de imágenes |
+| [pm-081-private-image-access](pm-081-private-image-access/spec.md) | Aprobado | L9 | pm-079, pm-080 | T093 | URLs temporales para imágenes privadas |
 | [pm-082-cdn-public-delivery](pm-082-cdn-public-delivery/spec.md) | Propuesto | L10 | pm-073, pm-079 | T094 | Distribución de imágenes públicas mediante CDN |
-| [pm-083-infrastructure-teardown](pm-083-infrastructure-teardown/spec.md) | Aprobado | L11 | pm-066, pm-067, pm-068, pm-069, pm-070, pm-071, pm-072, pm-073, pm-074, pm-075, pm-076, pm-078, pm-079, pm-082 | T095 | Destrucción ordenada y protegida de la infraestructura |
-| [pm-084-cloud-deployment-acceptance](pm-084-cloud-deployment-acceptance/spec.md) | Aprobado | L12 | pm-046, pm-073, pm-075, pm-076, pm-077, pm-078, pm-083 | T096 | Aceptación del sistema desplegado: dos instancias, balanceador, HTTPS y costo |
+| [pm-083-infrastructure-teardown](pm-083-infrastructure-teardown/spec.md) | Cerrado | L11 | pm-066, pm-067, pm-068, pm-069, pm-070, pm-071, pm-072, pm-073, pm-074, pm-075, pm-076, pm-078, pm-079, pm-082 | T095 | Destrucción ordenada y protegida de la infraestructura |
+| [pm-084-cloud-deployment-acceptance](pm-084-cloud-deployment-acceptance/spec.md) | En progreso | L12 | pm-046, pm-073, pm-075, pm-076, pm-077, pm-078, pm-083 | T096 | Aceptación del sistema desplegado: dos instancias, balanceador, HTTPS y costo |
 | [pm-085-account-registration-name](pm-085-account-registration-name/spec.md) | Aprobado | L7 | pm-029, pm-038 | T103 | `POST /api/v1/auth/register` exige el nombre del usuario además del correo y la contraseña |
 | [pm-086-user-role-unification](pm-086-user-role-unification/spec.md) | Aprobado | L5 | pm-022, pm-027, pm-033 | T104 | Toda cuenta tiene el rol único `User`; los roles excluyentes `Owner` y `Business` dejan de emitirse (Constitución v1 |
 | [pm-087-session-business-link](pm-087-session-business-link/spec.md) | Aprobado | L8 | pm-086, pm-029, pm-030, pm-031 | T105 | Registro, inicio de sesión y refresh informan si la cuenta tiene un negocio asociado y su tipo |
@@ -125,7 +125,7 @@
 | [pm-108-business-location-update](pm-108-business-location-update/spec.md) | Aprobado | L10 | pm-107 | T126 | `PUT /api/v1/businesses/update-location` cambia las coordenadas del negocio propio |
 | [pm-109-business-profile-update](pm-109-business-profile-update/spec.md) | Aprobado | L10 | pm-107 | T127 | `PUT /api/v1/businesses/update` edita el nombre, la descripción, los teléfonos y el horario del negocio propio |
 | [pm-110-business-delete](pm-110-business-delete/spec.md) | Aprobado | L10 | pm-107 | T128 | `DELETE /api/v1/businesses/delete` elimina el negocio asociado a la cuenta |
-| [pm-111-business-photo-public-storage](pm-111-business-photo-public-storage/spec.md) | Aprobado | L7 | pm-105, pm-079 | T129 | La foto del negocio se guarda en Azure Blob Storage en un contenedor de acceso público separado del de las fotos privadas |
+| [pm-111-business-photo-public-storage](pm-111-business-photo-public-storage/spec.md) | Cerrado | L7 | pm-105, pm-079 | T129 | La foto del negocio se guarda en Azure Blob Storage en un contenedor de acceso público separado del de las fotos privadas |
 | [pm-112-service-create](pm-112-service-create/spec.md) | Aprobado | L10 | pm-107 | T130 | `POST /api/v1/services/create` agrega un servicio al catálogo del negocio propio |
 | [pm-113-service-list-own](pm-113-service-list-own/spec.md) | Aprobado | L11 | pm-112 | T131 | `GET /api/v1/services/get-all` devuelve los servicios del negocio asociado a la cuenta |
 | [pm-114-service-update](pm-114-service-update/spec.md) | Aprobado | L11 | pm-112 | T132 | `PUT /api/v1/services/update/{id}` edita un servicio del negocio propio |
@@ -182,6 +182,7 @@
 | [pm-165-account-deletion-web-confirm](pm-165-account-deletion-web-confirm/spec.md) | Aprobado | L10 | pm-164, pm-161 | T183 | `POST /api/v1/account-deletion/confirm` elimina la cuenta con el token del enlace |
 | [pm-166-openapi-contract-artifact](pm-166-openapi-contract-artifact/spec.md) | Aprobado | L6 | pm-061, pm-008 | T184 | Cada ejecución de CI genera el documento OpenAPI y lo publica como artefacto para el equipo móvil |
 | [pm-167-integration-environment-flow](pm-167-integration-environment-flow/spec.md) | Aprobado | L6 | pm-055, pm-059 | T185 | Existe un documento que fija cómo el equipo móvil consume el backend durante el desarrollo |
+| [pm-168-business-get-own](pm-168-business-get-own/spec.md) | Cerrado | L10 | pm-107, pm-109 | T186 | `GET /api/v1/businesses/get` devuelve al afiliado los datos completos de su propio negocio |
 
 ## Orden de ejecución por niveles
 
@@ -199,7 +200,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | L7 | pm-031, pm-045, pm-075, pm-085, pm-091, pm-092, pm-093, pm-106, pm-111, pm-152 |
 | L8 | pm-032, pm-036, pm-076, pm-078, pm-080, pm-087, pm-094, pm-096 |
 | L9 | pm-034, pm-073, pm-081, pm-089, pm-095, pm-097, pm-099, pm-101, pm-102, pm-107, pm-164 |
-| L10 | pm-035, pm-077, pm-082, pm-090, pm-098, pm-100, pm-103, pm-104, pm-108, pm-109, pm-110, pm-112, pm-116, pm-122, pm-125, pm-154, pm-165 |
+| L10 | pm-035, pm-077, pm-082, pm-090, pm-098, pm-100, pm-103, pm-104, pm-108, pm-109, pm-110, pm-112, pm-116, pm-122, pm-125, pm-154, pm-165, pm-168 |
 | L11 | pm-046, pm-083, pm-113, pm-114, pm-115, pm-117, pm-118, pm-119, pm-120, pm-123, pm-126, pm-129, pm-155, pm-156, pm-162 |
 | L12 | pm-053, pm-084, pm-121, pm-124, pm-128, pm-130, pm-131, pm-135, pm-136, pm-163 |
 | L13 | pm-132, pm-133, pm-138 |
@@ -208,7 +209,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | L16 | pm-145, pm-146, pm-150, pm-159 |
 | L17 | pm-149 |
 
-## Tasks T001–T185
+## Tasks T001–T186
 
 | Task | Tipo | Spec principal | Estado | Título |
 |---|---|---|---|---|
@@ -278,7 +279,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T064 | Nueva | [pm-053](pm-053-api-performance-baseline/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Medir la línea base de rendimiento |
 | T065 | Nueva | [pm-054](pm-054-structured-logging-pii-safe/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Implementar logging estructurado sin PII |
 | T066 | Nueva | [pm-055](pm-055-ci-pull-request-pipeline/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Crear el workflow de CI de pull request |
-| T067 | Nueva | [pm-055](pm-055-ci-pull-request-pipeline/spec.md) | Propuesto | Configurar ramas protegidas y checks requeridos |
+| T067 | Nueva | [pm-055](pm-055-ci-pull-request-pipeline/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana) | Configurar ramas protegidas y checks requeridos |
 | T068 | Nueva | [pm-056](pm-056-test-coverage-baseline/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana; CA-02 pendiente de enmienda) | Medir la línea base de cobertura |
 | T069 | Nueva | [pm-057](pm-057-container-image-scan/spec.md) | Cerrado | Integrar el escaneo de la imagen de contenedor |
 | T070 | Nueva | [pm-058](pm-058-sbom-generation/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Generar el SBOM por compilación |
@@ -288,26 +289,26 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T074 | Nueva | [pm-062](pm-062-cloud-cost-feasibility-study/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Elaborar el estudio de costos de Azure for Students |
 | T075 | Nueva | [pm-063](pm-063-cloud-provider-selection/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Registrar la decisión de proveedor y los ADR de servicios Azure |
 | T076 | Nueva | [pm-064](pm-064-environment-strategy/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Definir la estrategia de entornos |
-| T077 | Nueva | [pm-065](pm-065-cost-guardrails/spec.md) | Propuesto | Definir presupuesto, alertas y etiquetado de costos |
-| T078 | Nueva | [pm-066](pm-066-iac-baseline/spec.md) | Propuesto | Establecer la línea base de IaC |
-| T079 | Nueva | [pm-067](pm-067-iac-state-management/spec.md) | Propuesto | Configurar el estado remoto de IaC |
-| T080 | Nueva | [pm-068](pm-068-cloud-secrets-configuration/spec.md) | Propuesto | Configurar secretos y configuración en Azure |
-| T081 | Nueva | [pm-069](pm-069-atlas-cloud-integration/spec.md) | Propuesto | Integrar MongoDB Atlas con el entorno Azure |
+| T077 | Nueva | [pm-065](pm-065-cost-guardrails/spec.md) | En progreso | Definir presupuesto, alertas y etiquetado de costos |
+| T078 | Nueva | [pm-066](pm-066-iac-baseline/spec.md) | En progreso | Establecer la línea base de IaC |
+| T079 | Nueva | [pm-067](pm-067-iac-state-management/spec.md) | En progreso | Configurar el estado remoto de IaC |
+| T080 | Nueva | [pm-068](pm-068-cloud-secrets-configuration/spec.md) | En progreso | Configurar secretos y configuración en Azure |
+| T081 | Nueva | [pm-069](pm-069-atlas-cloud-integration/spec.md) | En progreso | Integrar MongoDB Atlas con el entorno Azure |
 | T082 | Nueva | [pm-070](pm-070-cloud-redis-auth/spec.md) | Propuesto | Aprovisionar y verificar Redis Auth en Azure |
 | T083 | Nueva | [pm-071](pm-071-cloud-redis-cache/spec.md) | Propuesto | Aprovisionar y verificar Redis Cache en Azure |
-| T084 | Nueva | [pm-072](pm-072-cloud-network-security/spec.md) | Propuesto | Definir red y seguridad de red |
-| T085 | Nueva | [pm-073](pm-073-public-https-endpoint/spec.md) | Propuesto | Publicar el endpoint HTTPS |
-| T086 | Nueva | [pm-074](pm-074-container-registry/spec.md) | Propuesto | Configurar el registro de contenedores |
-| T087 | Nueva | [pm-075](pm-075-backend-two-instances/spec.md) | Propuesto | Desplegar dos instancias del backend |
-| T088 | Nueva | [pm-076](pm-076-load-balancer/spec.md) | Propuesto | Configurar el Load Balancer |
-| T089 | Nueva | [pm-077](pm-077-cd-deployment-pipeline/spec.md) | Propuesto | Implementar el pipeline de CD |
-| T090 | Nueva | [pm-078](pm-078-cloud-observability/spec.md) | Propuesto | Configurar la observabilidad cloud |
-| T091 | Nueva | [pm-079](pm-079-image-storage-adapter/spec.md) | Propuesto | Implementar el adaptador de almacenamiento de imágenes |
-| T092 | Nueva | [pm-080](pm-080-image-upload-endpoint/spec.md) | Propuesto | Implementar el endpoint de carga de imágenes |
-| T093 | Nueva | [pm-081](pm-081-private-image-access/spec.md) | Propuesto | Implementar el acceso privado a imágenes |
+| T084 | Nueva | [pm-072](pm-072-cloud-network-security/spec.md) | En progreso | Definir red y seguridad de red |
+| T085 | Nueva | [pm-073](pm-073-public-https-endpoint/spec.md) | En progreso | Publicar el endpoint HTTPS |
+| T086 | Nueva | [pm-074](pm-074-container-registry/spec.md) | En progreso | Configurar el registro de contenedores |
+| T087 | Nueva | [pm-075](pm-075-backend-two-instances/spec.md) | En progreso | Desplegar dos instancias del backend |
+| T088 | Nueva | [pm-076](pm-076-load-balancer/spec.md) | En progreso | Configurar el Load Balancer |
+| T089 | Nueva | [pm-077](pm-077-cd-deployment-pipeline/spec.md) | En progreso | Implementar el pipeline de CD |
+| T090 | Nueva | [pm-078](pm-078-cloud-observability/spec.md) | En progreso | Configurar la observabilidad cloud |
+| T091 | Nueva | [pm-079](pm-079-image-storage-adapter/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Implementar el adaptador de almacenamiento de imágenes |
+| T092 | Nueva | [pm-080](pm-080-image-upload-endpoint/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Implementar el endpoint de carga de imágenes |
+| T093 | Nueva | [pm-081](pm-081-private-image-access/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Implementar el acceso privado a imágenes |
 | T094 | Nueva | [pm-082](pm-082-cdn-public-delivery/spec.md) | Propuesto | Configurar el CDN de contenido público |
-| T095 | Nueva | [pm-083](pm-083-infrastructure-teardown/spec.md) | Propuesto | Definir y probar el procedimiento de teardown |
-| T096 | Nueva | [pm-084](pm-084-cloud-deployment-acceptance/spec.md) | Propuesto | Ejecutar la aceptación del despliegue cloud |
+| T095 | Nueva | [pm-083](pm-083-infrastructure-teardown/spec.md) | En progreso | Definir y probar el procedimiento de teardown |
+| T096 | Nueva | [pm-084](pm-084-cloud-deployment-acceptance/spec.md) | En progreso | Ejecutar la aceptación del despliegue cloud |
 | T097 | Nueva | [pm-017](pm-017-trusted-proxy-forwarded-headers/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana) | Verificar el rechazo de cabeceras reenviadas de proxies no confiables |
 | T098 | Nueva | [pm-028](pm-028-token-revocation-redis/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad) | Ligar el access token a la sesión (claim `sid`) y revocar por sesión en Redis Auth |
 | T099 | Nueva | [pm-031](pm-031-refresh-token-rotation/spec.md) | Cerrado y aprobado (2026-11-08, aprobación humana; sin revisión independiente de seguridad) | Ventana de gracia del refresh ante solicitudes concurrentes o reintentos |
@@ -340,7 +341,7 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T126 | Nueva | [pm-108](pm-108-business-location-update/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Actualizar la ubicación del negocio |
 | T127 | Nueva | [pm-109](pm-109-business-profile-update/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Actualizar los datos del negocio propio |
 | T128 | Nueva | [pm-110](pm-110-business-delete/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Dar de baja el negocio propio |
-| T129 | Nueva | [pm-111](pm-111-business-photo-public-storage/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Guardar la foto pública del negocio en Blob |
+| T129 | Nueva | [pm-111](pm-111-business-photo-public-storage/spec.md) | Cerrado y aprobado (2026-11-17, aprobación humana en el chat, sin revisión independiente) | Guardar la foto pública del negocio en Blob |
 | T130 | Nueva | [pm-112](pm-112-service-create/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Crear un servicio del negocio |
 | T131 | Nueva | [pm-113](pm-113-service-list-own/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Listar los servicios del negocio propio |
 | T132 | Nueva | [pm-114](pm-114-service-update/spec.md) | Verificado (2026-11-10; revisión independiente sin hallazgos bloqueantes y aprobación humana en el chat) | Editar un servicio del negocio propio |
@@ -375,28 +376,29 @@ Un Spec solo puede iniciarse cuando sus dependencias están completas. Dentro de
 | T161 | Nueva | [pm-143](pm-143-chat-conversation-open/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Abrir la conversación de un seguimiento |
 | T162 | Nueva | [pm-144](pm-144-chat-send-message/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Enviar un mensaje de texto |
 | T163 | Nueva | [pm-145](pm-145-chat-list-messages/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Listar los mensajes de una conversación |
-| T164 | Nueva | [pm-146](pm-146-chat-photo-message/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Enviar una foto en el chat |
+| T164 | Nueva | [pm-146](pm-146-chat-photo-message/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Enviar una foto en el chat |
 | T165 | Nueva | [pm-147](pm-147-chat-close-reopen/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Cerrar y reabrir la conversación |
 | T166 | Nueva | [pm-148](pm-148-chat-conversation-list/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Listar las conversaciones propias |
 | T167 | Nueva | [pm-149](pm-149-chat-read-state/spec.md) | Verificado (2026-11-10; aprobación humana en el chat; sin revisión independiente de este bloque) | Llevar el estado de lectura del chat |
-| T168 | Nueva | [pm-150](pm-150-chat-realtime-channel/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Entregar los mensajes en tiempo real |
-| T169 | Nueva | [pm-151](pm-151-device-token-register/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Registrar el dispositivo para recibir avisos |
-| T170 | Nueva | [pm-152](pm-152-device-token-unregister/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Quitar el dispositivo al cerrar sesión |
-| T171 | Nueva | [pm-153](pm-153-push-provider-adapter/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Implementar el puerto y el adaptador de notificaciones push |
-| T172 | Nueva | [pm-154](pm-154-reminder-generation/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Calcular los recordatorios de vacunas y desparasitaciones |
-| T173 | Nueva | [pm-155](pm-155-reminder-dispatch/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Enviar los recordatorios vencidos |
-| T174 | Nueva | [pm-156](pm-156-reminder-list/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Listar los avisos de las mascotas |
-| T175 | Nueva | [pm-157](pm-157-notification-settings/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Guardar los ajustes de notificación |
-| T176 | Nueva | [pm-158](pm-158-followup-change-push/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Avisar al dueño de cambios en el seguimiento |
-| T177 | Nueva | [pm-159](pm-159-chat-message-push/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Avisar al otro participante de un mensaje nuevo |
-| T178 | Nueva | [pm-160](pm-160-review-reminder-push/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Avisar un día antes de la revisión |
-| T179 | Nueva | [pm-161](pm-161-account-delete-request/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Eliminar la cuenta con confirmación de contraseña |
-| T180 | Nueva | [pm-162](pm-162-account-delete-user-data/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Borrar los datos de mascotas al eliminar la cuenta |
-| T181 | Nueva | [pm-163](pm-163-account-delete-business-data/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Borrar el negocio al eliminar la cuenta |
-| T182 | Nueva | [pm-164](pm-164-account-deletion-web-request/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Solicitar la eliminación de la cuenta desde la web |
-| T183 | Nueva | [pm-165](pm-165-account-deletion-web-confirm/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Confirmar la eliminación de la cuenta desde la web |
-| T184 | Nueva | [pm-166](pm-166-openapi-contract-artifact/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Publicar el contrato OpenAPI como artefacto de CI |
-| T185 | Nueva | [pm-167](pm-167-integration-environment-flow/spec.md) | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Documentar el flujo del entorno de integración con la app |
+| T168 | Nueva | [pm-150](pm-150-chat-realtime-channel/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Entregar los mensajes en tiempo real |
+| T169 | Nueva | [pm-151](pm-151-device-token-register/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Registrar el dispositivo para recibir avisos |
+| T170 | Nueva | [pm-152](pm-152-device-token-unregister/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Quitar el dispositivo al cerrar sesión |
+| T171 | Nueva | [pm-153](pm-153-push-provider-adapter/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Implementar el puerto y el adaptador de notificaciones push |
+| T172 | Nueva | [pm-154](pm-154-reminder-generation/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Calcular los recordatorios de vacunas y desparasitaciones |
+| T173 | Nueva | [pm-155](pm-155-reminder-dispatch/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Enviar los recordatorios vencidos |
+| T174 | Nueva | [pm-156](pm-156-reminder-list/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Listar los avisos de las mascotas |
+| T175 | Nueva | [pm-157](pm-157-notification-settings/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Guardar los ajustes de notificación |
+| T176 | Nueva | [pm-158](pm-158-followup-change-push/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Avisar al dueño de cambios en el seguimiento |
+| T177 | Nueva | [pm-159](pm-159-chat-message-push/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Avisar al otro participante de un mensaje nuevo |
+| T178 | Nueva | [pm-160](pm-160-review-reminder-push/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Avisar un día antes de la revisión |
+| T179 | Nueva | [pm-161](pm-161-account-delete-request/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Eliminar la cuenta con confirmación de contraseña |
+| T180 | Nueva | [pm-162](pm-162-account-delete-user-data/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Borrar los datos de mascotas al eliminar la cuenta |
+| T181 | Nueva | [pm-163](pm-163-account-delete-business-data/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Borrar el negocio al eliminar la cuenta |
+| T182 | Nueva | [pm-164](pm-164-account-deletion-web-request/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Solicitar la eliminación de la cuenta desde la web |
+| T183 | Nueva | [pm-165](pm-165-account-deletion-web-confirm/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Confirmar la eliminación de la cuenta desde la web |
+| T184 | Nueva | [pm-166](pm-166-openapi-contract-artifact/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Publicar el contrato OpenAPI como artefacto de CI |
+| T185 | Nueva | [pm-167](pm-167-integration-environment-flow/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Documentar el flujo del entorno de integración con la app |
+| T186 | Nueva | [pm-168](pm-168-business-get-own/spec.md) | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; ver Memoria.md) | Consultar el negocio propio |
 
 ## Primer hito
 
@@ -464,3 +466,6 @@ Los cuatro endpoints de autenticación y los siete endpoints funcionales (11 en 
 - **2026-11-10 — Implementación de T134 a T144, T146 y T147** (mapa público, autorización de acceso, escaneo, ficha básica y registro de escaneos: `pm-116` a `pm-126`, `pm-128` y `pm-129`): código, pruebas, `plan.md` y `checklists/gates.md`. Quedan «Implementada; pendiente de revisión independiente y aprobación humana de cierre». **T145 (`pm-127`, ficha completa de la veterinaria) no se implementó**: depende de las consultas veterinarias (`pm-133`, T151).
 - **2026-11-10 — Implementación de T148 a T163 y T165 a T167** (mascotas atendidas, consultas con receta, vacunas y desparasitaciones de la veterinaria, historial, seguimiento y chat de texto: `pm-130` a `pm-145`, `pm-147` a `pm-149`): código, pruebas, `plan.md` y `checklists/gates.md`. Quedan «Implementada; pendiente de revisión independiente y aprobación humana de cierre». **T164 (`pm-146`, foto en el chat) no se implementó** (depende de Blob, sin aprobar) y **T168 (`pm-150`, tiempo real) tampoco**: su `plan.md` evalúa el costo y recomienda el reemplazo por la consulta al abrir (`pm-150#CA-04`), que espera la decisión del usuario.
 - **2026-11-10 — Implementación de T145** (ficha completa de la veterinaria, `pm-127`): `scans/resolve` añade a la ficha básica, solo para una veterinaria, los grupos que alguna autorización vigente permite (vacunas, desparasitaciones, peso y consultas con su receta; hasta 50 por grupo), de solo lectura. Queda «Implementada; pendiente de revisión independiente y aprobación humana de cierre».
+- **2026-11-18 — Nuevo Spec `pm-168` y Task `T186`** (consulta del negocio propio, `GET /api/v1/businesses/get`): cubre el hueco de RF-30/31 detectado al revisar el alcance (la sesión solo informa el tipo y `BusinessResponse` solo lo devuelven `create` y `update`). Estado «Propuesto»; pendiente de aprobación humana, plan y gates.
+- **2026-11-18 — T067 (pm-055):** cierre aprobado por el usuario (sin revisión independiente) tras crear el ruleset de ramas protegidas en GitHub; pm-055 pasa a `Cerrado`. El agente no verificó la configuración en GitHub.
+- **2026-11-18 — Registro retrospectivo de pm-065 a pm-078, pm-082, pm-083 y pm-084 (T077 a T090, T094 a T096):** la infraestructura Terraform, los workflows de infra y CD, ACR, Redis, Atlas y las alertas ya existían sin registro SDD. Se crean `plan.md` y `checklists/gates.md` de cada Spec con evidencia por criterio (solo revisión estática) y las razones para no aprobar; los Specs aprobados pasan a `En progreso` y pm-070, pm-071 y pm-082 siguen `Propuesto` (sin aprobación humana). Ninguno se cierra.

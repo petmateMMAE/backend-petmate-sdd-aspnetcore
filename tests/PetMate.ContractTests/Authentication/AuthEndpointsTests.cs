@@ -368,6 +368,11 @@ public class AuthFlowFactory : IsolatedApiFactory
         Followups = new InMemoryFollowupRepository();
         Conversations = new InMemoryConversationRepository();
         Messages = new InMemoryMessageRepository();
+        Devices = new InMemoryDeviceRepository();
+        Push = new FakePushSender();
+        AccountDeletions = new InMemoryAccountDeletionTokenRepository();
+        Reminders = new InMemoryReminderRepository();
+        NotificationSettings = new InMemoryNotificationSettingsRepository();
         BusinessServices = new InMemoryBusinessServiceRepository();
         Email = new FakeEmailSender();
         Throttle = new InMemoryAuthAttemptThrottle(Clock);
@@ -441,6 +446,16 @@ public class AuthFlowFactory : IsolatedApiFactory
 
     public InMemoryFollowupRepository Followups { get; }
 
+    public InMemoryDeviceRepository Devices { get; }
+
+    public FakePushSender Push { get; }
+
+    public InMemoryAccountDeletionTokenRepository AccountDeletions { get; }
+
+    public InMemoryReminderRepository Reminders { get; }
+
+    public InMemoryNotificationSettingsRepository NotificationSettings { get; }
+
     public InMemoryConversationRepository Conversations { get; }
 
     public InMemoryMessageRepository Messages { get; }
@@ -477,6 +492,16 @@ public class AuthFlowFactory : IsolatedApiFactory
             services.AddSingleton<PetMate.Application.Access.IScanLogRepository>(ScanLogs);
             services.RemoveAll<PetMate.Application.Access.IConsultationRepository>();
             services.AddSingleton<PetMate.Application.Access.IConsultationRepository>(Consultations);
+            services.RemoveAll<PetMate.Application.Notifications.INotificationSettingsRepository>();
+            services.AddSingleton<PetMate.Application.Notifications.INotificationSettingsRepository>(NotificationSettings);
+            services.RemoveAll<PetMate.Application.Reminders.IReminderRepository>();
+            services.AddSingleton<PetMate.Application.Reminders.IReminderRepository>(Reminders);
+            services.RemoveAll<PetMate.Application.Accounts.IAccountDeletionTokenRepository>();
+            services.AddSingleton<PetMate.Application.Accounts.IAccountDeletionTokenRepository>(AccountDeletions);
+            services.RemoveAll<PetMate.Application.Push.IPushSender>();
+            services.AddSingleton<PetMate.Application.Push.IPushSender>(Push);
+            services.RemoveAll<PetMate.Application.Devices.IDeviceRepository>();
+            services.AddSingleton<PetMate.Application.Devices.IDeviceRepository>(Devices);
             services.RemoveAll<PetMate.Application.Followups.IFollowupRepository>();
             services.AddSingleton<PetMate.Application.Followups.IFollowupRepository>(Followups);
             services.RemoveAll<PetMate.Application.Followups.IConversationRepository>();

@@ -1,6 +1,6 @@
 # Spec — pm-055 ci-pull-request-pipeline
 
-> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L4 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: Cerrado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L4 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -34,7 +34,7 @@ Cada criterio se cita como `pm-055#CA-NN`. La columna final indica la Task que l
 |---|---|---|---|
 | T012 | Histórica | Cerrado y aprobado (2026-11-08, aprobación humana) | CI base DevSecOps |
 | T066 | Nueva | Cerrado y aprobado (2026-11-08, aprobación humana) | Crear el workflow de CI de pull request |
-| T067 | Nueva | Propuesto | Configurar ramas protegidas y checks requeridos |
+| T067 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana) | Configurar ramas protegidas y checks requeridos |
 
 Detalle en [task.md](task.md).
 

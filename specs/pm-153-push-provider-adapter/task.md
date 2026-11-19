@@ -11,7 +11,7 @@
 
 ### T171 — Implementar el puerto y el adaptador de notificaciones push
 - **Tipo:** Nueva
-- **Estado:** Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md)
+- **Estado:** Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md)
 - **Spec principal:** pm-153
 - **Criterios propios:** pm-153#CA-01, pm-153#CA-02, pm-153#CA-03, pm-153#CA-04
 - **Verificar:** pruebas unitarias, de contrato y de seguridad aplicables, más la evidencia reproducible que defina el `plan.md` del Spec.

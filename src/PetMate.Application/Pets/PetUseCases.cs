@@ -134,7 +134,8 @@ public sealed class DeleteMyPetHandler(
     Followups.IFollowupRepository followups,
     Followups.IConversationRepository conversations,
     Followups.IMessageRepository messages,
-    Images.IImageStorage images) : IRequestHandler<DeleteMyPetCommand, bool>
+    Images.IImageStorage images,
+    Reminders.IReminderRepository reminders) : IRequestHandler<DeleteMyPetCommand, bool>
 {
     public async Task<bool> Handle(DeleteMyPetCommand request, CancellationToken cancellationToken)
     {
@@ -150,12 +151,19 @@ public sealed class DeleteMyPetHandler(
             await images.Delete(Images.ImageContainer.PetPhotos, photoKey, cancellationToken).ConfigureAwait(false);
         }
 
+        await reminders.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
         await vaccines.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
         await dewormings.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
         await weights.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
         await allergies.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
         await consultations.DeleteByPet(request.PetId, request.OwnerId, cancellationToken).ConfigureAwait(false);
         var conversationIds = await conversations.IdsByPet(request.PetId, cancellationToken).ConfigureAwait(false);
+        // Las fotos del chat se borran con la conversación (pm-146#CA-03); el borrado del blob es idempotente.
+        foreach (var chatPhotoKey in await messages.PhotoKeysByConversations(conversationIds, cancellationToken).ConfigureAwait(false))
+        {
+            await images.Delete(Images.ImageContainer.ChatPhotos, chatPhotoKey, cancellationToken).ConfigureAwait(false);
+        }
+
         await messages.DeleteByConversations(conversationIds, cancellationToken).ConfigureAwait(false);
         await conversations.DeleteByPet(request.PetId, cancellationToken).ConfigureAwait(false);
         await followups.DeleteByPet(request.PetId, cancellationToken).ConfigureAwait(false);

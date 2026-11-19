@@ -1,6 +1,6 @@
 # Spec — pm-073 public-https-endpoint
 
-> Estado: Aprobado | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L9 (los números identifican, no ordenan) | Migrado el 2026-11-05
+> Estado: En progreso | Constitución: `.specify/memory/constitution.md` v1.1.0 | Nivel de ejecución: L9 (los números identifican, no ordenan) | Migrado el 2026-11-05
 
 ## 1. Objetivo
 
@@ -34,7 +34,7 @@ Cada criterio se cita como `pm-073#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T085 | Nueva | Propuesto | Publicar el endpoint HTTPS |
+| T085 | Nueva | En progreso | Publicar el endpoint HTTPS |
 
 Detalle en [task.md](task.md).
 

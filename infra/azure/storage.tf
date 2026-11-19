@@ -28,6 +28,18 @@ resource "azurerm_storage_account" "images" {
       days = 7
     }
   }
+
+  # Esta cuenta guarda fotos de mascotas y de negocios subidas por los usuarios:
+  # son datos que no se pueden regenerar. Sin esta proteccion, un
+  # `terraform destroy` las borraria todas junto con el resto del entorno
+  # (pm-083#CA-03). Terraform rechaza el destroy mientras esta linea exista.
+  #
+  # Para desmantelar el entorno a proposito hay que, en este orden: respaldar
+  # las fotos, quitar esta proteccion en un commit aparte y recien entonces
+  # destruir.
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "azurerm_storage_container" "pet_photos" {

@@ -158,6 +158,16 @@ public sealed class InMemoryUserRepository : IUserRepository
 
     public Task UpdatePasswordHash(User user, CancellationToken cancellationToken) => Task.CompletedTask;
 
+    public Task Delete(Guid userId, CancellationToken cancellationToken)
+    {
+        if (byId.TryRemove(userId, out var user))
+        {
+            byEmail.TryRemove(user.Email.Value, out _);
+        }
+
+        return Task.CompletedTask;
+    }
+
     /// <summary>El usuario en memoria es la misma instancia: el cambio ya quedó aplicado.</summary>
     public Task UpdateProfile(User user, CancellationToken cancellationToken) => Task.CompletedTask;
 }
@@ -250,13 +260,17 @@ public sealed class InMemoryConversationRepository : PetMate.Application.Followu
 
         public long BusinessRead { get; set; }
 
+        public DateTime? OwnerSeen { get; set; }
+
+        public DateTime? BusinessSeen { get; set; }
+
         public bool Closed { get; set; }
 
         public DateTime UpdatedAt { get; set; } = initial.UpdatedAtUtc;
     }
 
     private static PetMate.Domain.Chat.Conversation Snapshot(ConversationState s)
-        => PetMate.Domain.Chat.Conversation.Restore(s.Value.Id, s.Value.FollowupId, s.Value.PetId, s.Value.OwnerAccountId, s.Value.BusinessId, s.Value.BusinessAccountId, s.Closed, s.LastSeq, s.OwnerRead, s.BusinessRead, s.Value.CreatedAtUtc, s.UpdatedAt);
+        => PetMate.Domain.Chat.Conversation.Restore(s.Value.Id, s.Value.FollowupId, s.Value.PetId, s.Value.OwnerAccountId, s.Value.BusinessId, s.Value.BusinessAccountId, s.Closed, s.LastSeq, s.OwnerRead, s.BusinessRead, s.Value.CreatedAtUtc, s.UpdatedAt, s.OwnerSeen, s.BusinessSeen);
 
     public Task<bool> TryAdd(PetMate.Domain.Chat.Conversation conversation, CancellationToken cancellationToken)
     {
@@ -315,6 +329,24 @@ public sealed class InMemoryConversationRepository : PetMate.Application.Followu
             state.UpdatedAt = nowUtc;
             return Task.FromResult(state.LastSeq);
         }
+    }
+
+    public Task Touch(Guid conversationId, bool businessSide, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            var state = items.First(s => s.Value.Id == conversationId);
+            if (businessSide)
+            {
+                state.BusinessSeen = nowUtc;
+            }
+            else
+            {
+                state.OwnerSeen = nowUtc;
+            }
+        }
+
+        return Task.CompletedTask;
     }
 
     public Task MarkRead(Guid conversationId, bool businessSide, long upToSeq, CancellationToken cancellationToken)
@@ -413,6 +445,9 @@ public sealed class InMemoryMessageRepository : PetMate.Application.Followups.IM
     public Task<long> CountUnread(Guid conversationId, long afterSeq, Guid exceptSender, CancellationToken cancellationToken)
         => Task.FromResult((long)All.Count(m => m.ConversationId == conversationId && m.Seq > afterSeq && m.SenderAccountId != exceptSender));
 
+    public Task<IReadOnlyList<string>> PhotoKeysByConversations(IReadOnlyCollection<Guid> conversationIds, CancellationToken cancellationToken)
+        => Task.FromResult<IReadOnlyList<string>>(All.Where(m => conversationIds.Contains(m.ConversationId) && m.PhotoObjectKey is not null).Select(m => m.PhotoObjectKey!).ToArray());
+
     public Task<long> DeleteByConversations(IReadOnlyCollection<Guid> conversationIds, CancellationToken cancellationToken)
     {
         lock (items)
@@ -477,6 +512,14 @@ public sealed class InMemoryAccessGrantRepository : PetMate.Application.Access.I
             return Task.FromResult((long)grants.RemoveAll(g => g.PetId == petId && g.OwnerId == ownerId));
         }
     }
+
+    public Task<long> DeleteByBusiness(Guid businessId, CancellationToken cancellationToken)
+    {
+        lock (grants)
+        {
+            return Task.FromResult((long)grants.RemoveAll(g => g.BusinessId == businessId));
+        }
+    }
 }
 
 /// <summary>Registro de escaneos en memoria.</summary>
@@ -516,6 +559,14 @@ public sealed class InMemoryScanLogRepository : PetMate.Application.Access.IScan
         lock (logs)
         {
             return Task.FromResult((long)logs.RemoveAll(l => l.PetId == petId));
+        }
+    }
+
+    public Task<long> DeleteByBusiness(Guid businessId, CancellationToken cancellationToken)
+    {
+        lock (logs)
+        {
+            return Task.FromResult((long)logs.RemoveAll(l => l.BusinessId == businessId));
         }
     }
 }
@@ -647,6 +698,23 @@ public sealed class FakeEmailSender : PetMate.Application.Authentication.IEmailS
         }
     }
 
+    public List<(string To, string Token)> DeletionSent { get; } = [];
+
+    public Task<bool> SendAccountDeletion(string toEmail, string deletionToken, CancellationToken cancellationToken)
+    {
+        if (Throws)
+        {
+            throw new InvalidOperationException("proveedor caído");
+        }
+
+        lock (sent)
+        {
+            DeletionSent.Add((toEmail, deletionToken));
+        }
+
+        return Task.FromResult(Succeeds);
+    }
+
     public Task<bool> SendPasswordReset(string toEmail, string resetToken, CancellationToken cancellationToken)
     {
         if (Throws)
@@ -700,6 +768,19 @@ public sealed class InMemoryPasswordResetRepository : PetMate.Application.Authen
 
     public bool Throws { get; set; }
 
+    public Task DeleteByUser(Guid userId, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            foreach (var key in byHash.Where(e => e.Value.Token.UserId == userId).Select(e => e.Key).ToArray())
+            {
+                byHash.Remove(key);
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
     public Task InvalidateAllForUser(Guid userId, DateTime nowUtc, CancellationToken cancellationToken)
     {
         if (Throws)
@@ -747,6 +828,35 @@ public sealed class InMemorySessionRepository : ISessionRepository
             lock (gate)
             {
                 return tokensById.Count;
+            }
+        }
+    }
+
+    public Task DeleteAllForUser(Guid userId, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            foreach (var id in sessions.Values.Where(s => s.UserId == userId).Select(s => s.Id).ToArray())
+            {
+                sessions.Remove(id);
+                foreach (var token in tokensById.Values.Where(t => t.SessionId == id).ToArray())
+                {
+                    tokensById.Remove(token.Id);
+                    tokensByHash.Remove(token.TokenHash.Value);
+                }
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public int SessionCount
+    {
+        get
+        {
+            lock (gate)
+            {
+                return sessions.Count;
             }
         }
     }
@@ -1119,4 +1229,309 @@ public sealed class AuthTestHarness
     public RefreshHandler Refresh { get; }
 
     public LogoutHandler Logout { get; }
+}
+
+/// <summary>Tokens de dispositivo en memoria (pm-151): el token es único y puede cambiar de cuenta.</summary>
+public sealed class InMemoryDeviceRepository : PetMate.Application.Devices.IDeviceRepository
+{
+    private readonly object gate = new();
+    private readonly Dictionary<string, Guid> ownerByToken = [];
+
+    public int CountFor(Guid userId)
+    {
+        lock (gate)
+        {
+            return ownerByToken.Values.Count(owner => owner == userId);
+        }
+    }
+
+    public Guid? OwnerOf(string token)
+    {
+        lock (gate)
+        {
+            return ownerByToken.TryGetValue(token, out var owner) ? owner : null;
+        }
+    }
+
+    public Task<IReadOnlyList<string>> ListTokens(Guid userId, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            return Task.FromResult<IReadOnlyList<string>>(ownerByToken.Where(e => e.Value == userId).Select(e => e.Key).ToArray());
+        }
+    }
+
+    public Task DeleteByUser(Guid userId, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            foreach (var token in ownerByToken.Where(e => e.Value == userId).Select(e => e.Key).ToArray())
+            {
+                ownerByToken.Remove(token);
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task Unregister(Guid userId, string token, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            if (ownerByToken.TryGetValue(token, out var owner) && owner == userId)
+            {
+                ownerByToken.Remove(token);
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task<PetMate.Application.Devices.RegisterDeviceStatus> Register(Guid userId, string token, int maxPerUser, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            var owned = ownerByToken.TryGetValue(token, out var owner) && owner == userId;
+            if (!owned && ownerByToken.Values.Count(o => o == userId) >= maxPerUser)
+            {
+                return Task.FromResult(PetMate.Application.Devices.RegisterDeviceStatus.LimitReached);
+            }
+
+            ownerByToken[token] = userId;
+            return Task.FromResult(PetMate.Application.Devices.RegisterDeviceStatus.Registered);
+        }
+    }
+}
+
+/// <summary>Preferencias de aviso en memoria (pm-157).</summary>
+public sealed class InMemoryNotificationSettingsRepository : PetMate.Application.Notifications.INotificationSettingsRepository
+{
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<Guid, PetMate.Application.Notifications.NotificationSettings> items = new();
+
+    public Task<PetMate.Application.Notifications.NotificationSettings?> Find(Guid userId, CancellationToken cancellationToken)
+        => Task.FromResult(items.TryGetValue(userId, out var value) ? value : null);
+
+    public bool Has(Guid userId) => items.ContainsKey(userId);
+
+    public Task Delete(Guid userId, CancellationToken cancellationToken)
+    {
+        items.TryRemove(userId, out _);
+        return Task.CompletedTask;
+    }
+
+    public Task Save(PetMate.Application.Notifications.NotificationSettings settings, CancellationToken cancellationToken)
+    {
+        items[settings.UserId] = settings;
+        return Task.CompletedTask;
+    }
+}
+
+/// <summary>Recordatorios en memoria (pm-154): la clave es el registro de origen, como en Atlas.</summary>
+public sealed class InMemoryReminderRepository : PetMate.Application.Reminders.IReminderRepository
+{
+    private readonly object gate = new();
+    private readonly Dictionary<Guid, PetMate.Application.Reminders.Reminder> items = [];
+
+    public IReadOnlyCollection<PetMate.Application.Reminders.Reminder> All
+    {
+        get
+        {
+            lock (gate)
+            {
+                return [.. items.Values];
+            }
+        }
+    }
+
+    public Task Upsert(PetMate.Application.Reminders.Reminder reminder, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            // Conserva el estado de lectura y de envío, igual que el repositorio de producción.
+            items[reminder.SourceId] = items.TryGetValue(reminder.SourceId, out var existing)
+                ? reminder with { ReadAtUtc = existing.ReadAtUtc, SentAtUtc = existing.DueOn == reminder.DueOn ? existing.SentAtUtc : null, CreatedAtUtc = existing.CreatedAtUtc }
+                : reminder;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteBySource(Guid sourceId, Guid ownerId, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            if (items.TryGetValue(sourceId, out var r) && r.OwnerId == ownerId)
+            {
+                items.Remove(sourceId);
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task<long> DeleteByPet(Guid petId, Guid ownerId, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            var ids = items.Values.Where(r => r.PetId == petId && r.OwnerId == ownerId).Select(r => r.SourceId).ToArray();
+            foreach (var id in ids)
+            {
+                items.Remove(id);
+            }
+
+            return Task.FromResult((long)ids.Length);
+        }
+    }
+
+    public Task<bool> MarkRead(Guid sourceId, Guid ownerId, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            if (!items.TryGetValue(sourceId, out var r) || r.OwnerId != ownerId)
+            {
+                return Task.FromResult(false);
+            }
+
+            items[sourceId] = r with { ReadAtUtc = r.ReadAtUtc ?? nowUtc };
+            return Task.FromResult(true);
+        }
+    }
+
+    public Task<IReadOnlyList<PetMate.Application.Reminders.Reminder>> ListUpcoming(Guid ownerId, DateOnly from, int skip, int take, CancellationToken cancellationToken)
+        => Task.FromResult<IReadOnlyList<PetMate.Application.Reminders.Reminder>>(All.Where(r => r.OwnerId == ownerId && r.DueOn >= from).OrderBy(r => r.DueOn).ThenBy(r => r.SourceId).Skip(skip).Take(take).ToArray());
+
+    public Task<long> CountUpcoming(Guid ownerId, DateOnly from, CancellationToken cancellationToken)
+        => Task.FromResult((long)All.Count(r => r.OwnerId == ownerId && r.DueOn >= from));
+
+    public Task<PetMate.Application.Reminders.Reminder?> ClaimNextDue(DateOnly today, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            var next = items.Values.Where(r => r.RemindOn <= today && r.DueOn >= today && r.SentAtUtc is null).OrderBy(r => r.RemindOn).FirstOrDefault();
+            if (next is null)
+            {
+                return Task.FromResult<PetMate.Application.Reminders.Reminder?>(null);
+            }
+
+            var claimed = next with { SentAtUtc = nowUtc };
+            items[next.SourceId] = claimed;
+            return Task.FromResult<PetMate.Application.Reminders.Reminder?>(claimed);
+        }
+    }
+
+    public Task Release(Guid sourceId, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            if (items.TryGetValue(sourceId, out var r))
+            {
+                items[sourceId] = r with { SentAtUtc = null };
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+}
+
+/// <summary>Tokens de confirmación de eliminación en memoria (pm-164), con consumo atómico.</summary>
+public sealed class InMemoryAccountDeletionTokenRepository : PetMate.Application.Accounts.IAccountDeletionTokenRepository
+{
+    private readonly object gate = new();
+    private readonly Dictionary<string, (PetMate.Domain.Users.PasswordResetToken Token, bool Used)> byHash = [];
+
+    public int Count
+    {
+        get
+        {
+            lock (gate)
+            {
+                return byHash.Count;
+            }
+        }
+    }
+
+    public Task Add(PetMate.Domain.Users.PasswordResetToken token, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            byHash[token.TokenHash.Value] = (token, false);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task<Guid?> TryConsume(PetMate.Domain.Sessions.RefreshTokenHash tokenHash, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            if (byHash.TryGetValue(tokenHash.Value, out var entry) && !entry.Used && entry.Token.ExpiresAtUtc > nowUtc)
+            {
+                byHash[tokenHash.Value] = (entry.Token, true);
+                return Task.FromResult<Guid?>(entry.Token.UserId);
+            }
+
+            return Task.FromResult<Guid?>(null);
+        }
+    }
+
+    public Task InvalidateAllForUser(Guid userId, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            foreach (var key in byHash.Where(e => e.Value.Token.UserId == userId && !e.Value.Used).Select(e => e.Key).ToArray())
+            {
+                byHash[key] = (byHash[key].Token, true);
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteByUser(Guid userId, CancellationToken cancellationToken)
+    {
+        lock (gate)
+        {
+            foreach (var key in byHash.Where(e => e.Value.Token.UserId == userId).Select(e => e.Key).ToArray())
+            {
+                byHash.Remove(key);
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+}
+
+/// <summary>Proveedor push falso (pm-153, pm-155): guarda los avisos y devuelve el resultado que se le indique por token.</summary>
+public sealed class FakePushSender : PetMate.Application.Push.IPushSender
+{
+    private readonly object gate = new();
+    private readonly List<(string Token, PetMate.Application.Push.PushMessage Message)> sent = [];
+
+    public bool IsEnabled { get; set; } = true;
+
+    public Dictionary<string, PetMate.Application.Push.PushResult> Results { get; } = [];
+
+    public PetMate.Application.Push.PushResult Default { get; set; } = PetMate.Application.Push.PushResult.Sent;
+
+    public IReadOnlyList<(string Token, PetMate.Application.Push.PushMessage Message)> Sent
+    {
+        get
+        {
+            lock (gate)
+            {
+                return [.. sent];
+            }
+        }
+    }
+
+    public async Task<PetMate.Application.Push.PushResult> Send(string deviceToken, PetMate.Application.Push.PushMessage message, CancellationToken cancellationToken)
+    {
+        await Task.Yield();
+        lock (gate)
+        {
+            sent.Add((deviceToken, message));
+        }
+
+        return Results.TryGetValue(deviceToken, out var result) ? result : Default;
+    }
 }

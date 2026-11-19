@@ -30,7 +30,7 @@ Cada criterio se cita como `pm-156#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T174 | Nueva | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Listar los avisos de las mascotas |
+| T174 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Listar los avisos de las mascotas |
 
 Detalle en [task.md](task.md).
 

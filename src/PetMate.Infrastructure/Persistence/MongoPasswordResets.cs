@@ -42,10 +42,14 @@ public sealed class MongoPasswordResetRepository : IPasswordResetRepository
     private readonly IMongoCollection<PasswordResetDocument> resets;
 
     public MongoPasswordResetRepository(IMongoDatabase database, MongoCollectionNames names)
+        : this(database, (names ?? throw new ArgumentNullException(nameof(names))).PasswordResets)
+    {
+    }
+
+    internal MongoPasswordResetRepository(IMongoDatabase database, string collectionName)
     {
         ArgumentNullException.ThrowIfNull(database);
-        ArgumentNullException.ThrowIfNull(names);
-        resets = database.GetCollection<PasswordResetDocument>(names.PasswordResets);
+        resets = database.GetCollection<PasswordResetDocument>(collectionName);
     }
 
     public async Task Add(PasswordResetToken token, CancellationToken cancellationToken)
@@ -86,6 +90,9 @@ public sealed class MongoPasswordResetRepository : IPasswordResetRepository
         await Execute(() => resets.UpdateManyAsync(filter, Builders<PasswordResetDocument>.Update.Set(item => item.UsedAtUtc, nowUtc), cancellationToken: cancellationToken)).ConfigureAwait(false);
     }
 
+    public async Task DeleteByUser(Guid userId, CancellationToken cancellationToken)
+        => await Execute(() => resets.DeleteManyAsync(Builders<PasswordResetDocument>.Filter.Eq(item => item.UserId, userId), cancellationToken)).ConfigureAwait(false);
+
     private static async Task Execute(Func<Task> action)
     {
         try
@@ -109,4 +116,27 @@ public sealed class MongoPasswordResetRepository : IPasswordResetRepository
             throw new PersistenceUnavailableException(exception);
         }
     }
+}
+
+/// <summary>
+/// Tokens de confirmación de eliminación de cuenta (pm-164): misma mecánica que los de restablecimiento (solo hash, un solo uso,
+/// TTL) en su propia colección, de modo que un token de un flujo nunca sirve en el otro.
+/// </summary>
+public sealed class MongoAccountDeletionTokenRepository : PetMate.Application.Accounts.IAccountDeletionTokenRepository
+{
+    private readonly MongoPasswordResetRepository inner;
+
+    public MongoAccountDeletionTokenRepository(IMongoDatabase database, MongoCollectionNames names)
+    {
+        ArgumentNullException.ThrowIfNull(names);
+        inner = new MongoPasswordResetRepository(database, names.AccountDeletionTokens);
+    }
+
+    public Task Add(PasswordResetToken token, CancellationToken cancellationToken) => inner.Add(token, cancellationToken);
+
+    public Task<Guid?> TryConsume(RefreshTokenHash tokenHash, DateTime nowUtc, CancellationToken cancellationToken) => inner.TryConsume(tokenHash, nowUtc, cancellationToken);
+
+    public Task InvalidateAllForUser(Guid userId, DateTime nowUtc, CancellationToken cancellationToken) => inner.InvalidateAllForUser(userId, nowUtc, cancellationToken);
+
+    public Task DeleteByUser(Guid userId, CancellationToken cancellationToken) => inner.DeleteByUser(userId, cancellationToken);
 }

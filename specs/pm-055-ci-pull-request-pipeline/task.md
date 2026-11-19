@@ -29,11 +29,11 @@
 
 ### T067 — Configurar ramas protegidas y checks requeridos
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** Cerrado y aprobado (2026-11-18, aprobación humana) — sin revisión independiente
 - **Spec principal:** pm-055
 - **Criterios propios:** pm-055#CA-03, pm-055#CA-04
-- **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.
-- **Fases (sin completar):** [ ] Implementación · [ ] Pruebas · [ ] Revisión independiente · [ ] Documentación · [ ] Aprobación humana
+- **Verificar:** evidencia en [checklists/gates.md](checklists/gates.md): ruleset de GitHub creado por el usuario; no verificado por el agente.
+- **Fases:** [x] Implementación (ruleset en GitHub, hecha por el usuario) · [ ] Pruebas · [ ] Revisión independiente (no realizada) · [x] Documentación · [x] Aprobación humana (2026-11-18)
 - **No hacer:** cerrar la Task sin aprobación humana.
 
 ## Definition of Done

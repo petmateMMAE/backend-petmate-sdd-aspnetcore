@@ -296,6 +296,14 @@ jobs:
           - auth-reset-password
           - users-me-get
           - users-me-update
+          - users-me-delete
+          - account-deletion-request
+          - account-deletion-confirm
+          - devices-register
+          - reminders-get-all
+          - devices-unregister
+          - notification-settings-get
+          - notification-settings-update
           - health-live
           - health-ready
           - technical-mediator-probe
@@ -343,6 +351,8 @@ jobs:
           - followups-get-by-consultation
           - followups-get-all
           - messages-send
+          - messages-send-photo
+          - messages-get-photo-url
           - messages-get-all
           - conversations-get-all
           - conversations-mark-read
@@ -392,6 +402,9 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Pruebas de contrato que no pertenecen a un solo endpoint
+        # PETMATE_OPENAPI_OUT: una de estas pruebas exporta el documento OpenAPI de Development a esa ruta (pm-166).
+        env:
+          PETMATE_OPENAPI_OUT: openapi/openapi.json
         run: |
           dotnet test tests/PetMate.ContractTests -c Release \
             --filter "Endpoint=transversal" \
@@ -410,6 +423,16 @@ jobs:
           path: TestResults
           if-no-files-found: ignore
           retention-days: 7
+
+      # pm-166: el equipo móvil descarga el contrato de cada build. En Production OpenAPI y Scalar siguen ocultos (404).
+      - name: Documento OpenAPI (artefacto para el equipo móvil)
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: openapi
+          path: openapi/openapi.json
+          if-no-files-found: error
+          retention-days: 30
 
   integration-tests:
     name: "4 · Pruebas de integración (Atlas y Redis)"

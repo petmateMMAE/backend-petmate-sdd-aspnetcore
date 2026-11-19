@@ -153,6 +153,16 @@ internal sealed class ConversationDocument
     [BsonElement("updatedAtUtc")]
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime UpdatedAtUtc { get; set; }
+
+    [BsonElement("ownerSeenAtUtc")]
+    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
+    [BsonIgnoreIfNull]
+    public DateTime? OwnerSeenAtUtc { get; set; }
+
+    [BsonElement("businessSeenAtUtc")]
+    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
+    [BsonIgnoreIfNull]
+    public DateTime? BusinessSeenAtUtc { get; set; }
 }
 
 [BsonIgnoreExtraElements]
@@ -179,6 +189,10 @@ internal sealed class MessageDocument
 
     [BsonElement("text")]
     public string Text { get; set; } = string.Empty;
+
+    [BsonElement("photoObjectKey")]
+    [BsonIgnoreIfNull]
+    public string? PhotoObjectKey { get; set; }
 
     [BsonElement("createdAtUtc")]
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
@@ -236,10 +250,13 @@ internal static class VeterinaryMapping
         BusinessReadSeq = c.BusinessReadSeq,
         CreatedAtUtc = c.CreatedAtUtc,
         UpdatedAtUtc = c.UpdatedAtUtc,
+        OwnerSeenAtUtc = c.OwnerSeenAtUtc,
+        BusinessSeenAtUtc = c.BusinessSeenAtUtc,
     };
 
     public static Conversation ToDomain(ConversationDocument d) => Conversation.Restore(
-        d.Id, d.FollowupId, d.PetId, d.OwnerAccountId, d.BusinessId, d.BusinessAccountId, d.IsClosed, d.LastSeq, d.OwnerReadSeq, d.BusinessReadSeq, AsUtc(d.CreatedAtUtc), AsUtc(d.UpdatedAtUtc));
+        d.Id, d.FollowupId, d.PetId, d.OwnerAccountId, d.BusinessId, d.BusinessAccountId, d.IsClosed, d.LastSeq, d.OwnerReadSeq, d.BusinessReadSeq, AsUtc(d.CreatedAtUtc), AsUtc(d.UpdatedAtUtc),
+        d.OwnerSeenAtUtc is { } o ? AsUtc(o) : null, d.BusinessSeenAtUtc is { } b ? AsUtc(b) : null);
 
     public static MessageDocument ToDocument(Message m) => new()
     {
@@ -249,10 +266,11 @@ internal static class VeterinaryMapping
         Kind = (int)m.Kind,
         SenderAccountId = m.SenderAccountId,
         Text = m.Text,
+        PhotoObjectKey = m.PhotoObjectKey,
         CreatedAtUtc = m.CreatedAtUtc,
     };
 
-    public static Message ToDomain(MessageDocument d) => Message.Restore(d.Id, d.ConversationId, d.Seq, (MessageKind)d.Kind, d.SenderAccountId, d.Text, AsUtc(d.CreatedAtUtc));
+    public static Message ToDomain(MessageDocument d) => Message.Restore(d.Id, d.ConversationId, d.Seq, (MessageKind)d.Kind, d.SenderAccountId, d.Text, AsUtc(d.CreatedAtUtc), d.PhotoObjectKey);
 }
 
 /// <summary>Ejecuta operaciones de Atlas traduciendo los fallos a <see cref="PersistenceUnavailableException"/>.</summary>
@@ -476,6 +494,20 @@ public sealed class MongoConversationRepository : IConversationRepository
         return updated?.LastSeq ?? throw new PersistenceUnavailableException(new InvalidOperationException("Conversación inexistente."));
     }
 
+    public Task Touch(Guid conversationId, bool businessSide, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        // Solo escribe si la marca tiene más de SeenRefresh: la app consulta cada pocos segundos y no hace falta una escritura por consulta.
+        var stale = nowUtc - Conversation.SeenRefresh;
+        var builder = Builders<ConversationDocument>.Filter;
+        var filter = businessSide
+            ? builder.And(builder.Eq(d => d.Id, conversationId), builder.Or(builder.Eq(d => d.BusinessSeenAtUtc, null), builder.Lt(d => d.BusinessSeenAtUtc, stale)))
+            : builder.And(builder.Eq(d => d.Id, conversationId), builder.Or(builder.Eq(d => d.OwnerSeenAtUtc, null), builder.Lt(d => d.OwnerSeenAtUtc, stale)));
+        var update = businessSide
+            ? Builders<ConversationDocument>.Update.Set(d => d.BusinessSeenAtUtc, nowUtc)
+            : Builders<ConversationDocument>.Update.Set(d => d.OwnerSeenAtUtc, nowUtc);
+        return MongoCall.Run(() => conversations.UpdateOneAsync(filter, update, cancellationToken: cancellationToken));
+    }
+
     public Task MarkRead(Guid conversationId, bool businessSide, long upToSeq, CancellationToken cancellationToken)
     {
         var update = businessSide
@@ -539,6 +571,20 @@ public sealed class MongoMessageRepository : IMessageRepository
         var builder = Builders<MessageDocument>.Filter;
         var filter = builder.And(builder.Eq(d => d.ConversationId, conversationId), builder.Gt(d => d.Seq, afterSeq), builder.Ne(d => d.SenderAccountId, exceptSender));
         return MongoCall.Run(() => messages.CountDocumentsAsync(filter, cancellationToken: cancellationToken));
+    }
+
+    public async Task<IReadOnlyList<string>> PhotoKeysByConversations(IReadOnlyCollection<Guid> conversationIds, CancellationToken cancellationToken)
+    {
+        if (conversationIds.Count == 0)
+        {
+            return [];
+        }
+
+        var filter = Builders<MessageDocument>.Filter.And(
+            Builders<MessageDocument>.Filter.In(d => d.ConversationId, conversationIds),
+            Builders<MessageDocument>.Filter.Ne(d => d.PhotoObjectKey, null));
+        var keys = await MongoCall.Run(() => messages.Find(filter).Project(d => d.PhotoObjectKey!).ToListAsync(cancellationToken)).ConfigureAwait(false);
+        return keys;
     }
 
     public async Task<long> DeleteByConversations(IReadOnlyCollection<Guid> conversationIds, CancellationToken cancellationToken)

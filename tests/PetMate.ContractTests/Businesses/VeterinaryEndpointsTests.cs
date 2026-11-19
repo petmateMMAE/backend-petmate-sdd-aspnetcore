@@ -494,6 +494,196 @@ public sealed class VeterinaryEndpointsTests
         Assert.Equal(3, factory.Messages.All.Count);
     }
 
+    // ---------- Foto en el chat (pm-146) ----------
+
+    private static readonly byte[] ChatJpeg = [0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01, 0x02, 0x03];
+
+    private static async Task<HttpResponseMessage> SendPhoto(HttpClient client, string conversation, byte[] bytes)
+    {
+        using var content = new MultipartFormDataContent("limite-de-prueba");
+        using var file = new ByteArrayContent(bytes);
+        file.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+        content.Add(file, "file", "foto.jpg");
+        return await client.PostAsync($"/api/v1/messages/send-photo?conversationId={conversation}", content);
+    }
+
+    [Trait("Endpoint", "messages-send-photo")]
+    [Trait("Endpoint", "messages-get-photo-url")]
+    [Fact]
+    public async Task A_participant_sends_a_photo_and_only_the_two_participants_get_a_temporary_url()
+    {
+        var s = await Arrange();
+        using var factory = s.Factory;
+        using var owner = s.Owner;
+        using var vet = s.Vet;
+        using var intruder = await Account(factory, "intruso@example.com");
+        var conversation = await Conversation(vet, s.PetId);
+
+        using var sent = await SendPhoto(owner, conversation, ChatJpeg);
+        using var sentDoc = JsonDocument.Parse(await sent.Content.ReadAsStringAsync());
+        var messageId = sentDoc.RootElement.GetProperty("data").GetProperty("id").GetString();
+        using var seenByVet = await Send(vet, HttpMethod.Get, $"messages/get-photo-url?conversationId={conversation}&messageId={messageId}");
+        using var seenDoc = JsonDocument.Parse(await seenByVet.Content.ReadAsStringAsync());
+
+        Assert.Equal(HttpStatusCode.Created, sent.StatusCode);
+        Assert.True(sentDoc.RootElement.GetProperty("data").GetProperty("hasPhoto").GetBoolean());
+        Assert.Equal("Photo", sentDoc.RootElement.GetProperty("data").GetProperty("kind").GetString());
+        Assert.Equal(HttpStatusCode.OK, seenByVet.StatusCode);
+        Assert.Contains("sig=", seenDoc.RootElement.GetProperty("data").GetProperty("url").GetString(), StringComparison.Ordinal);
+        await AssertWrapper(await Send(intruder, HttpMethod.Get, $"messages/get-photo-url?conversationId={conversation}&messageId={messageId}"), HttpStatusCode.NotFound);
+        await AssertWrapper(await SendPhoto(intruder, conversation, ChatJpeg), HttpStatusCode.NotFound);
+        await AssertWrapper(await Send(factory.CreateClient(), HttpMethod.Get, $"messages/get-photo-url?conversationId={conversation}&messageId={messageId}"), HttpStatusCode.Unauthorized);
+        Assert.Single(factory.Images.Keys);
+    }
+
+    [Trait("Endpoint", "messages-send-photo")]
+    [Fact]
+    public async Task A_photo_over_one_megabyte_or_that_is_not_an_image_is_rejected_and_nothing_is_stored()
+    {
+        var s = await Arrange();
+        using var factory = s.Factory;
+        using var owner = s.Owner;
+        using var vet = s.Vet;
+        var conversation = await Conversation(vet, s.PetId);
+        var big = new byte[(1024 * 1024) + 1];
+        ChatJpeg.CopyTo(big, 0);
+
+        await AssertWrapper(await SendPhoto(owner, conversation, big), HttpStatusCode.RequestEntityTooLarge);
+        await AssertWrapper(await SendPhoto(owner, conversation, System.Text.Encoding.UTF8.GetBytes("MZ no soy una imagen")), HttpStatusCode.BadRequest);
+        await AssertWrapper(await SendPhoto(owner, Guid.Empty.ToString(), ChatJpeg), HttpStatusCode.BadRequest);
+
+        Assert.Empty(factory.Images.Keys);
+        Assert.DoesNotContain(factory.Messages.All, m => m.HasPhoto);
+    }
+
+    [Trait("Endpoint", "messages-send-photo")]
+    [Fact]
+    public async Task The_chat_photos_are_deleted_with_the_pet_and_its_conversations()
+    {
+        var s = await Arrange();
+        using var factory = s.Factory;
+        using var owner = s.Owner;
+        using var vet = s.Vet;
+        var conversation = await Conversation(vet, s.PetId);
+        await AssertWrapper(await SendPhoto(owner, conversation, ChatJpeg), HttpStatusCode.Created);
+        Assert.Single(factory.Images.Keys);
+
+        await AssertWrapper(await Send(owner, HttpMethod.Delete, $"pets/delete/{s.PetId}"), HttpStatusCode.OK);
+
+        Assert.Empty(factory.Images.Keys);
+        Assert.Empty(factory.Messages.All);
+    }
+
+    // ---------- Avisos push de seguimiento y chat (pm-158 a pm-160) ----------
+
+    private const string OwnerDevice = "token-del-dueno-0123456789abcdef";
+
+    private static async Task SetNotice(HttpClient client, string topic, bool value)
+    {
+        var all = new Dictionary<string, bool> { ["vaccines"] = true, ["reviews"] = true, ["chat"] = true, ["followups"] = true, [topic] = value };
+        var body = $"{{\"vaccines\":{all["vaccines"].ToString().ToLowerInvariant()},\"reviews\":{all["reviews"].ToString().ToLowerInvariant()},\"chat\":{all["chat"].ToString().ToLowerInvariant()},\"followups\":{all["followups"].ToString().ToLowerInvariant()},\"sound\":\"default\",\"reminderDaysBefore\":3}}";
+        await AssertWrapper(await Send(client, HttpMethod.Put, "notification-settings/update", body), HttpStatusCode.OK);
+    }
+
+    [Trait("Endpoint", "messages-send")]
+    [Fact]
+    public async Task A_message_notifies_the_other_participant_once_without_its_content_unless_they_are_reading_or_turned_chat_off()
+    {
+        var s = await Arrange();
+        using var factory = s.Factory;
+        using var owner = s.Owner;
+        using var vet = s.Vet;
+        await AssertWrapper(await Send(owner, HttpMethod.Post, "devices/register", $"{{\"token\":\"{OwnerDevice}\"}}"), HttpStatusCode.OK);
+        var conversation = await Conversation(vet, s.PetId);
+
+        await AssertWrapper(await Send(vet, HttpMethod.Post, "messages/send", $"{{\"conversationId\":\"{conversation}\",\"text\":\"Diagnóstico confidencial de gastritis\"}}"), HttpStatusCode.Created);
+        var notice = Assert.Single(factory.Push.Sent);
+        Assert.Equal(OwnerDevice, notice.Token);
+        Assert.Equal("Nuevo mensaje", notice.Message.Title);
+        Assert.DoesNotContain("gastritis", notice.Message.Body + notice.Message.Title, StringComparison.OrdinalIgnoreCase);
+
+        // El dueño abre la conversación (la app la consulta): mientras la lee no se le avisa.
+        await AssertWrapper(await Send(owner, HttpMethod.Get, $"messages/get-all?conversationId={conversation}"), HttpStatusCode.OK);
+        await AssertWrapper(await Send(vet, HttpMethod.Post, "messages/send", $"{{\"conversationId\":\"{conversation}\",\"text\":\"Otro\"}}"), HttpStatusCode.Created);
+        Assert.Single(factory.Push.Sent);
+
+        // Con el aviso de chat apagado tampoco; la veterinaria sin dispositivos no recibe nada.
+        await SetNotice(owner, "chat", false);
+        await AssertWrapper(await SendPhoto(vet, conversation, ChatJpeg), HttpStatusCode.Created);
+        await AssertWrapper(await Send(owner, HttpMethod.Post, "messages/send", $"{{\"conversationId\":\"{conversation}\",\"text\":\"Hola\"}}"), HttpStatusCode.Created);
+        Assert.Single(factory.Push.Sent);
+    }
+
+    [Trait("Endpoint", "messages-send-photo")]
+    [Fact]
+    public async Task A_photo_also_notifies_without_sending_the_image_or_a_caption()
+    {
+        var s = await Arrange();
+        using var factory = s.Factory;
+        using var owner = s.Owner;
+        using var vet = s.Vet;
+        await Send(owner, HttpMethod.Post, "devices/register", $"{{\"token\":\"{OwnerDevice}\"}}");
+        var conversation = await Conversation(vet, s.PetId);
+
+        await AssertWrapper(await SendPhoto(vet, conversation, ChatJpeg), HttpStatusCode.Created);
+
+        Assert.Equal("Nuevo mensaje", Assert.Single(factory.Push.Sent).Message.Title);
+    }
+
+    [Trait("Endpoint", "followups-update")]
+    [Fact]
+    public async Task Changing_the_status_or_the_review_notifies_the_owner_once_and_repeating_the_same_update_does_not()
+    {
+        var s = await Arrange();
+        using var factory = s.Factory;
+        using var owner = s.Owner;
+        using var vet = s.Vet;
+        await Send(owner, HttpMethod.Post, "devices/register", $"{{\"token\":\"{OwnerDevice}\"}}");
+        var consultation = await NewConsultation(vet, s.PetId);
+        var followup = await Followup(vet, consultation, null);
+
+        await AssertWrapper(await Send(vet, HttpMethod.Put, $"followups/update/{followup}", "{\"status\":\"Improving\"}"), HttpStatusCode.OK);
+        var first = Assert.Single(factory.Push.Sent);
+        Assert.Equal("Firulais: seguimiento", first.Message.Title);
+        Assert.Contains("Mejorando", first.Message.Body, StringComparison.Ordinal);
+
+        await AssertWrapper(await Send(vet, HttpMethod.Put, $"followups/update/{followup}", "{\"status\":\"Improving\"}"), HttpStatusCode.OK);
+        Assert.Single(factory.Push.Sent);
+
+        await AssertWrapper(await Send(vet, HttpMethod.Put, $"followups/update/{followup}", "{\"status\":\"Improving\",\"nextReviewInDays\":7}"), HttpStatusCode.OK);
+        Assert.Contains("Próxima revisión", factory.Push.Sent[1].Message.Body, StringComparison.Ordinal);
+
+        await SetNotice(owner, "followups", false);
+        await AssertWrapper(await Send(vet, HttpMethod.Put, $"followups/update/{followup}", "{\"status\":\"Treating\"}"), HttpStatusCode.OK);
+        Assert.Equal(2, factory.Push.Sent.Count);
+    }
+
+    [Trait("Endpoint", "followups-update")]
+    [Fact]
+    public async Task The_review_reminder_is_scheduled_one_day_before_moved_with_the_date_and_cancelled_on_discharge()
+    {
+        var s = await Arrange();
+        using var factory = s.Factory;
+        using var owner = s.Owner;
+        using var vet = s.Vet;
+        var consultation = await NewConsultation(vet, s.PetId);
+        var followup = await Followup(vet, consultation, 7);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        var reminder = Assert.Single(factory.Reminders.All);
+        Assert.Equal(PetMate.Application.Reminders.ReminderKind.Review, reminder.Kind);
+        Assert.Equal(today.AddDays(7), reminder.DueOn);
+        Assert.Equal(today.AddDays(6), reminder.RemindOn);
+
+        await Send(vet, HttpMethod.Put, $"followups/update/{followup}", "{\"status\":\"Treating\",\"nextReviewInDays\":3}");
+        reminder = Assert.Single(factory.Reminders.All);
+        Assert.Equal(today.AddDays(3), reminder.DueOn);
+        Assert.Equal(today.AddDays(2), reminder.RemindOn);
+
+        await Send(vet, HttpMethod.Put, $"followups/update/{followup}", "{\"status\":\"Discharged\"}");
+        Assert.Empty(factory.Reminders.All);
+    }
+
     [Trait("Endpoint", "messages-get-all")]
     [Fact]
     public async Task Messages_come_in_order_with_system_notices_and_after_returns_only_the_later_ones()

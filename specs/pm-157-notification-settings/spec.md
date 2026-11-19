@@ -4,7 +4,7 @@
 
 ## 1. Objetivo
 
-`GET` y `PUT /api/v1/notification-settings` consultan y cambian las preferencias de aviso del usuario.
+`GET /api/v1/notification-settings/get` y `PUT /api/v1/notification-settings/update` (acción literal, Constitución §7.1) consultan y cambian las preferencias de aviso del usuario.
 
 ## 2. Dependencias
 
@@ -30,13 +30,15 @@ Cada criterio se cita como `pm-157#CA-NN`. La columna final indica la Task que l
 
 | Task | Tipo | Estado | Título |
 |---|---|---|---|
-| T175 | Nueva | Aprobada para iniciar (2026-11-10, aprobación humana; pendiente de plan.md) | Guardar los ajustes de notificación |
+| T175 | Nueva | Cerrado y aprobado (2026-11-18, aprobación humana en el chat, sin revisión independiente; avisos aceptados, ver Memoria.md) | Guardar los ajustes de notificación |
 
 Detalle en [task.md](task.md).
 
 ## 6. Notas, limitaciones y decisiones pendientes
 
 - La maqueta incluye un aviso de promociones de negocios cercanos que ninguna fuente define como funcionalidad; queda fuera hasta que se decida.
+
+- Enmienda del 2026-11-18: las rutas pasan de `GET/PUT /api/v1/notification-settings` a `notification-settings/get` y `notification-settings/update` (§7.1); ya implementado y descrito en `plan.md` y `docs/api/endpoints.md`. Los valores concretos (sonidos `default|soft|silent`, anticipación de 1 a 14 días) fueron decisión del agente, aceptada por el usuario el 2026-11-18.
 
 ## 7. Aprobación
 

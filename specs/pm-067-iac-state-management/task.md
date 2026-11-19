@@ -11,7 +11,7 @@
 
 ### T079 — Configurar el estado remoto de IaC
 - **Tipo:** Nueva
-- **Estado:** Propuesto
+- **Estado:** En progreso (registro retrospectivo; ver gates)
 - **Spec principal:** pm-067
 - **Criterios propios:** pm-067#CA-01, pm-067#CA-02, pm-067#CA-03
 - **Verificar:** pruebas y evidencia reproducible por definir en el `plan.md` del Spec.

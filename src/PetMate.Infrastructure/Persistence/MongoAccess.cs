@@ -122,6 +122,12 @@ public sealed class MongoAccessGrantRepository : IAccessGrantRepository
         return result.ModifiedCount;
     }
 
+    public async Task<long> DeleteByBusiness(Guid businessId, CancellationToken cancellationToken)
+    {
+        var result = await Execute(() => grants.DeleteManyAsync(Builders<AccessGrantDocument>.Filter.Eq(d => d.BusinessId, businessId), cancellationToken)).ConfigureAwait(false);
+        return result.DeletedCount;
+    }
+
     public async Task<long> DeleteByPet(Guid petId, Guid ownerId, CancellationToken cancellationToken)
     {
         var builder = Builders<AccessGrantDocument>.Filter;
@@ -217,6 +223,18 @@ public sealed class MongoScanLogRepository : IScanLogRepository
         try
         {
             return await logs.CountDocumentsAsync(ForBusiness(businessId, sinceUtc), cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception exception) when (exception is MongoException or TimeoutException)
+        {
+            throw new PersistenceUnavailableException(exception);
+        }
+    }
+
+    public async Task<long> DeleteByBusiness(Guid businessId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return (await logs.DeleteManyAsync(Builders<ScanLogDocument>.Filter.Eq(d => d.BusinessId, businessId), cancellationToken).ConfigureAwait(false)).DeletedCount;
         }
         catch (Exception exception) when (exception is MongoException or TimeoutException)
         {
