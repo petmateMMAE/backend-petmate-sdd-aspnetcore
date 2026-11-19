@@ -100,7 +100,8 @@ public sealed class FcmPushSenderTests
         var tokenCall = h.Handler.Calls[0];
         var assertion = Uri.UnescapeDataString(tokenCall.Body.Split("assertion=")[1]);
         var parts = assertion.Split('.');
-        var claims = JsonDocument.Parse(Convert.FromBase64String(Pad(parts[1]))).RootElement;
+        using var claimsDocument = JsonDocument.Parse(Convert.FromBase64String(Pad(parts[1])));
+        var claims = claimsDocument.RootElement;
         Assert.Equal("cuenta@proyecto-prueba.iam.example", claims.GetProperty("iss").GetString());
         Assert.Equal("https://www.googleapis.com/auth/firebase.messaging", claims.GetProperty("scope").GetString());
         Assert.True(h.PublicKey.VerifyData(Encoding.ASCII.GetBytes(parts[0] + "." + parts[1]), Convert.FromBase64String(Pad(parts[2])), HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1));
@@ -108,7 +109,8 @@ public sealed class FcmPushSenderTests
         var send = h.Handler.Calls[1];
         Assert.Equal("https://fcm.googleapis.com/v1/projects/proyecto-prueba/messages:send", send.Url);
         Assert.Equal("token-de-acceso-de-prueba", send.Auth);
-        var message = JsonDocument.Parse(send.Body).RootElement.GetProperty("message");
+        using var sendDocument = JsonDocument.Parse(send.Body);
+        var message = sendDocument.RootElement.GetProperty("message");
         Assert.Equal("token-de-dispositivo-0123456789", message.GetProperty("token").GetString());
         Assert.Equal("Firulais: vacuna", message.GetProperty("notification").GetProperty("title").GetString());
     }

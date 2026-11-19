@@ -79,7 +79,7 @@
 | [pm-062-cloud-cost-feasibility-study](pm-062-cloud-cost-feasibility-study/spec.md) | Verificado | L0 | — | T074 | Estudio con fuentes oficiales del costo $0 MXN por componente en Azure for Students y del costo total de operación de la arquitectura |
 | [pm-063-cloud-provider-selection](pm-063-cloud-provider-selection/spec.md) | Verificado | L1 | pm-062 | T075 | Registrar Azure for Students como proveedor definitivo y seleccionar mediante ADR el servicio de Azure para cada componente |
 | [pm-064-environment-strategy](pm-064-environment-strategy/spec.md) | Verificado | L2 | pm-063 | T076 | Entornos, bases por entorno y convenciones de nombres |
-| [pm-065-cost-guardrails](pm-065-cost-guardrails/spec.md) | En progreso | L2 | pm-063 | T077 | Presupuesto, alertas y etiquetado de costos |
+| [pm-065-cost-guardrails](pm-065-cost-guardrails/spec.md) | Cerrado | L2 | pm-063 | T077 | Presupuesto, alertas y etiquetado de costos |
 | [pm-066-iac-baseline](pm-066-iac-baseline/spec.md) | Cerrado | L3 | pm-063, pm-064 | T078 | Herramienta de IaC elegida por ADR, estructura y flujo plan/apply |
 | [pm-067-iac-state-management](pm-067-iac-state-management/spec.md) | Cerrado | L4 | pm-066 | T079 | Estado remoto de IaC con bloqueo, cifrado y sin secretos |
 | [pm-068-cloud-secrets-configuration](pm-068-cloud-secrets-configuration/spec.md) | Cerrado | L5 | pm-066, pm-067 | T080 | Inyección de secretos y configuración sin `.env` en la nube |
@@ -87,7 +87,7 @@
 | [pm-070-cloud-redis-auth](pm-070-cloud-redis-auth/spec.md) | Propuesto | L6 | pm-013, pm-066, pm-068, pm-072 | T082 | Redis Auth administrado en Azure con TLS, autenticación, red privada, `noeviction` y comportamiento fail-closed |
 | [pm-071-cloud-redis-cache](pm-071-cloud-redis-cache/spec.md) | Propuesto | L6 | pm-013, pm-066, pm-068, pm-072 | T083 | Redis Cache administrado en Azure con TLS, autenticación, red privada, expulsión LRU y degradación segura |
 | [pm-072-cloud-network-security](pm-072-cloud-network-security/spec.md) | En progreso | L4 | pm-066 | T084 | Red, reglas de entrada y salida y segmentación |
-| [pm-073-public-https-endpoint](pm-073-public-https-endpoint/spec.md) | En progreso | L9 | pm-017, pm-072, pm-076 | T085 | Dominio, DNS, TLS, HSTS y redirección de HTTP a HTTPS |
+| [pm-073-public-https-endpoint](pm-073-public-https-endpoint/spec.md) | Cerrado | L9 | pm-017, pm-072, pm-076 | T085 | Dominio, DNS, TLS, HSTS y redirección de HTTP a HTTPS |
 | [pm-074-container-registry](pm-074-container-registry/spec.md) | Cerrado | L6 | pm-059, pm-066 | T086 | Azure Container Registry (o alternativa validada dentro de Azure) con etiquetas inmutables y trazabilidad imagen-versión |
 | [pm-075-backend-two-instances](pm-075-backend-two-instances/spec.md) | Cerrado | L7 | pm-015, pm-068, pm-069, pm-070, pm-071, pm-072, pm-074 | T087 | Al menos dos instancias del backend con sondas y sin estado local |
 | [pm-076-load-balancer](pm-076-load-balancer/spec.md) | En progreso | L8 | pm-075 | T088 | Balanceador de carga con reparto verificable |

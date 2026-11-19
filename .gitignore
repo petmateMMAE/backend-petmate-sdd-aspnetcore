@@ -41,3 +41,7 @@ crash.log
 *.tfvars
 !*.tfvars.example
 .terraform.lock.hcl.bak
+
+# Documento OpenAPI que exporta la prueba de contrato para el CI (pm-166).
+# Es un artefacto generado: se publica desde el pipeline, no se versiona.
+/openapi/

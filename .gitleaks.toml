@@ -26,4 +26,9 @@ paths = [
   # Hito 2 (T123-T167): contrasena ficticia de las pruebas de contrato de negocios y veterinaria.
   '''tests/PetMate\.ContractTests/Businesses/MapAndAccessEndpointsTests\.cs''',
   '''tests/PetMate\.ContractTests/Businesses/VeterinaryEndpointsTests\.cs''',
+  # Bloque 1 (T164-T185): la misma constante ficticia "contrasena-segura-123" en las
+  # pruebas de eliminacion de cuenta. Solo existe dentro del entorno aislado de las
+  # pruebas; no corresponde a ninguna cuenta real.
+  '''tests/PetMate\.ContractTests/Accounts/AccountDeletionEndpointsTests\.cs''',
+  '''tests/PetMate\.ContractTests/Accounts/WebAccountDeletionEndpointsTests\.cs''',
 ]
