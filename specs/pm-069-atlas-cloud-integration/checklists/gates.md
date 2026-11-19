@@ -1,6 +1,6 @@
 # Gates — pm-069-atlas-cloud-integration (T081)
 
-> Estado (2026-11-18): registro retrospectivo de lo que existe en el repositorio. **No cerrado.** Revisión estática solamente: no se ejecutó `terraform plan`/`apply` ni se consultó Azure, Atlas ni GitHub.
+> Estado (2026-11-19): revisado en el ciclo de cierre. **No cerrado**: los criterios marcados abajo siguen sin evidencia y no se firman. Ver "Lo que falta".
 
 | CA | Evidencia | Resultado |
 |---|---|---|

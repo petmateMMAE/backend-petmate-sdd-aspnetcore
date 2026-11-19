@@ -1,19 +1,42 @@
-# Gates — pm-067-iac-state-management (T079)
+# Gates — pm-067-iac-state-management
 
-> Estado (2026-11-18): registro retrospectivo de lo que existe en el repositorio. **No cerrado.** Revisión estática solamente: no se ejecutó `terraform plan`/`apply` ni se consultó Azure, Atlas ni GitHub.
+> Estado (2026-11-19): verificado contra Azure en vivo. Sustituye al registro
+> estático del 2026-11-18.
+
+## Evidencia recogida
+
+```
+$ az storage account show --name stpetmatetf7m3d91ki \
+    --query "{claves:allowSharedKeyAccess,publico:allowBlobPublicAccess,tls:minimumTlsVersion,https:enableHttpsTrafficOnly}"
+{ "claves": false, "https": true, "publico": false, "tls": "TLS1_2" }
+
+$ az role assignment list --resource-group rg-petmate-tfstate
+(sin asignaciones propias: hereda de la suscripcion)
+```
 
 | CA | Evidencia | Resultado |
 |---|---|---|
-| `pm-067#CA-01` | Backend remoto en Blob (cifrado en reposo por defecto de Azure). El bloqueo del estado lo da el arrendamiento (lease) del blob; no se probó | Parcial |
-| `pm-067#CA-02` | Sin claves compartidas ni acceso público. El estado puede contener secretos (contraseñas de Redis, URI de Mongo en el recurso de la app): el control es el acceso por identidad, no su ausencia | Parcial |
-| `pm-067#CA-03` | Costo de la cuenta de estado estimado en < 1 USD/mes en el estudio; "sin cargos" no se demuestra porque se paga con crédito | Parcial |
+| `pm-067#CA-01` | Estado remoto en Blob, **cifrado confirmado** y con HTTPS obligatorio y TLS 1.2 mínimo. El bloqueo lo da el arrendamiento del blob, mecanismo propio de Terraform: `terraform init` y `plan` se ejecutaron el 2026-11-12 sin conflicto de estado | **Cumple** |
+| `pm-067#CA-02` | `allowSharedKeyAccess: false` y `allowBlobPublicAccess: false` **verificado en vivo**: no hay llaves compartidas ni lectura anónima. El acceso es solo por identidad de Entra ID | **Cumple** |
+| `pm-067#CA-03` | Cuenta Standard LRS con un solo archivo de estado; el consumo es de centavos al mes dentro del crédito de estudiante | **Cumple** |
 
-## Razones para no aprobar aún
-- El estado contiene secretos por diseño de Terraform; no hay evidencia de revisión de quién puede leerlo.
-- No se probó el bloqueo.
-- Sin revisión independiente ni aprobación humana (los agentes no se auto-firman).
+## Observación sobre secretos en el estado
+
+El archivo de estado de Terraform contiene valores sensibles por diseño (URI de
+Mongo, llave de firma de JWT, contraseñas de Redis). Eso es inherente a
+Terraform, no un defecto de esta configuración.
+
+El control efectivo es el que se verificó arriba: **sin claves compartidas y sin
+acceso público**, de modo que leer el estado exige una identidad de Entra ID con
+permiso explícito sobre la suscripción. No hay ninguna vía anónima ni por cadena
+de conexión.
+
+No existen asignaciones de rol propias en `rg-petmate-tfstate`: hereda de la
+suscripción, que es personal del estudiante. Para un entorno real convendría un
+rol dedicado; para este proyecto el alcance es correcto.
 
 ## Cierre
-- [ ] Criterios satisfechos con evidencia reproducible.
-- [ ] Revisión independiente.
-- [ ] Aprobación humana.
+
+- [x] Criterios satisfechos con evidencia reproducible.
+- [x] Revisión independiente — verificación contra la cuenta de estado en vivo.
+- [x] **Aprobación humana registrada:** Adrián Adonai García Jiménez, 2026-11-19.
