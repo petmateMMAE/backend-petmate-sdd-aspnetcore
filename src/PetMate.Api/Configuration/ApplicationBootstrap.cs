@@ -62,6 +62,9 @@ public static class ApplicationBootstrap
         builder.Logging.AddFilter("Microsoft.AspNetCore.Hosting.Diagnostics", LogLevel.None);
         // JwtBearer registra la excepción interna completa si Redis falla; el middleware global ya la registra saneada.
         builder.Logging.AddFilter("Microsoft.AspNetCore.Authentication.JwtBearer", LogLevel.Critical);
+        // HttpsRedirectionMiddleware registra la URL completa a la que redirige, con los identificadores de la ruta y los
+        // parámetros de consulta: la misma fuga que Hosting.Diagnostics, por el mismo motivo (pm-054). Se desactiva igual.
+        builder.Logging.AddFilter("Microsoft.AspNetCore.HttpsPolicy", LogLevel.None);
         builder.Services.AddControllers()
             .AddJsonOptions(options => options.JsonSerializerOptions.TypeInfoResolverChain.Insert(0, PetMate.Api.Contracts.Responses.ApiJsonContext.Default))
             .ConfigureApiBehaviorOptions(PetMate.Api.Middleware.ApiBehaviorConfiguration.Configure);
