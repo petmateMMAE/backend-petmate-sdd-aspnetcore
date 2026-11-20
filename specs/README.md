@@ -70,7 +70,7 @@
 | [pm-053-api-performance-baseline](pm-053-api-performance-baseline/spec.md) | Verificado | L12 | pm-046 | T064 | Objetivos de latencia medibles y prueba de carga sin costo |
 | [pm-054-structured-logging-pii-safe](pm-054-structured-logging-pii-safe/spec.md) | Verificado | L5 | pm-010 | T065 | Logging estructurado con correlación y sin datos personales |
 | [pm-055-ci-pull-request-pipeline](pm-055-ci-pull-request-pipeline/spec.md) | Cerrado | L4 | pm-021 | T012, T066, T067 | Workflow de pull request con paridad respecto al gate local y ramas protegidas |
-| [pm-056-test-coverage-baseline](pm-056-test-coverage-baseline/spec.md) | En progreso | L4 | pm-021 | T068 | Línea base y umbral de cobertura de pruebas |
+| [pm-056-test-coverage-baseline](pm-056-test-coverage-baseline/spec.md) | Cerrado | L4 | pm-021 | T068 | Línea base y umbral de cobertura de pruebas |
 | [pm-057-container-image-scan](pm-057-container-image-scan/spec.md) | Cerrado | L5 | pm-015, pm-055 | T069 | Escaneo de la imagen de contenedor con herramienta $0 |
 | [pm-058-sbom-generation](pm-058-sbom-generation/spec.md) | Cerrado | L5 | pm-055 | T070 | Generación de SBOM por compilación |
 | [pm-059-release-versioning](pm-059-release-versioning/spec.md) | Verificado | L5 | pm-055 | T071 | Versionado SemVer, etiquetas y versión trazable a la imagen |
@@ -83,22 +83,22 @@
 | [pm-066-iac-baseline](pm-066-iac-baseline/spec.md) | Cerrado | L3 | pm-063, pm-064 | T078 | Herramienta de IaC elegida por ADR, estructura y flujo plan/apply |
 | [pm-067-iac-state-management](pm-067-iac-state-management/spec.md) | Cerrado | L4 | pm-066 | T079 | Estado remoto de IaC con bloqueo, cifrado y sin secretos |
 | [pm-068-cloud-secrets-configuration](pm-068-cloud-secrets-configuration/spec.md) | Cerrado | L5 | pm-066, pm-067 | T080 | Inyección de secretos y configuración sin `.env` en la nube |
-| [pm-069-atlas-cloud-integration](pm-069-atlas-cloud-integration/spec.md) | En progreso | L6 | pm-012, pm-066, pm-068, pm-072 | T081 | Acceso de red y usuarios de Atlas para los entornos cloud |
-| [pm-070-cloud-redis-auth](pm-070-cloud-redis-auth/spec.md) | Propuesto | L6 | pm-013, pm-066, pm-068, pm-072 | T082 | Redis Auth administrado en Azure con TLS, autenticación, red privada, `noeviction` y comportamiento fail-closed |
-| [pm-071-cloud-redis-cache](pm-071-cloud-redis-cache/spec.md) | Propuesto | L6 | pm-013, pm-066, pm-068, pm-072 | T083 | Redis Cache administrado en Azure con TLS, autenticación, red privada, expulsión LRU y degradación segura |
-| [pm-072-cloud-network-security](pm-072-cloud-network-security/spec.md) | En progreso | L4 | pm-066 | T084 | Red, reglas de entrada y salida y segmentación |
+| [pm-069-atlas-cloud-integration](pm-069-atlas-cloud-integration/spec.md) | Cerrado | L6 | pm-012, pm-066, pm-068, pm-072 | T081 | Acceso de red y usuarios de Atlas para los entornos cloud |
+| [pm-070-cloud-redis-auth](pm-070-cloud-redis-auth/spec.md) | Cerrado | L6 | pm-013, pm-066, pm-068, pm-072 | T082 | Redis Auth administrado en Azure con TLS, autenticación, red privada, `noeviction` y comportamiento fail-closed |
+| [pm-071-cloud-redis-cache](pm-071-cloud-redis-cache/spec.md) | Cerrado | L6 | pm-013, pm-066, pm-068, pm-072 | T083 | Redis Cache administrado en Azure con TLS, autenticación, red privada, expulsión LRU y degradación segura |
+| [pm-072-cloud-network-security](pm-072-cloud-network-security/spec.md) | Cerrado | L4 | pm-066 | T084 | Red, reglas de entrada y salida y segmentación |
 | [pm-073-public-https-endpoint](pm-073-public-https-endpoint/spec.md) | Cerrado | L9 | pm-017, pm-072, pm-076 | T085 | Dominio, DNS, TLS, HSTS y redirección de HTTP a HTTPS |
 | [pm-074-container-registry](pm-074-container-registry/spec.md) | Cerrado | L6 | pm-059, pm-066 | T086 | Azure Container Registry (o alternativa validada dentro de Azure) con etiquetas inmutables y trazabilidad imagen-versión |
 | [pm-075-backend-two-instances](pm-075-backend-two-instances/spec.md) | Cerrado | L7 | pm-015, pm-068, pm-069, pm-070, pm-071, pm-072, pm-074 | T087 | Al menos dos instancias del backend con sondas y sin estado local |
-| [pm-076-load-balancer](pm-076-load-balancer/spec.md) | En progreso | L8 | pm-075 | T088 | Balanceador de carga con reparto verificable |
-| [pm-077-cd-deployment-pipeline](pm-077-cd-deployment-pipeline/spec.md) | En progreso | L10 | pm-055, pm-057, pm-058, pm-059, pm-073, pm-075, pm-076 | T089 | Despliegue continuo versionado con humo posterior y reversa |
-| [pm-078-cloud-observability](pm-078-cloud-observability/spec.md) | En progreso | L8 | pm-054, pm-075 | T090 | Eventos, errores y alertas en un servicio de observabilidad de Azure, sin PII ni secretos |
-| [pm-079-image-storage-adapter](pm-079-image-storage-adapter/spec.md) | Aprobado | L6 | pm-039, pm-066 | T091 | Almacenamiento de imágenes privado por defecto |
-| [pm-080-image-upload-endpoint](pm-080-image-upload-endpoint/spec.md) | Aprobado | L8 | pm-045, pm-079 | T092 | Contrato, límites y validación de subida de imágenes |
-| [pm-081-private-image-access](pm-081-private-image-access/spec.md) | Aprobado | L9 | pm-079, pm-080 | T093 | URLs temporales para imágenes privadas |
-| [pm-082-cdn-public-delivery](pm-082-cdn-public-delivery/spec.md) | Propuesto | L10 | pm-073, pm-079 | T094 | Distribución de imágenes públicas mediante CDN |
+| [pm-076-load-balancer](pm-076-load-balancer/spec.md) | Cerrado | L8 | pm-075 | T088 | Balanceador de carga con reparto verificable |
+| [pm-077-cd-deployment-pipeline](pm-077-cd-deployment-pipeline/spec.md) | Cerrado | L10 | pm-055, pm-057, pm-058, pm-059, pm-073, pm-075, pm-076 | T089 | Despliegue continuo versionado con humo posterior y reversa |
+| [pm-078-cloud-observability](pm-078-cloud-observability/spec.md) | Cerrado | L8 | pm-054, pm-075 | T090 | Eventos, errores y alertas en un servicio de observabilidad de Azure, sin PII ni secretos |
+| [pm-079-image-storage-adapter](pm-079-image-storage-adapter/spec.md) | Cerrado | L6 | pm-039, pm-066 | T091 | Almacenamiento de imágenes privado por defecto |
+| [pm-080-image-upload-endpoint](pm-080-image-upload-endpoint/spec.md) | Cerrado | L8 | pm-045, pm-079 | T092 | Contrato, límites y validación de subida de imágenes |
+| [pm-081-private-image-access](pm-081-private-image-access/spec.md) | Cerrado | L9 | pm-079, pm-080 | T093 | URLs temporales para imágenes privadas |
+| [pm-082-cdn-public-delivery](pm-082-cdn-public-delivery/spec.md) | Cerrado | L10 | pm-073, pm-079 | T094 | Distribución de imágenes públicas mediante CDN |
 | [pm-083-infrastructure-teardown](pm-083-infrastructure-teardown/spec.md) | Cerrado | L11 | pm-066, pm-067, pm-068, pm-069, pm-070, pm-071, pm-072, pm-073, pm-074, pm-075, pm-076, pm-078, pm-079, pm-082 | T095 | Destrucción ordenada y protegida de la infraestructura |
-| [pm-084-cloud-deployment-acceptance](pm-084-cloud-deployment-acceptance/spec.md) | En progreso | L12 | pm-046, pm-073, pm-075, pm-076, pm-077, pm-078, pm-083 | T096 | Aceptación del sistema desplegado: dos instancias, balanceador, HTTPS y costo |
+| [pm-084-cloud-deployment-acceptance](pm-084-cloud-deployment-acceptance/spec.md) | Cerrado | L12 | pm-046, pm-073, pm-075, pm-076, pm-077, pm-078, pm-083 | T096 | Aceptación del sistema desplegado: dos instancias, balanceador, HTTPS y costo |
 | [pm-085-account-registration-name](pm-085-account-registration-name/spec.md) | Aprobado | L7 | pm-029, pm-038 | T103 | `POST /api/v1/auth/register` exige el nombre del usuario además del correo y la contraseña |
 | [pm-086-user-role-unification](pm-086-user-role-unification/spec.md) | Aprobado | L5 | pm-022, pm-027, pm-033 | T104 | Toda cuenta tiene el rol único `User`; los roles excluyentes `Owner` y `Business` dejan de emitirse (Constitución v1 |
 | [pm-087-session-business-link](pm-087-session-business-link/spec.md) | Aprobado | L8 | pm-086, pm-029, pm-030, pm-031 | T105 | Registro, inicio de sesión y refresh informan si la cuenta tiene un negocio asociado y su tipo |

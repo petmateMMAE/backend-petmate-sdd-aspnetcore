@@ -23,7 +23,19 @@ Por suite (líneas de producción ejecutadas): Unit 639, Security 772, Contract 
 1. Ejecutar cada suite con `dotnet test --collect:"XPlat Code Coverage" --results-directory <dir>/<Suite>` en el contenedor `mcr.microsoft.com/dotnet/sdk:10.0` (repositorio en solo lectura; Integration con `--env-file .env`, sin imprimirlo).
 2. `python scripts/coverage-merge.py <dir>` une los informes (una línea cuenta si alguna suite la ejecutó).
 
-## Umbral propuesto (CA-02) — pendiente de enmienda
-- **Propuesta:** cobertura total de líneas ≥ **90 %** (margen de 3.7 puntos sobre la línea base) en la corrida con las cuatro suites, y no permitir que baje más de 2 puntos entre PR. Para el pipeline de PR (sin Redis real) medir y exigir solo ≥ **75 %** hasta que los Redis de pruebas existan en CI.
-- No se aplicó: cambiar el gate o la Constitución requiere la aprobación de Miguel (CA-02: «mediante enmienda cuando exista evidencia»). Esta evidencia queda disponible para esa enmienda.
+## Umbral (CA-02) — aprobado el 2026-11-19
+
+**Aprobado por Adrián Adonai García Jiménez el 2026-11-19**, sobre la evidencia
+medida en este documento (93.7 % de líneas con las cuatro suites).
+
+| Dónde | Umbral | Por qué |
+|---|---|---|
+| Corrida completa, las cuatro suites | **≥ 90 %** | Deja 3.7 puntos de margen sobre la línea base: exige mantener el nivel sin romper el build por una variación menor |
+| Pipeline de PR, sin Redis real | **≥ 75 %** | Sin los Redis de prueba en CI la medición baja a 78.6 %; exigir 90 % ahí rompería todos los PR |
+| Entre PR | No bajar más de **2 puntos** | Detecta la erosión gradual, que es como la cobertura se pierde de verdad |
+
+El umbral del pipeline sube a 90 % cuando existan los Redis de prueba en CI.
+
 - Limitaciones: no mide ramas ni calidad de las aserciones; 100 % no es objetivo.
+- Un número alto no garantiza buenas pruebas: sirve para detectar código que
+  nadie ejecuta, no para medir si lo ejecutado se verifica bien.

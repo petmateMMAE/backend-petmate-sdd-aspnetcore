@@ -42,6 +42,42 @@ resource "azurerm_monitor_metric_alert" "api_5xx" {
   }
 }
 
+# Indisponibilidad de la API (pm-078#CA-02).
+#
+# La alerta de 5xx solo se dispara si la API responde y responde mal. Si se cae
+# del todo deja de haber peticiones, y entonces nadie se entera: sin esta alerta
+# el servicio puede estar caído horas sin aviso.
+#
+# Se mide sobre las réplicas en ejecución, no sobre el tráfico: con
+# modo_ahorro = false el mínimo son 2, así que menos de 2 durante 15 minutos
+# significa que algo no está levantando.
+#
+# La ventana de 15 minutos evita falsos positivos durante un despliegue, cuando
+# una revisión nueva reemplaza a la anterior y el conteo baja un momento.
+resource "azurerm_monitor_metric_alert" "api_sin_replicas" {
+  count               = var.modo_ahorro ? 0 : 1
+  name                = "alert-petmate-api-sin-replicas"
+  resource_group_name = data.azurerm_resource_group.app.name
+  scopes              = [azurerm_container_app.api.id]
+  description         = "La API tiene menos réplicas de las esperadas: puede estar caída."
+  severity            = 1
+  frequency           = "PT5M"
+  window_size         = "PT15M"
+  tags                = local.tags
+
+  criteria {
+    metric_namespace = "Microsoft.App/containerApps"
+    metric_name      = "Replicas"
+    aggregation      = "Average"
+    operator         = "LessThan"
+    threshold        = 2
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.email.id
+  }
+}
+
 # Presupuesto del grupo de recursos: avisa al 50, 80 y 100 % (pm-065).
 resource "azurerm_consumption_budget_resource_group" "app" {
   count             = var.enable_budget ? 1 : 0
