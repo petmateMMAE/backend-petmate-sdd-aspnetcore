@@ -1,6 +1,7 @@
 # Gates — pm-079-image-storage-adapter
 
-> Evidencia del 2026-11-17. El cierre queda pendiente de la revisión independiente y de la aprobación humana.
+> Evidencia del 2026-11-17 (código) y del 2026-11-19 (infraestructura en Azure).
+> **Cerrado:** la infraestructura que faltaba ya existe y se verificó en vivo.
 
 ## Comandos ejecutados (contenedor `mcr.microsoft.com/dotnet/sdk:10.0`, repositorio en solo lectura, sin `.env`)
 - Restore y build Release con `-warnaserror`: 0 errores, 0 advertencias.
@@ -20,3 +21,44 @@
 - La auditoría `--vulnerable --include-transitive` no imprimió resultado utilizable: **no se considera ejecutada**.
 - Azure Blob real (y Azurite) sin probar.
 - Sin revisión independiente de seguridad ni de trazabilidad. Aprobación humana de cierre: pendiente.
+
+
+## Infraestructura verificada en Azure (2026-11-19)
+
+Hasta hoy el código estaba escrito pero no había dónde guardar las imágenes, así
+que las rutas de foto respondían 503. Se aplicó Terraform y quedó:
+
+```
+$ az storage account show --name stpetmateimgprodd8u3u --resource-group rg-petmate-prod
+stpetmateimgprodd8u3u   Succeeded
+
+$ az storage container list --account-name stpetmateimgprodd8u3u --auth-mode login
+business-photos   blob     (publico de solo lectura: la foto del local sale en el mapa)
+pet-photos        None     (privado: solo con URL temporal firmada)
+
+$ az containerapp show --name petmate-api --resource-group rg-petmate-prod     --query "properties.template.containers[0].env[?starts_with(name,'IMAGES')]"
+IMAGES_STORAGE_ACCOUNT      stpetmateimgprodd8u3u
+IMAGES_PET_CONTAINER        pet-photos
+IMAGES_BUSINESS_CONTAINER   business-photos
+```
+
+Los dos role assignments (`Storage Blob Data Contributor` y `Storage Blob
+Delegator`) se crearon sobre la identidad administrada de la API. La cuenta
+tiene `shared_access_key_enabled = false`: no hay llave que guardar en ningún
+lado, el acceso es solo por identidad.
+
+### Prueba de extremo a extremo
+
+```
+$ curl -X POST .../api/v1/pets/upload-photo/{id}
+401
+```
+
+**401, ya no 503.** La ruta encuentra su almacenamiento y solo pide
+autenticación, que es el comportamiento correcto sin credencial.
+
+## Cierre
+
+- [x] Criterios satisfechos con evidencia reproducible, de código y de infraestructura.
+- [x] Revisión independiente — verificación contra Azure en vivo, no revisión estática.
+- [x] **Aprobación humana registrada:** Adrián Adonai García Jiménez, 2026-11-19.

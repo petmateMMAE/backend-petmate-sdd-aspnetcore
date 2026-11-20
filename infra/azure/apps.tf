@@ -299,6 +299,26 @@ resource "azurerm_container_app" "api" {
 
   lifecycle {
     # La imagen la cambia el pipeline de CD (pm-077); Terraform no debe revertirla.
+    #
+    # CUIDADO (comprobado el 2026-11-19): este ignore_changes protege la imagen
+    # cuando es el unico cambio, pero NO cuando Terraform tiene que recrear la
+    # plantilla del contenedor por otra razon (agregar variables de entorno, por
+    # ejemplo). En esa recreacion usa la imagen que tiene en su estado, que puede
+    # ser mas vieja que la desplegada, y crea una revision con ella.
+    #
+    # Ese dia el apply que agrego las variables IMAGES_* revirtio la API de
+    # 0.5.0-77760e1 a 0.3.0-239557a sin avisar.
+    #
+    # Antes de cualquier apply que toque la plantilla, comprobar que imagen esta
+    # corriendo de verdad:
+    #
+    #   az containerapp show --name petmate-api --resource-group rg-petmate-prod \
+    #     --query "properties.template.containers[0].image" -o tsv
+    #
+    # y despues del apply verificarla otra vez. Si cambio, restaurarla con:
+    #
+    #   az containerapp update --name petmate-api --resource-group rg-petmate-prod \
+    #     --image acrpetmateprodd8u3u.azurecr.io/petmate-api:<version desplegada>
     ignore_changes = [template[0].container[0].image]
   }
 }

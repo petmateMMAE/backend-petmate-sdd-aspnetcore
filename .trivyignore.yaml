@@ -33,3 +33,25 @@ misconfigurations:
       fotos publicas de los negocios directo del Blob. Las fotos de mascotas siguen en un contenedor privado con SAS
       de 15 minutos y la cuenta no tiene llaves compartidas. Se cierra con pm-082 (CDN).
     expired_at: 2027-02-12
+  # Las dos de abajo son del NSG que se agrego el 2026-11-19 (pm-072). Nota que vale la pena dejar escrita: antes
+  # de ese NSG la salida estaba COMPLETAMENTE abierta y Trivy no reportaba nada, porque el escaneo revisa las
+  # reglas que existen, no las que faltan. Cerrar la red hizo visible el unico destino que sigue siendo amplio.
+  - id: AVD-AZU-0051
+    paths:
+      - "azure/network-security.tf"
+    statement: >-
+      Aprobado el 2026-11-19. Regla permitir-mongodb-atlas: el destino es Internet porque Atlas corre en un
+      cluster compartido cuyas IPs cambian sin aviso, y fijarlas dejaria la base inalcanzable al primer cambio.
+      El riesgo queda acotado por tres lados: solo el puerto 27017, solo desde la subred de Container Apps, y del
+      otro extremo la lista de acceso de Atlas solo admite las IPs de salida de esta API (pm-069). Se cierra el
+      dia que Atlas ofrezca Private Link dentro del presupuesto, o con una etiqueta de servicio propia.
+    expired_at: 2027-02-12
+  - id: AVD-AZU-0051
+    paths:
+      - "azure/network-security.tf"
+    statement: >-
+      Aprobado el 2026-11-19. Regla denegar-resto-salida: Trivy la marca por su destino comodin, pero es una regla
+      DENY de prioridad 4096, no una Allow. Es justamente la regla que cierra la salida, y quitarla para silenciar
+      el hallazgo dejaria la red abierta otra vez: empeoraria la seguridad en vez de mejorarla. Falso positivo de
+      la regla, que no distingue access = Allow de access = Deny.
+    expired_at: 2027-02-12
