@@ -81,6 +81,19 @@ resource "azurerm_network_security_rule" "entrada_denegar_resto" {
 # ---------------------------------------------------------------------------
 
 # MongoDB Atlas vive fuera de Azure y escucha en 27017 sobre TLS.
+#
+# El destino es "Internet" y no un rango concreto porque Atlas corre en un
+# clúster compartido (petmate.nwhianv.mongodb.net) cuyas direcciones cambian sin
+# aviso: fijarlas dejaría la base inalcanzable el día que Atlas mueva el nodo.
+#
+# Lo que sí acota el riesgo:
+#   - Solo el puerto 27017, no todo el tráfico saliente.
+#   - Solo desde la subred de Container Apps.
+#   - Del otro lado, la lista de acceso de Atlas solo admite las IPs de salida
+#     de esta API (pm-069), así que el acceso está cerrado por ambos extremos.
+#
+# Trivy marca esto como AZU-0051 (CRITICAL). La excepción está documentada en
+# .trivyignore.yaml con su motivo y su caducidad.
 resource "azurerm_network_security_rule" "salida_atlas" {
   name                        = "permitir-mongodb-atlas"
   priority                    = 100
