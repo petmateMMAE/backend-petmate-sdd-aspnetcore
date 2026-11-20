@@ -83,10 +83,10 @@
 | [pm-066-iac-baseline](pm-066-iac-baseline/spec.md) | Cerrado | L3 | pm-063, pm-064 | T078 | Herramienta de IaC elegida por ADR, estructura y flujo plan/apply |
 | [pm-067-iac-state-management](pm-067-iac-state-management/spec.md) | Cerrado | L4 | pm-066 | T079 | Estado remoto de IaC con bloqueo, cifrado y sin secretos |
 | [pm-068-cloud-secrets-configuration](pm-068-cloud-secrets-configuration/spec.md) | Cerrado | L5 | pm-066, pm-067 | T080 | Inyección de secretos y configuración sin `.env` en la nube |
-| [pm-069-atlas-cloud-integration](pm-069-atlas-cloud-integration/spec.md) | En progreso | L6 | pm-012, pm-066, pm-068, pm-072 | T081 | Acceso de red y usuarios de Atlas para los entornos cloud |
+| [pm-069-atlas-cloud-integration](pm-069-atlas-cloud-integration/spec.md) | Cerrado | L6 | pm-012, pm-066, pm-068, pm-072 | T081 | Acceso de red y usuarios de Atlas para los entornos cloud |
 | [pm-070-cloud-redis-auth](pm-070-cloud-redis-auth/spec.md) | Propuesto | L6 | pm-013, pm-066, pm-068, pm-072 | T082 | Redis Auth administrado en Azure con TLS, autenticación, red privada, `noeviction` y comportamiento fail-closed |
 | [pm-071-cloud-redis-cache](pm-071-cloud-redis-cache/spec.md) | Propuesto | L6 | pm-013, pm-066, pm-068, pm-072 | T083 | Redis Cache administrado en Azure con TLS, autenticación, red privada, expulsión LRU y degradación segura |
-| [pm-072-cloud-network-security](pm-072-cloud-network-security/spec.md) | En progreso | L4 | pm-066 | T084 | Red, reglas de entrada y salida y segmentación |
+| [pm-072-cloud-network-security](pm-072-cloud-network-security/spec.md) | Cerrado | L4 | pm-066 | T084 | Red, reglas de entrada y salida y segmentación |
 | [pm-073-public-https-endpoint](pm-073-public-https-endpoint/spec.md) | Cerrado | L9 | pm-017, pm-072, pm-076 | T085 | Dominio, DNS, TLS, HSTS y redirección de HTTP a HTTPS |
 | [pm-074-container-registry](pm-074-container-registry/spec.md) | Cerrado | L6 | pm-059, pm-066 | T086 | Azure Container Registry (o alternativa validada dentro de Azure) con etiquetas inmutables y trazabilidad imagen-versión |
 | [pm-075-backend-two-instances](pm-075-backend-two-instances/spec.md) | Cerrado | L7 | pm-015, pm-068, pm-069, pm-070, pm-071, pm-072, pm-074 | T087 | Al menos dos instancias del backend con sondas y sin estado local |
