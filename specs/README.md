@@ -91,7 +91,7 @@
 | [pm-074-container-registry](pm-074-container-registry/spec.md) | Cerrado | L6 | pm-059, pm-066 | T086 | Azure Container Registry (o alternativa validada dentro de Azure) con etiquetas inmutables y trazabilidad imagen-versión |
 | [pm-075-backend-two-instances](pm-075-backend-two-instances/spec.md) | Cerrado | L7 | pm-015, pm-068, pm-069, pm-070, pm-071, pm-072, pm-074 | T087 | Al menos dos instancias del backend con sondas y sin estado local |
 | [pm-076-load-balancer](pm-076-load-balancer/spec.md) | Cerrado | L8 | pm-075 | T088 | Balanceador de carga con reparto verificable |
-| [pm-077-cd-deployment-pipeline](pm-077-cd-deployment-pipeline/spec.md) | En progreso | L10 | pm-055, pm-057, pm-058, pm-059, pm-073, pm-075, pm-076 | T089 | Despliegue continuo versionado con humo posterior y reversa |
+| [pm-077-cd-deployment-pipeline](pm-077-cd-deployment-pipeline/spec.md) | Cerrado | L10 | pm-055, pm-057, pm-058, pm-059, pm-073, pm-075, pm-076 | T089 | Despliegue continuo versionado con humo posterior y reversa |
 | [pm-078-cloud-observability](pm-078-cloud-observability/spec.md) | Cerrado | L8 | pm-054, pm-075 | T090 | Eventos, errores y alertas en un servicio de observabilidad de Azure, sin PII ni secretos |
 | [pm-079-image-storage-adapter](pm-079-image-storage-adapter/spec.md) | Cerrado | L6 | pm-039, pm-066 | T091 | Almacenamiento de imágenes privado por defecto |
 | [pm-080-image-upload-endpoint](pm-080-image-upload-endpoint/spec.md) | Cerrado | L8 | pm-045, pm-079 | T092 | Contrato, límites y validación de subida de imágenes |

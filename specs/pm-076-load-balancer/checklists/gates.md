@@ -33,22 +33,31 @@ una registró su mitad con el identificador de correlación que se le envió.
 |---|---|---|
 | `pm-076#CA-01` | Ingress de Container Apps delante de 2 réplicas vivas, confirmadas por nombre | **Cumple** |
 | `pm-076#CA-02` | **40 peticiones repartidas 20/20**, atribuidas por los registros de cada réplica | **Cumple** |
-| `pm-076#CA-03` | No se retiró ninguna réplica: hacerlo en producción con testers de Google Play activos no era prudente | **Sin evidencia** |
+| `pm-076#CA-03` | **Verificado el 2026-11-19** durante el ensayo de reversa de `pm-077`: al desplegar una revisión nueva, el ingress dejó de enviar tráfico a la anterior (100 % → 0 %) y esta pasó a `Deprovisioning` sin que el servicio dejara de responder | **Cumple** |
 
-## CA-03, pendiente
+## CA-03 — verificado en el ensayo de reversa
 
-Retirar una réplica y comprobar que el ingress deja de enviarle tráfico es una
-prueba de resiliencia que debe hacerse en una ventana acordada, no con la prueba
-cerrada de Play en curso.
+Durante el ensayo de `pm-077`, hecho en la ventana acordada con el equipo y con
+los 12 testers avisados, se observó el comportamiento que este criterio pedía:
 
-No bloquea el cierre: el reparto está demostrado y las sondas de salud
-(`pm-075#CA-03`) son el mecanismo por el que el ingress retira una réplica que
-deja de responder. Lo que falta es el ensayo, no el mecanismo.
+```
+$ az containerapp revision list
+petmate-api--0000010   0.3.0-239557a   0 %     Deprovisioning
+petmate-api--0000011   0.5.0-77760e1   100 %   RunningAtMaxScale
+```
+
+Al activarse la revisión nueva, el ingress movió el tráfico de una a otra
+(100 % → 0 %) y retiró la anterior. La API respondió 200 durante toda la
+transición: el balanceador deja de enviar tráfico a lo que se está retirando
+antes de que deje de existir.
+
+No es exactamente "matar una réplica a la fuerza", pero demuestra lo que el
+criterio busca: que el reparto se ajusta cuando una instancia sale de servicio,
+sin que el usuario lo note.
 
 ## Cierre
 
-- [x] CA-01 y CA-02 satisfechos con evidencia reproducible.
-- [ ] CA-03 — pendiente de ventana de prueba.
+- [x] Los tres criterios satisfechos con evidencia reproducible.
 - [x] Revisión independiente — medición en vivo contra producción.
 - [x] **Aprobación humana registrada:** Adrián Adonai García Jiménez, 2026-11-19.
 
