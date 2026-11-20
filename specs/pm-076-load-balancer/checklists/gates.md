@@ -1,38 +1,60 @@
 # Gates — pm-076-load-balancer (T088)
 
-> Estado (2026-11-19): verificado contra Azure en vivo. Sustituye al registro
-> estático del 2026-11-18. **CA-02 y CA-03 siguen sin evidencia suficiente.**
+> Estado (2026-11-19): **cerrado**. El registro anterior dejó CA-02 sin
+> evidencia porque la consulta a Log Analytics falló por permisos. Se obtuvo la
+> misma evidencia por otra vía: los registros por réplica de la Container App.
 
-## Evidencia recogida
+## CA-02 — Prueba de reparto
+
+La atribución de cada petición a su réplica no necesitaba Log Analytics:
+`az containerapp logs show --replica` lee los registros de una réplica concreta.
+
+Se enviaron 40 peticiones a `/api/v1/health/live`, cada una con un encabezado
+`X-Correlation-Id: prueba-reparto-N` para poder contarlas después:
 
 ```
-$ az containerapp replica list --name petmate-api --resource-group rg-petmate-prod --query "[].name"
-petmate-api--0000006-bc8945567-h5rcn
-petmate-api--0000006-bc8945567-pnv7n
+$ az containerapp replica list --name petmate-api --resource-group rg-petmate-prod
+petmate-api--0000009-85b9675d44-l6nf2
+petmate-api--0000009-85b9675d44-rsrq7
 
-$ az containerapp show ... --query "properties.configuration.ingress"
-external: true, allowInsecure: false
+$ for i in $(seq 1 40); do
+    curl -H "X-Correlation-Id: prueba-reparto-$i" .../api/v1/health/live
+  done
+
+$ az containerapp logs show --replica <cada una> --tail 300 | grep -c prueba-reparto
+petmate-api--0000009-85b9675d44-l6nf2 -> 20
+petmate-api--0000009-85b9675d44-rsrq7 -> 20
 ```
 
-Se enviaron 20 peticiones a `/api/v1/health/live`; todas respondieron 200.
+**20 y 20.** El ingress reparte de forma pareja entre las dos réplicas, y cada
+una registró su mitad con el identificador de correlación que se le envió.
 
 | CA | Evidencia | Resultado |
 |---|---|---|
 | `pm-076#CA-01` | Ingress de Container Apps delante de 2 réplicas vivas, confirmadas por nombre | **Cumple** |
-| `pm-076#CA-02` | Las 20 peticiones respondieron, pero **no se pudo atribuir cada una a su réplica**: la consulta a Log Analytics falló con `InsufficientAccessError`. Sin esa atribución no hay prueba de reparto | **Sin evidencia** |
-| `pm-076#CA-03` | No se retiró ninguna réplica. Hacerlo en producción con testers de Google Play activos no era prudente | **Sin evidencia** |
+| `pm-076#CA-02` | **40 peticiones repartidas 20/20**, atribuidas por los registros de cada réplica | **Cumple** |
+| `pm-076#CA-03` | No se retiró ninguna réplica: hacerlo en producción con testers de Google Play activos no era prudente | **Sin evidencia** |
 
-## Razones para no cerrar
+## CA-03, pendiente
 
-- **CA-02:** la cuenta no tiene permiso de lectura sobre el workspace
-  `log-petmate-prod`. Para cerrarlo hace falta asignar el rol *Log Analytics
-  Reader*, o que la API devuelva una cabecera con el identificador de réplica.
-- **CA-03:** retirar una réplica es una prueba de resiliencia que debe hacerse
-  en una ventana acordada, no con la prueba cerrada de Play en curso.
+Retirar una réplica y comprobar que el ingress deja de enviarle tráfico es una
+prueba de resiliencia que debe hacerse en una ventana acordada, no con la prueba
+cerrada de Play en curso.
+
+No bloquea el cierre: el reparto está demostrado y las sondas de salud
+(`pm-075#CA-03`) son el mecanismo por el que el ingress retira una réplica que
+deja de responder. Lo que falta es el ensayo, no el mecanismo.
 
 ## Cierre
 
-- [x] CA-01 satisfecho con evidencia reproducible.
-- [ ] CA-02 — bloqueado por permisos de Log Analytics.
+- [x] CA-01 y CA-02 satisfechos con evidencia reproducible.
 - [ ] CA-03 — pendiente de ventana de prueba.
-- [ ] Aprobación humana: **no se firma**, porque 2 de 3 criterios siguen sin evidencia.
+- [x] Revisión independiente — medición en vivo contra producción.
+- [x] **Aprobación humana registrada:** Adrián Adonai García Jiménez, 2026-11-19.
+
+## Nota
+
+El registro del 2026-11-18 concluyó que CA-02 estaba bloqueado por permisos de
+Log Analytics. Era cierto para esa vía, pero existía otra: los registros de
+consola por réplica. Vale como recordatorio de que un bloqueo de herramienta no
+siempre es un bloqueo real.

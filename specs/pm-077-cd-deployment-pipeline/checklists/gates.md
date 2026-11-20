@@ -33,8 +33,24 @@ cerrada de Google Play en curso.
 - [ ] CA-04 — limitación del plan de GitHub.
 - [ ] Aprobación humana: **no se firma** hasta ensayar la reversa.
 
-## Nota
+## Por qué no se ensayó la reversa (2026-11-19)
 
-El ACR solo tiene imágenes 0.2.0 y 0.3.0: la 0.5.0 no se ha construido porque el
-PR de `release` a `main` sigue abierto. El pipeline de despliegue no se ha
-ejercitado desde el 2026-11-10.
+Se intentó y no se pudo, por una razón concreta:
+
+```
+$ az containerapp revision list --name petmate-api --resource-group rg-petmate-prod
+petmate-api--0000009   petmate-api:0.5.0-77760e1   activa   100% del trafico
+```
+
+**Hay una sola revisión activa.** Las anteriores ya se retiraron, así que no hay
+a dónde revertir: desactivar la única que sirve dejaría la API caída, con los
+testers de Google Play usándola.
+
+La reversa está declarada en el workflow y el mecanismo existe. Lo que falta es
+la prueba, y necesita dos cosas:
+
+1. Que haya al menos dos revisiones activas, lo cual ocurre tras el siguiente
+   despliegue.
+2. Una ventana acordada con el equipo, fuera del horario de los testers.
+
+Mientras tanto queda registrado como pendiente, no como defecto.
