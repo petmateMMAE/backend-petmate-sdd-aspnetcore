@@ -72,7 +72,7 @@ Ese número es un juicio, no una medición: no existe una escala única y objeti
 | A05 Mala configuración | **Cubierto** — Trivy + tfsec sobre la IaC; NSG con salida cerrada |
 | A06 Componentes vulnerables | **Cubierto** — Trivy sobre la imagen, SBOM con Syft |
 | A07 Fallas de identificación | **Cubierto** — JWT, revocación en Redis, limitación de intentos |
-| A08 Fallas de integridad | **Parcial** — etiqueta de imagen inmutable en ACR (`writeEnabled: false`); **falta firma de imagen** (cosign) |
+| A08 Fallas de integridad | **Cubierto** — etiqueta de imagen inmutable en ACR (`writeEnabled: false`) **y firma con cosign** por digest, con OIDC de GitHub (sin llaves). La firma se verifica en el mismo job contra la identidad esperada |
 | A09 Fallas de registro | **Cubierto** — Log Analytics, alertas, identificadores de correlación |
 | A10 SSRF | **No aplica** — la API no hace peticiones a URLs provistas por el usuario |
 
@@ -80,7 +80,6 @@ Ese número es un juicio, no una medición: no existe una escala única y objeti
 
 | Faltante | Impacto | Por qué |
 |---|---|---|
-| Firma de imagen (cosign) | A08 queda parcial | No se implementó; es el siguiente paso natural del pipeline |
 | Private Link a Atlas | La regla de salida a 27017 va a Internet | El clúster compartido de Atlas no lo ofrece en el plan actual |
 | CDN delante del Blob | El contenedor de fotos de negocios es público | Diferido por costo (ADR-007) |
 | Redis gestionado | Redis corre en contenedor | Azure Cache for Redis excede el presupuesto; el contenedor usa TLS y contraseña |
@@ -100,7 +99,7 @@ Lo que lo separa:
 - **Sin segundo factor** de autenticación
 - **Sin auditoría externa** de penetración
 - Base de datos en **clúster compartido**, no dedicado
-- **Sin aprobación humana** obligatoria antes de desplegar a producción (limitación del plan gratuito de GitHub)
+- **Sin aprobación humana** obligatoria antes de desplegar a producción (ver más abajo: es configuración pendiente, no limitación del plan)
 
 Para una aplicación de gestión de mascotas el nivel es sólido y está por encima de lo habitual en un proyecto académico. Equipararlo a banca sería inexacto.
 
@@ -139,9 +138,11 @@ Existen **4 excepciones documentadas** en `.trivyignore.yaml`, todas con motivo,
 |---|---|
 | Unitarias | Cubren casos de uso y dominio, no endpoints uno a uno (es lo correcto: la unidad es el caso de uso) |
 | Seguridad | 206 pruebas, concentradas en autenticación, autorización, límites y manejo de secretos |
-| Integración | **53 de 81 se omiten en CI** por falta de Atlas y Redis reales en el pipeline. Es el hueco más importante del proyecto |
+| Integración | **Se ejecutan las 81.** Antes 53 quedaban omitidas porque la lista de acceso de Atlas no admite las IP de los runners de GitHub; ahora MongoDB corre en contenedor efímero del runner, igual que Redis |
 
-Las 53 omitidas ejercitan los repositorios de MongoDB y los adaptadores de Redis. Se ejecutan en local contra servicios desechables, pero **no en cada PR**, así que una regresión en esa capa puede pasar sin detectarse. Es exactamente el tipo de fallo que produjo el defecto de `get-nearby`.
+Esas 53 pruebas ejercitan los repositorios de MongoDB y los adaptadores de Redis. Mientras quedaban omitidas, **la capa de persistencia se desplegaba sin red de protección en el pipeline**, y es exactamente ahí donde se originó el defecto de `get-nearby`: un fallo en la creación de un índice que ninguna prueba de CI podía detectar.
+
+Se corrigió levantando MongoDB en un contenedor efímero del runner. Se ejercitan el mismo driver, los mismos repositorios y los mismos índices; lo único que cambia es dónde vive el servidor. Nada de lo que se verifica depende de funciones exclusivas de Atlas: no hay transacciones, ni Atlas Search, ni change streams. Si hay secretos de Atlas y Atlas responde desde el runner, se sigue usando Atlas; el contenedor es el respaldo que garantiza que las pruebas **siempre** se ejecuten.
 
 ---
 
@@ -154,6 +155,8 @@ Las 53 omitidas ejercitan los repositorios de MongoDB y los adaptadores de Redis
 | Contrato | **253** | 0 |
 | Integración | **28** | **53** |
 | **Total ejecutado** | **835** | 53 |
+
+> Estos números son los de la corrida de referencia, **anterior** al cambio que levanta MongoDB en contenedor. Con ese cambio las 53 omitidas pasan a ejecutarse, de modo que el total sube a **888** y la columna de omitidas queda en 0. La cifra exacta se confirma en la primera corrida después de fusionar; se deja aquí el dato medido y no el esperado.
 
 ### Otras pruebas realizadas
 
@@ -219,12 +222,22 @@ Se documenta aquí por transparencia: es el único fallo funcional conocido en p
 **Cadena de causa.**
 
 1. La consulta usa `$geoNear` ([`MongoBusinesses.cs:256`](../../src/PetMate.Infrastructure/Persistence/MongoBusinesses.cs)), que **exige** un índice `2dsphere`; sin él Mongo falla siempre.
-2. Ese índice se crea junto al índice único de `ownerId` en un solo `CreateManyAsync` ([`MongoIndexInitializer.cs:119`](../../src/PetMate.Infrastructure/Persistence/MongoIndexInitializer.cs)). **La operación es atómica:** si el único falla —por ejemplo, por negocios duplicados por dueño en la base— el geoespacial tampoco se crea.
-3. El error queda invisible por dos capas de protección: el servicio de arranque registra solo `exception.GetType().Name`, nunca el mensaje, y `FindNearby` convierte toda `MongoException` en un 500 genérico.
+2. Ese índice **se creaba** junto al índice único de `ownerId` en un solo `CreateManyAsync` ([`MongoIndexInitializer.cs`](../../src/PetMate.Infrastructure/Persistence/MongoIndexInitializer.cs)). **La operación es atómica:** si el único falla —por ejemplo, porque la colección tiene dos negocios del mismo dueño— el geoespacial tampoco se crea.
+3. El error quedaba invisible por dos capas de protección: el servicio de arranque registraba solo `exception.GetType().Name`, nunca el mensaje, y `FindNearby` convierte toda `MongoException` en un 500 genérico.
 
-**Lección.** El diseño que protege los secretos en los registros es el mismo que ocultó la causa. Hay que registrar el mensaje de Mongo en el fallo de índices —no contiene secretos, solo nombres de colección y campo— y separar la creación de los dos índices para que uno no arrastre al otro.
+**Lección.** El diseño que protege los secretos en los registros es el mismo que ocultó la causa. Un dato duplicado en una colección dejaba sin funcionar la pantalla principal de la app, y el registro no daba ninguna pista de por qué.
 
-**Pendiente de confirmación.** Falta verificar en el panel de Atlas si `ix_businesses_location_2dsphere` existe en la colección `businesses`. Si el fallo es por datos duplicados, el arreglo no es de código: hay que limpiar los duplicados en la base.
+**Arreglo aplicado.**
+
+| Cambio | Efecto |
+|---|---|
+| Los dos índices se crean en operaciones separadas, el geoespacial primero | El fallo del único ya no arrastra al geoespacial: el mapa sigue sirviendo |
+| El registro incluye el mensaje de Mongo, no solo el tipo de excepción | Un índice que no se crea deja de ser indistinguible de una caída de red |
+| Tres pruebas de integración nuevas (`BusinessIndexIntegrationTests`) | Una inserta negocios duplicados a propósito y comprueba que el geoespacial **sí** queda creado |
+
+Estas pruebas solo tienen valor porque ahora las de integración se ejecutan en CI: antes habrían quedado omitidas, igual que las que no detectaron el defecto original.
+
+**Pendiente de confirmación.** Falta verificar en el panel de Atlas si `ix_businesses_location_2dsphere` existe en la colección `businesses` de producción. El arreglo evita que el problema se repita, pero **si el índice ya falta en la base, hay que crearlo ahí**: eso no lo resuelve el código. Si la causa son negocios duplicados, hay que limpiarlos primero.
 
 ---
 
@@ -239,10 +252,43 @@ Se documenta aquí por transparencia: es el único fallo funcional conocido en p
 | Jobs del pipeline | **89**, con puerta de calidad bloqueante |
 | Vulnerabilidades críticas abiertas | **0** (4 excepciones documentadas con caducidad) |
 | Elementos de rendimiento | **7 / 7** |
-| OWASP Top 10 | 9 cubiertos, 1 parcial (A08, falta firma de imagen) |
+| OWASP Top 10 | **10 de 10 cubiertos** (A08 cerrado con firma cosign) |
 
-**Las tres brechas que un evaluador debe conocer:**
+**Lo que un evaluador debe conocer:**
 
-1. **53 pruebas de integración se omiten en CI** por falta de Atlas y Redis reales en el pipeline. Es el hueco más serio: deja sin red de protección la capa de persistencia, que es justamente donde se originó el defecto de `get-nearby`.
-2. **Sin aprobación humana antes del despliegue a producción.** Limitación del plan gratuito de GitHub, no del diseño. El control que sí existe es la protección de rama más revisión por PR.
-3. **`get-nearby` en 500**, con diagnóstico hecho y reversa funcionando.
+1. **Sin aprobación humana antes de fusionar a `main`.** Es la brecha abierta más relevante y se detalla en la sección 8. No es limitación del plan: es configuración pendiente.
+2. **`get-nearby` en 500.** Diagnóstico completo en la sección 7, con el arreglo de código ya aplicado. Queda por confirmar el estado del índice en la base de producción.
+3. **Nivel de seguridad sólido, pero no bancario.** La sección 2 explica qué lo separa de ese nivel y por qué equipararlo sería inexacto.
+
+**Lo que se cerró a partir de esta auditoría:**
+
+| Brecha detectada | Cómo se cerró |
+|---|---|
+| 53 pruebas de integración omitidas en CI | MongoDB en contenedor efímero del runner |
+| A08 de OWASP parcial (sin firma de imagen) | Firma y verificación con cosign por digest, sin llaves |
+| `get-nearby` en 500 por índice no creado | Índices separados en dos operaciones; el geoespacial ya no depende del único |
+
+---
+
+## 8. Brecha abierta: aprobación humana
+
+Se documenta por separado porque **es la única brecha de proceso que queda**, y porque la primera versión de esta auditoría la describió mal.
+
+**Lo que se dijo antes, y era inexacto:** que la falta de aprobación obligatoria era una limitación del plan gratuito de GitHub, y que el control existente era «protección de rama más revisión por PR».
+
+**Lo que se verificó después:**
+
+```
+$ gh api repos/.../rulesets/<id>
+{"nombre":"proteger-main","aplicacion":"active",
+ "reglas":["deletion","non_fast_forward","required_status_checks","pull_request"],
+ "revisiones":[0]}
+```
+
+El ruleset `proteger-main` **sí existe y está activo**: impide borrar la rama, impide reescribir historia y exige que los checks pasen. Pero `required_approving_review_count` está en **0**, así que exige abrir un PR sin exigir que alguien lo apruebe. En la práctica, quien abre el PR lo fusiona solo.
+
+Que esto importa no es teórico: en el repositorio de la app móvil, un PR de 6,464 líneas se fusionó con cero revisiones e introdujo un fallo de configuración que dejó el CI en rojo. Una aprobación obligatoria lo habría detenido.
+
+**Además**, el repositorio es público y pertenece a una organización, así que los *environments* con revisores requeridos **están disponibles**. La afirmación de que el plan no los permitía era incorrecta.
+
+**Cómo se cierra:** subir `required_approving_review_count` a 1 en el ruleset. Es configuración del repositorio, no código, y requiere decisión del responsable porque cambia cómo trabaja el equipo. Un *environment* con revisor añadiría una segunda puerta antes del despliegue a Azure.
