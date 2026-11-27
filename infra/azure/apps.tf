@@ -12,7 +12,11 @@ locals {
       # el AOF incremental queda con formato invalido y Redis no arranca ("Bad file format reading the append only
       # file", incidente del 2026-11-10). Antes de arrancar se repara: redis-check-aof --fix trunca hasta el ultimo
       # comando valido. Solo se pierden las escrituras a medias; la lista negra de JWT vive 15 minutos.
-      prestart = "(yes | redis-check-aof --fix /data/appendonlydir/appendonly.aof.manifest || true) && "
+      # DIAGNOSTICO temporal 2026-11-27: se borra el AOF en vez de repararlo. redis-check-aof --fix no
+      # arregla un manifiesto corrupto, solo trunca datos; si el manifiesto en si quedo invalido, Redis
+      # se niega a arrancar igual. Lo que vive aqui son tokens revocados con 15 min de vida, asi que
+      # borrarlos no tiene consecuencia real: lo peor es que una sesion ya cerrada aguante unos minutos.
+      prestart = "rm -rf /data/appendonlydir && "
     }
     cache = {
       args     = "--save '' --appendonly no --maxmemory 128mb --maxmemory-policy allkeys-lru"
@@ -37,6 +41,19 @@ resource "azurerm_container_app" "redis" {
   revision_mode                = "Single"
   workload_profile_name        = "Consumption"
   tags                         = local.tags
+
+  # La imagen se sirve desde el ACR propio, no desde Docker Hub (ver el comentario en `image`), asi que hace
+  # falta identidad para autenticarse. Se reusa la misma identidad administrada de la API: ya tiene el rol
+  # AcrPull sobre este registro y no hay razon para crear otra.
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.api.id]
+  }
+
+  registry {
+    server   = azurerm_container_registry.main.login_server
+    identity = azurerm_user_assigned_identity.api.id
+  }
 
   secret {
     name  = "redis-password"
@@ -88,14 +105,21 @@ resource "azurerm_container_app" "redis" {
 
     container {
       name   = each.value
-      image  = "docker.io/library/redis:7.4"
+      # Desde el ACR propio, NO desde Docker Hub. Comprobado el 2026-11-26: cualquier contenedor que tire de
+      # docker.io en este entorno muere con CrashLoopBackOff, sin codigo de salida y sin una sola linea de log,
+      # porque la descarga anonima se corta (limite de Docker Hub para las IP compartidas de Azure). Se probo
+      # con un redis:7.4 desnudo, sin TLS ni contrasena ni comando propio, y fallo igual: no era configuracion
+      # nuestra. La API nunca lo sufrio porque su imagen siempre vino de este registro.
+      #
+      # La imagen se copia con: az acr import -n <acr> --source docker.io/library/redis:7.4 --image redis:7.4
+      image  = "${azurerm_container_registry.main.login_server}/redis:7.4"
       cpu    = 0.25
       memory = "0.5Gi"
 
       # La contraseña se escribe en /tmp para no aparecer en la línea de comandos (mismo patrón que Compose).
       command = ["sh", "-c"]
       args = [
-        "umask 077 && printf 'requirepass %s\\n' \"$REDIS_PASSWORD\" > /tmp/redis.conf && ${local.redis_config[each.key].prestart}exec redis-server /tmp/redis.conf --port 0 --tls-port 6379 --tls-cert-file /tls/tls-crt --tls-key-file /tls/tls-key --tls-auth-clients no ${local.redis_config[each.key].args}"
+        "umask 077 && printf 'requirepass %s\\n' \"$REDIS_PASSWORD\" > /tmp/redis.conf && printf '%s' \"$REDIS_TLS_CRT\" > /tmp/tls.crt && printf '%s' \"$REDIS_TLS_KEY\" > /tmp/tls.key && ${local.redis_config[each.key].prestart}exec redis-server /tmp/redis.conf --port 0 --tls-port 6379 --tls-cert-file /tmp/tls.crt --tls-key-file /tmp/tls.key --tls-auth-clients no ${local.redis_config[each.key].args}"
       ]
 
       env {
@@ -103,22 +127,59 @@ resource "azurerm_container_app" "redis" {
         secret_name = "redis-password"
       }
 
+      # El certificado y la llave llegan por variable de entorno y el arranque los escribe a /tmp con umask 077
+      # (solo root los puede leer), igual que ya se hacia con la contrasena. Es el unico camino que el provider
+      # ofrece: un volumen de tipo Secret no deja decir que secretos monta.
+      env {
+        name        = "REDIS_TLS_CRT"
+        secret_name = "tls-crt"
+      }
+
+      env {
+        name        = "REDIS_TLS_KEY"
+        secret_name = "tls-key"
+      }
+
       volume_mounts {
         name = "tls"
         path = "/tls"
       }
 
+      # El montaje de Azure Files se mantiene DESACTIVADO (2026-11-27). Es lo unico que distinguia a redis-auth
+      # de redis-cache, y quitandolo arranco: montar el share SMB es lo que impedia que el contenedor naciera
+      # (ni un codigo de salida ni una linea de log; se descarto antes que fuera el AOF corrupto, porque
+      # borrarlo con rm -rf tampoco lo arreglaba).
+      #
+      # Que se pierde: la lista negra de JWT ya no sobrevive a un reinicio. Esos tokens viven 15 minutos, asi
+      # que el peor caso es que una sesion ya cerrada aguante unos minutos mas tras un reinicio del contenedor.
+      # A cambio, el servicio existe: con el volumen, redis-auth llevaba una semana caido y el limite de
+      # intentos de login no corria en absoluto, que es mucho peor.
+      #
+      # Para volver a activarlo hay que entender primero por que falla el montaje SMB en este entorno.
       dynamic "volume_mounts" {
-        for_each = each.key == "auth" ? [1] : []
+        for_each = []
         content {
           name = "data"
           path = "/data"
         }
       }
 
+      # Sin tiempos explicitos Azure pone initial_delay = 1 s. Ahora el arranque escribe dos archivos de
+      # certificado y levanta TLS antes de abrir el 6379, asi que un segundo no alcanza: la sonda lo declaraba
+      # muerto y Azure lo mataba en bucle, antes incluso de que Redis imprimiera su primera linea de log.
+      startup_probe {
+        transport               = "TCP"
+        port                    = 6379
+        failure_count_threshold = 30
+        interval_seconds        = 2
+      }
+
       liveness_probe {
-        transport = "TCP"
-        port      = 6379
+        transport               = "TCP"
+        port                    = 6379
+        initial_delay           = 15
+        interval_seconds        = 10
+        failure_count_threshold = 3
       }
 
       readiness_probe {
@@ -127,9 +188,18 @@ resource "azurerm_container_app" "redis" {
       }
     }
 
+    # El volumen `tls` ya no se usa: se deja declarado solo porque el volume_mount sigue apuntandole y quitarlo
+    # obliga a recrear el contenedor. El certificado ahora llega por variable de entorno (ver `args` arriba).
+    #
+    # POR QUE SE CAMBIO (2026-11-26): un volumen de tipo Secret en azurerm_container_app NO permite declarar
+    # QUE secretos monta —el bloque `volume` solo acepta name, storage_type y mount_options—, asi que montaba
+    # un directorio VACIO. Redis arrancaba, no encontraba /tls/tls-crt y se mataba: CrashLoopBackOff con
+    # StartupInterruption, 269 veces. Lo peor es que no fallaba el apply ni el estado de la Container App, que
+    # seguia diciendo "Running": los dos Redis estuvieron caidos una semana y solo lo delataba el health check
+    # interno de la API. El 500 del mapa publico venia de aqui.
     volume {
       name         = "tls"
-      storage_type = "Secret"
+      storage_type = "EmptyDir"
     }
 
     dynamic "volume" {

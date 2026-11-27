@@ -72,9 +72,19 @@ public sealed class RedisAuthAttemptThrottle(RedisAuthConnection redis) : IAuthA
         }, cancellationToken).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Largo maximo del ambito. Eran 16 y dos ambitos ya no cabian: "public-business-ip" (18) y
+    /// "deletion-request-email" (22). El primero tiraba ArgumentException en CADA llamada al mapa publico, que
+    /// es la pantalla principal de la app: HTTP 500 garantizado. El segundo habria hecho lo mismo con el
+    /// borrado de cuenta en cuanto se usara. El limite solo existe para que la clave de Redis no crezca sin
+    /// control, asi que 32 sobra y deja margen. La prueba AuthThrottleRules_scopes_fit_the_key_limit impide
+    /// que vuelva a pasar sin que nadie se entere.
+    /// </summary>
+    internal const int MaxScopeLength = 32;
+
     private static string KeySuffix(string scope, string subject)
     {
-        if (string.IsNullOrWhiteSpace(scope) || scope.Length > 16 || !scope.All(c => char.IsAsciiLetterLower(c) || c == '-'))
+        if (string.IsNullOrWhiteSpace(scope) || scope.Length > MaxScopeLength || !scope.All(c => char.IsAsciiLetterLower(c) || c == '-'))
         {
             throw new ArgumentException("El ámbito no es válido.", nameof(scope));
         }
