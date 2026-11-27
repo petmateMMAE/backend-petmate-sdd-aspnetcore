@@ -44,9 +44,12 @@ public sealed class BusinessIndexIntegrationTests
 
         // Dos negocios del MISMO dueño. El repositorio impide este caso, así que se escriben directo a la
         // colección: lo que se reproduce es una base que YA quedó con datos duplicados, no una operación nueva.
-        var owner = Guid.NewGuid();
+        //
+        // Hay que tirar los índices primero. MongoTestContext.Create ya llamó a EnsureIndexes, así que el
+        // único sobre ownerId existe y rechazaría el duplicado antes de que esta prueba pueda plantearlo.
         var collection = context.Database.GetCollection<BsonDocument>(context.Names.Businesses);
-        await context.Businesses.TryAdd(NewBusiness(owner, 20.05, -99.34), CancellationToken.None);
+        await context.Businesses.TryAdd(NewBusiness(Guid.NewGuid(), 20.05, -99.34), CancellationToken.None);
+        await collection.Indexes.DropAllAsync();
 
         var duplicate = await collection.Find(FilterDefinition<BsonDocument>.Empty).FirstAsync();
         duplicate["_id"] = new BsonBinaryData(Guid.NewGuid(), GuidRepresentation.Standard);
