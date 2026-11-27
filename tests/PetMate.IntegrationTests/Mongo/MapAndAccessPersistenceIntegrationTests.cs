@@ -43,7 +43,10 @@ public sealed class MapAndAccessPersistenceIntegrationTests
         Assert.Equal([mid.Id], stores.Items.Select(i => i.Business.Id));
         Assert.Equal(2, searched.Total);
         Assert.Empty(regexLike.Items);
-        Assert.Equal((mid.Id, 3), (page2.Items.Single().Business.Id, page2.Total));
+        // El total es 2, no 3: `far` esta en Monterrey, a ~706 km del punto consultado, asi que queda fuera
+        // del radio de 50 km de esta consulta. La asercion decia 3 porque esta prueba nunca llego a ejecutarse
+        // en CI (Atlas no es alcanzable desde los runners), de modo que el error nunca salio a la luz.
+        Assert.Equal((mid.Id, 2), (page2.Items.Single().Business.Id, page2.Total));
     }
 
     [RequiresEnvironmentFact(Uri, Database)]

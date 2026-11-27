@@ -115,17 +115,28 @@ public sealed class MongoIndexInitializer(IMongoDatabase database, MongoCollecti
             cancellationToken).ConfigureAwait(false);
 
         // pm-105: un solo negocio por cuenta (índice único) y consultas por cercanía (índice geoespacial 2dsphere).
+        //
+        // Van en DOS llamadas a propósito, no en un CreateManyAsync. Esa operación es atómica: si el índice
+        // único falla —por ejemplo, porque la colección ya tiene dos negocios del mismo dueño— tampoco se crea
+        // el geoespacial, y entonces `$geoNear` falla en TODA consulta de cercanía. Es decir: un dato duplicado
+        // dejaba el mapa público sin funcionar, que es la pantalla principal de la app.
+        //
+        // Separados, el fallo de uno no arrastra al otro: el mapa sigue sirviendo aunque el único no se pueda
+        // crear, y el error queda registrado para corregir los datos.
         var businessCollection = database.GetCollection<BusinessDocument>(names.Businesses);
-        await businessCollection.Indexes.CreateManyAsync(
-            [
-                new CreateIndexModel<BusinessDocument>(
-                    Builders<BusinessDocument>.IndexKeys.Ascending(d => d.OwnerId),
-                    new CreateIndexOptions { Name = BusinessOwnerIndex, Unique = true }),
-                new CreateIndexModel<BusinessDocument>(
-                    Builders<BusinessDocument>.IndexKeys.Geo2DSphere(d => d.Location),
-                    new CreateIndexOptions { Name = BusinessLocationIndex }),
-            ],
-            cancellationToken).ConfigureAwait(false);
+
+        // Primero el geoespacial: es el que el mapa público necesita para responder.
+        await businessCollection.Indexes.CreateOneAsync(
+            new CreateIndexModel<BusinessDocument>(
+                Builders<BusinessDocument>.IndexKeys.Geo2DSphere(d => d.Location),
+                new CreateIndexOptions { Name = BusinessLocationIndex }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        await businessCollection.Indexes.CreateOneAsync(
+            new CreateIndexModel<BusinessDocument>(
+                Builders<BusinessDocument>.IndexKeys.Ascending(d => d.OwnerId),
+                new CreateIndexOptions { Name = BusinessOwnerIndex, Unique = true }),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
         // pm-122#CA-04: autorizaciones por mascota y por vencimiento (con borrado automático un día después de vencer).
         await database.GetCollection<AccessGrantDocument>(names.AccessGrants).Indexes.CreateManyAsync(
             [
@@ -222,7 +233,9 @@ public sealed class MongoIndexInitializer(IMongoDatabase database, MongoCollecti
 
 /// <summary>
 /// Intenta crear los índices al arrancar, con reintentos. Nunca detiene la API: si Atlas no responde,
-/// el readiness lo refleja y se reintenta. Solo registra el tipo de error, nunca su mensaje.
+/// el readiness lo refleja y se reintenta. Registra el tipo de error y el mensaje de Mongo (nombres de
+/// colección e índice, nunca credenciales ni datos de personas), porque sin el mensaje un índice que no se
+/// crea es indistinguible de una caída de red.
 /// </summary>
 public sealed partial class MongoIndexHostedService(MongoIndexInitializer initializer, ILogger<MongoIndexHostedService> logger) : BackgroundService
 {
@@ -244,7 +257,7 @@ public sealed partial class MongoIndexHostedService(MongoIndexInitializer initia
             }
             catch (Exception exception) when (exception is not OutOfMemoryException)
             {
-                LogIndexesFailed(logger, exception.GetType().Name);
+                LogIndexesFailed(logger, exception.GetType().Name, exception.Message);
                 try
                 {
                     await Task.Delay(RetryDelay, stoppingToken).ConfigureAwait(false);
@@ -257,9 +270,16 @@ public sealed partial class MongoIndexHostedService(MongoIndexInitializer initia
         }
     }
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "Índices de autenticación verificados.")]
+    [LoggerMessage(Level = LogLevel.Information, Message = "Índices verificados.")]
     private static partial void LogIndexesReady(ILogger logger);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "No se pudieron crear los índices de autenticación ({ErrorType}); se reintentará.")]
-    private static partial void LogIndexesFailed(ILogger logger, string errorType);
+    // Se registra tambien el mensaje de Mongo, no solo el tipo. Antes solo salia el nombre de la excepcion
+    // (p. ej. "MongoCommandException"), que no dice NADA sobre que indice fallo ni por que: cuando el indice
+    // geoespacial no se creo, el mapa publico devolvia 500 y el registro no daba ninguna pista.
+    //
+    // El mensaje de un fallo de indice contiene nombres de coleccion, de campo y de indice. No lleva
+    // credenciales ni datos de personas: la cadena de conexion no aparece en el, y los nombres de esquema no
+    // son secretos. El riesgo de no poder diagnosticar una caida es mayor que el de exponerlos.
+    [LoggerMessage(Level = LogLevel.Warning, Message = "No se pudieron crear los índices ({ErrorType}): {Reason}. Se reintentará.")]
+    private static partial void LogIndexesFailed(ILogger logger, string errorType, string reason);
 }

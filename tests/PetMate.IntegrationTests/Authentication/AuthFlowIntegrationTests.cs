@@ -86,10 +86,23 @@ public sealed class AuthFlowIntegrationTests
         var results = await Task.WhenAll(Enumerable.Range(0, 15)
             .Select(_ => Task.Run(() => stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), default))));
 
-        Assert.InRange(results.Count(result => result.IsSuccess), 0, 1); // nunca dos; un perdedor puede revocar antes de que el ganador actualice la sesión
+        // Lo esencial: la rotacion es atomica, nunca salen dos tokens validos del mismo refresh.
+        Assert.InRange(results.Count(result => result.IsSuccess), 0, 1);
         Assert.All(results.Where(result => !result.IsSuccess), result => Assert.Equal(AuthError.InvalidRefreshToken, result.Error));
+
+        // La sesion NO se revoca: 15 peticiones a la vez con el mismo token caen dentro de la ventana de
+        // gracia (H8), que existe justamente para no castigar dos pestanas o un reintento tras perder la
+        // respuesta. Revocar aqui cerraria la sesion de un usuario legitimo.
         var session = await stack.Raw<BsonDocument>(stack.Mongo.Names.Sessions).Find(FilterDefinition<BsonDocument>.Empty).SingleAsync();
-        Assert.Equal((int)SessionRevocationReason.ReplayDetected, session["revocationReason"].AsInt32);
+        Assert.True(
+            session["revocationReason"] == BsonNull.Value || session["revocationReason"].AsInt32 == (int)SessionRevocationReason.ReplayDetected,
+            "dentro de la gracia la sesion sigue viva; si se revoco, solo puede ser por replay");
+
+        // Pasada la gracia, el mismo token reusado SI debe tumbar la familia.
+        stack.Clock.Advance(RefreshHandler.ReplayGrace + TimeSpan.FromSeconds(1));
+        Assert.Equal(AuthError.InvalidRefreshToken, (await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), default)).Error);
+        var afterGrace = await stack.Raw<BsonDocument>(stack.Mongo.Names.Sessions).Find(FilterDefinition<BsonDocument>.Empty).SingleAsync();
+        Assert.Equal((int)SessionRevocationReason.ReplayDetected, afterGrace["revocationReason"].AsInt32);
     }
 
     [RequiresEnvironmentFact(Uri, Database, RedisAuth)]
@@ -99,8 +112,17 @@ public sealed class AuthFlowIntegrationTests
         var first = Ok(await stack.Register.Handle(new RegisterCommand("ana@example.com", Password, "Ana"), default));
         var second = Ok(await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), default));
 
+        // Dentro de la ventana de gracia (H8) reusar el token viejo se rechaza pero NO revoca la sesion: es el
+        // caso de dos pestanas o de un reintento tras perder la respuesta, no el de un atacante.
+        var duringGrace = await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), default);
+        Assert.Equal(AuthError.InvalidRefreshToken, duringGrace.Error);
+        var stillValid = await stack.Refresh.Handle(new RefreshCommand(second.RefreshToken), default);
+        Assert.True(stillValid.IsSuccess, "dentro de la gracia la sesion legitima sigue viva");
+
+        // Pasada la gracia, reusar un token ya consumido es un replay real: cae toda la familia.
+        stack.Clock.Advance(RefreshHandler.ReplayGrace + TimeSpan.FromSeconds(1));
         var replay = await stack.Refresh.Handle(new RefreshCommand(first.RefreshToken), default);
-        var newest = await stack.Refresh.Handle(new RefreshCommand(second.RefreshToken), default);
+        var newest = await stack.Refresh.Handle(new RefreshCommand(stillValid.Value!.RefreshToken), default);
 
         Assert.Equal(AuthError.InvalidRefreshToken, replay.Error);
         Assert.Equal(AuthError.InvalidRefreshToken, newest.Error);

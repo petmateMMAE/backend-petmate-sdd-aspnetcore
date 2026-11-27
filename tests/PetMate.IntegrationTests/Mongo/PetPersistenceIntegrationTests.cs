@@ -50,7 +50,9 @@ public sealed class PetPersistenceIntegrationTests
 
         stored.RegenerateQr(DateTime.UtcNow);
         var forged = (Pet)typeof(Pet).GetMethod("Restore", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
-            .Invoke(null, [pet.Id, Guid.NewGuid(), new PetDetails("X", "Perro", null, null, PetSex.Unknown, null), pet.CreatedAtUtc, DateTime.UtcNow, PetQr.Generate()])!;
+            // Invoke exige TODOS los parametros, tambien los opcionales: photoObjectKey se agrego despues
+            // y esta llamada se quedo con la firma vieja. Como la prueba nunca corria en CI, nadie lo vio.
+            .Invoke(null, [pet.Id, Guid.NewGuid(), new PetDetails("X", "Perro", null, null, PetSex.Unknown, null), pet.CreatedAtUtc, DateTime.UtcNow, PetQr.Generate(), null])!;
         Assert.False(await context.Pets.ReplaceQrOwned(forged, CancellationToken.None));
         Assert.True(await context.Pets.ReplaceQrOwned(stored, CancellationToken.None));
         Assert.Equal(stored.Qr, (await context.Pets.FindOwned(pet.Id, owner, CancellationToken.None))!.Qr);
@@ -101,7 +103,7 @@ public sealed class PetPersistenceIntegrationTests
         Assert.False(await context.Pets.DeleteOwned(pet.Id, intruder, CancellationToken.None));
         // Mascota con el mismo Id pero otro propietario (Restore es interno del dominio; se invoca por reflexión solo en la prueba).
         var restore = typeof(Pet).GetMethod("Restore", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
-        var forged = (Pet)restore.Invoke(null, [pet.Id, intruder, new PetDetails("Robado", "Perro", null, null, PetSex.Unknown, null), pet.CreatedAtUtc, DateTime.UtcNow, null])!;
+        var forged = (Pet)restore.Invoke(null, [pet.Id, intruder, new PetDetails("Robado", "Perro", null, null, PetSex.Unknown, null), pet.CreatedAtUtc, DateTime.UtcNow, null, null])!;
         Assert.False(await context.Pets.UpdateOwned(forged, CancellationToken.None));
 
         var stillThere = await context.Pets.FindOwned(pet.Id, owner, CancellationToken.None);

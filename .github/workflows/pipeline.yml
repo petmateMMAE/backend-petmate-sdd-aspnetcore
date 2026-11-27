@@ -448,9 +448,25 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      # Las pruebas contra Atlas solo corren si hay secretos Y Atlas responde desde el runner. La lista de acceso de red de Atlas
-      # no incluye las IP de los runners de GitHub (no se abre a 0.0.0.0/0), así que normalmente quedan Skipped con aviso.
-      # Las pruebas de Redis (contenedores del runner) se ejecutan siempre.
+      # MongoDB corre en un contenedor efímero del runner, igual que Redis. Antes estas pruebas quedaban Skipped
+      # porque la lista de acceso de Atlas no admite las IP de los runners de GitHub (y no se abre a 0.0.0.0/0),
+      # así que la capa de persistencia se desplegaba sin red de protección en el pipeline.
+      #
+      # Un Mongo en contenedor ejercita el mismo driver, los mismos repositorios y los mismos índices: lo que
+      # cambia es dónde vive el servidor, no el código que se prueba. Nada de lo que se verifica depende de
+      # funciones exclusivas de Atlas (no hay transacciones, Atlas Search ni change streams).
+      #
+      # Si además hay secretos de Atlas Y Atlas responde, se usa Atlas; el contenedor es el respaldo que
+      # garantiza que las pruebas SIEMPRE se ejecutan.
+      - name: MongoDB de prueba (contenedor efímero)
+        run: |
+          docker run -d --name mongo-test -p 27018:27017 mongo:7.0
+          for _ in $(seq 1 30); do
+            docker exec mongo-test mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok' >/dev/null 2>&1 && break
+            sleep 1
+          done
+          docker exec mongo-test mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok'
+
       - name: Disponibilidad de la base de pruebas de Atlas
         id: atlas
         env:
@@ -458,16 +474,16 @@ jobs:
           ATLAS_DB: ${{ secrets.MONGODB_TEST_DATABASE }}
         run: |
           if [ -z "$ATLAS_URI" ] || [ -z "$ATLAS_DB" ]; then
-            echo "::warning title=Integración con Atlas omitida::Faltan los secretos MONGODB_TEST_URI / MONGODB_TEST_DATABASE (por ejemplo, un PR desde un fork). Las pruebas contra Atlas quedan Skipped y NO cuentan como aprobadas."
-            echo "> **Atención:** sin los secretos de Atlas las pruebas contra MongoDB quedaron *omitidas* (no aprobadas)." >> "$GITHUB_STEP_SUMMARY"
+            echo "::notice title=Integración contra el contenedor local::Sin secretos de Atlas (por ejemplo, un PR desde un fork). Las pruebas se ejecutan contra el MongoDB efímero del runner."
+            echo "> Sin secretos de Atlas: las pruebas contra MongoDB se ejecutaron contra el contenedor efímero del runner." >> "$GITHUB_STEP_SUMMARY"
             echo "available=false" >> "$GITHUB_OUTPUT"
           elif timeout 60 docker run --rm -e ATLAS_URI mongo:7.0 \
                  sh -c 'mongosh "$ATLAS_URI" --quiet --eval "db.runCommand({ ping: 1 }).ok"' >/dev/null 2>&1; then
             echo "Atlas responde desde el runner."
             echo "available=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::warning title=Atlas no alcanzable desde el runner::La lista de acceso de red de Atlas no admite la IP de este runner de GitHub. Las pruebas contra Atlas quedan Skipped y NO cuentan como aprobadas; se ejecutan localmente y en la prueba de humo del despliegue."
-            echo "> **Atención:** Atlas no es alcanzable desde el runner (lista de acceso de red). Las pruebas contra MongoDB quedaron *omitidas* (no aprobadas); las de Redis sí se ejecutaron." >> "$GITHUB_STEP_SUMMARY"
+            echo "::notice title=Atlas no alcanzable desde el runner::La lista de acceso de red de Atlas no admite la IP de este runner. Las pruebas se ejecutan contra el MongoDB efímero del runner."
+            echo "> Atlas no es alcanzable desde el runner (lista de acceso de red): las pruebas contra MongoDB se ejecutaron contra el contenedor efímero." >> "$GITHUB_STEP_SUMMARY"
             echo "available=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -485,10 +501,11 @@ jobs:
             sleep 1
           done
 
+      # Atlas si responde; si no, el contenedor local. En ninguno de los dos casos quedan omitidas.
       - name: Ejecutar pruebas de integración
         env:
-          MONGODB_TEST_URI: ${{ steps.atlas.outputs.available == 'true' && secrets.MONGODB_TEST_URI || '' }}
-          MONGODB_TEST_DATABASE: ${{ steps.atlas.outputs.available == 'true' && secrets.MONGODB_TEST_DATABASE || '' }}
+          MONGODB_TEST_URI: ${{ steps.atlas.outputs.available == 'true' && secrets.MONGODB_TEST_URI || 'mongodb://localhost:27018' }}
+          MONGODB_TEST_DATABASE: ${{ steps.atlas.outputs.available == 'true' && secrets.MONGODB_TEST_DATABASE || 'petmate_test_ci' }}
         run: dotnet test tests/PetMate.IntegrationTests -c Release --logger "trx;LogFileName=integration.trx" --results-directory TestResults
 
       - name: Resumen
@@ -701,6 +718,30 @@ jobs:
             az acr repository update -n ${{ steps.infra.outputs.acr }} \
               --image petmate-api:${{ steps.version.outputs.tag }} --write-enabled false --delete-enabled false
           fi
+
+      # Firma sin llaves (OIDC de GitHub): la identidad del firmante es este workflow en este repositorio, no
+      # un secreto que alguien pueda copiar. Cierra A08 de OWASP (fallas de integridad): la etiqueta inmutable
+      # ya impedía sobrescribir la imagen, pero no demostraba QUIEN la construyó.
+      #
+      # Va después de publicar porque cosign firma por digest en el registro, no la copia local.
+      - name: Instalar cosign
+        uses: sigstore/cosign-installer@v3.7.0
+        with:
+          cosign-release: 'v2.4.1'
+
+      - name: Firmar la imagen (cosign, sin llaves)
+        run: |
+          DIGEST=$(az acr repository show -n ${{ steps.infra.outputs.acr }}             --image petmate-api:${{ steps.version.outputs.tag }} --query digest -o tsv)
+          REF="${{ steps.infra.outputs.registry }}/petmate-api@$DIGEST"
+          echo "Firmando $REF"
+          cosign sign --yes "$REF"
+
+      - name: Verificar la firma
+        run: |
+          DIGEST=$(az acr repository show -n ${{ steps.infra.outputs.acr }}             --image petmate-api:${{ steps.version.outputs.tag }} --query digest -o tsv)
+          REF="${{ steps.infra.outputs.registry }}/petmate-api@$DIGEST"
+          # Se verifica contra la identidad esperada: cualquier otra firma no cuenta.
+          cosign verify "$REF"             --certificate-identity-regexp "^https://github.com/${{ github.repository }}/"             --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 
       - name: Desplegar nueva revisión
         id: rollout
