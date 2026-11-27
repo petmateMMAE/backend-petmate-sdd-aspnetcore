@@ -43,8 +43,25 @@ public sealed class QueryPlanIntegrationTests
             var explain = await context.Database.RunCommandAsync<BsonDocument>(new BsonDocument { { "explain", find }, { "verbosity", "queryPlanner" } });
             var plan = explain["queryPlanner"]["winningPlan"].ToJson();
 
+            // Lo que este criterio exige es que NINGUNA consulta critica recorra la coleccion entera.
             Assert.DoesNotContain("COLLSCAN", plan, StringComparison.Ordinal);
-            Assert.Contains("IXSCAN", plan, StringComparison.Ordinal);
+
+            if (expectedIndex == "_id_")
+            {
+                // Para una busqueda por _id, Mongo puede usar IDHACK —una ruta especializada, mas rapida que
+                // IXSCAN, que se salta el recorrido del arbol— o un IXSCAN normal sobre _id_, segun la version
+                // del servidor: Mongo 8 retiro IDHACK en varios casos. Las dos son correctas y las dos usan el
+                // indice; exigir una sola haria que la prueba dependiera de la version, no del comportamiento.
+                // Lo que de verdad importa, que no haya COLLSCAN, ya se verifico arriba.
+                Assert.True(
+                    plan.Contains("IDHACK", StringComparison.Ordinal) || plan.Contains("IXSCAN", StringComparison.Ordinal),
+                    $"{name}: se esperaba IDHACK o IXSCAN para una busqueda por _id. Plan: {plan}");
+                continue;
+            }
+
+            Assert.True(
+                plan.Contains("IXSCAN", StringComparison.Ordinal),
+                $"{name}: se esperaba IXSCAN. Plan: {plan}");
             Assert.True(plan.Contains(expectedIndex, StringComparison.Ordinal), $"{name}: se esperaba el índice {expectedIndex}.");
         }
     }
